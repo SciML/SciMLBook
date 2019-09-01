@@ -173,3 +173,42 @@ Homework 3: Solving 100 dimensional PDEs with deep learning
   - Fast methods for uncertainty quantification
   - Surrogate modeling techniques for accelerating sensitivity calculations
 - Final Project Presentations (Weeks 11-12)
+
+# Lecture Summaries and Handouts
+
+## Lecture 1: Introduction to Scientific Machine Learning and Dynamic Simulations
+
+Optional pre-reading materials are as follows:
+
+- [Strogatz: Nonlinear Dynamics and Chaos](https://www.amazon.com/Nonlinear-Dynamics-Chaos-Applications-Nonlinearity/dp/0738204536)
+- [Stability of discrete dynamics equilibrium](https://mathinsight.org/equilibria_discrete_dynamical_systems_stability)
+- [Behavior of continuous linear dynamical systems](http://chrisrackauckas.com/assets/Papers/ChrisRackauckas-ContinuousDynamics.pdf)
+- [The Essential Tools of Scientific Machine Learning](http://www.stochasticlifestyle.com/the-essential-tools-of-scientific-machine-learning-scientific-ml/)
+- [Workshop videos on Scientific Machine Learning](https://icerm.brown.edu/events/ht19-1-sml/)
+
+We will start off by setting the stage for the course. The field of scientific 
+machine learning and its span across computational science to applications in 
+climate modeling and areospace will be introduced. The methodologies that will be
+studied, in their various names, will be introduced, and the general formula that
+is arising in the discipline will be laid out: a mixture of scientific simulation
+tools like differential equations with machine learning primatives like neural
+networks, tied together through differentiable programming to achieve results
+that were previously not possible.
+
+Once the stage is set, we will start by developing the basics of our scientific
+simulators: differential and difference equations. A quick overview of geometric
+results in the study of differential and difference equations will set the stage
+for understanding nonlinear dynamics, which we will quickly turn to numerical
+methods to visualize. Here, the routines of numerical differential equations,
+such as the Runge-Kutta and Adams-Bashforth methods, will shown as a way to
+translate a continuous description of a system into a discrete one that is
+amenable to computational simulation.
+
+The discretization of a differential equation has some curious aspects which must
+be appropraitely handled in order to arive at a suitably scalable scientific simulator.
+This lecture will end by going into how serial scalar-heavy codes can be optimized.
+SIMD, inplace operations, broadcasting, heap allocations, and static arrays will be
+explained in order to arrive at usable simulation code. These simulations will then
+be used to reveal some intriguing properties of dynamical systems which will be
+further explored through the rest of the course.
+
