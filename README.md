@@ -45,7 +45,7 @@ analysis about their work.
 Syllabus
 --------
 
-**Lectures**: Monday/Wednesday/Friday 3–4pm (2-190). **Office Hours:** Tuesday 12–2pm (32-G785, the Julia Lab).
+**Lectures**: Monday/Wednesday 9:30-11am (4-163). **Office Hours:** Tuesday 12–2pm (32-G785, the Julia Lab).
 
 **Prerequisites**: While this course will be mixing ideas from high performance
 computing, numerical analysis, and machine learning, no one in the course is
