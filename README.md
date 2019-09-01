@@ -176,7 +176,7 @@ Homework 3: Solving 100 dimensional PDEs with deep learning
 
 # Lecture Summaries and Handouts
 
-## Lecture 1: Introduction to Scientific Machine Learning and Dynamic Simulations
+## Lectures 1 and 2: Introduction to Scientific Machine Learning and Dynamic Simulations
 
 Optional pre-reading materials are as follows:
 
@@ -185,6 +185,8 @@ Optional pre-reading materials are as follows:
 - [Behavior of continuous linear dynamical systems](http://chrisrackauckas.com/assets/Papers/ChrisRackauckas-ContinuousDynamics.pdf)
 - [The Essential Tools of Scientific Machine Learning](http://www.stochasticlifestyle.com/the-essential-tools-of-scientific-machine-learning-scientific-ml/)
 - [Workshop videos on Scientific Machine Learning](https://icerm.brown.edu/events/ht19-1-sml/)
+- [Optimizing Your DiffEq Code](http://tutorials.juliadiffeq.org/html/introduction/03-optimizing_diffeq_code.html)
+- [Type-Dispatch Design: Post Object-Oriented Programming for Julia](http://www.stochasticlifestyle.com/type-dispatch-design-post-object-oriented-programming-julia/)
 
 We will start off by setting the stage for the course. The field of scientific 
 machine learning and its span across computational science to applications in 
