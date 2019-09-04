@@ -182,7 +182,7 @@ than 1 class day, others are less.
 
 ## Lecture 0 (Optional): Introduction to Julia
 
-Learn Julia Session, offered by Steven Johnson. Friday September 6, 5-7pm. Location TBA.
+Learn Julia Session, offered by Steven Johnson. Friday September 6, 5-7pm. Location: 32-141.
 [Lecture Notes in Julia for Numerical Computation in MIT Courses](https://github.com/mitmath/julia-mit).
 
 This is an optional session for learning to use Julia. It assumes no prior
@@ -238,9 +238,12 @@ about the routine makes fast code.
 
 #### Note to students: [Get a supercloud account](https://supercloud.mit.edu/requesting-account)
 
+- [MIT Supercloud Getting Started](https://supercloud.mit.edu/getting-started)
+- [Supercloud Teaching Examples](https://github.com/llsc-supercloud/teaching-examples)
+
 #### Summary
 
-## Lecture 3: Introduction to Dynamical Systems
+## Lecture 4: Introduction to Dynamical Systems
 
 #### Optional pre-reading materials
 
@@ -265,6 +268,6 @@ used to get fast codes for dynamical system simulation. These simulations will t
 be used to reveal some intriguing properties of dynamical systems which will be
 further explored through the rest of the course.
 
-## Lecture 4: Ordinary Differential Equations Across the Sciences
+## Lecture 5: Ordinary Differential Equations Across the Sciences
 
-## Lecture 5: Numerical Methods for ODEs
+## Lecture 6: Numerical Methods for ODEs
