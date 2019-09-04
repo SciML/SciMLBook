@@ -108,11 +108,12 @@ usable program that is demonstrated.
 Homework 0: Using HPC Clusters
 
 - The basics of scientific simulators (Week 1)
+  - What is Scientific Machine Learning?
+  - Optimization of serial code.
   - Introduction to discrete and continuous dynamical systems.
   - Ordinary differential equations as the language for ecology, Newtonian mechanics,
     and beyond.
   - Numerical methods for non-stiff ordinary differential equations
-  - Optimization of serial code
 - Introduction to Parallel Computing (Week 2)
   - Tutorial on using the Supercloud HPC (Get an account setup!)
   - Forms of parallelism and applications
@@ -176,26 +177,76 @@ Homework 3: Solving 100 dimensional PDEs with deep learning
 
 # Lecture Summaries and Handouts
 
-## Lectures 1 and 2: Introduction to Scientific Machine Learning and Dynamic Simulations
+Note that lectures are broken down by topic, not by day. Some lectures are more
+than 1 class day, others are less.
 
-Optional pre-reading materials are as follows:
+## Lecture 0 (Optional): Introduction to Julia
+
+Learn Julia Session, offered by Steven Johnson. Friday September 6, 5-7pm. Location TBA.
+[Lecture Notes in Julia for Numerical Computation in MIT Courses](https://github.com/mitmath/julia-mit).
+
+This is an optional session for learning to use Julia. It assumes no prior
+programming experience.
+
+## Lecture 1: Introduction to Scientific Machine Learning
+
+#### Lecture Notes
+
+- [What is Scientific Machine Learning?](https://mitmath.github.io/18337/lecture1/scientific_ml.ppx)
+
+#### Optional pre-reading materials
+
+- [The Essential Tools of Scientific Machine Learning](http://www.stochasticlifestyle.com/the-essential-tools-of-scientific-machine-learning-scientific-ml/)
+- [Workshop videos on Scientific Machine Learning](https://icerm.brown.edu/events/ht19-1-sml/)
+
+#### Summary
+
+We will start off by setting the stage for the course. The field of scientific
+machine learning and its span across computational science to applications in
+climate modeling and areospace will be introduced. The methodologies that will be
+studied, in their various names, will be introduced, and the general formula that
+is arising in the discipline will be laid out: a mixture of scientific simulation
+tools like differential equations with machine learning primitives like neural
+networks, tied together through differentiable programming to achieve results
+that were previously not possible.
+
+## Lecture 2: Introduction to Code Optimization
+
+##### Lecture Notes
+
+- [Optimizing Serial Code](https://mitmath.github.io/18337/lecture1/optimizing)
+
+##### Optional pre-reading materials
+
+- [Optimizing Your DiffEq Code](http://tutorials.juliadiffeq.org/html/introduction/03-optimizing_diffeq_code.html)
+- [Type-Dispatch Design: Post Object-Oriented Programming for Julia](http://www.stochasticlifestyle.com/type-dispatch-design-post-object-oriented-programming-julia/)
+
+#### Summary
+
+You will get nowhere in scientific machine learning with slow code. We need to
+jam together partial differential equations and neural networks, and so we need
+to know how to program both in an efficient manner. Here we will build a mental
+model for the computer to understand how caches, heap allocations, function calls,
+etc. make a program either fast or slow. We will also introduce the ideas of
+type inference, multiple dispatch, and showcase how these features can be utilized
+to generate fast code. JIT compilers don't make fast code: embedding knowledge
+about the routine makes fast code.
+
+## Lecture 3: Introduction to High Performance Computing Clusters (Supercloud)
+
+### Guest Lecturer Lauren E Milechin
+
+#### Note to students: [Get a supercloud account](https://supercloud.mit.edu/requesting-account)
+
+#### Summary
+
+## Lecture 3: Introduction to Dynamical Systems
+
+#### Optional pre-reading materials
 
 - [Strogatz: Nonlinear Dynamics and Chaos](https://www.amazon.com/Nonlinear-Dynamics-Chaos-Applications-Nonlinearity/dp/0738204536)
 - [Stability of discrete dynamics equilibrium](https://mathinsight.org/equilibria_discrete_dynamical_systems_stability)
 - [Behavior of continuous linear dynamical systems](http://chrisrackauckas.com/assets/Papers/ChrisRackauckas-ContinuousDynamics.pdf)
-- [The Essential Tools of Scientific Machine Learning](http://www.stochasticlifestyle.com/the-essential-tools-of-scientific-machine-learning-scientific-ml/)
-- [Workshop videos on Scientific Machine Learning](https://icerm.brown.edu/events/ht19-1-sml/)
-- [Optimizing Your DiffEq Code](http://tutorials.juliadiffeq.org/html/introduction/03-optimizing_diffeq_code.html)
-- [Type-Dispatch Design: Post Object-Oriented Programming for Julia](http://www.stochasticlifestyle.com/type-dispatch-design-post-object-oriented-programming-julia/)
-
-We will start off by setting the stage for the course. The field of scientific 
-machine learning and its span across computational science to applications in 
-climate modeling and areospace will be introduced. The methodologies that will be
-studied, in their various names, will be introduced, and the general formula that
-is arising in the discipline will be laid out: a mixture of scientific simulation
-tools like differential equations with machine learning primatives like neural
-networks, tied together through differentiable programming to achieve results
-that were previously not possible.
 
 Once the stage is set, we will start by developing the basics of our scientific
 simulators: differential and difference equations. A quick overview of geometric
@@ -207,10 +258,13 @@ translate a continuous description of a system into a discrete one that is
 amenable to computational simulation.
 
 The discretization of a differential equation has some curious aspects which must
-be appropraitely handled in order to arive at a suitably scalable scientific simulator.
+be appropriately handled in order to arrive at a suitably scalable scientific simulator.
 This lecture will end by going into how serial scalar-heavy codes can be optimized.
-SIMD, inplace operations, broadcasting, heap allocations, and static arrays will be
-explained in order to arrive at usable simulation code. These simulations will then
+SIMD, in-place operations, broadcasting, heap allocations, and static arrays will be
+used to get fast codes for dynamical system simulation. These simulations will then
 be used to reveal some intriguing properties of dynamical systems which will be
 further explored through the rest of the course.
 
+## Lecture 4: Ordinary Differential Equations Across the Sciences
+
+## Lecture 5: Numerical Methods for ODEs
