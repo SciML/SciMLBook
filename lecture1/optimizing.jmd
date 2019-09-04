@@ -951,31 +951,47 @@ force a function call to occur by teling it to not inline:
 
 ```julia
 @noinline fnoinline(x,y) = x + y
-function qnoinline(x)
+finline(x,y) = x + y # Can add @inline, but this is automatic here
+function qinline(x,y)
   a = 4
   b = 2
-  c = fnoinline(x[1],a)
-  d = fnoinline(b,c)
-  fnoinline(d,x[2])
+  c = finline(x,a)
+  d = finline(b,c)
+  finline(d,y)
 end
-x = [1.0,2.0]
-@code_llvm qnoinline(x)
+function qnoinline(x,y)
+  a = 4
+  b = 2
+  c = fnoinline(x,a)
+  d = fnoinline(b,c)
+  fnoinline(d,y)
+end
+```
+
+```julia
+@code_llvm qinline(1.0,2.0)
+```
+
+```julia
+@code_llvm qnoinline(1.0,2.0)
 ```
 
 We can see now that it keeps the function calls:
 
 ```
-%20 = call double @julia_fnoinline_19482(double %12, double %19)
+%4 = call double @julia_fnoinline_21538(double %3, double %1)
 ```
 
-and this is quite slow in comparison to what we had before (but it still infers).
+and this is slower in comparison to what we had before (but it still infers).
 
 ```julia
-@btime q(x)
+x = 1.0
+y = 2.0
+@btime qinline(x,y)
 ```
 
 ```julia
-@btime qnoinline(x)
+@btime qnoinline(x,y)
 ```
 
 Note that if we ever want to go the other direction and tell Julia to inline as
