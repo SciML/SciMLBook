@@ -271,3 +271,5 @@ further explored through the rest of the course.
 ## Lecture 5: Ordinary Differential Equations Across the Sciences
 
 ## Lecture 6: Numerical Methods for ODEs
+
+## Lecture 7: Within-Method and Data-Parallelism of ODE Solvers
