@@ -192,7 +192,7 @@ programming experience.
 
 #### Lecture Notes
 
-- [What is Scientific Machine Learning?](https://mitmath.github.io/18337/lecture1/scientific_ml.ppx)
+- [What is Scientific Machine Learning?](https://mitmath.github.io/18337/lecture1/scientific_ml.pptx)
 
 #### Optional pre-reading materials
 
