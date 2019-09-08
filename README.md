@@ -118,6 +118,9 @@ Possible examples are:
 - Investigating auto-compilation of full package codes to GPUs using tools like
   [CUDAnative](https://github.com/JuliaGPU/CUDAnative.jl) and/or
   [GPUifyLoops](https://github.com/vchuravy/GPUifyLoops.jl).
+- Investigating alternative implementations of databases and dataframes.
+  [NamedTuple backends of DataFrames](https://github.com/JuliaData/DataFrames.jl/issues/1335), alternative [type-stable DataFrames](https://github.com/FugroRoames/TypedTables.jl), defaults for CSV reading and other large-table formats
+  like [JuliaDB](https://github.com/JuliaComputing/JuliaDB.jl).
 
 Additionally, Scientific Machine Learning is a wide open field with lots of
 low hanging fruit. Instead of a review, a suitable research project can be
