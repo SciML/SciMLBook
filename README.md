@@ -1,16 +1,5 @@
 # 18.337J/6.338J: Parallel Computing and Scientific Machine Learning
 
-This class is for learning high performance computing and performance
-engineering. However, to learn how to compute fast, we need to choose something
-to compute. For that, the topic is scientific machine learning, an emerging
-field which merges data science, machine learning, and scientific computing
-(differential equations) to solve scientific problems which were previously
-out of reach. This field makes heavy use of parallelism in data analysis,
-deep learning, PDE solving, etc. all simultaneously, making it the perfect
-test bed for learning efficient computational implementation.
-
-**What is Scientific Machine Learning?**
-
 There are two main branches of technical computing: machine learning and
 scientific computing. Machine learning has received a lot of hype over the
 last decade, with techniques such as convolutional neural networks and TSne
@@ -103,6 +92,8 @@ and develop a high performance implementation. Some examples include:
 - Parallel implementations of statistical libraries, such as survival statistics,
   for big data
 - Parallelization of data analysis methods
+- Type-generic implementations of sparse linear algebra methods
+- A fast regex library
 
 Another possibility is to work on state-of-the-art performance engineering.
 This would be like, implementing a new parallelization or performance enhancement.
@@ -111,7 +102,7 @@ required, and one can instead benchmark the effects on already existing code to
 find cases where it is beneficial (or leads to performance regressions).
 Possible examples are:
 
-- [Create a system for automatic multithreaded parallelism of broadcasting](https://github.com/JuliaLang/julia/issues/19777) and see what kinds of packages end up more efficient.
+- [Create a system for automatic multithreaded parallelism of array operations](https://github.com/JuliaLang/julia/issues/19777) and see what kinds of packages end up more efficient.
 - [Setup BLAS with a PARTR backend](https://github.com/JuliaLang/julia/issues/32786)
   and investigate the downstream effects on multithreaded code like an existing
   PDE solver.
