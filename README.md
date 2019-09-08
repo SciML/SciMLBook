@@ -70,7 +70,9 @@ day of class. Problem sets and final projects will be submitted electronically.
 discussing with any classmates. When collaborating, write up the solution on
 your own and acknowledge your collaborators.
 
-**Final project**: The final project is a 10-20 page paper using the style
+## Final Project
+
+The final project is a 10-20 page paper using the style
 template from the [_SIAM Journal on Numerical Analysis_](http://www.siam.org/journals/auth-info.php)
 (or similar). The final project must include code for a high performance
 (parallelized) implementation of the algorithm in a form that is usable by others.
@@ -80,36 +82,42 @@ review articles (e.g. read _SIAM Review_ and similar journals for examples).
 One possibility is to review an interesting algorithm not covered in the course
 and develop a high performance implementation. Some examples include:
 
-- High performance PDE solvers
+- High performance PDE solvers for specific PDEs like Navier-Stokes
 - Common high performance algorithms (Ex: Jacobian-Free Newton Krylov for PDEs)
 - Recreation of a parameter sensitivity study in a field like biology,
   pharmacology, or climate science
 - [Augmented Neural Ordinary Differential Equations](https://arxiv.org/abs/1904.01681)
 - [Neural Jump Stochastic Differential Equations](https://arxiv.org/pdf/1905.10403.pdf)
 - Parallelized stencil calculations
-- A multithreaded implementation of BLAS3
 - Distributed linear algebra kernels
-- Parallel implementations of statistical libraries, such as survival statistics,
-  for big data
+- Parallel implementations of statistical libraries, such as survival statistics
+  or linear models for big data. Here's [one example parallel library)](https://github.com/harrelfe/rms)
+  and a [second example](https://bioconductor.org/packages/release/data/experiment/html/RegParallel.html).
 - Parallelization of data analysis methods
 - Type-generic implementations of sparse linear algebra methods
 - A fast regex library
 
 Another possibility is to work on state-of-the-art performance engineering.
-This would be like, implementing a new parallelization or performance enhancement.
+This would be implementing a new auto-parallelization or performance enhancement.
 For these types of projects, implementing an application for benchmarking is not
 required, and one can instead benchmark the effects on already existing code to
 find cases where it is beneficial (or leads to performance regressions).
 Possible examples are:
 
-- [Create a system for automatic multithreaded parallelism of array operations](https://github.com/JuliaLang/julia/issues/19777) and see what kinds of packages end up more efficient.
+- [Create a system for automatic multithreaded parallelism of array operations](https://github.com/JuliaLang/julia/issues/19777) and see what kinds of packages end up more efficient
 - [Setup BLAS with a PARTR backend](https://github.com/JuliaLang/julia/issues/32786)
   and investigate the downstream effects on multithreaded code like an existing
-  PDE solver.
+  PDE solver
 - [Investigate the effects of work-stealing in multithreaded loops](https://github.com/JuliaLang/julia/issues/21017)
 - Fast parallelized type-generic FFT. Starter code by Steven Johnson (creator of FFTW)
-  and Yingbo Ma [can be found here](https://github.com/YingboMa/DFT.jl).
+  and Yingbo Ma [can be found here](https://github.com/YingboMa/DFT.jl)
 - Type-generic BLAS. [Starter code can be found here](https://github.com/JuliaBLAS/JuliaBLAS.jl)
+- Implementation of parallelized map-reduce methods. For example, `pmapreduce`
+  [extension to `pmap`](https://docs.julialang.org/en/v1/manual/parallel-computing/index.html)
+  that adds a paralellized reduction, or a fast GPU-based map-reduce.
+- Investigating auto-compilation of full package codes to GPUs using tools like
+  [CUDAnative](https://github.com/JuliaGPU/CUDAnative.jl) and/or
+  [GPUifyLoops](https://github.com/vchuravy/GPUifyLoops.jl).
 
 Additionally, Scientific Machine Learning is a wide open field with lots of
 low hanging fruit. Instead of a review, a suitable research project can be
