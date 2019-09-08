@@ -1,5 +1,16 @@
 # 18.337J/6.338J: Parallel Computing and Scientific Machine Learning
 
+This class is for learning high performance computing and performance
+engineering. However, to learn how to compute fast, we need to choose something
+to compute. For that, the topic is scientific machine learning, an emerging
+field which merges data science, machine learning, and scientific computing
+(differential equations) to solve scientific problems which were previously
+out of reach. This field makes heavy use of parallelism in data analysis,
+deep learning, PDE solving, etc. all simultaneously, making it the perfect
+test bed for learning efficient computational implementation.
+
+**What is Scientific Machine Learning?**
+
 There are two main branches of technical computing: machine learning and
 scientific computing. Machine learning has received a lot of hype over the
 last decade, with techniques such as convolutional neural networks and TSne
@@ -72,19 +83,42 @@ your own and acknowledge your collaborators.
 
 **Final project**: The final project is a 10-20 page paper using the style
 template from the [_SIAM Journal on Numerical Analysis_](http://www.siam.org/journals/auth-info.php)
-(or similar), reviewing an interesting numerical algorithm not covered in
-the course. The final project must include code for a parallelized implementation.
+(or similar). The final project must include code for a high performance
+(parallelized) implementation of the algorithm in a form that is usable by others.
 A thorough performance analysis is expected. Model your paper on academic
 review articles (e.g. read _SIAM Review_ and similar journals for examples).
-Some examples include:
+
+One possibility is to review an interesting algorithm not covered in the course
+and develop a high performance implementation. Some examples include:
 
 - High performance PDE solvers
 - Common high performance algorithms (Ex: Jacobian-Free Newton Krylov for PDEs)
-- Recreation of a parameter sensitivity study
-- Augmented Neural Ordinary Differential Equations
+- Recreation of a parameter sensitivity study in a field like biology,
+  pharmacology, or climate science
+- [Augmented Neural Ordinary Differential Equations](https://arxiv.org/abs/1904.01681)
+- [Neural Jump Stochastic Differential Equations](https://arxiv.org/pdf/1905.10403.pdf)
 - Parallelized stencil calculations
 - A multithreaded implementation of BLAS3
 - Distributed linear algebra kernels
+- Parallel implementations of statistical libraries, such as survival statistics,
+  for big data
+- Parallelization of data analysis methods
+
+Another possibility is to work on state-of-the-art performance engineering.
+This would be like, implementing a new parallelization or performance enhancement.
+For these types of projects, implementing an application for benchmarking is not
+required, and one can instead benchmark the effects on already existing code to
+find cases where it is beneficial (or leads to performance regressions).
+Possible examples are:
+
+- [Create a system for automatic multithreaded parallelism of broadcasting](https://github.com/JuliaLang/julia/issues/19777) and see what kinds of packages end up more efficient.
+- [Setup BLAS with a PARTR backend](https://github.com/JuliaLang/julia/issues/32786)
+  and investigate the downstream effects on multithreaded code like an existing
+  PDE solver.
+- [Investigate the effects of work-stealing in multithreaded loops](https://github.com/JuliaLang/julia/issues/21017)
+- Fast parallelized type-generic FFT. Starter code by Steven Johnson (creator of FFTW)
+  and Yingbo Ma [can be found here](https://github.com/YingboMa/DFT.jl).
+- Type-generic BLAS. [Starter code can be found here](https://github.com/JuliaBLAS/JuliaBLAS.jl)
 
 Additionally, Scientific Machine Learning is a wide open field with lots of
 low hanging fruit. Instead of a review, a suitable research project can be
@@ -203,7 +237,7 @@ programming experience.
 
 We will start off by setting the stage for the course. The field of scientific
 machine learning and its span across computational science to applications in
-climate modeling and areospace will be introduced. The methodologies that will be
+climate modeling and aerospace will be introduced. The methodologies that will be
 studied, in their various names, will be introduced, and the general formula that
 is arising in the discipline will be laid out: a mixture of scientific simulation
 tools like differential equations with machine learning primitives like neural
