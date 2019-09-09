@@ -285,6 +285,8 @@ about the routine makes fast code.
 
 ## Lecture 4: Introduction to Dynamical Systems
 
+#### Lecture Notes
+
 - [How Loops Work, An Introduction to Discrete Dynamics](https://mitmath.github.io/18337/lecture4/dynamical_systems)
 
 #### Optional pre-reading materials
