@@ -274,3 +274,23 @@ $$\mathbb{E}[u_{n+1}^2] = \mathbb{E}[\sum_{j=0}^{k-1} \alpha_j u_{n-j}^2]$$
 
 and with a bunch of analysis here, working in the same way with the same basic
 ideas, we can determine conditions on which the variance goes to zero.
+
+## Periodicity and Chaos
+
+Stability is the simplest geometric dynamical property, but there are many others.
+For example, maps can also have periodic orbits, like:
+
+$$u_{n+1} = -u_n$$
+
+will bounce back and forth between two values. These periodic orbits themselves
+have geometric properties, such as whether it's a stable periodic orbit (points
+nearby are attracted to the periodic orbit). Periodic orbits have a length as
+well: this was a periodic orbit of length 2.
+
+Chaos is another interesting property of a discrete dynamical system. It can be
+interpreted as a periodic orbit where the length is infinity. This can happen if,
+by changing a parameter, a period 2 orbit becomes a period 4, then a period 8,
+etc. (a phonomenon known as period doubling), and when it goes beyond the
+accumulation point the "infinite period orbit" is reached and chaos is found.
+A homework problem will delve into the properties of chaos as an example of a
+simple embaressingly data-parallel problem.

@@ -832,6 +832,13 @@ u_{n+1} = \sum_{j=0}^{k-1} \alpha_j u_{n-j} + \epsilon_n
 \mathbb{E}[u_{n+1}^2] = \mathbb{E}[\sum_{j=0}^{k-1} \alpha_j u_{n-j}^2]
 \]</p>
 <p>and with a bunch of analysis here, working in the same way with the same basic ideas, we can determine conditions on which the variance goes to zero.</p>
+<h2>Periodicity and Chaos</h2>
+<p>Stability is the simplest geometric dynamical property, but there are many others. For example, maps can also have periodic orbits, like:</p>
+<p class="math">\[
+u_{n+1} = -u_n
+\]</p>
+<p>will bounce back and forth between two values. These periodic orbits themselves have geometric properties, such as whether it&#39;s a stable periodic orbit &#40;points nearby are attracted to the periodic orbit&#41;. Periodic orbits have a length as well: this was a periodic orbit of length 2.</p>
+<p>Chaos is another interesting property of a discrete dynamical system. It can be interpreted as a periodic orbit where the length is infinity. This can happen if, by changing a parameter, a period 2 orbit becomes a period 4, then a period 8, etc. &#40;a phonomenon known as period doubling&#41;, and when it goes beyond the accumulation point the &quot;infinite period orbit&quot; is reached and chaos is found. A homework problem will delve into the properties of chaos as an example of a simple embaressingly data-parallel problem.</p>
 
 
 
