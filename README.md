@@ -278,10 +278,14 @@ about the routine makes fast code.
 
 #### Note to students: [Get a supercloud account](https://supercloud.mit.edu/requesting-account)
 
+- [Supercloud Cheatsheet](https://mitmath.github.io/18337/lecture3/TX-E1_Reference_Guide_020819.pdf)
 - [MIT Supercloud Getting Started](https://supercloud.mit.edu/getting-started)
 - [Supercloud Teaching Examples](https://github.com/llsc-supercloud/teaching-examples)
 
 #### Summary
+
+This lecture went over the basics of using the MIT Supercloud cluster: logging
+on, submitting jobs, checking the job list, etc.
 
 ## Lecture 4: Introduction to Dynamical Systems
 
