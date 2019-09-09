@@ -250,7 +250,7 @@ that were previously not possible.
 
 ##### Lecture Notes
 
-- [Optimizing Serial Code](https://mitmath.github.io/18337/lecture1/optimizing)
+- [Optimizing Serial Code](https://mitmath.github.io/18337/lecture2/optimizing)
 
 ##### Optional pre-reading materials
 

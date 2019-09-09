@@ -716,6 +716,169 @@ Here the type inference algorithm quickly gives up and infers to `Any`, losing
 all specialization and automatically switching to Python-style runtime type
 checking.
 
+### Type definitions
+
+### Value types and isbits
+
+In Julia, types which can fully inferred and which are composed of primative
+or `isbits` types are value types. This means that, inside of an array, their
+values are the values of the type itself, and not a pointer to the values.
+
+You can check if the type is a value type through `isbits`:
+
+```julia
+isbits(1.0)
+```
+
+Note that a Julia `struct` which holds i`sbits` values is `isbits` as well,
+if it's fully inferred:
+
+```julia
+struct MyComplex
+  real::Float64
+  imag::Float64
+end
+isbits(MyComplex(1.0,1.0))
+```
+
+We can see that the compiler knows how to use this efficiently since it knows
+that what comes out is always `Float64`:
+
+```julia
+Base.:+(a::MyComplex,b::MyComplex) = MyComplex(a.real+b.real,a.imag+b.imag)
+Base.:+(a::MyComplex,b::Int) = MyComplex(a.real+b,a.imag)
+Base.:+(b::Int,a::MyComplex) = MyComplex(a.real+b,a.imag)
+g(MyComplex(1.0,1.0),MyComplex(1.0,1.0))
+```
+
+```julia
+@code_warntype g(MyComplex(1.0,1.0),MyComplex(1.0,1.0))
+````
+
+```julia
+@code_llvm g(MyComplex(1.0,1.0),MyComplex(1.0,1.0))
+````
+
+Note that the compiled code simply works directly on the `double` pieces.
+We can also make this be concrete without pre-specifying that the values always
+have to be `Float64` by using a type parameter.
+
+```julia
+struct MyParameterizedComplex{T}
+  real::T
+  imag::T
+end
+isbits(MyParameterizedComplex(1.0,1.0))
+```
+
+Note that `MyParameterizedComplex{T}` is a concrete type for every `T`: it is a
+shorthand form for defining a whole family of types.
+
+```julia
+Base.:+(a::MyParameterizedComplex,b::MyParameterizedComplex) = MyParameterizedComplex(a.real+b.real,a.imag+b.imag)
+Base.:+(a::MyParameterizedComplex,b::Int) = MyParameterizedComplex(a.real+b,a.imag)
+Base.:+(b::Int,a::MyParameterizedComplex) = MyParameterizedComplex(a.real+b,a.imag)
+g(MyParameterizedComplex(1.0,1.0),MyParameterizedComplex(1.0,1.0))
+```
+
+```julia
+@code_warntype g(MyParameterizedComplex(1.0,1.0),MyParameterizedComplex(1.0,1.0))
+````
+
+See that this code also automatically works and compiles efficiently for
+`Float32` as well:
+
+```julia
+@code_warntype g(MyParameterizedComplex(1.0f0,1.0f0),MyParameterizedComplex(1.0f0,1.0f0))
+````
+
+```julia
+@code_llvm g(MyParameterizedComplex(1.0f0,1.0f0),MyParameterizedComplex(1.0f0,1.0f0))
+````
+
+It is important to know that if there is any piece of a type which doesn't
+contain type information, then it cannot be isbits because then it would have
+to be compiled in such a way that the size is not known in advance. For example:
+
+```julia
+struct MySlowComplex
+  real
+  imag
+end
+isbits(MySlowComplex(1.0,1.0))
+```
+
+```julia
+Base.:+(a::MySlowComplex,b::MySlowComplex) = MySlowComplex(a.real+b.real,a.imag+b.imag)
+Base.:+(a::MySlowComplex,b::Int) = MySlowComplex(a.real+b,a.imag)
+Base.:+(b::Int,a::MySlowComplex) = MySlowComplex(a.real+b,a.imag)
+g(MySlowComplex(1.0,1.0),MySlowComplex(1.0,1.0))
+```
+
+```julia
+@code_warntype g(MySlowComplex(1.0,1.0),MySlowComplex(1.0,1.0))
+````
+
+```julia
+@code_llvm g(MySlowComplex(1.0,1.0),MySlowComplex(1.0,1.0))
+```
+
+```julia
+struct MySlowComplex2
+  real::AbstractFloat
+  imag::AbstractFloat
+end
+isbits(MySlowComplex2(1.0,1.0))
+```
+
+```julia
+Base.:+(a::MySlowComplex2,b::MySlowComplex2) = MySlowComplex2(a.real+b.real,a.imag+b.imag)
+Base.:+(a::MySlowComplex2,b::Int) = MySlowComplex2(a.real+b,a.imag)
+Base.:+(b::Int,a::MySlowComplex2) = MySlowComplex2(a.real+b,a.imag)
+g(MySlowComplex2(1.0,1.0),MySlowComplex2(1.0,1.0))
+```
+
+Here's the timings:
+
+```julia
+a = MyComplex(1.0,1.0)
+b = MyComplex(2.0,1.0)
+@btime g(a,b)
+```
+
+```julia
+a = MyParameterizedComplex(1.0,1.0)
+b = MyParameterizedComplex(2.0,1.0)
+@btime g(a,b)
+```
+
+```julia
+a = MySlowComplex(1.0,1.0)
+b = MySlowComplex(2.0,1.0)
+@btime g(a,b)
+```
+
+```julia
+a = MySlowComplex2(1.0,1.0)
+b = MySlowComplex2(2.0,1.0)
+@btime g(a,b)
+```
+
+### Note on Julia
+
+Note that, because of these type specialization, value types, etc. properties,
+the number types, even ones such as `Int`, `Float64`, and `Complex`, are all
+themselves implemented in pure Julia! Thus even basic pieces can be implemented
+in Julia with full performance, given one uses the features correctly.
+
+### Note on isbits
+
+Note that a type which is `mutable struct` will not be isbits. This means that
+mutable structs will be a pointer to a heap allocated object, unless it's
+shortlived and the compiler can erase its construction. Also, note that
+`isbits` compiles down to bit operations from pure Julia, which means that these
+types can directly compile to GPU kernels through CUDAnative without modification.
+
 ### Function Barriers
 
 Since functions automatically specialize on their input types in Julia, we can
@@ -1013,6 +1176,40 @@ compiler might get rid of your issues. For example, it can delete branches and
 directly compute the result if all of the values are known at compile time. So
 be very careful when benchmarking: your tests may have just compiled away!
 
+Notice the following:
+
+```julia
+@btime qinline(1.0,2.0)
+```
+
+Dang, that's much faster! But if you look into it, Julia's compiler is actually
+"cheating" on this benchmark:
+
+```julia
+cheat() = qinline(1.0,2.0)
+@code_llvm cheat()
+```
+
+It realized that `1.0` and `2.0` are constants, so it did what's known as
+*constant propogation*, and then used those constants inside of the function.
+It realized that the solution is always `9`, so it compiled the function that...
+spits out `9`! So it's fast because it's not computing anything. So be very
+careful about propogation of constants and literals. In general this is a very
+helpful feature, but when benchmarking this can cause some weird behavior. If
+a micro benchmark is taking less than a nanosecond, check and see if the compiler
+"fixed" your code!
+
 ## Conclusion
 
 Optimize your serial code before you parallelize. There's a lot to think about.
+
+# Discussion Questions
+
+Here's a few discussion questions to think about performance engineering in
+scientific tasks:
+
+1) What are the advantages of a `Vector{Array}` vs a `Matrix`? What are the
+   disadvantage? (What's different?)
+2) What is a good way to implement a data frame?
+3) What are some good things that come out of generic functions for free?
+   What are some things you should watch out for with generic functions?
