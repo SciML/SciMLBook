@@ -211,6 +211,10 @@ Homework 3: Solving 100 dimensional PDEs with deep learning
   - Surrogate modeling techniques for accelerating sensitivity calculations
 - Final Project Presentations (Weeks 11-12)
 
+# Homeworks
+
+- [Homework 0, due September 25th](https://mitmath.github.io/18337/hw0/hw0)
+
 # Lecture Summaries and Handouts
 
 Note that lectures are broken down by topic, not by day. Some lectures are more
