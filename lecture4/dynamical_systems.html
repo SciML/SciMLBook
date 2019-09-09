@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<HTML lang = "en">
+<HEAD>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>How Loops Work, An Introduction to Discrete Dynamics</title>
+  
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+  </script>
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+
+  
+<style>
+pre.hljl {
+    border: 1px solid #ccc;
+    margin: 5px;
+    padding: 5px;
+    overflow-x: auto;
+    color: rgb(68,68,68); background-color: rgb(251,251,251); }
+pre.hljl > span.hljl-t { }
+pre.hljl > span.hljl-w { }
+pre.hljl > span.hljl-e { }
+pre.hljl > span.hljl-eB { }
+pre.hljl > span.hljl-o { }
+pre.hljl > span.hljl-k { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kc { color: rgb(59,151,46); font-style: italic; }
+pre.hljl > span.hljl-kd { color: rgb(214,102,97); font-style: italic; }
+pre.hljl > span.hljl-kn { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kp { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kr { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kt { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-n { }
+pre.hljl > span.hljl-na { }
+pre.hljl > span.hljl-nb { }
+pre.hljl > span.hljl-nbp { }
+pre.hljl > span.hljl-nc { }
+pre.hljl > span.hljl-ncB { }
+pre.hljl > span.hljl-nd { color: rgb(214,102,97); }
+pre.hljl > span.hljl-ne { }
+pre.hljl > span.hljl-neB { }
+pre.hljl > span.hljl-nf { color: rgb(66,102,213); }
+pre.hljl > span.hljl-nfm { color: rgb(66,102,213); }
+pre.hljl > span.hljl-np { }
+pre.hljl > span.hljl-nl { }
+pre.hljl > span.hljl-nn { }
+pre.hljl > span.hljl-no { }
+pre.hljl > span.hljl-nt { }
+pre.hljl > span.hljl-nv { }
+pre.hljl > span.hljl-nvc { }
+pre.hljl > span.hljl-nvg { }
+pre.hljl > span.hljl-nvi { }
+pre.hljl > span.hljl-nvm { }
+pre.hljl > span.hljl-l { }
+pre.hljl > span.hljl-ld { color: rgb(148,91,176); font-style: italic; }
+pre.hljl > span.hljl-s { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sa { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sb { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sc { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sd { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdC { color: rgb(201,61,57); }
+pre.hljl > span.hljl-se { color: rgb(59,151,46); }
+pre.hljl > span.hljl-sh { color: rgb(201,61,57); }
+pre.hljl > span.hljl-si { }
+pre.hljl > span.hljl-so { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sr { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ss { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ssB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-nB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nbB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nfB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nh { color: rgb(59,151,46); }
+pre.hljl > span.hljl-ni { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nil { color: rgb(59,151,46); }
+pre.hljl > span.hljl-noB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-oB { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-ow { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-p { }
+pre.hljl > span.hljl-c { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-ch { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cm { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cp { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cpB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cs { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-csB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-g { }
+pre.hljl > span.hljl-gd { }
+pre.hljl > span.hljl-ge { }
+pre.hljl > span.hljl-geB { }
+pre.hljl > span.hljl-gh { }
+pre.hljl > span.hljl-gi { }
+pre.hljl > span.hljl-go { }
+pre.hljl > span.hljl-gp { }
+pre.hljl > span.hljl-gs { }
+pre.hljl > span.hljl-gsB { }
+pre.hljl > span.hljl-gt { }
+</style>
+
+
+
+  <style type="text/css">
+  @font-face {
+  font-style: normal;
+  font-weight: 300;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 600;
+}
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+body {
+  margin: 0;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+audio,
+canvas,
+progress,
+video {
+  display: inline-block; /* 1 */
+  vertical-align: baseline; /* 2 */
+}
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+[hidden],
+template {
+  display: none;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+b,
+strong {
+  font-weight: bold;
+}
+dfn {
+  font-style: italic;
+}
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+mark {
+  background: #ff0;
+  color: #000;
+}
+small {
+  font-size: 80%;
+}
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}
+img {
+  border: 0;
+}
+svg:not(:root) {
+  overflow: hidden;
+}
+figure {
+  margin: 1em 40px;
+}
+hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+pre {
+  overflow: auto;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit; /* 1 */
+  font: inherit; /* 2 */
+  margin: 0; /* 3 */
+}
+button {
+  overflow: visible;
+}
+button,
+select {
+  text-transform: none;
+}
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button; /* 2 */
+  cursor: pointer; /* 3 */
+}
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+input {
+  line-height: normal;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+input[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box; /* 2 */
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+legend {
+  border: 0; /* 1 */
+  padding: 0; /* 2 */
+}
+textarea {
+  overflow: auto;
+}
+optgroup {
+  font-weight: bold;
+}
+table {
+  font-family: monospace, monospace;
+  font-size : 0.8em;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td,
+th {
+  padding: 0;
+}
+thead th {
+    border-bottom: 1px solid black;
+    background-color: white;
+}
+tr:nth-child(odd){
+  background-color: rgb(248,248,248);
+}
+
+
+/*
+* Skeleton V2.0.4
+* Copyright 2014, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 12/29/2014
+*/
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box; }
+.column,
+.columns {
+  width: 100%;
+  float: left;
+  box-sizing: border-box; }
+@media (min-width: 400px) {
+  .container {
+    width: 85%;
+    padding: 0; }
+}
+@media (min-width: 550px) {
+  .container {
+    width: 80%; }
+  .column,
+  .columns {
+    margin-left: 4%; }
+  .column:first-child,
+  .columns:first-child {
+    margin-left: 0; }
+
+  .one.column,
+  .one.columns                    { width: 4.66666666667%; }
+  .two.columns                    { width: 13.3333333333%; }
+  .three.columns                  { width: 22%;            }
+  .four.columns                   { width: 30.6666666667%; }
+  .five.columns                   { width: 39.3333333333%; }
+  .six.columns                    { width: 48%;            }
+  .seven.columns                  { width: 56.6666666667%; }
+  .eight.columns                  { width: 65.3333333333%; }
+  .nine.columns                   { width: 74.0%;          }
+  .ten.columns                    { width: 82.6666666667%; }
+  .eleven.columns                 { width: 91.3333333333%; }
+  .twelve.columns                 { width: 100%; margin-left: 0; }
+
+  .one-third.column               { width: 30.6666666667%; }
+  .two-thirds.column              { width: 65.3333333333%; }
+
+  .one-half.column                { width: 48%; }
+
+  /* Offsets */
+  .offset-by-one.column,
+  .offset-by-one.columns          { margin-left: 8.66666666667%; }
+  .offset-by-two.column,
+  .offset-by-two.columns          { margin-left: 17.3333333333%; }
+  .offset-by-three.column,
+  .offset-by-three.columns        { margin-left: 26%;            }
+  .offset-by-four.column,
+  .offset-by-four.columns         { margin-left: 34.6666666667%; }
+  .offset-by-five.column,
+  .offset-by-five.columns         { margin-left: 43.3333333333%; }
+  .offset-by-six.column,
+  .offset-by-six.columns          { margin-left: 52%;            }
+  .offset-by-seven.column,
+  .offset-by-seven.columns        { margin-left: 60.6666666667%; }
+  .offset-by-eight.column,
+  .offset-by-eight.columns        { margin-left: 69.3333333333%; }
+  .offset-by-nine.column,
+  .offset-by-nine.columns         { margin-left: 78.0%;          }
+  .offset-by-ten.column,
+  .offset-by-ten.columns          { margin-left: 86.6666666667%; }
+  .offset-by-eleven.column,
+  .offset-by-eleven.columns       { margin-left: 95.3333333333%; }
+
+  .offset-by-one-third.column,
+  .offset-by-one-third.columns    { margin-left: 34.6666666667%; }
+  .offset-by-two-thirds.column,
+  .offset-by-two-thirds.columns   { margin-left: 69.3333333333%; }
+
+  .offset-by-one-half.column,
+  .offset-by-one-half.columns     { margin-left: 52%; }
+
+}
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #222; }
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-weight: 300; }
+h1 { font-size: 3.6rem; line-height: 1.2;  letter-spacing: -.1rem;}
+h2 { font-size: 3.4rem; line-height: 1.25; letter-spacing: -.1rem; }
+h3 { font-size: 3.2rem; line-height: 1.3;  letter-spacing: -.1rem; }
+h4 { font-size: 2.8rem; line-height: 1.35; letter-spacing: -.08rem; }
+h5 { font-size: 2.4rem; line-height: 1.5;  letter-spacing: -.05rem; }
+h6 { font-size: 1.5rem; line-height: 1.6;  letter-spacing: 0; }
+
+p {
+  margin-top: 0; }
+a {
+  color: #1EAEDB; }
+a:hover {
+  color: #0FA0CE; }
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  display: inline-block;
+  height: 38px;
+  padding: 0 30px;
+  color: #555;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box; }
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
+.button:focus,
+button:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
+  color: #333;
+  border-color: #888;
+  outline: 0; }
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+  color: #FFF;
+  background-color: #33C3F0;
+  border-color: #33C3F0; }
+.button.button-primary:hover,
+button.button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus,
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
+  color: #FFF;
+  background-color: #1EAEDB;
+  border-color: #1EAEDB; }
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
+select {
+  height: 38px;
+  padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box; }
+/* Removes awkward default styles on some inputs for iOS */
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none; }
+textarea {
+  min-height: 65px;
+  padding-top: 6px;
+  padding-bottom: 6px; }
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid #33C3F0;
+  outline: 0; }
+label,
+legend {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600; }
+fieldset {
+  padding: 0;
+  border-width: 0; }
+input[type="checkbox"],
+input[type="radio"] {
+  display: inline; }
+label > .label-body {
+  display: inline-block;
+  margin-left: .5rem;
+  font-weight: normal; }
+ul {
+  list-style: circle; }
+ol {
+  list-style: decimal; }
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin: 1.5rem 0 1.5rem 3rem;
+  font-size: 90%; }
+li > p {margin : 0;}
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E1E1E1; }
+th:first-child,
+td:first-child {
+  padding-left: 0; }
+th:last-child,
+td:last-child {
+  padding-right: 0; }
+button,
+.button {
+  margin-bottom: 1rem; }
+input,
+textarea,
+select,
+fieldset {
+  margin-bottom: 1.5rem; }
+pre,
+blockquote,
+dl,
+figure,
+table,
+p,
+ul,
+ol,
+form {
+  margin-bottom: 1.0rem; }
+.u-full-width {
+  width: 100%;
+  box-sizing: border-box; }
+.u-max-full-width {
+  max-width: 100%;
+  box-sizing: border-box; }
+.u-pull-right {
+  float: right; }
+.u-pull-left {
+  float: left; }
+hr {
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
+  border-width: 0;
+  border-top: 1px solid #E1E1E1; }
+.container:after,
+.row:after,
+.u-cf {
+  content: "";
+  display: table;
+  clear: both; }
+
+pre {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  word-break: break-all;
+  word-wrap: break-word;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+pre.hljl {
+  margin: 0 0 10px;
+  display: block;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding : 5px;
+}
+
+pre.output {
+  background: #ffffff;
+}
+
+pre.code {
+  background: #ffffff;
+}
+
+pre.julia-error {
+  color : red
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+
+
+@media (min-width: 400px) {}
+@media (min-width: 550px) {}
+@media (min-width: 750px) {}
+@media (min-width: 1000px) {}
+@media (min-width: 1200px) {}
+
+h1.title {margin-top : 20px}
+img {max-width : 100%}
+div.title {text-align: center;}
+
+  </style>
+
+
+
+</HEAD>
+  <BODY>
+    <div class ="container">
+      <div class = "row">
+        <div class = "col-md-12 twelve columns">
+
+          <div class="title">
+            <h1 class="title">How Loops Work, An Introduction to Discrete Dynamics</h1>
+            <h5>Chris Rackauckas</h5>
+            <h5>September 8th, 2019</h5>
+          </div>
+
+          <p>The basics of most scientific models are dynamical systems. In this lecture we will go over the basic properties of dynamical systems and understand their general behavior through code. We will also learn the idea of stability as an asymtopic property of a mapping, and understand when a system is stable.</p>
+<h2>Discrete Dynamical Systems</h2>
+<p>A discrete dynamical system is a system which updates through discrete updates:</p>
+<p class="math">\[
+u_{n+1} = model(u_n,n)
+\]</p>
+<p>There are many examples of a discrete dynamical system found throughout the scientific literature. For example, many ecological models are discrete dynamical systems, with the most famous being the logistic map:</p>
+<p class="math">\[
+u_{n+1} = r u_n (1 - u_n)
+\]</p>
+<p>describing the growth of a population with a carrying capacity of 1 and a growth rate of <code>r</code>. Another way in which discrete dynamical systems are often encountered is through time series models. These are generally seen in financial forecasting and For example, the autoregressive model AR1 is the following linear dynamical system:</p>
+<p class="math">\[
+u_{n+1} = \alpha u_n + \epsilon_n
+\]</p>
+<p>where <span class="math">$\epsilon$</span> is a standard normal random number. The AR&#40;k&#41; model allows itself to update using delays as well:</p>
+<p class="math">\[
+u_{n+1} = \sum_{j=0}^{k-1} \alpha_j u_{n-j} + \epsilon_n
+\]</p>
+<p>The ARMA model is one that allows using delays on the randomness as well:</p>
+<p class="math">\[
+u_{n+1} = \sum_{j=0}^{k-1} (\alpha_j u_{n-j}  + \beta_j \epsilon_{n-j})
+\]</p>
+<p>Another embodiment of a discrete dynamical system is a Recurrent Neural Network &#40;RNN&#41;. In its simplest form, a RNN is a system of the form:</p>
+<p class="math">\[
+u_{n+1} = u_n + f(u_n,\theta)
+\]</p>
+<p>where <span class="math">$f$</span> is a neural network parameterized by <span class="math">$\theta$</span>.</p>
+<p>Note that discrete dyamical systems are even more fundamental than just the ones shown. In any case where a continuous model is discretized to loop on the computer, the resulting algorithm is a discrete dynamical system and thus evolves according to its properties. This fact will be revisited later.</p>
+<h2>Properties of Linear Dynamical Systems</h2>
+<p>First let&#39;s take a look at the scalar linear dynamical system:</p>
+<p class="math">\[
+u_{n+1} = \alpha u_{n}
+\]</p>
+<p>We want to ask what the global or geometric behavior of this system is. We can do this by expanding out the system. Notice that if <span class="math">$u_0$</span> is known, then</p>
+<p class="math">\[
+u_{n+1} = \alpha^n u_0
+\]</p>
+<p>The global behavior can then be categorized as:</p>
+<ul>
+<li><p>If <span class="math">$\Vert \alpha \Vert < 1$</span>, then <span class="math">$u_n \rightarrow 0$</span></p>
+</li>
+<li><p>If <span class="math">$\Vert \alpha \Vert > 1$</span>, then <span class="math">$u_n \rightarrow \infty$</span></p>
+</li>
+</ul>
+<p>If <span class="math">$\Vert \alpha \Vert = 1$</span>, then <span class="math">$u_n \rightarrow u_0$</span> if everything is in the real numbers, but more complex dynamics can occur on the complex plane.</p>
+<h2>Nonlinear Geometric Dynamics</h2>
+<p>The Geometric Theory of Dynamical Systems is the investigation of their long-term properties and the geometry of the phase space which they occupy. Let&#39;s start looking at this in practical terms: how do nonlinear update equations act as time goes to infinity?</p>
+<h4>Banach Fixed Point Theorem</h4>
+<p>There are surprisingly simple results that we can prove. First let&#39;s recall the Banach Fixed Point Theorem &#40;also known as the Contraction Mapping Theorem&#41;. Let <span class="math">$(X,d)$</span> be a metric space &#40;<span class="math">$X$</span> is the set of points we are thinking of, here the real numbers. <span class="math">$d$</span> is a distance function&#41;. <span class="math">$f$</span> is a contraction mapping if</p>
+<p class="math">\[
+d(f(x),f(y)) \leq \alpha d(x,y)
+\]</p>
+<p>where <span class="math">$\alpha < 1$</span>, that is, if applying <span class="math">$f$</span> always decreases the distance. The theorem then states that if <span class="math">$f$</span> is a contraction mapping, then there is a unique fixed point &#40;point <span class="math">$x\ast$</span> where <span class="math">$f(x\ast)=x\ast$</span>&#41; and a sequence such that <span class="math">$x_0 \rightarrow x\ast$</span> where</p>
+<p class="math">\[
+x_{n+1} = f(x_n)
+\]</p>
+<p>The proof is by induction, showing that the sequence is Cauchy. For some <span class="math">$m>n$</span> we do by the Triangle Inequality</p>
+<p class="math">\[
+d(x_m,x_n) \leq d(x_{m},x_{m-1}) + \ldots + d(x_{n+1},x_n)
+\]</p>
+<p>then apply the contraction relation down to the bottom:</p>
+<p class="math">\[
+d(x_m,x_n) \leq q^{m-1} d(x_{1},x_{0}) + \ldots + q^{n} d(x_{1},x_0)
+\]</p>
+<p class="math">\[
+d(x_m,x_n) \leq q^n d(x_{1},x_{0}) \sum_{k=0}^{m-n-1} q^k
+\]</p>
+<p>and since adding more never hurts:</p>
+<p class="math">\[
+d(x_m,x_n) \leq q^n d(x_{1},x_{0}) \sum_{k=0}^{\infty} q^k
+\]</p>
+<p>But that summation is just a geometric series now, and since <span class="math">$q<1$</span> we know it converges to <span class="math">$1/(1-q)$</span>, and so we get:</p>
+<p class="math">\[
+d(x_m,x_n) \leq \frac{q^n}{1-q} d(x_{1},x_{0})
+\]</p>
+<p>The coefficient converges to zero as <span class="math">$n$</span> increases, and so the sequence must be Cauchy, which implies there&#39;s a unique fixed point.</p>
+<h4>Stability of Linear Discrete Dynamical Systems</h4>
+<p>Now let&#39;s take a mapping <span class="math">$f$</span> which is sufficiently nice &#40;<span class="math">$f \in C^1$</span>, i.e. the derivative of <span class="math">$f$</span> exists and is continuous&#41;, where</p>
+<p class="math">\[
+x_{n+1} = f(x_n)
+\]</p>
+<p>Assume that <span class="math">$\Vert f^\prime (x^\ast) \Vert < 1$</span> at some point where <span class="math">$f(x)=x$</span>. Then by continuity of the second derivative, it follows that there is a neighborhood where <span class="math">$\Vert f^\prime (x) \Vert < 1$</span> &#40;&#41;. Now recall that this means</p>
+<p class="math">\[
+df/dx \leq 1
+\]</p>
+<p>which means that, for any <span class="math">$x$</span> and <span class="math">$y$</span> in the neighborhood,</p>
+<p class="math">\[
+\Vert \frac{f(y)-f(x)}{y-x} \Vert \leq 1
+\]</p>
+<p>or</p>
+<p class="math">\[
+\Vert f(y)-f(x) \Vert \leq \Vert y-x \Vert
+\]</p>
+<p>This is essentially another way of saying that a function that is differentiable is Lipschitz, where we can use the derivative as the Lipschitz bound. But notice this means that, in this neighborhood, a function with a derivative less than 1 is a contraction mapping, and thus there is a limiting sequence which goes to the fixed point by the Banach Fixed Point Theorem. Furthermore, the uniquess guerentees that there is only one fixed point in a sufficiently small neighborhood where the derivative is all less than 1.</p>
+<p>A way to interpret this result is that, any nice enough function <span class="math">$f$</span> is locally linear. Thus we can understand the global properties of <span class="math">$f$</span> by looking the linearization of its dynamics, where the best linear approximation is the linear function <span class="math">$f^\prime (x) x$</span>. This means that we can think of</p>
+<p class="math">\[
+x_{n+1} = f(x_n)
+\]</p>
+<p>locally as being approximated by</p>
+<p class="math">\[
+x_{n+1} = f^\prime (x) x_n
+\]</p>
+<p>and so if the derivative is less than 1 in some neighborhood of a fixed point, then we locally have a linear dynamical system which looks like the simple <span class="math">$x_{n+1} = \alpha x_n$</span> where <span class="math">$\alpha <1$</span>, and so we get the same convergence property.</p>
+<p>This is termed &quot;stability&quot; since, if you are a little bit off from the fixed point, you will tend to go right back to it. An unstable fixed point is one where you fall away. And what happens when the derivative is one? There are various forms of semi-stability that can be proved which go beyond the topic of this course.</p>
+<h4>Update Form</h4>
+<p>Now let&#39;s look at another form:</p>
+<p class="math">\[
+x_{n+1} = x_n + f(x_n)
+\]</p>
+<p>For example, this is what we generally see with the recurrent neural network &#40;or, as we will find out later, this is how discretizations of continuous systems tend to look&#33;&#41;. In this case, we can say that this is a dynamical system</p>
+<p class="math">\[
+x_{n+1} = g(x_n)
+\]</p>
+<p>and so if <span class="math">$-2 < f^\prime < 0$</span>, then <span class="math">$g^\prime = 1 + f^\prime < 0$</span> and so we have the same stability idea except now with a condition shifted to zero instead of one.</p>
+<h2>Multivariable Systems</h2>
+<p>Now let <span class="math">$x \in R^k$</span> be a vector, and define discrete mappings</p>
+<p class="math">\[
+x_{n+1} = f(x_n)
+\]</p>
+<p>The linear system is</p>
+<p class="math">\[
+x_{n+1} = A x_n
+\]</p>
+<p>The easiest way to analyze a multidimensional system is to turn it into a bunch of single dimension systems. To do this, assume that <span class="math">$A$</span> is diagonal. This means that there exists a diagonalization <span class="math">$A =P^{-1}DP$</span> where <span class="math">$P$</span> is the matrix of eigenvectors and <span class="math">$D$</span> is the diagonal matrix of eigenvalues. We can then decompose the system as follows:</p>
+<p class="math">\[
+Px_{n+1} = DPx_n
+\]</p>
+<p>and now define new variables <span class="math">$z_n = Px_n$</span>. In these variables,</p>
+<p class="math">\[
+z_{n+1} = D z_n
+\]</p>
+<p>but <span class="math">$D$</span> is diagonal, so this is a system of <span class="math">$k$</span> independent linear dynamical systems. We know that the linear dynamical system will converge to zero if <span class="math">$\Vert D_i \Vert < 1$</span>, and so this means that <span class="math">$z_n$</span> converges to zero if all of the eigenvalues are within the unit circle. Since <span class="math">$P0 = 0$</span>, this implies that if all of the eigenvalues of <span class="math">$A$</span> are in the unit circle, then <span class="math">$x_n \rightarrow 0$</span>.</p>
+<p>A multidimensional version of the contraction mapping theorem is then proven exactly in this manner, meaning that if <span class="math">$f(x) = 1$</span> and all eigenvalues of the Jacobian matrix &#40;the linearization of <span class="math">$f$</span>&#41; are in the unit circle, then <span class="math">$x$</span> is a unique fixed point in some neighborhood.</p>
+<h4>Understanding Delayed Systems</h4>
+<p>A similar property holds in linear dynamical systems with delays. Take</p>
+<p class="math">\[
+x_{n+1} = \sum_{j=0}^{k-1} \alpha_j x_{n-j}
+\]</p>
+<p>Notice that we can write this as a multidimensional non-delayed system. Let <span class="math">$x_n^i$</span> be the <span class="math">$i$</span>th term in the vector of the <span class="math">$n$</span> time. Then we have:</p>
+<p class="math">\[
+x_{n+1}^1 = \sum_{j=1}^{k-1} \alpha_{j-1} x_{n}^{j}
+\]</p>
+<p>as an equivalent way to write this, where</p>
+<p class="math">\[
+x_{n+1}^j = x_n^{j-1}
+\]</p>
+<p>for all of the other terms. Essentially, instead of a system with a delay, we store the memory in other terms of the vector, and keep shifting them down. However, this makes our system much easier to analyze. Instead of a linear delayed dynamical system, this is now a linear multidimensional dynamical system. Its characteristic polynomial is</p>
+<p class="math">\[
+\varphi(x) = 1 - \sum_{j=0}^{k-1} \alpha_j x^j
+\]</p>
+<p>and so if all of the roots are in the unit circle then this system is stable.</p>
+<h4>Stochastic Dynamical Systems</h4>
+<p>Now let&#39;s take a look again at the autoregressive process from time series analysis:</p>
+<p class="math">\[
+u_{n+1} = \sum_{j=0}^{k-1} \alpha_j u_{n-j} + \epsilon_n
+\]</p>
+<p>In a very quick handwavy way, we can understand such a system by seeing how the perturbations propogate. If <span class="math">$u_0 = 0$</span>, then the starting is just <span class="math">$\epsilon_0$</span>. If we assume all other <span class="math">$\epsilon_i = 0$</span>, then this system is the same as a linear dynamical system with delays. If all of the roots are in the unit circle, then it goes to zero, meaning the perturbation is forgotten or squashed over time.</p>
+<p>We can analyze this more by using the moments. Notice that, by the linearity of the expected value,</p>
+<p class="math">\[
+\mathbb{E}[u_{n+1}] = \sum_{j=0}^{k-1} \alpha_j \mathbb{E}[u_{n-j}]
+\]</p>
+<p>is a deterministic linear dynamical system which converges if the roots are in the unit circle. This means that the mean stabilizes over time if all of the roots are in the unit circle. In time series analysis, this is called stationarity of the time series.</p>
+<p>We can then also look at the stability of the variance as well. Recall that</p>
+<p class="math">\[
+\mathbb{V}[x] = \mathbb{E}[x^2] - \mathbb{E}[x]^2
+\]</p>
+<p>and so therefore</p>
+<p class="math">\[
+\mathbb{E}[u_{n+1}^2] = \mathbb{E}[\sum_{j=0}^{k-1} \alpha_j u_{n-j}^2]
+\]</p>
+<p>and with a bunch of analysis here, working in the same way with the same basic ideas, we can determine conditions on which the variance goes to zero.</p>
+
+
+
+          <HR/>
+          <div class="footer"><p>
+          Published from <a href="dynamical_systems.jmd">dynamical_systems.jmd</a> using
+          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
+           on 2019-09-09.
+          <p></div>
+
+
+        </div>
+      </div>
+    </div>
+  </BODY>
+</HTML>
