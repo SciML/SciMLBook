@@ -1,0 +1,36 @@
+---
+title: Homework 0
+author: Chris Rackauckas
+date: September 8th, 2019
+---
+
+Homework 0 is a simple introduction to the HPC and running parallel codes.
+
+## Problem 1
+
+Get access to the Supercloud HPC and run the [Parallel Word Count](https://github.com/llsc-supercloud/teaching-examples/tree/master/Julia/word_count/Parallel)
+example.
+
+## Problem 2
+
+Setup a parallel code to run on the HPC from scratch. For this, let's make
+one Brownian motion per process. A Brownian motion can be easily made through
+the following function:
+
+```julia
+make_brownian(dt,n) = cumsum([0;sqrt(dt).*randn(n+1)])
+```
+
+Create a `.jl` file which uses `Distributed`, `addprocs`, `@everywhere`,
+`ClusterManagers`, `pmap`, and the lines
+
+```{julia;eval=false}
+addprocs(SlurmManager(parse(Int,ENV["SLURM_NTASKS"])-1))
+```
+
+```{julia;eval=false}
+println(run(`hostname`))
+```
+
+to make each process print out their name and return a Brownian motion. Write
+a `.sh` batch script to run this process in parallel.
