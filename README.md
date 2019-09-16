@@ -260,6 +260,8 @@ that were previously not possible.
 
 - [Optimizing Your DiffEq Code](http://tutorials.juliadiffeq.org/html/introduction/03-optimizing_diffeq_code.html)
 - [Type-Dispatch Design: Post Object-Oriented Programming for Julia](http://www.stochasticlifestyle.com/type-dispatch-design-post-object-oriented-programming-julia/)
+- [Performance Matters](https://www.youtube.com/watch?v=r-TLSBdHe1A)
+- [You're doing it wrong (B-heaps vs Binary Heaps and Big O)](http://phk.freebsd.dk/B-Heap/queue.html)
 
 #### Summary
 
