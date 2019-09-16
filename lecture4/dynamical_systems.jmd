@@ -294,3 +294,413 @@ etc. (a phonomenon known as period doubling), and when it goes beyond the
 accumulation point the "infinite period orbit" is reached and chaos is found.
 A homework problem will delve into the properties of chaos as an example of a
 simple embaressingly data-parallel problem.
+
+## Efficient Implmentation of Dynamical Systems
+
+Dynamical systems are just loops, so the implementation is easy to understand.
+However, there are a few things that one must keep in mind in order to allow
+for efficient implementations.
+
+#### Higher order functions
+
+Functions which compute the solutions to dynamical systems are inherently
+*higher order functions*, which means it's a function which takes in a function
+as an argument. The following is a quick implementation:
+
+```julia
+"""
+`solve_system(f,u0,n)``
+
+Solves the dynamical system
+
+```math
+u_{n+1} = f(u_n)
+```
+
+for N steps. Returns the solution at step `n` with parameters `p`.
+
+"""
+function solve_system(f,u0,p,n)
+  u = u0
+  for i in 1:n-1
+    u = f(u,p)
+  end
+  u
+end
+```
+
+Notice the `"""` before the function: this is a docstring. When the Julia REPL
+is queried with `?solve_system` this will be the description that is displayed.
+
+Now, is this function going to be efficient? Recall from the earlier discussion
+that:
+
+- Type-stability is necessary for inference to carry forward type information.
+- Julia auto-specializes on input types.
+- Inlining can occur automatically for sufficiently small functions.
+
+From this information, we know that in order for this to be efficient, we require
+that the type of `f(u)` is inferred. But if `f` is a variable, how can that
+be inferred? In order for that to occur, we would have to know what `f` is, since
+not all functions will give the same output type. Additionally, in order to inline
+the function, we will have to know what the function is at compile-time. So, is
+it possible to make this implementation efficient?
+
+It turns out that this does optimize due to one fact: every function is given
+by its own type. We can verify this by defining a function and checking its type:
+
+```julia
+f(u,p) = u^2 - p*u
+typeof(f)
+```
+
+It displays `typeof(f)` to indicate that the function `f` is its own type, and
+thus at automatic specialization time the compiler knows all of the information
+about the function and thus inlines and performs inference correctly.
+
+Note that this does mean that the function will need to recompile for every new
+`f`. This is similar to statically compiling a function for use in a C/Fortran
+library. What is the equivalent to using a function like a shared library or a
+shared object? This is given by FunctionWrappers.jl. This directly stores the
+function pointer in an object that can have shared type information in order to
+keep every function as the same type. However, the wrapped function has more
+information about the pointer... what's necessary?
+
+The answer is that FunctionWrappers.jl allows for specifying the input and
+output types, in order for the wrapper to do the right assertions for inference
+to carry forward type stability, since in this case inference is not able to
+step through the function pointer.
+
+#### Quick Check
+
+What will approximately be the value of this dynamical system after 1000 steps
+if you start at `1.0` with paramter `p=0.25`? Can you guess without solving the
+system? Think about steady states and stabiltiy.
+
+```julia
+solve_system(f,1.0,0.25,1000)
+```
+
+The answer is that it goes to zero. The steady states are the zeros of the polynomial,
+which are `0` and `p+1`. It's reasonable to believe that it either goes to one
+of those 2 values or infinity. In the first step, `1^2 - 0.25 = 0.75 < 1` which
+suggests (but doesn't confirm!) that it's a contraction. Notice that the derivative
+is `2u-p`, and so `u=p+1=1.25` is not a stable steady state, and thus we go to
+zero. In fact, we can check a few values:
+
+```julia
+solve_system(f,1.1,0.25,1000)
+```
+
+```julia
+solve_system(f,1.22,0.25,1000)
+```
+
+```julia
+solve_system(f,1.25,0.25,1000)
+```
+
+```julia
+solve_system(f,1.251,0.25,10)
+```
+
+Notice that the moment we go above the steady state `p+1`, we exponentially
+grow to infinity.
+
+Just to double check the implementation:
+
+```julia
+@time solve_system(f,1.251,0.25,10)
+@time solve_system(f,1.251,0.25,100)
+@time solve_system(f,1.251,0.25,1000)
+```
+
+Those allocations are just the output, and notice it's independent of the loop
+count.
+
+#### Multidimensional System Implementations
+
+When we go to multidimensional systems, some care needs to be taken to decrease
+the number of allocations which are occuring. One of the ways to do this is
+to utilize statically sized arrays. For example, let's look at a discretization
+of the Lorenz system:
+
+```julia
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  du1 = u[1] + α*(σ*(u[2]-u[1]))
+  du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+  du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  [du1,du2,du3]
+end
+p = (0.02,10.0,28.0,8/3)
+solve_system(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+Let's see what this gives us by saving:
+
+```julia
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  u[1] = u0
+  for i in 1:n-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+to_plot = solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+```julia
+using Plots
+x = [to_plot[i][1] for i in 1:length(to_plot)]
+y = [to_plot[i][2] for i in 1:length(to_plot)]
+z = [to_plot[i][3] for i in 1:length(to_plot)]
+plot(x,y,z)
+```
+
+This is the chaotic Lorenz attractor.
+
+Let's look at the implementation a little bit more. `u = Vector{typeof(u0)}(undef,n)`
+is type-generic, meaning any `u0` can be used with that code. However, as a
+vector of vectors, it is a vector of pointers to contiguous memory, instead of
+being contiguous itself. Note that that means there is not much of a cost
+by not pre-specifying the size up front:
+
+```julia
+function solve_system_save_push(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,1)
+  u[1] = u0
+  for i in 1:n-1
+    push!(u,f(u[i],p))
+  end
+  u
+end
+@time solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+```julia
+@time solve_system_save_push(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+The first time Julia compiles the function, and the second is a straight call.
+
+```julia
+@time solve_system_save_push(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+or we can use `@btime`:
+
+```julia
+using BenchmarkTools
+@btime solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+```julia
+@btime solve_system_save_push(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+This is because growth costs are amortized, meaning taht when pushing, the size
+isn't increasing by one each time, but rather it's doing something like doubling,
+so that it's averaging O(1) cost to keep growing (in theory the best is to do
+Golden ratio resizing, and long discussions can be had on this topic).
+
+We can also look at what happens if we use matrices:
+
+```julia
+function solve_system_save_matrix(f,u0,p,n)
+  u = Matrix{eltype(u0)}(undef,length(u0),n)
+  u[:,1] = u0
+  for i in 1:n-1
+    u[:,i+1] = f(u[:,i],p)
+  end
+  u
+end
+@btime solve_system_save_matrix(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+Where is this cost coming from? A large portion of the cost is due to the slicing
+on the `u`, which we can fix with a `view`:
+
+```julia
+function solve_system_save_matrix_view(f,u0,p,n)
+  u = Matrix{eltype(u0)}(undef,length(u0),n)
+  u[:,1] = u0
+  for i in 1:n-1
+    u[:,i+1] = f(@view(u[:,i]),p)
+  end
+  u
+end
+@btime solve_system_save_matrix_view(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+Since we are only ever using single columns as a unit, notice that there isn't
+any benefit to keeping the whole thing contiguous, and in fact there are some
+downsides (cache is harder to optimize because the longer cache lines are
+unnecessary, the views need to be used). Also, growing the matrix adaptively
+is not a very good idea since every growth requires both allocating memory
+and copying over the old values:
+
+```julia
+function solve_system_save_matrix_resize(f,u0,p,n)
+  u = Matrix{eltype(u0)}(undef,length(u0),1)
+  u[:,1] = u0
+  for i in 1:n-1
+    u = hcat(u,f(@view(u[:,i]),p))
+  end
+  u
+end
+@btime solve_system_save_matrix_resize(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+So for now let's go back to the Vector of Arrays approach. One way to reduce the
+number of allocations is to require that the user provides an in-place non-allocating
+function. For example:
+
+```julia
+function lorenz(du,u,p)
+  α,σ,ρ,β = p
+  du[1] = u[1] + α*(σ*(u[2]-u[1]))
+  du[2] = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+  du[3] = u[3] + α*(u[1]*u[2] - β*u[3])
+end
+p = (0.02,10.0,28.0,8/3)
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  du = similar(u0)
+  u[1] = u0
+  for i in 1:n-1
+    f(du,u[i],p)
+    u[i+1] = du
+  end
+  u
+end
+solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+Oh no, all of the outputs are the same! What happened? The problem is in the line
+`u[i+1] = du`. What we had done is set the save vector to the same pointer as `du`,
+effectively linking all of the pointers. The moral of the story is, you cannot
+get around allocating for all of these outputs if you're going to give the user
+all of the outputs! It's impossible to not make all of these arrays, so if this is
+the case then you'd have to:
+
+```julia
+function solve_system_save_copy(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  du = similar(u0)
+  u[1] = u0
+  for i in 1:n-1
+    f(du,u[i],p)
+    u[i+1] = copy(du)
+  end
+  u
+end
+solve_system_save_copy(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+which nullifies the advantage of the non-allocating approach. However, if only
+the end point is necessary, then the reduced allocation approach is helpful:
+
+```julia
+function solve_system_mutate(f,u0,p,n)
+  # create work buffers
+  du = similar(u0); u = copy(u0)
+  # non-allocating loop
+  for i in 1:n-1
+    f(du,u,p)
+    u .= du
+  end
+  u
+end
+solve_system_mutate(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+```julia
+@btime solve_system(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+```julia
+@btime solve_system_mutate(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+One last change that we could do is make use of StaticArrays. To do this, we
+need to go back to non-mutating, like:
+
+```julia
+using StaticArrays
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  du1 = u[1] + α*(σ*(u[2]-u[1]))
+  du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+  du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  @SVector [du1,du2,du3]
+end
+p = (0.02,10.0,28.0,8/3)
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  u[1] = u0
+  for i in 1:n-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+```julia
+@btime solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+This is utilizing a lot more optimizations, like SIMD, automatically, which is
+helpful. Let's also remove the bounds checks:
+
+```julia
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  @inbounds begin
+    du1 = u[1] + α*(σ*(u[2]-u[1]))
+    du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+    du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  end
+  @SVector [du1,du2,du3]
+end
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:n-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+```julia
+@btime solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+And we can get down to non-allocating for the loop:
+
+```julia
+@btime solve_system(lorenz,@SVector([1.0,0.0,0.0]),p,1000)
+```
+
+Notice that the single allocation is the output.
+
+We can lastly make the saving version completely non-allocating if we hoist the
+allocation out to the higher level:
+
+```julia
+function solve_system_save!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+u = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+@btime solve_system_save!(u,lorenz,@SVector([1.0,0.0,0.0]),p,1000)
+```
+
+#### Embaressingly Data-Parallel Multithreading
