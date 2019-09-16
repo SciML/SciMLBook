@@ -839,6 +839,883 @@ u_{n+1} = -u_n
 \]</p>
 <p>will bounce back and forth between two values. These periodic orbits themselves have geometric properties, such as whether it&#39;s a stable periodic orbit &#40;points nearby are attracted to the periodic orbit&#41;. Periodic orbits have a length as well: this was a periodic orbit of length 2.</p>
 <p>Chaos is another interesting property of a discrete dynamical system. It can be interpreted as a periodic orbit where the length is infinity. This can happen if, by changing a parameter, a period 2 orbit becomes a period 4, then a period 8, etc. &#40;a phonomenon known as period doubling&#41;, and when it goes beyond the accumulation point the &quot;infinite period orbit&quot; is reached and chaos is found. A homework problem will delve into the properties of chaos as an example of a simple embaressingly data-parallel problem.</p>
+<h2>Efficient Implmentation of Dynamical Systems</h2>
+<p>Dynamical systems are just loops, so the implementation is easy to understand. However, there are a few things that one must keep in mind in order to allow for efficient implementations.</p>
+<h4>Higher order functions</h4>
+<p>Functions which compute the solutions to dynamical systems are inherently <em>higher order functions</em>, which means it&#39;s a function which takes in a function as an argument. The following is a quick implementation:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-s'>&quot;&quot;&quot;
+`solve_system(f,u0,n)`
+
+Solves the dynamical system
+
+``u_{n+1} = f(u_n)``
+
+for N steps. Returns the solution at step `n` with parameters `p`.
+
+&quot;&quot;&quot;</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox2.solve_system
+</pre>
+
+
+<p>Notice the <code>&quot;&quot;&quot;</code> before the function: this is a docstring. When the Julia REPL is queried with <code>?solve_system</code> this will be the description that is displayed.</p>
+<p>Now, is this function going to be efficient? Recall from the earlier discussion that:</p>
+<ul>
+<li><p>Type-stability is necessary for inference to carry forward type information.</p>
+</li>
+<li><p>Julia auto-specializes on input types.</p>
+</li>
+<li><p>Inlining can occur automatically for sufficiently small functions.</p>
+</li>
+</ul>
+<p>From this information, we know that in order for this to be efficient, we require that the type of <code>f&#40;u&#41;</code> is inferred. But if <code>f</code> is a variable, how can that be inferred? In order for that to occur, we would have to know what <code>f</code> is, since not all functions will give the same output type. Additionally, in order to inline the function, we will have to know what the function is at compile-time. So, is it possible to make this implementation efficient?</p>
+<p>It turns out that this does optimize due to one fact: every function is given by its own type. We can verify this by defining a function and checking its type:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+typeof&#40;Main.WeaveSandBox2.f&#41;
+</pre>
+
+
+<p>It displays <code>typeof&#40;f&#41;</code> to indicate that the function <code>f</code> is its own type, and thus at automatic specialization time the compiler knows all of the information about the function and thus inlines and performs inference correctly.</p>
+<p>Note that this does mean that the function will need to recompile for every new <code>f</code>. This is similar to statically compiling a function for use in a C/Fortran library. What is the equivalent to using a function like a shared library or a shared object? This is given by FunctionWrappers.jl. This directly stores the function pointer in an object that can have shared type information in order to keep every function as the same type. However, the wrapped function has more information about the pointer... what&#39;s necessary?</p>
+<p>The answer is that FunctionWrappers.jl allows for specifying the input and output types, in order for the wrapper to do the right assertions for inference to carry forward type stability, since in this case inference is not able to step through the function pointer.</p>
+<h4>Quick Check</h4>
+<p>What will approximately be the value of this dynamical system after 1000 steps if you start at <code>1.0</code> with paramter <code>p&#61;0.25</code>? Can you guess without solving the system? Think about steady states and stabiltiy.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.0
+</pre>
+
+
+<p>The answer is that it goes to zero. The steady states are the zeros of the polynomial, which are <code>0</code> and <code>p&#43;1</code>. It&#39;s reasonable to believe that it either goes to one of those 2 values or infinity. In the first step, <code>1^2 - 0.25 &#61; 0.75 &lt; 1</code> which suggests &#40;but doesn&#39;t confirm&#33;&#41; that it&#39;s a contraction. Notice that the derivative is <code>2u-p</code>, and so <code>u&#61;p&#43;1&#61;1.25</code> is not a stable steady state, and thus we go to zero. In fact, we can check a few values:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.1</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.0
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.22</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.0
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.25</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1.25
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+3.8234317863564664
+</pre>
+
+
+<p>Notice that the moment we go above the steady state <code>p&#43;1</code>, we exponentially grow to infinity.</p>
+<p>Just to double check the implementation:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.000002 seconds &#40;5 allocations: 176 bytes&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>100</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.000005 seconds &#40;5 allocations: 176 bytes&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.000009 seconds &#40;5 allocations: 176 bytes&#41;
+NaN
+</pre>
+
+
+<p>Those allocations are just the output, and notice it&#39;s independent of the loop count.</p>
+<h4>Multidimensional System Implementations</h4>
+<p>When we go to multidimensional systems, some care needs to be taken to decrease the number of allocations which are occuring. One of the ways to do this is to utilize statically sized arrays. For example, let&#39;s look at a discretization of the Lorenz system:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>lorenz</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-n'>ρ</span><span class='hljl-p'>,</span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>σ</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]))</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>ρ</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>])</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du3</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'>
+  </span><span class='hljl-p'>[</span><span class='hljl-n'>du1</span><span class='hljl-p'>,</span><span class='hljl-n'>du2</span><span class='hljl-p'>,</span><span class='hljl-n'>du3</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.02</span><span class='hljl-p'>,</span><span class='hljl-nfB'>10.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>28.0</span><span class='hljl-p'>,</span><span class='hljl-ni'>8</span><span class='hljl-oB'>/</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+3-element Array&#123;Float64,1&#125;:
+  1.4744010677851374
+  0.8530017039412324
+ 20.62004063423844
+</pre>
+
+
+<p>Let&#39;s see what this gives us by saving:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>to_plot</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Plots</span><span class='hljl-t'>
+</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>to_plot</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>][</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>to_plot</span><span class='hljl-p'>)]</span><span class='hljl-t'>
+</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>to_plot</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>][</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>to_plot</span><span class='hljl-p'>)]</span><span class='hljl-t'>
+</span><span class='hljl-n'>z</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>to_plot</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>][</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>to_plot</span><span class='hljl-p'>)]</span><span class='hljl-t'>
+</span><span class='hljl-nf'>plot</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-n'>z</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<img src="data:image/png;base64,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"  />
+
+<p>This is the chaotic Lorenz attractor plotted in phase space, i.e. the values of the variables against each other.</p>
+<p>Let&#39;s look at the implementation a little bit more. <code>u &#61; Vector&#123;typeof&#40;u0&#41;&#125;&#40;undef,n&#41;</code> is type-generic, meaning any <code>u0</code> can be used with that code. However, as a vector of vectors, it is a vector of pointers to contiguous memory, instead of being contiguous itself. Note that that means there is not much of a cost by not pre-specifying the size up front:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_push</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>push!</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>))</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.000098 seconds &#40;1.00 k allocations: 117.469 KiB&#41;
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_push</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.038707 seconds &#40;19.21 k allocations: 1.066 MiB&#41;
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+<p>The first time Julia compiles the function, and the second is a straight call.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_push</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.000118 seconds &#40;1.01 k allocations: 125.938 KiB&#41;
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+<p>or we can use <code>@btime</code>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>BenchmarkTools</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+42.699 μs &#40;1001 allocations: 117.31 KiB&#41;
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_push</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+52.200 μs &#40;1010 allocations: 125.78 KiB&#41;
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+<p>This is because growth costs are amortized, meaning taht when pushing, the size isn&#39;t increasing by one each time, but rather it&#39;s doing something like doubling, so that it&#39;s averaging O&#40;1&#41; cost to keep growing &#40;in theory the best is to do Golden ratio resizing, and long discussions can be had on this topic&#41;.</p>
+<p>We can also look at what happens if we use matrices:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Matrix</span><span class='hljl-p'>{</span><span class='hljl-nf'>eltype</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>),</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+104.300 μs &#40;2001 allocations: 242.16 KiB&#41;
+3×1000 Array&#123;Float64,2&#125;:
+ 1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744 
+ 
+ 0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
+2
+ 0.0  0.0   0.00896  0.023474  0.0446145     22.9647    21.7584    20.62
+</pre>
+
+
+<p>Where is this cost coming from? A large portion of the cost is due to the slicing on the <code>u</code>, which we can fix with a <code>view</code>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix_view</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Matrix</span><span class='hljl-p'>{</span><span class='hljl-nf'>eltype</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>),</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-nd'>@view</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix_view</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+60.000 μs &#40;2001 allocations: 179.72 KiB&#41;
+3×1000 Array&#123;Float64,2&#125;:
+ 1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744 
+ 
+ 0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
+2
+ 0.0  0.0   0.00896  0.023474  0.0446145     22.9647    21.7584    20.62
+</pre>
+
+
+<p>Since we are only ever using single columns as a unit, notice that there isn&#39;t any benefit to keeping the whole thing contiguous, and in fact there are some downsides &#40;cache is harder to optimize because the longer cache lines are unnecessary, the views need to be used&#41;. Also, growing the matrix adaptively is not a very good idea since every growth requires both allocating memory and copying over the old values:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix_resize</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Matrix</span><span class='hljl-p'>{</span><span class='hljl-nf'>eltype</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>),</span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>hcat</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-nd'>@view</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-oB'>:</span><span class='hljl-p'>,</span><span class='hljl-n'>i</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>))</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix_resize</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1.479 ms &#40;4316 allocations: 11.77 MiB&#41;
+3×1000 Array&#123;Float64,2&#125;:
+ 1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744 
+ 
+ 0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
+2
+ 0.0  0.0   0.00896  0.023474  0.0446145     22.9647    21.7584    20.62
+</pre>
+
+
+<p>So for now let&#39;s go back to the Vector of Arrays approach. One way to reduce the number of allocations is to require that the user provides an in-place non-allocating function. For example:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>lorenz</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-n'>ρ</span><span class='hljl-p'>,</span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>σ</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]))</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>ρ</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>])</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.02</span><span class='hljl-p'>,</span><span class='hljl-nfB'>10.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>28.0</span><span class='hljl-p'>,</span><span class='hljl-ni'>8</span><span class='hljl-oB'>/</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>similar</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>du</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;              
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ ⋮                            
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+ &#91;-6.76297, -11.7906, 16.0516&#93;
+</pre>
+
+
+<p>Oh no, all of the outputs are the same&#33; What happened? The problem is in the line <code>u&#91;i&#43;1&#93; &#61; du</code>. What we had done is set the save vector to the same pointer as <code>du</code>, effectively linking all of the pointers. The moral of the story is, you cannot get around allocating for all of these outputs if you&#39;re going to give the user all of the outputs&#33; It&#39;s impossible to not make all of these arrays, so if this is the case then you&#39;d have to:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_copy</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>similar</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>copy</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system_save_copy</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+<p>which nullifies the advantage of the non-allocating approach. However, if only the end point is necessary, then the reduced allocation approach is helpful:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_mutate</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-cs'># create work buffers</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>similar</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>);</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>copy</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-cs'># non-allocating loop</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>.=</span><span class='hljl-t'> </span><span class='hljl-n'>du</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system_mutate</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+3-element Array&#123;Float64,1&#125;:
+  1.4744010677851374
+  0.8530017039412324
+ 20.62004063423844
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+39.799 μs &#40;1000 allocations: 109.38 KiB&#41;
+3-element Array&#123;Float64,1&#125;:
+  1.4744010677851374
+  0.8530017039412324
+ 20.62004063423844
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_mutate</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+23.499 μs &#40;3 allocations: 336 bytes&#41;
+3-element Array&#123;Float64,1&#125;:
+  1.4744010677851374
+  0.8530017039412324
+ 20.62004063423844
+</pre>
+
+
+<p>One last change that we could do is make use of StaticArrays. To do this, we need to go back to non-mutating, like:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>StaticArrays</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>lorenz</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-n'>ρ</span><span class='hljl-p'>,</span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>σ</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]))</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>ρ</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>])</span><span class='hljl-t'>
+  </span><span class='hljl-n'>du3</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@SVector</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>du1</span><span class='hljl-p'>,</span><span class='hljl-n'>du2</span><span class='hljl-p'>,</span><span class='hljl-n'>du3</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.02</span><span class='hljl-p'>,</span><span class='hljl-nfB'>10.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>28.0</span><span class='hljl-p'>,</span><span class='hljl-ni'>8</span><span class='hljl-oB'>/</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+8.567 μs &#40;2 allocations: 23.52 KiB&#41;
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+<p>This is utilizing a lot more optimizations, like SIMD, automatically, which is helpful. Let&#39;s also remove the bounds checks:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>lorenz</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-n'>σ</span><span class='hljl-p'>,</span><span class='hljl-n'>ρ</span><span class='hljl-p'>,</span><span class='hljl-n'>β</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-k'>begin</span><span class='hljl-t'>
+    </span><span class='hljl-n'>du1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>σ</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]))</span><span class='hljl-t'>
+    </span><span class='hljl-n'>du2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>ρ</span><span class='hljl-oB'>-</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>])</span><span class='hljl-t'>
+    </span><span class='hljl-n'>du3</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>β</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@SVector</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>du1</span><span class='hljl-p'>,</span><span class='hljl-n'>du2</span><span class='hljl-p'>,</span><span class='hljl-n'>du3</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>)}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+8.633 μs &#40;2 allocations: 23.52 KiB&#41;
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+<p>And we can get down to non-allocating for the loop:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+7.775 μs &#40;1 allocation: 32 bytes&#41;
+3-element SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;:
+  1.4744010677851374
+  0.8530017039412324
+ 20.62004063423844
+</pre>
+
+
+<p>Notice that the single allocation is the output.</p>
+<p>We can lastly make the saving version completely non-allocating if we hoist the allocation out to the higher level:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save!</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u0</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>)</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]))}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save!</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+7.725 μs &#40;0 allocations: 0 bytes&#41;
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+ &#91;1.0, 0.0, 0.0&#93;               
+ &#91;0.8, 0.56, 0.0&#93;              
+ &#91;0.752, 0.9968, 0.00896&#93;      
+ &#91;0.80096, 1.39785, 0.023474&#93;  
+ &#91;0.920338, 1.81805, 0.0446145&#93;
+ &#91;1.09988, 2.29626, 0.0756995&#93; 
+ &#91;1.33916, 2.8646, 0.122174&#93;   
+ &#91;1.64425, 3.55397, 0.192382&#93;  
+ &#91;2.02619, 4.39734, 0.298993&#93;  
+ &#91;2.50042, 5.43194, 0.461244&#93;  
+ ⋮                             
+ &#91;6.80892, 0.898756, 31.6759&#93;  
+ &#91;5.62689, 0.380197, 30.109&#93;   
+ &#91;4.57755, 0.135257, 28.5459&#93;  
+ &#91;3.68909, 0.0825716, 27.0359&#93; 
+ &#91;2.96779, 0.152056, 25.6&#93;     
+ &#91;2.40464, 0.291466, 24.2437&#93;  
+ &#91;1.98201, 0.466287, 22.9647&#93;  
+ &#91;1.67886, 0.656559, 21.7584&#93;  
+ &#91;1.4744, 0.853002, 20.62&#93;
+</pre>
+
+
+<p>It is important to note that this single allocation does not seem to effect the timing of the result in this case, when run serially. However, when parallelism or embedded applications get involved, this can be a significant effect.</p>
+<h2>Discussion Questions</h2>
+<ol>
+<li><p>What are some ways to compute steady states? Periodic orbits?</p>
+</li>
+<li><p>When using the mutating algorithms, what are the data dependencies between different solves if they were to happen simultaniously?</p>
+</li>
+<li><p>We saw that there is a connection between delayed systems and multivariable systems. How deep does that go? Is every delayed system also a multivariable system and vice versa? Is this a useful idea to explore?</p>
+</li>
+</ol>
 
 
 
@@ -846,7 +1723,7 @@ u_{n+1} = -u_n
           <div class="footer"><p>
           Published from <a href="dynamical_systems.jmd">dynamical_systems.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-09-09.
+           on 2019-09-16.
           <p></div>
 
 

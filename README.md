@@ -318,8 +318,26 @@ used to get fast codes for dynamical system simulation. These simulations will t
 be used to reveal some intriguing properties of dynamical systems which will be
 further explored through the rest of the course.
 
-## Lecture 5: Ordinary Differential Equations Across the Sciences
+## Lecture 5: Array-Based Parallelism, Embarrassingly Parallel Problems, and Data-Parallelism
 
-## Lecture 6: Numerical Methods for ODEs
+#### Lecture Notes
 
-## Lecture 7: Within-Method and Data-Parallelism of ODE Solvers
+#### Optional Pre-Reading Materials
+
+Now that we have a concrete problem, let's start investigating ways to parallelize
+its solution. We will first see that many systems have an almost automatic way
+of parallelizing through array operations, which we will call array-based
+parallelism. The ability to easily parallelize large blocked linear algebra
+will be discussed, along with libraries like OpenBLAS, Intel MKL, CuBLAS (GPU
+parallelism) and Elemental.jl. This gives a form of Within-Method Parallelism
+which we can use to optimize specific algorithms which utilize linearity.
+Another form of parallelism is to parallelize over the inputs. We will describe
+how this is a form of data parallelism, and use this as a framework to
+introduce shared memory and distributed parallelism. The interactions between
+these parallelization methods and application considerations will be discussed.
+
+## Lecture 6: Ordinary Differential Equations Across the Sciences
+
+## Lecture 7: Numerical Methods for ODEs
+
+## Lecture 8: Designing ODE Methods for Within-Method Parallelism
