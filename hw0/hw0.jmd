@@ -4,18 +4,29 @@ author: Chris Rackauckas
 date: September 8th, 2019
 ---
 
-Homework 0 is a simple introduction to the HPC and running parallel codes.
+Homework 0 is a simple introduction to the HPC and running parallel codes. All
+homeworks should contain the scripts that were executed and a writeup explaining
+what you did and what the solution looked like. Email a zip folder with these
+contents to crackauc@mit.edu.
+
+For your writeup, you may want to try [Weave.jl](https://github.com/JunoLab/Weave.jl)
+for mixing code with output webpages or PDFs. Other systems to try are
+[Literate.jl](https://github.com/fredrikekre/Literate.jl), [Lyx](https://www.lyx.org/),
+or plain ol' Latex ([Overleaf](https://www.overleaf.com) is a good service to
+try if you haven't used it already!). I would highly recommend not writing the
+output in a word document.
 
 ## Problem 1
 
-Get access to the Supercloud HPC and run the [Parallel Word Count](https://github.com/llsc-supercloud/teaching-examples/tree/master/Julia/word_count/Parallel)
-example.
+Get access to the Supercloud HPC and run the
+[Parallel Word Count](https://github.com/llsc-supercloud/teaching-examples/tree/master/Julia/word_count/Parallel)
+example. Share the output in your writeup.
 
 ## Problem 2
 
-Setup a parallel code to run on the HPC from scratch. For this, let's make
-one Brownian motion per process. A Brownian motion can be easily made through
-the following function:
+Setup a parallel code to run on the HPC with multiple nodes from scratch.
+For this, let's generate N=50 Brownian motions using a parallel map (`pmap`).
+A Brownian motion can be easily made through the following function:
 
 ```julia
 make_brownian(dt,n) = cumsum([0;sqrt(dt).*randn(n+1)])
@@ -28,9 +39,8 @@ Create a `.jl` file which uses `Distributed`, `addprocs`, `@everywhere`,
 addprocs(SlurmManager(parse(Int,ENV["SLURM_NTASKS"])-1))
 ```
 
-```{julia;eval=false}
-println(run(`hostname`))
-```
-
-to make each process print out their name and return a Brownian motion. Write
-a `.sh` batch script to run this process in parallel.
+to create 50 Brownian motions using various compute nodes across the cluster.
+Demonstrate that this setup is actually using multiple nodes (hint: use
+the `hostname` command line command). Write a `.sh` batch script to run this
+process in parallel. In your writeup, describe how you know that your commands
+are being run on multiple nodes.

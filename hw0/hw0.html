@@ -661,11 +661,12 @@ div.title {text-align: center;}
             <h5>September 8th, 2019</h5>
           </div>
 
-          <p>Homework 0 is a simple introduction to the HPC and running parallel codes.</p>
+          <p>Homework 0 is a simple introduction to the HPC and running parallel codes. All homeworks should contain the scripts that were executed and a writeup explaining what you did and what the solution looked like. Email a zip folder with these contents to crackauc@mit.edu.</p>
+<p>For your writeup, you may want to try <a href="https://github.com/JunoLab/Weave.jl">Weave.jl</a> for mixing code with output webpages or PDFs. Other systems to try are <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>, <a href="https://www.lyx.org/">Lyx</a>, or plain ol&#39; Latex &#40;<a href="https://www.overleaf.com">Overleaf</a> is a good service to try if you haven&#39;t used it already&#33;&#41;. I would highly recommend not writing the output in a word document.</p>
 <h2>Problem 1</h2>
-<p>Get access to the Supercloud HPC and run the <a href="https://github.com/llsc-supercloud/teaching-examples/tree/master/Julia/word_count/Parallel">Parallel Word Count</a> example.</p>
+<p>Get access to the Supercloud HPC and run the <a href="https://github.com/llsc-supercloud/teaching-examples/tree/master/Julia/word_count/Parallel">Parallel Word Count</a> example. Share the output in your writeup.</p>
 <h2>Problem 2</h2>
-<p>Setup a parallel code to run on the HPC from scratch. For this, let&#39;s make one Brownian motion per process. A Brownian motion can be easily made through the following function:</p>
+<p>Setup a parallel code to run on the HPC with multiple nodes from scratch. For this, let&#39;s generate N&#61;50 Brownian motions using a parallel map &#40;<code>pmap</code>&#41;. A Brownian motion can be easily made through the following function:</p>
 
 
 <pre class='hljl'>
@@ -687,14 +688,7 @@ make_brownian &#40;generic function with 1 method&#41;
 </pre>
 
 
-
-
-<pre class='hljl'>
-<span class='hljl-nf'>println</span><span class='hljl-p'>(</span><span class='hljl-nf'>run</span><span class='hljl-p'>(</span><span class='hljl-sb'>`hostname`</span><span class='hljl-p'>))</span>
-</pre>
-
-
-<p>to make each process print out their name and return a Brownian motion. Write a <code>.sh</code> batch script to run this process in parallel.</p>
+<p>to create 50 Brownian motions using various compute nodes across the cluster. Demonstrate that this setup is actually using multiple nodes &#40;hint: use the <code>hostname</code> command line command&#41;. Write a <code>.sh</code> batch script to run this process in parallel. In your writeup, describe how you know that your commands are being run on multiple nodes.</p>
 
 
 
@@ -702,7 +696,7 @@ make_brownian &#40;generic function with 1 method&#41;
           <div class="footer"><p>
           Published from <a href="hw0.jmd">hw0.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-09-09.
+           on 2019-09-17.
           <p></div>
 
 
