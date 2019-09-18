@@ -454,6 +454,12 @@ This is essential for numerical performance because running multiple compute
 threads on a single CPU thread requires constant context switching between
 the threads, which will slow down the computations.
 
+#### Possible Project
+
+Note that this can extend to external library calls as well.
+[FFTW.jl recently gained support for this](https://github.com/JuliaMath/FFTW.jl/pull/105).
+A possible final project would be to do a similar change [to OpenBLAS](https://github.com/JuliaLang/julia/issues/32786).
+
 ## Alternative Parallelism Models
 
 ### Simplest Parallel Code
@@ -481,3 +487,35 @@ to be parallel under the hood. In Julia, some examples of this are:
 This is not a Julia specific idea either
 
 ### BLAS and Standard Libraries
+
+The basic linear algebra calls are all handled by a set of libraries which follow
+the same interface known as BLAS (Basic Linear Algebra Subroutines). It's
+divided into 3 portions:
+
+- BLAS1: Element-wise operations (O(n))
+- BLAS2: Matrix-vector operations (O(n^2))
+- BLAS3: Matrix-matrix operations (O(n^3))
+
+BLAS implementations are highly optimized, like OpenBLAS and Intel MKL, so
+every numerical language and library essentially uses similar underlying
+BLAS implementations. Extensions to these, known as LAPACK, include operations
+like factorizations, and are included in these standard libraries. These are
+all multithreaded. The reason why this is a location to target is because the
+operation count is high enough that parallelism can be made efficient even
+when only targetting this level: a matrix multiplication can take on the order
+of seconds, minutes, hours, or even days, and these are all highly parallel
+operations. This means you can get away with a bunch just by parallelizing at
+this level, which happens to be a bottleneck for a lot scientific computing
+codes.
+
+This is also commonly the level at which GPU computing occurs in machine learning
+libraries for reasons which we will explain later.
+
+## Conclusion
+
+The easiest forms of parallelism are:
+
+- Embarrassingly parallel
+- Array-level parallelism (built into linear algebra)
+
+Exploit these when possible.
