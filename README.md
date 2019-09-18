@@ -322,6 +322,8 @@ further explored through the rest of the course.
 
 #### Lecture Notes
 
+- [The Basics of Single Node Parallel Computing](https://mitmath.github.io/18337/lecture5/parallelism_overview)
+
 #### Optional Pre-Reading Materials
 
 Now that we have a concrete problem, let's start investigating ways to parallelize
