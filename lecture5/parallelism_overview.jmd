@@ -1,0 +1,278 @@
+---
+title: The Basics of Single Node Parallel Computing
+author: Chris Rackauckas
+date: September 17th, 2019
+---
+
+Moore's law was the idea that computers double in efficiency at fixed time points,
+leading to exponentially more computing power over time. This was true for a very
+long time.
+
+![](https://assets.weforum.org/editor/large_SOupdi6_TD1Lyud4kWEHmsB5rcslL0q2BB6UCRCEZKE.png)
+
+However, sometime in the last decade, computer cores have stopped getting faster.
+
+>The technology that promises to keep Moore’s Law going after 2013 is known as extreme ultraviolet (EUV) lithography. It uses light to write a pattern into a chemical layer on top of a silicon wafer, which is then chemically etched into the silicon to make chip components. EUV lithography uses very high energy ultraviolet light rays that are closer to X-rays than visible light. That’s attractive because EUV light has a short wavelength—around 13 nanometers—which allows for making smaller details than the 193-nanometer ultraviolet light used in lithography today. But EUV has proved surprisingly difficult to perfect.
+
+-MIT Technology Review
+
+The answer to the “end of Moore's Law” is Parallel Computing. However, programs need
+to be specifically designed in order to adequately use parallelism. This lecture
+will describe at a very high level the forms of parallelism and when they are
+appropriate. We will then proceed to use shared-memory multithreading to
+parallelize the simulation of the discrete dynamical system.
+
+## Managing Threads
+
+### Concurrency vs Parallelism and Green Threads
+
+There is a difference between concurrency and parallelism. In a nutshell:
+
+- Concurrency: Interruptability
+- Parallelism: Independentability
+
+![](http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-1.png)
+![](http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-2.png)
+
+To start thinking about concurrency, we need to distinguish between a process
+and a thread. A process is discrete running instance of a computer program.
+It has allocated memory for the program's code, its data, a heap, etc.
+Each process can have many compute threads. These threads are the unit of
+execution that needs to be done. On each task is its own stack and a virtual
+CPU (virtual CPU since it's not the true CPU, since that would require that the
+task is ON the CPU, which it might not be because the task can be temporarily
+haulted). The kernel of the operating systems then *schedules* tasks, which
+runs them. In order to keep the computer running smooth, *context switching*,
+i.e. changing the task that is actually running, happens all the time. This is
+independent of whether tasks are actually scheduled in parallel or not.
+
+![](https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png)
+
+This is an important distinction because many tasks may need to be ran concurrently
+but without parallelism. Examples of this are input/output (I/O). For example,
+in a game you may want to be updating the graphics, but the moment a user clicks
+you want to handle that event. You do not necessarily need to have these running
+in parallel, but you need the event handling task to be running concurrently to
+the processing of the game.
+
+![](https://assets.weforum.org/editor/large_MbM-fLOQDkOW_Gvmj_X5ZO9ys6dDF4EMrtiVQG-Fy4Y.png)
+
+Data handling is the key area of scientific computing where green threads
+(concurrent non-parallel threads) show up. For data handling, one may need to
+send a signal that causes a message to start being passed. Alternative hardware
+take over at that point. this alternative hardware is a processor specific
+for an I/O bus, like the controller for the SSD, modem, GPU, or Infiniband. It will
+be polled, then it will execute the command, and give the result. There are two
+variants:
+
+- Non-Blocking vs Blocking: Whether the thread will periodically poll for whether that task is complete, or whether it should wait for the task to complete before doing anything else
+- Synchronous vs Asynchronus: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.
+
+I/O operations cause a *privileged context switch*, allowing the task which is
+handling the I/O to directly be switched to in order to continue actions.
+
+#### Asynchronus Calling Example
+
+This example will become more clear when we get to distributed computing, but
+for think of `remotecall_fetch` as a way to run a command on a different computer.
+What we want to do is start all of the commands at once, and then wait for all
+the results before finishing the loop. We will use `@async` to make the call
+to `remotecall_fetch` be non-blocking, i.e. it'll start the job and only poll
+infrequently to find out when the other machine has completed the job and
+returned the result. We then add `@sync` to the loop, which will only continue
+the loop after all of the green threads have fetched the result. Otherwise,
+it's possible that `a[idx]` may not be filled yet, since the thread may not
+have fetched the result!
+
+```julia;eval=false
+@time begin
+    a = cell(nworkers())
+    @sync for (idx, pid) in enumerate(workers())
+        @async a[idx] = remotecall_fetch(pid, sleep, 2)
+    end
+end
+```
+
+The same can be done for writing to the disk.
+
+### Multithreading
+
+If your threads are independent, then it may make sense to run them in parallel.
+This is the form of parallelism known as multithreading. To understand the
+data that is available in a multithreaded setup, let's look at the picture of
+threads again:
+
+![](https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png)
+
+Each thread has its own call stack, but it's the process that holds the heap.
+This means that dynamically-sized heap allocated objects are shared between
+threads with no cost, a setup known as shared-memory computing.
+
+#### Loop-Based Multithreading with @threads
+
+Let's look back at our Lorenz dynamical system from before:
+
+```julia
+using StaticArrays, BenchmarkTools
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  @inbounds begin
+    du1 = u[1] + α*(σ*(u[2]-u[1]))
+    du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+    du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  end
+  @SVector [du1,du2,du3]
+end
+function solve_system_save!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+p = (0.02,10.0,28.0,8/3)
+u = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+@btime solve_system_save!(u,lorenz,@SVector([1.0,0.0,0.0]),p,1000)
+```
+
+In order to use multithreading on this code, we need to take a look at the dependency
+graph and see what items can be calculated independently of each other. Notice that
+
+```
+σ*(u[2]-u[1])
+ρ-u[3]
+u[1]*u[2]
+β*u[3]
+```
+
+are all independent operations, so in theory we could split those off to different
+threads, move up, etc.
+
+Or we can have three threads:
+
+```
+u[1] + α*(σ*(u[2]-u[1]))
+u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+u[3] + α*(u[1]*u[2] - β*u[3])
+```
+
+all don't depend on the output of each other, so these tasks can be run in
+parallel. We can do this by using Julia's `Threads.@threads` macro which puts
+each of the computations of a loop in a different thread. The threaded loops
+do not allow you to return a value, so how do you build up the values for the
+`@SVector`?
+
+...?
+
+...?
+
+...?
+
+It's not possible! To understand why, let's look at the picture again:
+
+![](https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png)
+
+There is a shared heap, but the stacks are thread local. This means that a value
+cannot be stack allocated in one thread and magically appear when re-entering
+the main thread: it needs to go on the heap somewhere. But if it needs to go onto
+the heap, then it makes sense for us to have preallocated its location. But if
+we want to preallocate `du[1]`, `du[2]`, and `du[3]`, then it makes sense to use
+the fully non-allocating update form:
+
+```julia
+function lorenz!(du,u,p)
+  α,σ,ρ,β = p
+  @inbounds begin
+    du[1] = u[1] + α*(σ*(u[2]-u[1]))
+    du[2] = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+    du[3] = u[3] + α*(u[1]*u[2] - β*u[3])
+  end
+end
+function solve_system_save_iip!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    f(u[i+1],u[i],p)
+  end
+  u
+end
+p = (0.02,10.0,28.0,8/3)
+u = [Vector{Float64}(undef,3) for i in 1:1000]
+@btime solve_system_save_iip!(u,lorenz!,[1.0,0.0,0.0],p,1000)
+```
+
+and now we multithread:
+
+```julia
+using Base.Threads
+function lorenz_mt!(du,u,p)
+  α,σ,ρ,β = p
+  let du=du, u=u, p=p
+    for i in 1:3
+      @inbounds begin
+        if i == 1
+          du[1] = u[1] + α*(σ*(u[2]-u[1]))
+        elseif i == 2
+          du[2] = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+        else
+          du[3] = u[3] + α*(u[1]*u[2] - β*u[3])
+        end
+        nothing
+      end
+    end
+  end
+  nothing
+end
+function solve_system_save_iip!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    f(u[i+1],u[i],p)
+  end
+  u
+end
+p = (0.02,10.0,28.0,8/3)
+u = [Vector{Float64}(undef,3) for i in 1:1000]
+@btime solve_system_save_iip!(u,lorenz_mt!,[1.0,0.0,0.0],p,1000);
+```
+
+**Parallelism doesn't always make things faster**. There are two costs associated
+with this code. For one, we had to go to the slower heap+mutation version, so
+its implementation starting point is slower. But secondly, and more importantly,
+the cost of spinning a new thread is non-negligable. It's on the order of 40ns.
+So what we've done is taken almost free calculations and made them ~40ns by
+making each in a different thread, instead of just having it be one thread
+with one call stack.
+
+The moral of the story is that you need to make sure that there's enough work
+per thread in order to effectively accelerate a program with parallelism.
+
+### Data-Parallel Problems
+
+### Julia v1.3 and Hierarchical Multithreading
+
+## Alternative Parallelism Models
+
+### Simplest Parallel Code
+
+```julia
+A = rand(10000,10000)
+B = rand(10000,10000)
+A*B
+```
+
+If you are using a computer that has N cores, then this will use N cores. Try
+it and look at your resource usage!
+
+### Array-Based Parallelism
+
+The simplest form of parallelism is array-based parallelism. The idea is that
+you use some construction of an array whose operations are already designed
+to be parallel under the hood. In Julia, some examples of this are:
+
+- DistributedArrays (Distributed Computing)
+- Elemental
+- MPIArrays
+- CuArrays (GPUs)
+
+This is not a Julia specific idea either
+
+### BLAS and Standard Libraries
