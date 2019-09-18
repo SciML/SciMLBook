@@ -39,8 +39,8 @@ Create a `.jl` file which uses `Distributed`, `addprocs`, `@everywhere`,
 addprocs(SlurmManager(parse(Int,ENV["SLURM_NTASKS"])-1))
 ```
 
-to create 50 Brownian motions using various compute nodes across the cluster.
-Demonstrate that this setup is actually using multiple nodes (hint: use
-the `hostname` command line command). Write a `.sh` batch script to run this
-process in parallel. In your writeup, describe how you know that your commands
-are being run on multiple nodes.
+to create 50 Brownian motions with `dt=0.1` and `n=100` using various compute
+nodes across the cluster. Demonstrate that this setup is actually using
+multiple nodes (hint: use the `hostname` command line command). Write a `.sh`
+batch script to run this process in parallel. In your writeup, describe how you
+know that your commands are being run on multiple nodes.
