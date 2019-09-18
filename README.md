@@ -16,7 +16,7 @@ New methods, such as probabilistic and differentiable programming, have
 started to be developed specifically for enhancing the tools of this domain.
 However, the techniques in this field combine two huge areas of computational
 and numerical practice, meaning that the methods are sufficiently complex.
-How do you backpropogate an ODE defined by neural networks? How do you perform
+How do you backpropagate an ODE defined by neural networks? How do you perform
 unsupervised learning of a scientific simulator?
 
 In this class we will dig into the methods and understand what they do, why
@@ -143,24 +143,24 @@ usable program that is demonstrated.
 
 Homework 0: Using HPC Clusters
 
-- The basics of scientific simulators (Week 1)
+- The basics of scientific simulators (Week 1-2)
   - What is Scientific Machine Learning?
   - Optimization of serial code.
   - Introduction to discrete and continuous dynamical systems.
-  - Ordinary differential equations as the language for ecology, Newtonian mechanics,
-    and beyond.
-  - Numerical methods for non-stiff ordinary differential equations
-- Introduction to Parallel Computing (Week 2)
+- Introduction to Parallel Computing (Week 2-3)
   - Tutorial on using the Supercloud HPC (Get an account setup!)
   - Forms of parallelism and applications
   - Parallelizing differential equation solvers
-  - Optimal local parallelism via multithreading (Guest lecture: Alan Edelman)
+  - Optimal local parallelism via multithreading
   - Linear Algebra libraries you should know
 
 Homework 1: Parallelized global sensitivity analysis of discrete and continuous
 dynamical systems
 
-- Stiffness of biological and chemical reaction systems (Week 2-3)
+- Continuous Dynamics (Week 4)
+  - Ordinary differential equations as the language for ecology, Newtonian mechanics,
+    and beyond.
+  - Numerical methods for non-stiff ordinary differential equations
   - Definition of stiffness
   - Efficiently solving stiff ordinary differential equations
   - Stiff differential equations arising from biochemical interactions in developmental
@@ -321,6 +321,8 @@ further explored through the rest of the course.
 ## Lecture 5: Array-Based Parallelism, Embarrassingly Parallel Problems, and Data-Parallelism
 
 #### Lecture Notes
+
+- [The Basics of Single Node Parallel Computing](https://mitmath.github.io/18337/lecture5/parallelism_overview)
 
 #### Optional Pre-Reading Materials
 
