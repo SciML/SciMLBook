@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<HTML lang = "en">
+<HEAD>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>The Different Flavors of Parallelism</title>
+  
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+  </script>
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+
+  
+<style>
+pre.hljl {
+    border: 1px solid #ccc;
+    margin: 5px;
+    padding: 5px;
+    overflow-x: auto;
+    color: rgb(68,68,68); background-color: rgb(251,251,251); }
+pre.hljl > span.hljl-t { }
+pre.hljl > span.hljl-w { }
+pre.hljl > span.hljl-e { }
+pre.hljl > span.hljl-eB { }
+pre.hljl > span.hljl-o { }
+pre.hljl > span.hljl-k { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kc { color: rgb(59,151,46); font-style: italic; }
+pre.hljl > span.hljl-kd { color: rgb(214,102,97); font-style: italic; }
+pre.hljl > span.hljl-kn { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kp { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kr { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kt { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-n { }
+pre.hljl > span.hljl-na { }
+pre.hljl > span.hljl-nb { }
+pre.hljl > span.hljl-nbp { }
+pre.hljl > span.hljl-nc { }
+pre.hljl > span.hljl-ncB { }
+pre.hljl > span.hljl-nd { color: rgb(214,102,97); }
+pre.hljl > span.hljl-ne { }
+pre.hljl > span.hljl-neB { }
+pre.hljl > span.hljl-nf { color: rgb(66,102,213); }
+pre.hljl > span.hljl-nfm { color: rgb(66,102,213); }
+pre.hljl > span.hljl-np { }
+pre.hljl > span.hljl-nl { }
+pre.hljl > span.hljl-nn { }
+pre.hljl > span.hljl-no { }
+pre.hljl > span.hljl-nt { }
+pre.hljl > span.hljl-nv { }
+pre.hljl > span.hljl-nvc { }
+pre.hljl > span.hljl-nvg { }
+pre.hljl > span.hljl-nvi { }
+pre.hljl > span.hljl-nvm { }
+pre.hljl > span.hljl-l { }
+pre.hljl > span.hljl-ld { color: rgb(148,91,176); font-style: italic; }
+pre.hljl > span.hljl-s { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sa { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sb { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sc { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sd { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdC { color: rgb(201,61,57); }
+pre.hljl > span.hljl-se { color: rgb(59,151,46); }
+pre.hljl > span.hljl-sh { color: rgb(201,61,57); }
+pre.hljl > span.hljl-si { }
+pre.hljl > span.hljl-so { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sr { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ss { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ssB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-nB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nbB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nfB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nh { color: rgb(59,151,46); }
+pre.hljl > span.hljl-ni { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nil { color: rgb(59,151,46); }
+pre.hljl > span.hljl-noB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-oB { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-ow { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-p { }
+pre.hljl > span.hljl-c { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-ch { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cm { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cp { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cpB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cs { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-csB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-g { }
+pre.hljl > span.hljl-gd { }
+pre.hljl > span.hljl-ge { }
+pre.hljl > span.hljl-geB { }
+pre.hljl > span.hljl-gh { }
+pre.hljl > span.hljl-gi { }
+pre.hljl > span.hljl-go { }
+pre.hljl > span.hljl-gp { }
+pre.hljl > span.hljl-gs { }
+pre.hljl > span.hljl-gsB { }
+pre.hljl > span.hljl-gt { }
+</style>
+
+
+
+  <style type="text/css">
+  @font-face {
+  font-style: normal;
+  font-weight: 300;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 600;
+}
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+body {
+  margin: 0;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+audio,
+canvas,
+progress,
+video {
+  display: inline-block; /* 1 */
+  vertical-align: baseline; /* 2 */
+}
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+[hidden],
+template {
+  display: none;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+b,
+strong {
+  font-weight: bold;
+}
+dfn {
+  font-style: italic;
+}
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+mark {
+  background: #ff0;
+  color: #000;
+}
+small {
+  font-size: 80%;
+}
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}
+img {
+  border: 0;
+}
+svg:not(:root) {
+  overflow: hidden;
+}
+figure {
+  margin: 1em 40px;
+}
+hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+pre {
+  overflow: auto;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit; /* 1 */
+  font: inherit; /* 2 */
+  margin: 0; /* 3 */
+}
+button {
+  overflow: visible;
+}
+button,
+select {
+  text-transform: none;
+}
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button; /* 2 */
+  cursor: pointer; /* 3 */
+}
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+input {
+  line-height: normal;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+input[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box; /* 2 */
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+legend {
+  border: 0; /* 1 */
+  padding: 0; /* 2 */
+}
+textarea {
+  overflow: auto;
+}
+optgroup {
+  font-weight: bold;
+}
+table {
+  font-family: monospace, monospace;
+  font-size : 0.8em;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td,
+th {
+  padding: 0;
+}
+thead th {
+    border-bottom: 1px solid black;
+    background-color: white;
+}
+tr:nth-child(odd){
+  background-color: rgb(248,248,248);
+}
+
+
+/*
+* Skeleton V2.0.4
+* Copyright 2014, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 12/29/2014
+*/
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box; }
+.column,
+.columns {
+  width: 100%;
+  float: left;
+  box-sizing: border-box; }
+@media (min-width: 400px) {
+  .container {
+    width: 85%;
+    padding: 0; }
+}
+@media (min-width: 550px) {
+  .container {
+    width: 80%; }
+  .column,
+  .columns {
+    margin-left: 4%; }
+  .column:first-child,
+  .columns:first-child {
+    margin-left: 0; }
+
+  .one.column,
+  .one.columns                    { width: 4.66666666667%; }
+  .two.columns                    { width: 13.3333333333%; }
+  .three.columns                  { width: 22%;            }
+  .four.columns                   { width: 30.6666666667%; }
+  .five.columns                   { width: 39.3333333333%; }
+  .six.columns                    { width: 48%;            }
+  .seven.columns                  { width: 56.6666666667%; }
+  .eight.columns                  { width: 65.3333333333%; }
+  .nine.columns                   { width: 74.0%;          }
+  .ten.columns                    { width: 82.6666666667%; }
+  .eleven.columns                 { width: 91.3333333333%; }
+  .twelve.columns                 { width: 100%; margin-left: 0; }
+
+  .one-third.column               { width: 30.6666666667%; }
+  .two-thirds.column              { width: 65.3333333333%; }
+
+  .one-half.column                { width: 48%; }
+
+  /* Offsets */
+  .offset-by-one.column,
+  .offset-by-one.columns          { margin-left: 8.66666666667%; }
+  .offset-by-two.column,
+  .offset-by-two.columns          { margin-left: 17.3333333333%; }
+  .offset-by-three.column,
+  .offset-by-three.columns        { margin-left: 26%;            }
+  .offset-by-four.column,
+  .offset-by-four.columns         { margin-left: 34.6666666667%; }
+  .offset-by-five.column,
+  .offset-by-five.columns         { margin-left: 43.3333333333%; }
+  .offset-by-six.column,
+  .offset-by-six.columns          { margin-left: 52%;            }
+  .offset-by-seven.column,
+  .offset-by-seven.columns        { margin-left: 60.6666666667%; }
+  .offset-by-eight.column,
+  .offset-by-eight.columns        { margin-left: 69.3333333333%; }
+  .offset-by-nine.column,
+  .offset-by-nine.columns         { margin-left: 78.0%;          }
+  .offset-by-ten.column,
+  .offset-by-ten.columns          { margin-left: 86.6666666667%; }
+  .offset-by-eleven.column,
+  .offset-by-eleven.columns       { margin-left: 95.3333333333%; }
+
+  .offset-by-one-third.column,
+  .offset-by-one-third.columns    { margin-left: 34.6666666667%; }
+  .offset-by-two-thirds.column,
+  .offset-by-two-thirds.columns   { margin-left: 69.3333333333%; }
+
+  .offset-by-one-half.column,
+  .offset-by-one-half.columns     { margin-left: 52%; }
+
+}
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #222; }
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-weight: 300; }
+h1 { font-size: 3.6rem; line-height: 1.2;  letter-spacing: -.1rem;}
+h2 { font-size: 3.4rem; line-height: 1.25; letter-spacing: -.1rem; }
+h3 { font-size: 3.2rem; line-height: 1.3;  letter-spacing: -.1rem; }
+h4 { font-size: 2.8rem; line-height: 1.35; letter-spacing: -.08rem; }
+h5 { font-size: 2.4rem; line-height: 1.5;  letter-spacing: -.05rem; }
+h6 { font-size: 1.5rem; line-height: 1.6;  letter-spacing: 0; }
+
+p {
+  margin-top: 0; }
+a {
+  color: #1EAEDB; }
+a:hover {
+  color: #0FA0CE; }
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  display: inline-block;
+  height: 38px;
+  padding: 0 30px;
+  color: #555;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box; }
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
+.button:focus,
+button:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
+  color: #333;
+  border-color: #888;
+  outline: 0; }
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+  color: #FFF;
+  background-color: #33C3F0;
+  border-color: #33C3F0; }
+.button.button-primary:hover,
+button.button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus,
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
+  color: #FFF;
+  background-color: #1EAEDB;
+  border-color: #1EAEDB; }
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
+select {
+  height: 38px;
+  padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box; }
+/* Removes awkward default styles on some inputs for iOS */
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none; }
+textarea {
+  min-height: 65px;
+  padding-top: 6px;
+  padding-bottom: 6px; }
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid #33C3F0;
+  outline: 0; }
+label,
+legend {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600; }
+fieldset {
+  padding: 0;
+  border-width: 0; }
+input[type="checkbox"],
+input[type="radio"] {
+  display: inline; }
+label > .label-body {
+  display: inline-block;
+  margin-left: .5rem;
+  font-weight: normal; }
+ul {
+  list-style: circle; }
+ol {
+  list-style: decimal; }
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin: 1.5rem 0 1.5rem 3rem;
+  font-size: 90%; }
+li > p {margin : 0;}
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E1E1E1; }
+th:first-child,
+td:first-child {
+  padding-left: 0; }
+th:last-child,
+td:last-child {
+  padding-right: 0; }
+button,
+.button {
+  margin-bottom: 1rem; }
+input,
+textarea,
+select,
+fieldset {
+  margin-bottom: 1.5rem; }
+pre,
+blockquote,
+dl,
+figure,
+table,
+p,
+ul,
+ol,
+form {
+  margin-bottom: 1.0rem; }
+.u-full-width {
+  width: 100%;
+  box-sizing: border-box; }
+.u-max-full-width {
+  max-width: 100%;
+  box-sizing: border-box; }
+.u-pull-right {
+  float: right; }
+.u-pull-left {
+  float: left; }
+hr {
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
+  border-width: 0;
+  border-top: 1px solid #E1E1E1; }
+.container:after,
+.row:after,
+.u-cf {
+  content: "";
+  display: table;
+  clear: both; }
+
+pre {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  word-break: break-all;
+  word-wrap: break-word;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+pre.hljl {
+  margin: 0 0 10px;
+  display: block;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding : 5px;
+}
+
+pre.output {
+  background: #ffffff;
+}
+
+pre.code {
+  background: #ffffff;
+}
+
+pre.julia-error {
+  color : red
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+
+
+@media (min-width: 400px) {}
+@media (min-width: 550px) {}
+@media (min-width: 750px) {}
+@media (min-width: 1000px) {}
+@media (min-width: 1200px) {}
+
+h1.title {margin-top : 20px}
+img {max-width : 100%}
+div.title {text-align: center;}
+
+  </style>
+
+
+
+</HEAD>
+  <BODY>
+    <div class ="container">
+      <div class = "row">
+        <div class = "col-md-12 twelve columns">
+
+          <div class="title">
+            <h1 class="title">The Different Flavors of Parallelism</h1>
+            <h5>Chris Rackauckas</h5>
+            <h5>September 22nd, 2019</h5>
+          </div>
+
+          <p>Now that you are aware of the basics of parallel computing, let&#39;s give a high level overview of the differences between different modes of parallelism.</p>
+<h2>Lowest Level: SIMD</h2>
+<p>Recall SIMD, the idea that processors can run multiple commands simulataniously on specially structured data. &quot;Single Instruction Multiple Data&quot;. SIMD is parallelism within a single core.</p>
+<h3>How to do SIMD</h3>
+<p>The simplest way to do SIMD is simply to make sure that your values are aligned. If they are, then great, LLVM&#39;s autovectorizer pass has a good chance of automatic vectorization &#40;in the world of computing, &quot;SIMD&quot; is synonymous with vectorization since it is taking specific values and instead computing on small vectors. That is not to be confused with &quot;vectorization&quot; in the sense of Python/R/MATLAB, which is a programming style which prefers using C-defined primative functions, like broadcast or matrix multiplication&#41;.</p>
+<p>You can check for auto-vectorization inside of the LLVM IR by looking for statements like:</p>
+<pre><code>&#37;wide.load24 &#61; load &lt;4 x double&gt;, &lt;4 x double&gt; addrspac&#40;13&#41;* &#37;46, align 8
+; └
+; ┌ @ float.jl:395 within &#96;&#43;&#39;
+&#37;47 &#61; fadd &lt;4 x double&gt; &#37;wide.load, &#37;wide.load24</code></pre>
+<p>which means that 4 additions are happening simultaniously. The amount of vectorization is heavily dependent on your architecture. The ancient form of SIMD, the SSE&#40;2&#41; instructions, required that your data was aligned. Now there&#39;s a bit more leeway, but generally it holds that making your the data you&#39;re trying to SIMD over is aligned. Thus there can be major differences in computing using a <em>struct of array</em> format instead of an <em>arrays of structs</em> format. For example:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>struct</span><span class='hljl-t'> </span><span class='hljl-n'>MyComplex</span><span class='hljl-t'>
+  </span><span class='hljl-n'>real</span><span class='hljl-oB'>::</span><span class='hljl-n'>Float64</span><span class='hljl-t'>
+  </span><span class='hljl-n'>imag</span><span class='hljl-oB'>::</span><span class='hljl-n'>Float64</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>arr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>())</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-p'>]</span>
+</pre>
+
+
+<pre class="output">
+100-element Array&#123;Main.WeaveSandBox1.MyComplex,1&#125;:
+ Main.WeaveSandBox1.MyComplex&#40;0.48266109238745125, 0.4641701720870326&#41; 
+ Main.WeaveSandBox1.MyComplex&#40;0.8745325193759172, 0.70955531369546&#41;    
+ Main.WeaveSandBox1.MyComplex&#40;0.8216949483533402, 0.501030229896035&#41;   
+ Main.WeaveSandBox1.MyComplex&#40;0.3004513165491971, 0.6149428769185861&#41;  
+ Main.WeaveSandBox1.MyComplex&#40;0.7757706134223445, 0.8903444717887914&#41;  
+ Main.WeaveSandBox1.MyComplex&#40;0.22166752052387517, 0.37583602256259563&#41;
+ Main.WeaveSandBox1.MyComplex&#40;0.5639603327796399, 0.1358179576798808&#41;  
+ Main.WeaveSandBox1.MyComplex&#40;0.3081067883083548, 0.954313795827268&#41;   
+ Main.WeaveSandBox1.MyComplex&#40;0.9846207657411097, 0.04822752674160746&#41; 
+ Main.WeaveSandBox1.MyComplex&#40;0.7597281208423328, 0.4513281855208291&#41;  
+ ⋮                                                                     
+ Main.WeaveSandBox1.MyComplex&#40;0.25452918938701696, 0.9947643801570574&#41; 
+ Main.WeaveSandBox1.MyComplex&#40;0.677046799254889, 0.33480360843450874&#41;  
+ Main.WeaveSandBox1.MyComplex&#40;0.7476673689452558, 0.9329171870836386&#41;  
+ Main.WeaveSandBox1.MyComplex&#40;0.2889574979354079, 0.6338728028483844&#41;  
+ Main.WeaveSandBox1.MyComplex&#40;0.03434226397997442, 0.7936725650719132&#41; 
+ Main.WeaveSandBox1.MyComplex&#40;0.07815446633676415, 0.3836054453624207&#41; 
+ Main.WeaveSandBox1.MyComplex&#40;0.8645465183809189, 0.323115769622738&#41;   
+ Main.WeaveSandBox1.MyComplex&#40;0.04150804376850292, 0.8501391565472747&#41; 
+ Main.WeaveSandBox1.MyComplex&#40;0.42762296024914925, 0.5067909267064767&#41;
+</pre>
+
+
+<p>is represented in memory as</p>
+<pre><code>&#91;real1,imag1,real2,imag2,...&#93;</code></pre>
+<p>while the struct of array formats are</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>struct</span><span class='hljl-t'> </span><span class='hljl-n'>MyComplexes</span><span class='hljl-t'>
+  </span><span class='hljl-n'>real</span><span class='hljl-oB'>::</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}</span><span class='hljl-t'>
+  </span><span class='hljl-n'>imag</span><span class='hljl-oB'>::</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>arr2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyComplexes</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>))</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.MyComplexes&#40;&#91;0.737997, 0.637227, 0.80643, 0.226203, 0.36
+3984, 0.821431, 0.509467, 0.308366, 0.138407, 0.0460029  …  0.313719, 0.910
+71, 0.16531, 0.899056, 0.925093, 0.93055, 0.5059, 0.892234, 0.998142, 0.390
+089&#93;, &#91;0.248891, 0.659875, 0.300714, 0.736982, 0.608866, 0.989186, 0.459049
+, 0.12227, 0.690812, 0.733272  …  0.888037, 0.592105, 0.132248, 0.992864, 0
+.343688, 0.857534, 0.174047, 0.91854, 0.849392, 0.953488&#93;&#41;
+</pre>
+
+
+<p>Now let&#39;s check what happens when we perform a reduction:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>InteractiveUtils</span><span class='hljl-t'>
+</span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:+</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>::</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>,</span><span class='hljl-n'>y</span><span class='hljl-oB'>::</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-oB'>+</span><span class='hljl-n'>y</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-p'>,</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-oB'>+</span><span class='hljl-n'>y</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:/</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>::</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>,</span><span class='hljl-n'>y</span><span class='hljl-oB'>::</span><span class='hljl-n'>Int</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-oB'>/</span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-oB'>/</span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>::</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>})</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>sum</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-oB'>/</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>arr</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+;  @ none:1 within &#96;average&#39;
+; Function Attrs: uwtable
+define void @julia_average_14440&#40;&#123; double, double &#125;* noalias nocapture sret
+, &#37;jl_value_t addrspace&#40;10&#41;* nonnull align 16 dereferenceable&#40;40&#41;&#41; #0 &#123;
+top:
+  &#37;2 &#61; alloca &#37;jl_value_t addrspace&#40;10&#41;*, i32 4
+  &#37;3 &#61; alloca &lt;2 x double&gt;, align 16
+  &#37;tmpcast &#61; bitcast &lt;2 x double&gt;* &#37;3 to &#123; double, double &#125;*
+; ┌ @ reducedim.jl:648 within &#96;sum&#39;
+; │┌ @ reducedim.jl:648 within &#96;#sum#550&#39;
+; ││┌ @ reducedim.jl:652 within &#96;_sum&#39; @ reducedim.jl:653
+; │││┌ @ reducedim.jl:304 within &#96;mapreduce&#39;
+; ││││┌ @ reducedim.jl:304 within &#96;#mapreduce#548&#39;
+; │││││┌ @ reducedim.jl:308 within &#96;_mapreduce_dim&#39;
+; ││││││┌ @ reduce.jl:302 within &#96;_mapreduce&#39;
+; │││││││┌ @ indices.jl:426 within &#96;Type&#39;
+; ││││││││┌ @ abstractarray.jl:75 within &#96;axes&#39;
+; │││││││││┌ @ array.jl:155 within &#96;size&#39;
+            &#37;4 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;1 to &#37;jl_value_t
+ addrspace&#40;11&#41;*
+            &#37;5 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;4 to &#37;jl_value_t addrs
+pace&#40;10&#41;* addrspace&#40;11&#41;*
+            &#37;6 &#61; getelementptr inbounds &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_val
+ue_t addrspace&#40;10&#41;* addrspace&#40;11&#41;* &#37;5, i64 3
+            &#37;7 &#61; bitcast &#37;jl_value_t addrspace&#40;10&#41;* addrspace&#40;11&#41;* &#37;6 to i6
+4 addrspace&#40;11&#41;*
+            &#37;8 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;7, align 8
+; │││││││││└
+; │││││││││┌ @ tuple.jl:165 within &#96;map&#39;
+; ││││││││││┌ @ range.jl:317 within &#96;Type&#39; @ range.jl:308
+; │││││││││││┌ @ promotion.jl:414 within &#96;max&#39;
+              &#37;9 &#61; icmp sgt i64 &#37;8, 0
+; │││││││└└└└└
+; │││││││ @ reduce.jl:304 within &#96;_mapreduce&#39;
+         br i1 &#37;9, label &#37;L11, label &#37;L9
+
+L9:                                               ; preds &#61; &#37;top
+; │││││││ @ reduce.jl:305 within &#96;_mapreduce&#39;
+         &#37;10 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrsp
+ace&#40;10&#41;** &#37;2, i32 0
+         store &#37;jl_value_t addrspace&#40;10&#41;* addrspacecast &#40;&#37;jl_value_t* intto
+ptr &#40;i64 128224816 to &#37;jl_value_t*&#41; to &#37;jl_value_t addrspace&#40;10&#41;*&#41;, &#37;jl_val
+ue_t addrspace&#40;10&#41;** &#37;10
+         &#37;11 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrsp
+ace&#40;10&#41;** &#37;2, i32 1
+         store &#37;jl_value_t addrspace&#40;10&#41;* addrspacecast &#40;&#37;jl_value_t* intto
+ptr &#40;i64 111391024 to &#37;jl_value_t*&#41; to &#37;jl_value_t addrspace&#40;10&#41;*&#41;, &#37;jl_val
+ue_t addrspace&#40;10&#41;** &#37;11
+         &#37;12 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrsp
+ace&#40;10&#41;** &#37;2, i32 2
+         store &#37;jl_value_t addrspace&#40;10&#41;* addrspacecast &#40;&#37;jl_value_t* intto
+ptr &#40;i64 129609744 to &#37;jl_value_t*&#41; to &#37;jl_value_t addrspace&#40;10&#41;*&#41;, &#37;jl_val
+ue_t addrspace&#40;10&#41;** &#37;12
+         &#37;13 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrsp
+ace&#40;10&#41;** &#37;2, i32 3
+         store &#37;jl_value_t addrspace&#40;10&#41;* addrspacecast &#40;&#37;jl_value_t* intto
+ptr &#40;i64 268525232 to &#37;jl_value_t*&#41; to &#37;jl_value_t addrspace&#40;10&#41;*&#41;, &#37;jl_val
+ue_t addrspace&#40;10&#41;** &#37;13
+         &#37;14 &#61; call nonnull &#37;jl_value_t addrspace&#40;10&#41;* @jl_invoke&#40;&#37;jl_value
+_t addrspace&#40;10&#41;* addrspacecast &#40;&#37;jl_value_t* inttoptr &#40;i64 128225872 to &#37;j
+l_value_t*&#41; to &#37;jl_value_t addrspace&#40;10&#41;*&#41;, &#37;jl_value_t addrspace&#40;10&#41;** &#37;2,
+ i32 4&#41;
+         call void @llvm.trap&#40;&#41;
+         unreachable
+
+L11:                                              ; preds &#61; &#37;top
+; │││││││ @ reduce.jl:306 within &#96;_mapreduce&#39;
+; │││││││┌ @ promotion.jl:403 within &#96;&#61;&#61;&#39;
+          &#37;15 &#61; icmp eq i64 &#37;8, 1
+; │││││││└
+         br i1 &#37;15, label &#37;L13, label &#37;L15
+
+L13:                                              ; preds &#61; &#37;L11
+; │││││││ @ reduce.jl:307 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;16 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;4 to &lt;2 x double&gt; addrs
+pace&#40;13&#41;* addrspace&#40;11&#41;*
+          &#37;17 &#61; load &lt;2 x double&gt; addrspace&#40;13&#41;*, &lt;2 x double&gt; addrspace&#40;13
+&#41;* addrspace&#40;11&#41;* &#37;16, align 8
+          &#37;18 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt; addrspace&#40;13&#41;* &#37;17, align 8
+; │││││││└
+; │││││││ @ reduce.jl:308 within &#96;_mapreduce&#39;
+         br label &#37;L47
+
+L15:                                              ; preds &#61; &#37;L11
+; │││││││ @ reduce.jl:309 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;19 &#61; icmp sgt i64 &#37;8, 15
+; │││││││└
+         br i1 &#37;19, label &#37;L43, label &#37;L17
+
+L17:                                              ; preds &#61; &#37;L15
+; │││││││ @ reduce.jl:311 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;20 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;4 to &#123; double, double &#125;
+ addrspace&#40;13&#41;* addrspace&#40;11&#41;*
+          &#37;21 &#61; load &#123; double, double &#125; addrspace&#40;13&#41;*, &#123; double, double &#125; 
+addrspace&#40;13&#41;* addrspace&#40;11&#41;* &#37;20, align 8
+          &#37;22 &#61; bitcast &#123; double, double &#125; addrspace&#40;13&#41;* &#37;21 to &lt;2 x doubl
+e&gt; addrspace&#40;13&#41;*
+          &#37;23 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt; addrspace&#40;13&#41;* &#37;22, align 8
+; │││││││└
+; │││││││ @ reduce.jl:312 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;.elt63 &#61; getelementptr inbounds &#123; double, double &#125;, &#123; double, do
+uble &#125; addrspace&#40;13&#41;* &#37;21, i64 1, i32 0
+          &#37;24 &#61; bitcast double addrspace&#40;13&#41;* &#37;.elt63 to &lt;2 x double&gt; addrs
+pace&#40;13&#41;*
+          &#37;25 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt; addrspace&#40;13&#41;* &#37;24, align 8
+; │││││││└
+; │││││││ @ reduce.jl:313 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:21 within &#96;add_sum&#39;
+; ││││││││┌ @ none:1 within &#96;&#43;&#39; @ float.jl:395
+           &#37;26 &#61; fadd &lt;2 x double&gt; &#37;23, &#37;25
+; │││││││└└
+; │││││││ @ reduce.jl:314 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;27 &#61; icmp sgt i64 &#37;8, 2
+; │││││││└
+         br i1 &#37;27, label &#37;L34.lr.ph, label &#37;L47
+
+L34.lr.ph:                                        ; preds &#61; &#37;L17
+         br label &#37;L34
+
+L34:                                              ; preds &#61; &#37;L34.lr.ph, &#37;L3
+4
+         &#37;value_phi73 &#61; phi i64 &#91; 2, &#37;L34.lr.ph &#93;, &#91; &#37;29, &#37;L34 &#93;
+         &#37;28 &#61; phi &lt;2 x double&gt; &#91; &#37;26, &#37;L34.lr.ph &#93;, &#91; &#37;32, &#37;L34 &#93;
+; │││││││ @ reduce.jl:315 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:53 within &#96;&#43;&#39;
+          &#37;29 &#61; add nuw nsw i64 &#37;value_phi73, 1
+; │││││││└
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;.elt67 &#61; getelementptr inbounds &#123; double, double &#125;, &#123; double, do
+uble &#125; addrspace&#40;13&#41;* &#37;21, i64 &#37;value_phi73, i32 0
+          &#37;30 &#61; bitcast double addrspace&#40;13&#41;* &#37;.elt67 to &lt;2 x double&gt; addrs
+pace&#40;13&#41;*
+          &#37;31 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt; addrspace&#40;13&#41;* &#37;30, align 8
+; │││││││└
+; │││││││ @ reduce.jl:316 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:21 within &#96;add_sum&#39;
+; ││││││││┌ @ none:1 within &#96;&#43;&#39; @ float.jl:395
+           &#37;32 &#61; fadd &lt;2 x double&gt; &#37;28, &#37;31
+; │││││││└└
+; │││││││ @ reduce.jl:314 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;33 &#61; icmp ult i64 &#37;29, &#37;8
+; │││││││└
+         br i1 &#37;33, label &#37;L34, label &#37;L47
+
+L43:                                              ; preds &#61; &#37;L15
+; │││││││ @ reduce.jl:320 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:178 within &#96;mapreduce_impl&#39;
+          call void @julia_mapreduce_impl_14441&#40;&#123; double, double &#125;* noalias
+ nocapture nonnull sret &#37;tmpcast, &#37;jl_value_t addrspace&#40;10&#41;* nonnull &#37;1, i6
+4 1, i64 &#37;8, i64 1024&#41;
+; │││││││└
+         &#37;34 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;3, align 16
+         br label &#37;L47
+
+L47:                                              ; preds &#61; &#37;L34, &#37;L17, &#37;L4
+3, &#37;L13
+         &#37;35 &#61; phi &lt;2 x double&gt; &#91; &#37;34, &#37;L43 &#93;, &#91; &#37;18, &#37;L13 &#93;, &#91; &#37;26, &#37;L17 &#93;
+, &#91; &#37;32, &#37;L34 &#93;
+; └└└└└└└
+; ┌ @ array.jl:199 within &#96;length&#39;
+   &#37;36 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;4 to &#37;jl_array_t addrspace&#40;11&#41;
+*
+   &#37;37 &#61; getelementptr inbounds &#37;jl_array_t, &#37;jl_array_t addrspace&#40;11&#41;* &#37;36
+, i64 0, i32 1
+   &#37;38 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;37, align 8
+; └
+; ┌ @ none:1 within &#96;/&#39; @ promotion.jl:316
+; │┌ @ promotion.jl:284 within &#96;promote&#39;
+; ││┌ @ promotion.jl:261 within &#96;_promote&#39;
+; │││┌ @ number.jl:7 within &#96;convert&#39;
+; ││││┌ @ float.jl:60 within &#96;Type&#39;
+       &#37;39 &#61; sitofp i64 &#37;38 to double
+; │└└└└
+; │ @ none:1 within &#96;/&#39; @ promotion.jl:316 @ float.jl:401
+   &#37;40 &#61; insertelement &lt;2 x double&gt; undef, double &#37;39, i32 0
+   &#37;41 &#61; shufflevector &lt;2 x double&gt; &#37;40, &lt;2 x double&gt; undef, &lt;2 x i32&gt; zero
+initializer
+   &#37;42 &#61; fdiv &lt;2 x double&gt; &#37;35, &#37;41
+; └
+  &#37;43 &#61; bitcast &#123; double, double &#125;* &#37;0 to &lt;2 x double&gt;*
+  store &lt;2 x double&gt; &#37;42, &lt;2 x double&gt;* &#37;43, align 8
+  ret void
+&#125;
+</pre>
+
+
+<p>vs</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>::</span><span class='hljl-n'>MyComplexes</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-nf'>sum</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-p'>),</span><span class='hljl-nf'>sum</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-p'>))</span><span class='hljl-oB'>/</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>arr2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+;  @ none:1 within &#96;average&#39;
+; Function Attrs: uwtable
+define void @julia_average_14443&#40;&#123; double, double &#125;* noalias nocapture sret
+, &#37;jl_value_t addrspace&#40;10&#41;* nonnull align 8 dereferenceable&#40;16&#41;&#41; #0 &#123;
+top:
+; ┌ @ sysimg.jl:18 within &#96;getproperty&#39;
+   &#37;2 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;1 to &#37;jl_value_t addrspac
+e&#40;11&#41;*
+   &#37;3 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;2 to &#37;jl_value_t addrspace&#40;10&#41;*
+ addrspace&#40;11&#41;*
+   &#37;4 &#61; load &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;* addrspa
+ce&#40;11&#41;* &#37;3, align 8
+; └
+; ┌ @ reducedim.jl:648 within &#96;sum&#39;
+; │┌ @ reducedim.jl:648 within &#96;#sum#550&#39;
+; ││┌ @ reducedim.jl:652 within &#96;_sum&#39; @ reducedim.jl:653
+; │││┌ @ reducedim.jl:304 within &#96;mapreduce&#39;
+; ││││┌ @ reducedim.jl:304 within &#96;#mapreduce#548&#39;
+; │││││┌ @ reducedim.jl:308 within &#96;_mapreduce_dim&#39;
+; ││││││┌ @ reduce.jl:302 within &#96;_mapreduce&#39;
+; │││││││┌ @ indices.jl:426 within &#96;Type&#39;
+; ││││││││┌ @ abstractarray.jl:75 within &#96;axes&#39;
+; │││││││││┌ @ array.jl:155 within &#96;size&#39;
+            &#37;5 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;4 to &#37;jl_value_t
+ addrspace&#40;11&#41;*
+            &#37;6 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;5 to &#37;jl_value_t addrs
+pace&#40;10&#41;* addrspace&#40;11&#41;*
+            &#37;7 &#61; getelementptr inbounds &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_val
+ue_t addrspace&#40;10&#41;* addrspace&#40;11&#41;* &#37;6, i64 3
+            &#37;8 &#61; bitcast &#37;jl_value_t addrspace&#40;10&#41;* addrspace&#40;11&#41;* &#37;7 to i6
+4 addrspace&#40;11&#41;*
+            &#37;9 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;8, align 8
+; │││││││││└
+; │││││││││┌ @ tuple.jl:165 within &#96;map&#39;
+; ││││││││││┌ @ range.jl:317 within &#96;Type&#39; @ range.jl:308
+; │││││││││││┌ @ promotion.jl:414 within &#96;max&#39;
+              &#37;10 &#61; icmp sgt i64 &#37;9, 0
+; │││││││└└└└└
+; │││││││ @ reduce.jl:304 within &#96;_mapreduce&#39;
+         br i1 &#37;10, label &#37;L11, label &#37;L43
+
+L11:                                              ; preds &#61; &#37;top
+; │││││││ @ reduce.jl:306 within &#96;_mapreduce&#39;
+; │││││││┌ @ promotion.jl:403 within &#96;&#61;&#61;&#39;
+          &#37;11 &#61; icmp eq i64 &#37;9, 1
+; │││││││└
+         br i1 &#37;11, label &#37;L13, label &#37;L15
+
+L13:                                              ; preds &#61; &#37;L11
+; │││││││ @ reduce.jl:307 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;12 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;5 to double addrspace&#40;1
+3&#41;* addrspace&#40;11&#41;*
+          &#37;13 &#61; load double addrspace&#40;13&#41;*, double addrspace&#40;13&#41;* addrspace
+&#40;11&#41;* &#37;12, align 8
+          &#37;14 &#61; load double, double addrspace&#40;13&#41;* &#37;13, align 8
+; │││││││└
+; │││││││ @ reduce.jl:308 within &#96;_mapreduce&#39;
+         br label &#37;L43
+
+L15:                                              ; preds &#61; &#37;L11
+; │││││││ @ reduce.jl:309 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;15 &#61; icmp sgt i64 &#37;9, 15
+; │││││││└
+         br i1 &#37;15, label &#37;L31, label &#37;L17
+
+L17:                                              ; preds &#61; &#37;L15
+; │││││││ @ reduce.jl:311 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;16 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;5 to double addrspace&#40;1
+3&#41;* addrspace&#40;11&#41;*
+          &#37;17 &#61; load double addrspace&#40;13&#41;*, double addrspace&#40;13&#41;* addrspace
+&#40;11&#41;* &#37;16, align 8
+          &#37;18 &#61; load double, double addrspace&#40;13&#41;* &#37;17, align 8
+; │││││││└
+; │││││││ @ reduce.jl:312 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;19 &#61; getelementptr inbounds double, double addrspace&#40;13&#41;* &#37;17, i
+64 1
+          &#37;20 &#61; load double, double addrspace&#40;13&#41;* &#37;19, align 8
+; │││││││└
+; │││││││ @ reduce.jl:313 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:24 within &#96;add_sum&#39;
+; ││││││││┌ @ float.jl:395 within &#96;&#43;&#39;
+           &#37;21 &#61; fadd double &#37;18, &#37;20
+; │││││││└└
+; │││││││ @ reduce.jl:314 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;22 &#61; icmp sgt i64 &#37;9, 2
+; │││││││└
+         br i1 &#37;22, label &#37;L26.lr.ph, label &#37;L43
+
+L26.lr.ph:                                        ; preds &#61; &#37;L17
+         br label &#37;L26
+
+L26:                                              ; preds &#61; &#37;L26.lr.ph, &#37;L2
+6
+         &#37;value_phi512 &#61; phi double &#91; &#37;21, &#37;L26.lr.ph &#93;, &#91; &#37;26, &#37;L26 &#93;
+         &#37;value_phi411 &#61; phi i64 &#91; 2, &#37;L26.lr.ph &#93;, &#91; &#37;23, &#37;L26 &#93;
+; │││││││ @ reduce.jl:315 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:53 within &#96;&#43;&#39;
+          &#37;23 &#61; add nuw nsw i64 &#37;value_phi411, 1
+; │││││││└
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;24 &#61; getelementptr inbounds double, double addrspace&#40;13&#41;* &#37;17, i
+64 &#37;value_phi411
+          &#37;25 &#61; load double, double addrspace&#40;13&#41;* &#37;24, align 8
+; │││││││└
+; │││││││ @ reduce.jl:316 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:24 within &#96;add_sum&#39;
+; ││││││││┌ @ float.jl:395 within &#96;&#43;&#39;
+           &#37;26 &#61; fadd double &#37;value_phi512, &#37;25
+; │││││││└└
+; │││││││ @ reduce.jl:314 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;27 &#61; icmp ult i64 &#37;23, &#37;9
+; │││││││└
+         br i1 &#37;27, label &#37;L26, label &#37;L43
+
+L31:                                              ; preds &#61; &#37;L15
+; │││││││ @ reduce.jl:320 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:178 within &#96;mapreduce_impl&#39;
+          &#37;28 &#61; call double @julia_mapreduce_impl_13158&#40;&#37;jl_value_t addrspa
+ce&#40;10&#41;* nonnull &#37;4, i64 1, i64 &#37;9, i64 1024&#41;
+; │││││││└
+         br label &#37;L43
+
+L43:                                              ; preds &#61; &#37;L26, &#37;L17, &#37;L1
+3, &#37;L31, &#37;top
+         &#37;value_phi &#61; phi double &#91; &#37;14, &#37;L13 &#93;, &#91; &#37;28, &#37;L31 &#93;, &#91; 0.000000e&#43;
+00, &#37;top &#93;, &#91; &#37;21, &#37;L17 &#93;, &#91; &#37;26, &#37;L26 &#93;
+; └└└└└└└
+; ┌ @ sysimg.jl:18 within &#96;getproperty&#39;
+   &#37;29 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;2 to i8 addrspace&#40;11&#41;*
+   &#37;30 &#61; getelementptr inbounds i8, i8 addrspace&#40;11&#41;* &#37;29, i64 8
+   &#37;31 &#61; bitcast i8 addrspace&#40;11&#41;* &#37;30 to &#37;jl_value_t addrspace&#40;10&#41;* addrsp
+ace&#40;11&#41;*
+   &#37;32 &#61; load &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;* addrsp
+ace&#40;11&#41;* &#37;31, align 8
+; └
+; ┌ @ reducedim.jl:648 within &#96;sum&#39;
+; │┌ @ reducedim.jl:648 within &#96;#sum#550&#39;
+; ││┌ @ reducedim.jl:652 within &#96;_sum&#39; @ reducedim.jl:653
+; │││┌ @ reducedim.jl:304 within &#96;mapreduce&#39;
+; ││││┌ @ reducedim.jl:304 within &#96;#mapreduce#548&#39;
+; │││││┌ @ reducedim.jl:308 within &#96;_mapreduce_dim&#39;
+; ││││││┌ @ reduce.jl:302 within &#96;_mapreduce&#39;
+; │││││││┌ @ indices.jl:426 within &#96;Type&#39;
+; ││││││││┌ @ abstractarray.jl:75 within &#96;axes&#39;
+; │││││││││┌ @ array.jl:155 within &#96;size&#39;
+            &#37;33 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;32 to &#37;jl_value
+_t addrspace&#40;11&#41;*
+            &#37;34 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;33 to &#37;jl_value_t add
+rspace&#40;10&#41;* addrspace&#40;11&#41;*
+            &#37;35 &#61; getelementptr inbounds &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_va
+lue_t addrspace&#40;10&#41;* addrspace&#40;11&#41;* &#37;34, i64 3
+            &#37;36 &#61; bitcast &#37;jl_value_t addrspace&#40;10&#41;* addrspace&#40;11&#41;* &#37;35 to 
+i64 addrspace&#40;11&#41;*
+            &#37;37 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;36, align 8
+; │││││││││└
+; │││││││││┌ @ tuple.jl:165 within &#96;map&#39;
+; ││││││││││┌ @ range.jl:317 within &#96;Type&#39; @ range.jl:308
+; │││││││││││┌ @ promotion.jl:414 within &#96;max&#39;
+              &#37;38 &#61; icmp sgt i64 &#37;37, 0
+; │││││││└└└└└
+; │││││││ @ reduce.jl:304 within &#96;_mapreduce&#39;
+         br i1 &#37;38, label &#37;L53, label &#37;L85
+
+L53:                                              ; preds &#61; &#37;L43
+; │││││││ @ reduce.jl:306 within &#96;_mapreduce&#39;
+; │││││││┌ @ promotion.jl:403 within &#96;&#61;&#61;&#39;
+          &#37;39 &#61; icmp eq i64 &#37;37, 1
+; │││││││└
+         br i1 &#37;39, label &#37;L55, label &#37;L57
+
+L55:                                              ; preds &#61; &#37;L53
+; │││││││ @ reduce.jl:307 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;40 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;33 to double addrspace&#40;
+13&#41;* addrspace&#40;11&#41;*
+          &#37;41 &#61; load double addrspace&#40;13&#41;*, double addrspace&#40;13&#41;* addrspace
+&#40;11&#41;* &#37;40, align 8
+          &#37;42 &#61; load double, double addrspace&#40;13&#41;* &#37;41, align 8
+; │││││││└
+; │││││││ @ reduce.jl:308 within &#96;_mapreduce&#39;
+         br label &#37;L85
+
+L57:                                              ; preds &#61; &#37;L53
+; │││││││ @ reduce.jl:309 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;43 &#61; icmp sgt i64 &#37;37, 15
+; │││││││└
+         br i1 &#37;43, label &#37;L73, label &#37;L59
+
+L59:                                              ; preds &#61; &#37;L57
+; │││││││ @ reduce.jl:311 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;44 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;33 to double addrspace&#40;
+13&#41;* addrspace&#40;11&#41;*
+          &#37;45 &#61; load double addrspace&#40;13&#41;*, double addrspace&#40;13&#41;* addrspace
+&#40;11&#41;* &#37;44, align 8
+          &#37;46 &#61; load double, double addrspace&#40;13&#41;* &#37;45, align 8
+; │││││││└
+; │││││││ @ reduce.jl:312 within &#96;_mapreduce&#39;
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;47 &#61; getelementptr inbounds double, double addrspace&#40;13&#41;* &#37;45, i
+64 1
+          &#37;48 &#61; load double, double addrspace&#40;13&#41;* &#37;47, align 8
+; │││││││└
+; │││││││ @ reduce.jl:313 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:24 within &#96;add_sum&#39;
+; ││││││││┌ @ float.jl:395 within &#96;&#43;&#39;
+           &#37;49 &#61; fadd double &#37;46, &#37;48
+; │││││││└└
+; │││││││ @ reduce.jl:314 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;50 &#61; icmp sgt i64 &#37;37, 2
+; │││││││└
+         br i1 &#37;50, label &#37;L68.lr.ph, label &#37;L85
+
+L68.lr.ph:                                        ; preds &#61; &#37;L59
+         br label &#37;L68
+
+L68:                                              ; preds &#61; &#37;L68.lr.ph, &#37;L6
+8
+         &#37;value_phi310 &#61; phi double &#91; &#37;49, &#37;L68.lr.ph &#93;, &#91; &#37;54, &#37;L68 &#93;
+         &#37;value_phi29 &#61; phi i64 &#91; 2, &#37;L68.lr.ph &#93;, &#91; &#37;51, &#37;L68 &#93;
+; │││││││ @ reduce.jl:315 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:53 within &#96;&#43;&#39;
+          &#37;51 &#61; add nuw nsw i64 &#37;value_phi29, 1
+; │││││││└
+; │││││││┌ @ array.jl:729 within &#96;getindex&#39;
+          &#37;52 &#61; getelementptr inbounds double, double addrspace&#40;13&#41;* &#37;45, i
+64 &#37;value_phi29
+          &#37;53 &#61; load double, double addrspace&#40;13&#41;* &#37;52, align 8
+; │││││││└
+; │││││││ @ reduce.jl:316 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:24 within &#96;add_sum&#39;
+; ││││││││┌ @ float.jl:395 within &#96;&#43;&#39;
+           &#37;54 &#61; fadd double &#37;value_phi310, &#37;53
+; │││││││└└
+; │││││││ @ reduce.jl:314 within &#96;_mapreduce&#39;
+; │││││││┌ @ int.jl:49 within &#96;&lt;&#39;
+          &#37;55 &#61; icmp ult i64 &#37;51, &#37;37
+; │││││││└
+         br i1 &#37;55, label &#37;L68, label &#37;L85
+
+L73:                                              ; preds &#61; &#37;L57
+; │││││││ @ reduce.jl:320 within &#96;_mapreduce&#39;
+; │││││││┌ @ reduce.jl:178 within &#96;mapreduce_impl&#39;
+          &#37;56 &#61; call double @julia_mapreduce_impl_13158&#40;&#37;jl_value_t addrspa
+ce&#40;10&#41;* nonnull &#37;32, i64 1, i64 &#37;37, i64 1024&#41;
+; │││││││└
+         br label &#37;L85
+
+L85:                                              ; preds &#61; &#37;L68, &#37;L59, &#37;L5
+5, &#37;L73, &#37;L43
+         &#37;value_phi1 &#61; phi double &#91; &#37;42, &#37;L55 &#93;, &#91; &#37;56, &#37;L73 &#93;, &#91; 0.000000e
+&#43;00, &#37;L43 &#93;, &#91; &#37;49, &#37;L59 &#93;, &#91; &#37;54, &#37;L68 &#93;
+; └└└└└└└
+; ┌ @ sysimg.jl:18 within &#96;getproperty&#39;
+   &#37;57 &#61; load &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;* addrsp
+ace&#40;11&#41;* &#37;3, align 8
+; └
+; ┌ @ array.jl:199 within &#96;length&#39;
+   &#37;58 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;57 to &#37;jl_value_t addrsp
+ace&#40;11&#41;*
+   &#37;59 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;58 to &#37;jl_array_t addrspace&#40;11
+&#41;*
+   &#37;60 &#61; getelementptr inbounds &#37;jl_array_t, &#37;jl_array_t addrspace&#40;11&#41;* &#37;59
+, i64 0, i32 1
+   &#37;61 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;60, align 8
+; └
+; ┌ @ none:1 within &#96;/&#39; @ promotion.jl:316
+; │┌ @ promotion.jl:284 within &#96;promote&#39;
+; ││┌ @ promotion.jl:261 within &#96;_promote&#39;
+; │││┌ @ number.jl:7 within &#96;convert&#39;
+; ││││┌ @ float.jl:60 within &#96;Type&#39;
+       &#37;62 &#61; sitofp i64 &#37;61 to double
+; │└└└└
+; │ @ none:1 within &#96;/&#39; @ promotion.jl:316 @ float.jl:401
+   &#37;63 &#61; insertelement &lt;2 x double&gt; undef, double &#37;value_phi, i32 0
+   &#37;64 &#61; insertelement &lt;2 x double&gt; &#37;63, double &#37;value_phi1, i32 1
+   &#37;65 &#61; insertelement &lt;2 x double&gt; undef, double &#37;62, i32 0
+   &#37;66 &#61; shufflevector &lt;2 x double&gt; &#37;65, &lt;2 x double&gt; undef, &lt;2 x i32&gt; zero
+initializer
+   &#37;67 &#61; fdiv &lt;2 x double&gt; &#37;64, &#37;66
+; └
+  &#37;68 &#61; bitcast &#123; double, double &#125;* &#37;0 to &lt;2 x double&gt;*
+  store &lt;2 x double&gt; &#37;67, &lt;2 x double&gt;* &#37;68, align 8
+  ret void
+&#125;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>BenchmarkTools</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>arr</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+102.406 ns &#40;0 allocations: 0 bytes&#41;
+Main.WeaveSandBox1.MyComplex&#40;0.4942370179088904, 0.497469289886528&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>arr2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+37.009 ns &#40;0 allocations: 0 bytes&#41;
+Main.WeaveSandBox1.MyComplex&#40;0.5295326789280854, 0.5268654152835516&#41;
+</pre>
+
+
+<p>While this case is able to auto-vectorize &#40;not all discontiguous calcuations can&#41;, we can see that the in-memory structure matters for the efficiency and the struct of array formulation is better in this case. Note it&#39;s because we are doing a column-wise operation, i.e. averaging the reals and the imaginary parts separately. If we were using each complex in isolation, then the struct of array formulation would be better aligned to the calculation.</p>
+<p>Note that we can explicitly force SIMD with the <code>@simd</code> macro. For example:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>not_forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-t'>
+    </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-nf'>sqrt</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>out</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>not_forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>arr</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+;  @ none:2 within &#96;not_forced_simd&#39;
+; Function Attrs: uwtable
+define double @julia_not_forced_simd_14479&#40;&#37;jl_value_t addrspace&#40;10&#41;* nonnu
+ll align 16 dereferenceable&#40;40&#41;&#41; #0 &#123;
+top:
+;  @ none:4 within &#96;not_forced_simd&#39;
+; ┌ @ array.jl:729 within &#96;getindex&#39;
+   &#37;1 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;0 to &#37;jl_value_t addrspac
+e&#40;11&#41;*
+   &#37;2 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;1 to &#37;jl_array_t addrspace&#40;11&#41;*
+   &#37;3 &#61; getelementptr inbounds &#37;jl_array_t, &#37;jl_array_t addrspace&#40;11&#41;* &#37;2, 
+i64 0, i32 1
+   &#37;4 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;3, align 8
+   &#37;5 &#61; icmp eq i64 &#37;4, 0
+   br i1 &#37;5, label &#37;oob, label &#37;idxend.lr.ph
+
+idxend.lr.ph:                                     ; preds &#61; &#37;top
+   &#37;6 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;1 to &#123; double, double &#125; addrspa
+ce&#40;13&#41;* addrspace&#40;11&#41;*
+   &#37;7 &#61; load &#123; double, double &#125; addrspace&#40;13&#41;*, &#123; double, double &#125; addrspac
+e&#40;13&#41;* addrspace&#40;11&#41;* &#37;6, align 8
+   br label &#37;idxend4
+
+L29:                                              ; preds &#61; &#37;idxend4
+; └
+; ┌ @ range.jl:595 within &#96;iterate&#39;
+; │┌ @ int.jl:53 within &#96;&#43;&#39;
+    &#37;8 &#61; add nuw nsw i64 &#37;value_phi124, 1
+; └└
+; ┌ @ array.jl:729 within &#96;getindex&#39;
+   &#37;9 &#61; icmp ult i64 &#37;value_phi124, &#37;4
+   br i1 &#37;9, label &#37;idxend4, label &#37;oob
+
+L30:                                              ; preds &#61; &#37;idxend4
+; └
+;  @ none:6 within &#96;not_forced_simd&#39;
+  ret double &#37;20
+
+oob:                                              ; preds &#61; &#37;L29, &#37;top
+  &#37;value_phi1.lcssa &#61; phi i64 &#91; 1, &#37;top &#93;, &#91; &#37;8, &#37;L29 &#93;
+;  @ none:4 within &#96;not_forced_simd&#39;
+; ┌ @ array.jl:729 within &#96;getindex&#39;
+   &#37;10 &#61; alloca i64, align 8
+   store i64 &#37;value_phi1.lcssa, i64* &#37;10, align 8
+   &#37;11 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;0 to &#37;jl_value_t addrspa
+ce&#40;12&#41;*
+   call void @jl_bounds_error_ints&#40;&#37;jl_value_t addrspace&#40;12&#41;* &#37;11, i64* non
+null &#37;10, i64 1&#41;
+   unreachable
+
+idxend4:                                          ; preds &#61; &#37;L29, &#37;idxend.l
+r.ph
+   &#37;12 &#61; phi i64 &#91; 0, &#37;idxend.lr.ph &#93;, &#91; &#37;value_phi124, &#37;L29 &#93;
+   &#37;value_phi124 &#61; phi i64 &#91; 1, &#37;idxend.lr.ph &#93;, &#91; &#37;8, &#37;L29 &#93;
+   &#37;value_phi23 &#61; phi double &#91; 0.000000e&#43;00, &#37;idxend.lr.ph &#93;, &#91; &#37;20, &#37;L29 &#93;
+   &#37;.elt &#61; getelementptr inbounds &#123; double, double &#125;, &#123; double, double &#125; ad
+drspace&#40;13&#41;* &#37;7, i64 &#37;12, i32 0
+   &#37;13 &#61; bitcast double addrspace&#40;13&#41;* &#37;.elt to &lt;2 x double&gt; addrspace&#40;13&#41;*
+   &#37;14 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt; addrspace&#40;13&#41;* &#37;13, align 8
+; └
+; ┌ @ intfuncs.jl:243 within &#96;literal_pow&#39;
+; │┌ @ float.jl:399 within &#96;*&#39;
+    &#37;15 &#61; fmul &lt;2 x double&gt; &#37;14, &#37;14
+; └└
+; ┌ @ float.jl:395 within &#96;&#43;&#39;
+   &#37;16 &#61; extractelement &lt;2 x double&gt; &#37;15, i32 0
+   &#37;17 &#61; extractelement &lt;2 x double&gt; &#37;15, i32 1
+   &#37;18 &#61; fadd double &#37;16, &#37;17
+; └
+; ┌ @ math.jl:493 within &#96;sqrt&#39;
+   &#37;19 &#61; call double @llvm.sqrt.f64&#40;double &#37;18&#41;
+; └
+; ┌ @ float.jl:395 within &#96;&#43;&#39;
+   &#37;20 &#61; fadd double &#37;value_phi23, &#37;19
+; └
+; ┌ @ range.jl:594 within &#96;iterate&#39;
+; │┌ @ promotion.jl:403 within &#96;&#61;&#61;&#39;
+    &#37;21 &#61; icmp eq i64 &#37;value_phi124, 100
+; └└
+  br i1 &#37;21, label &#37;L30, label &#37;L29
+&#125;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@simd</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-t'>
+    </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-nf'>sqrt</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>out</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>arr</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+;  @ none:2 within &#96;forced_simd&#39;
+; Function Attrs: uwtable
+define double @julia_forced_simd_14480&#40;&#37;jl_value_t addrspace&#40;10&#41;* nonnull a
+lign 16 dereferenceable&#40;40&#41;&#41; #0 &#123;
+top:
+  &#37;1 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;0 to &#37;jl_value_t addrspace
+&#40;11&#41;*
+  &#37;2 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;1 to &#37;jl_array_t addrspace&#40;11&#41;*
+  &#37;3 &#61; getelementptr inbounds &#37;jl_array_t, &#37;jl_array_t addrspace&#40;11&#41;* &#37;2, i
+64 0, i32 1
+  &#37;4 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;3, align 8
+  &#37;5 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;1 to &#123; double, double &#125; addrspac
+e&#40;13&#41;* addrspace&#40;11&#41;*
+  &#37;6 &#61; load &#123; double, double &#125; addrspace&#40;13&#41;*, &#123; double, double &#125; addrspace
+&#40;13&#41;* addrspace&#40;11&#41;* &#37;5, align 8
+;  @ none:3 within &#96;forced_simd&#39;
+; ┌ @ simdloop.jl:71 within &#96;macro expansion&#39;
+   br label &#37;L8
+
+L8:                                               ; preds &#61; &#37;top, &#37;idxend4
+   &#37;value_phi124 &#61; phi i64 &#91; 0, &#37;top &#93;, &#91; &#37;7, &#37;idxend4 &#93;
+   &#37;value_phi23 &#61; phi double &#91; 0.000000e&#43;00, &#37;top &#93;, &#91; &#37;15, &#37;idxend4 &#93;
+; │ @ simdloop.jl:72 within &#96;macro expansion&#39;
+; │┌ @ simdloop.jl:50 within &#96;simd_index&#39;
+; ││┌ @ range.jl:615 within &#96;getindex&#39;
+; │││┌ @ int.jl:53 within &#96;&#43;&#39;
+      &#37;7 &#61; add nuw nsw i64 &#37;value_phi124, 1
+; │└└└
+; │ @ simdloop.jl:73 within &#96;macro expansion&#39; @ none:4
+; │┌ @ array.jl:729 within &#96;getindex&#39;
+    &#37;8 &#61; icmp ult i64 &#37;value_phi124, &#37;4
+    br i1 &#37;8, label &#37;idxend4, label &#37;oob
+
+L45:                                              ; preds &#61; &#37;idxend4
+; └└
+;  @ none:6 within &#96;forced_simd&#39;
+  ret double &#37;15
+
+oob:                                              ; preds &#61; &#37;L8
+;  @ none:3 within &#96;forced_simd&#39;
+; ┌ @ simdloop.jl:73 within &#96;macro expansion&#39; @ none:4
+; │┌ @ array.jl:729 within &#96;getindex&#39;
+    &#37;9 &#61; alloca i64, align 8
+    store i64 &#37;7, i64* &#37;9, align 8
+    &#37;10 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;0 to &#37;jl_value_t addrsp
+ace&#40;12&#41;*
+    call void @jl_bounds_error_ints&#40;&#37;jl_value_t addrspace&#40;12&#41;* &#37;10, i64* no
+nnull &#37;9, i64 1&#41;
+    unreachable
+
+idxend4:                                          ; preds &#61; &#37;L8
+    &#37;.elt &#61; getelementptr inbounds &#123; double, double &#125;, &#123; double, double &#125; a
+ddrspace&#40;13&#41;* &#37;6, i64 &#37;value_phi124, i32 0
+    &#37;.unpack &#61; load double, double addrspace&#40;13&#41;* &#37;.elt, align 8
+    &#37;.elt18 &#61; getelementptr inbounds &#123; double, double &#125;, &#123; double, double &#125;
+ addrspace&#40;13&#41;* &#37;6, i64 &#37;value_phi124, i32 1
+    &#37;.unpack19 &#61; load double, double addrspace&#40;13&#41;* &#37;.elt18, align 8
+; │└
+; │┌ @ intfuncs.jl:243 within &#96;literal_pow&#39;
+; ││┌ @ float.jl:399 within &#96;*&#39;
+     &#37;11 &#61; fmul double &#37;.unpack, &#37;.unpack
+     &#37;12 &#61; fmul double &#37;.unpack19, &#37;.unpack19
+; │└└
+; │┌ @ float.jl:395 within &#96;&#43;&#39;
+    &#37;13 &#61; fadd double &#37;11, &#37;12
+; │└
+; │┌ @ math.jl:493 within &#96;sqrt&#39;
+    &#37;14 &#61; call double @llvm.sqrt.f64&#40;double &#37;13&#41;
+; │└
+; │┌ @ float.jl:395 within &#96;&#43;&#39;
+    &#37;15 &#61; fadd fast double &#37;value_phi23, &#37;14
+; │└
+; │ @ simdloop.jl:71 within &#96;macro expansion&#39;
+; │┌ @ int.jl:49 within &#96;&lt;&#39;
+    &#37;16 &#61; icmp ugt i64 &#37;value_phi124, 98
+; │└
+   br i1 &#37;16, label &#37;L45, label &#37;L8
+; └
+&#125;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>not_forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>arr</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+214.012 ns &#40;1 allocation: 16 bytes&#41;
+76.18745105933863
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>arr</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+213.624 ns &#40;1 allocation: 16 bytes&#41;
+76.18745105933863
+</pre>
+
+
+<p>It&#39;s different code but not realistically any faster. This is partly because using &quot;more&quot; SIMD is actually quite hard. This amount of parallelism tends to overheat the cores, and thus when the newest and largest SIMD is used &#40;AVX2, AVX512, etc.&#41;, these instructions actually require that the processor downclocks for these interactions, somewhat offsetting the performance gain of doing multiple calculations simulataniously. If enough are aligned in a row it still will give a big speed up, but this means that there&#39;s a cost to doing too little of highly compressed SIMD operations.</p>
+<p>Note that in this case we are using the real and imaginary parts together, so let&#39;s test our theory that the array of structs formulation will be faster:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>SoA_forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@simd</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-t'>
+    </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-nf'>sqrt</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+  </span><span class='hljl-n'>out</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>SoA_forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>arr2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+;  @ none:2 within &#96;SoA_forced_simd&#39;
+; Function Attrs: uwtable
+define double @julia_SoA_forced_simd_14512&#40;&#37;jl_value_t addrspace&#40;10&#41;* nonnu
+ll align 8 dereferenceable&#40;16&#41;&#41; #0 &#123;
+top:
+  &#37;gcframe &#61; alloca &#37;jl_value_t addrspace&#40;10&#41;*, i32 3
+  &#37;1 &#61; bitcast &#37;jl_value_t addrspace&#40;10&#41;** &#37;gcframe to i8*
+  call void @llvm.memset.p0i8.i32&#40;i8* &#37;1, i8 0, i32 24, i32 0, i1 false&#41;
+  &#37;2 &#61; call &#37;jl_value_t*** inttoptr &#40;i64 1801331392 to &#37;jl_value_t*** &#40;&#41;*&#41;&#40;
+&#41; #7
+  &#37;3 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;*
+* &#37;gcframe, i32 0
+  &#37;4 &#61; bitcast &#37;jl_value_t addrspace&#40;10&#41;** &#37;3 to i64*
+  store i64 2, i64* &#37;4
+  &#37;5 &#61; getelementptr &#37;jl_value_t**, &#37;jl_value_t*** &#37;2, i32 0
+  &#37;6 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;*
+* &#37;gcframe, i32 1
+  &#37;7 &#61; bitcast &#37;jl_value_t addrspace&#40;10&#41;** &#37;6 to &#37;jl_value_t***
+  &#37;8 &#61; load &#37;jl_value_t**, &#37;jl_value_t*** &#37;5
+  store &#37;jl_value_t** &#37;8, &#37;jl_value_t*** &#37;7
+  &#37;9 &#61; bitcast &#37;jl_value_t*** &#37;5 to &#37;jl_value_t addrspace&#40;10&#41;***
+  store &#37;jl_value_t addrspace&#40;10&#41;** &#37;gcframe, &#37;jl_value_t addrspace&#40;10&#41;*** 
+&#37;9
+  &#37;10 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;0 to &#37;jl_value_t addrspac
+e&#40;11&#41;*
+  &#37;11 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;10 to &#37;jl_value_t addrspace&#40;10&#41;
+* addrspace&#40;11&#41;*
+  &#37;12 &#61; load &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;* addrspa
+ce&#40;11&#41;* &#37;11, align 8
+  &#37;13 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;12 to &#37;jl_value_t addrspa
+ce&#40;11&#41;*
+  &#37;14 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;13 to &#37;jl_array_t addrspace&#40;11&#41;
+*
+  &#37;15 &#61; getelementptr inbounds &#37;jl_array_t, &#37;jl_array_t addrspace&#40;11&#41;* &#37;14,
+ i64 0, i32 1
+  &#37;16 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;15, align 8
+  &#37;17 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;13 to double addrspace&#40;13&#41;* add
+rspace&#40;11&#41;*
+  &#37;18 &#61; load double addrspace&#40;13&#41;*, double addrspace&#40;13&#41;* addrspace&#40;11&#41;* &#37;1
+7, align 8
+  &#37;19 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;10 to i8 addrspace&#40;11&#41;*
+  &#37;20 &#61; getelementptr inbounds i8, i8 addrspace&#40;11&#41;* &#37;19, i64 8
+  &#37;21 &#61; bitcast i8 addrspace&#40;11&#41;* &#37;20 to &#37;jl_value_t addrspace&#40;10&#41;* addrspa
+ce&#40;11&#41;*
+  &#37;22 &#61; load &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;* addrspa
+ce&#40;11&#41;* &#37;21, align 8
+  &#37;23 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;22 to &#37;jl_value_t addrspa
+ce&#40;11&#41;*
+  &#37;24 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;23 to &#37;jl_array_t addrspace&#40;11&#41;
+*
+  &#37;25 &#61; getelementptr inbounds &#37;jl_array_t, &#37;jl_array_t addrspace&#40;11&#41;* &#37;24,
+ i64 0, i32 1
+  &#37;26 &#61; bitcast &#37;jl_value_t addrspace&#40;11&#41;* &#37;23 to double addrspace&#40;13&#41;* add
+rspace&#40;11&#41;*
+;  @ none:3 within &#96;SoA_forced_simd&#39;
+; ┌ @ simdloop.jl:71 within &#96;macro expansion&#39;
+   br label &#37;L8
+
+L8:                                               ; preds &#61; &#37;top, &#37;idxend4
+   &#37;value_phi116 &#61; phi i64 &#91; 0, &#37;top &#93;, &#91; &#37;27, &#37;idxend4 &#93;
+   &#37;value_phi15 &#61; phi double &#91; 0.000000e&#43;00, &#37;top &#93;, &#91; &#37;49, &#37;idxend4 &#93;
+; │ @ simdloop.jl:72 within &#96;macro expansion&#39;
+; │┌ @ simdloop.jl:50 within &#96;simd_index&#39;
+; ││┌ @ range.jl:615 within &#96;getindex&#39;
+; │││┌ @ int.jl:53 within &#96;&#43;&#39;
+      &#37;27 &#61; add nuw nsw i64 &#37;value_phi116, 1
+; │└└└
+; │ @ simdloop.jl:73 within &#96;macro expansion&#39; @ none:4
+; │┌ @ array.jl:729 within &#96;getindex&#39;
+    &#37;28 &#61; icmp ult i64 &#37;value_phi116, &#37;16
+    br i1 &#37;28, label &#37;idxend, label &#37;oob
+
+L45:                                              ; preds &#61; &#37;idxend4
+; └└
+;  @ none:6 within &#96;SoA_forced_simd&#39;
+  &#37;29 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;
+** &#37;gcframe, i32 1
+  &#37;30 &#61; load &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;** &#37;29
+  &#37;31 &#61; getelementptr &#37;jl_value_t**, &#37;jl_value_t*** &#37;2, i32 0
+  &#37;32 &#61; bitcast &#37;jl_value_t*** &#37;31 to &#37;jl_value_t addrspace&#40;10&#41;**
+  store &#37;jl_value_t addrspace&#40;10&#41;* &#37;30, &#37;jl_value_t addrspace&#40;10&#41;** &#37;32
+  ret double &#37;49
+
+oob:                                              ; preds &#61; &#37;L8
+;  @ none:3 within &#96;SoA_forced_simd&#39;
+; ┌ @ simdloop.jl:73 within &#96;macro expansion&#39; @ none:4
+; │┌ @ array.jl:729 within &#96;getindex&#39;
+    &#37;33 &#61; alloca i64, align 8
+    store i64 &#37;27, i64* &#37;33, align 8
+    &#37;34 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;12 to &#37;jl_value_t addrs
+pace&#40;12&#41;*
+    call void @jl_bounds_error_ints&#40;&#37;jl_value_t addrspace&#40;12&#41;* &#37;34, i64* no
+nnull &#37;33, i64 1&#41;
+    unreachable
+
+idxend:                                           ; preds &#61; &#37;L8
+    &#37;35 &#61; load i64, i64 addrspace&#40;11&#41;* &#37;25, align 8
+    &#37;36 &#61; icmp ult i64 &#37;value_phi116, &#37;35
+    br i1 &#37;36, label &#37;idxend4, label &#37;oob3
+
+oob3:                                             ; preds &#61; &#37;idxend
+    &#37;37 &#61; alloca i64, align 8
+    store i64 &#37;27, i64* &#37;37, align 8
+    &#37;38 &#61; addrspacecast &#37;jl_value_t addrspace&#40;10&#41;* &#37;22 to &#37;jl_value_t addrs
+pace&#40;12&#41;*
+    &#37;39 &#61; getelementptr &#37;jl_value_t addrspace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;1
+0&#41;** &#37;gcframe, i32 2
+    store &#37;jl_value_t addrspace&#40;10&#41;* &#37;22, &#37;jl_value_t addrspace&#40;10&#41;** &#37;39
+    call void @jl_bounds_error_ints&#40;&#37;jl_value_t addrspace&#40;12&#41;* &#37;38, i64* no
+nnull &#37;37, i64 1&#41;
+    unreachable
+
+idxend4:                                          ; preds &#61; &#37;idxend
+    &#37;40 &#61; getelementptr inbounds double, double addrspace&#40;13&#41;* &#37;18, i64 &#37;va
+lue_phi116
+    &#37;41 &#61; load double, double addrspace&#40;13&#41;* &#37;40, align 8
+    &#37;42 &#61; load double addrspace&#40;13&#41;*, double addrspace&#40;13&#41;* addrspace&#40;11&#41;* 
+&#37;26, align 8
+    &#37;43 &#61; getelementptr inbounds double, double addrspace&#40;13&#41;* &#37;42, i64 &#37;va
+lue_phi116
+    &#37;44 &#61; load double, double addrspace&#40;13&#41;* &#37;43, align 8
+; │└
+; │┌ @ intfuncs.jl:243 within &#96;literal_pow&#39;
+; ││┌ @ float.jl:399 within &#96;*&#39;
+     &#37;45 &#61; fmul double &#37;41, &#37;41
+     &#37;46 &#61; fmul double &#37;44, &#37;44
+; │└└
+; │┌ @ float.jl:395 within &#96;&#43;&#39;
+    &#37;47 &#61; fadd double &#37;45, &#37;46
+; │└
+; │┌ @ math.jl:493 within &#96;sqrt&#39;
+    &#37;48 &#61; call double @llvm.sqrt.f64&#40;double &#37;47&#41;
+; │└
+; │┌ @ float.jl:395 within &#96;&#43;&#39;
+    &#37;49 &#61; fadd fast double &#37;value_phi15, &#37;48
+; │└
+; │ @ simdloop.jl:71 within &#96;macro expansion&#39;
+; │┌ @ int.jl:49 within &#96;&lt;&#39;
+    &#37;50 &#61; icmp ugt i64 &#37;value_phi116, 98
+; │└
+   br i1 &#37;50, label &#37;L45, label &#37;L8
+; └
+&#125;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>SoA_forced_simd</span><span class='hljl-p'>(</span><span class='hljl-n'>arr2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+217.695 ns &#40;1 allocation: 16 bytes&#41;
+79.9629568819235
+</pre>
+
+
+<h3>Explicit SIMD</h3>
+<p>If you want to pack the vectors yourself, then primatives for doing so from within Julia are available in SIMD.jl. This is for &quot;real&quot; performance warriors.</p>
+<h3>Summary of SIMD</h3>
+<ul>
+<li><p>Communication in SIMD is due to locality: if things are local the processor can automatically setup the operations.</p>
+</li>
+<li><p>There&#39;s no real worry about &quot;getting it wrong&quot;: you cannot overwrite pieces from different parts of the arithmetic unit, and if SIMD is unsafe then it just won&#39;t auto-vectorize.</p>
+</li>
+<li><p>Suitable for operations measured in ns.</p>
+</li>
+</ul>
+<h2>Next Level Up: Multithreading</h2>
+<p>Last time we briefly went over multithreading and described how every process has multiple threads which share a single heap, and when multiple threads are executed simultaniously we have multithreaded parallelism. Note that you can have multiple threads which aren&#39;t executed simultaniously, like in the case of I/O operations, and this is an example of concurrency without parallelism and is commonly referred to as green threads.</p>
+<p><img src="https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png" alt="" /></p>
+<p>Last time we described a simple multithreaded program and noticed that multithreading has an overhead cost of around 50ns-100ns. This is due to the construction of the new stack &#40;amont other things&#41; each time a new computational thread is spun up. This means that, unlike SIMD, some thought needs to be put in as to when to perform multithreading: it&#39;s not always a good idea. It needs to be high enough on the cost for this to be counter-balanced.</p>
+<p>One abstraction that was glossed over was the memory access style. Before, we were considering a single heap, or an UMA style:</p>
+<p><img src="https://software.intel.com/sites/default/files/m/2/0/4/e/d/39352-figure-1.jpg" alt="" /></p>
+<p>However, this is the case for all shared memory devices. For example, compute nodes on the HPC tend to be &quot;dual Xeon&quot; or &quot;quad Xeon&quot;, where each Xeon processor is itself a multicore processor. But each processor on its own accesses its own local caches, and thus one has to be aware that this is setup in a NUMA &#40;non-uniform memory access&#41; manner:</p>
+<p><img src="https://software.intel.com/sites/default/files/m/2/d/c/b/2/39353-figure-2.jpg" alt="" /></p>
+<p>where there is a cache that is closer to the prcessor and a cache that is further away. Care should be taken in this to localize the computation per thread, otherwise a cost associated with the memory sharing will be hit &#40;but all sharing will still be automatic&#41;.</p>
+<p>In this sense, interthread communication is naturally done through the heap: if you want other threads to be able to touch a value, then you can simply place it on the heap and then it&#39;ll be available. We saw this last time by how overlapping computations can re-use the same heap-based caches, meaning that care needs to be taken with how one writes into a dynamically-allocated array.</p>
+<p>A simple example that demonstrates this is:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.</span><span class='hljl-n'>Threads</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+    </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc</span><span class='hljl-t'>
+    </span><span class='hljl-n'>acc</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc</span>
+</pre>
+
+
+<pre class="output">
+3273
+</pre>
+
+
+<p>The reason for this behavior is that there is a difference between the reading and the writing step to an array. Here, values are being read while other threads are writing, meaning that they see a lower value than when they are attempting to write into it. The result is that the total summation is lower than the true value because of this clashing. We can prevent this by only allowing one thread to utilize the heap-allocated variable at a time. One abstraction for doing this is <em>atomics</em>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>acc</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Atomic</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>atomic_add!</span><span class='hljl-p'>(</span><span class='hljl-n'>acc</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc</span>
+</pre>
+
+
+<pre class="output">
+Base.Threads.Atomic&#123;Int64&#125;&#40;10000&#41;
+</pre>
+
+
+<p>When an atomic add is being done, all other threads wishing to do the same computation are blocked. This of course can have a massive effect on performance since atomic computations are not parallel.</p>
+<p>Julia also exposes a lower level of heap control in threading using <em>locks</em></p>
+
+
+<pre class='hljl'>
+<span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>acc_lock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>mlock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Mutex</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>f1</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>mlock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>acc_lock</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>mlock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>splock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SpinLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>f2</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>acc_lock</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>rsplock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>RecursiveSpinLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>f3</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>rsplock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>acc_lock</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>rsplock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Atomic</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>g</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+      </span><span class='hljl-nf'>atomic_add!</span><span class='hljl-p'>(</span><span class='hljl-n'>acc2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>h</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+      </span><span class='hljl-n'>acc_s</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>f1</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+720.300 μs &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+<p><code>Mutex</code> is the most capable: just put locks and unlocks anywhere and it will work, but it is costly. <code>SpinLock</code> is non-reentrent, i.e. it will block itself if a thread that calls a <code>lock</code> does another <code>lock</code>. Therefore it has to be used with caution &#40;every <code>lock</code> goes with one <code>unlock</code>&#41;, but it&#39;s fast:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>f2</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+318.200 μs &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+<p>Additionally there is the undocumented <code>RecursiveSpinLock</code> which allows a single thread to recursively lock and then unlock, but if multiple threads try to recursively lock it can run into issues. But it only has a small overhead:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>f3</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+459.799 μs &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+<p>But if you can use atomics, they will be faster:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>g</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+133.500 μs &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+<p>and if your computation is actually serial, then use serial code:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>h</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+2.099 ns &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+<p>Why is this so fast? Check the code:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>h</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+;  @ none:2 within &#96;h&#39;
+; Function Attrs: uwtable
+define nonnull &#37;jl_value_t addrspace&#40;10&#41;* @japi1_h_14627&#40;&#37;jl_value_t addrsp
+ace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;**, i32&#41; #0 &#123;
+top:
+  &#37;3 &#61; alloca &#37;jl_value_t addrspace&#40;10&#41;**, align 8
+  store volatile &#37;jl_value_t addrspace&#40;10&#41;** &#37;1, &#37;jl_value_t addrspace&#40;10&#41;*
+** &#37;3, align 8
+;  @ none:4 within &#96;h&#39;
+; ┌ @ refvalue.jl:33 within &#96;setindex&#33;&#39;
+; │┌ @ sysimg.jl:19 within &#96;setproperty&#33;&#39;
+    &#37;.promoted &#61; load i64, i64* inttoptr &#40;i64 286484128 to i64*&#41;, align 32
+; └└
+;  @ none:3 within &#96;h&#39;
+  &#37;4 &#61; add i64 &#37;.promoted, 10000
+;  @ none:4 within &#96;h&#39;
+; ┌ @ refvalue.jl:33 within &#96;setindex&#33;&#39;
+; │┌ @ sysimg.jl:19 within &#96;setproperty&#33;&#39;
+    store i64 &#37;4, i64* inttoptr &#40;i64 286484128 to i64*&#41;, align 32
+; └└
+  ret &#37;jl_value_t addrspace&#40;10&#41;* addrspacecast &#40;&#37;jl_value_t* inttoptr &#40;i64 
+251723784 to &#37;jl_value_t*&#41; to &#37;jl_value_t addrspace&#40;10&#41;*&#41;
+&#125;
+</pre>
+
+
+<p>It just knows to add 10000. So to get a proper timing let&#39;s make the size mutable:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>len</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int</span><span class='hljl-p'>}(</span><span class='hljl-ni'>10_000</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>h2</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>len</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>len</span><span class='hljl-p'>[]</span><span class='hljl-t'>
+      </span><span class='hljl-n'>acc_s</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>h2</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+2.099 ns &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>h2</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+;  @ none:2 within &#96;h2&#39;
+; Function Attrs: uwtable
+define nonnull &#37;jl_value_t addrspace&#40;10&#41;* @japi1_h2_14642&#40;&#37;jl_value_t addrs
+pace&#40;10&#41;*, &#37;jl_value_t addrspace&#40;10&#41;**, i32&#41; #0 &#123;
+top:
+  &#37;3 &#61; alloca &#37;jl_value_t addrspace&#40;10&#41;**, align 8
+  store volatile &#37;jl_value_t addrspace&#40;10&#41;** &#37;1, &#37;jl_value_t addrspace&#40;10&#41;*
+** &#37;3, align 8
+;  @ none:4 within &#96;h2&#39;
+; ┌ @ refvalue.jl:32 within &#96;getindex&#39;
+; │┌ @ sysimg.jl:18 within &#96;getproperty&#39;
+    &#37;4 &#61; load i64, i64* inttoptr &#40;i64 296067184 to i64*&#41;, align 16
+; └└
+; ┌ @ range.jl:5 within &#96;Colon&#39;
+; │┌ @ range.jl:274 within &#96;Type&#39;
+; ││┌ @ range.jl:279 within &#96;unitrange_last&#39;
+; │││┌ @ operators.jl:333 within &#96;&gt;&#61;&#39;
+; ││││┌ @ int.jl:428 within &#96;&lt;&#61;&#39;
+       &#37;5 &#61; icmp sgt i64 &#37;4, 0
+; └└└└└
+  br i1 &#37;5, label &#37;L9.L13_crit_edge, label &#37;L29
+
+L9.L13_crit_edge:                                 ; preds &#61; &#37;top
+;  @ none:5 within &#96;h2&#39;
+; ┌ @ refvalue.jl:33 within &#96;setindex&#33;&#39;
+; │┌ @ sysimg.jl:19 within &#96;setproperty&#33;&#39;
+    &#37;.promoted &#61; load i64, i64* inttoptr &#40;i64 286484128 to i64*&#41;, align 32
+; └└
+;  @ none:4 within &#96;h2&#39;
+  &#37;6 &#61; add i64 &#37;.promoted, &#37;4
+;  @ none:5 within &#96;h2&#39;
+; ┌ @ refvalue.jl:33 within &#96;setindex&#33;&#39;
+; │┌ @ sysimg.jl:19 within &#96;setproperty&#33;&#39;
+    store i64 &#37;6, i64* inttoptr &#40;i64 286484128 to i64*&#41;, align 32
+; └└
+  br label &#37;L29
+
+L29:                                              ; preds &#61; &#37;L9.L13_crit_ed
+ge, &#37;top
+  ret &#37;jl_value_t addrspace&#40;10&#41;* addrspacecast &#40;&#37;jl_value_t* inttoptr &#40;i64 
+251723784 to &#37;jl_value_t*&#41; to &#37;jl_value_t addrspace&#40;10&#41;*&#41;
+&#125;
+</pre>
+
+
+<p>It&#39;s still optimizing it&#33;</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>non_const_len</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>10000</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>h3</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>non_const_len</span><span class='hljl-t'>
+  </span><span class='hljl-n'>len2</span><span class='hljl-oB'>::</span><span class='hljl-n'>Int</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>non_const_len</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>len2</span><span class='hljl-t'>
+      </span><span class='hljl-n'>acc_s</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>h3</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+65.820 ns &#40;1 allocation: 16 bytes&#41;
+</pre>
+
+
+<p>Note that what is shown here is a type-declaration. <code>a::T &#61; ...</code> forces <code>a</code> to be of type <code>T</code> throughout the whole function. By giving the compiler this information, I am able to use the non-constant global in a type-stable manner.</p>
+<p>One last thing to note about multithreaded computations, and parallel computations, is that one cannot assume that the parallelized computation is computed in any given order. For example, the following will has a quasi-random ordering:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>zeros</span><span class='hljl-p'>(</span><span class='hljl-nf'>nthreads</span><span class='hljl-p'>()</span><span class='hljl-oB'>*</span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>acc_lock2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>splock2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SpinLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>f_order</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>a2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>acc_lock2</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+        </span><span class='hljl-n'>a2</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>acc_lock2</span><span class='hljl-p'>[]</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>f_order</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-n'>a2</span>
+</pre>
+
+
+<pre class="output">
+40-element Array&#123;Float64,1&#125;:
+  1.0
+  2.0
+  3.0
+  4.0
+  5.0
+  6.0
+  7.0
+  8.0
+  9.0
+ 10.0
+  ⋮  
+ 22.0
+ 23.0
+ 24.0
+ 25.0
+ 26.0
+ 27.0
+ 28.0
+ 29.0
+ 30.0
+</pre>
+
+
+<p>Note that here we can see that Julia 1.1 is dividing up the work into groups of 10 for each thread, and then one thread dominates the computation at a time, but which thread dominates is random.</p>
+<h3>The Dining Philosophers Problem</h3>
+<p>A classic tale in parallel computing is the dining philosophers problem. In this case, there are N philosophers at a table who all want to eat at the same time, following all of the same rules. Each philosopher must alternatively think and then eat. They need both their left and right fork to start eating, but cannot start eating until they have both forks. The problem is how to setup a concurrent algorithm that will not cause any philosophers to starve.</p>
+<p>The difficulty is a situation known as <em>deadlock</em>. For example, if each philosopher was told to grab the right fork when it&#39;s avaialble, and then the left fork, and put down the fork after eating, then they will all grab the right fork and none will ever eat because they will all be waiting on the left fork. This is analygous to two blocked computations which are waiting on the other to finish. Thus, when using blocking structures, one needs to be careful about deadlock&#33;</p>
+<h3>Summary of Multithreading</h3>
+<ul>
+<li><p>Communication in multithreading is done on the heap. Locks and atomics allow for a form of safe message passing.</p>
+</li>
+<li><p>50ns-100ns of overhead. Suitable for 1μs calculations.</p>
+</li>
+<li><p>Be careful of ordering and heap-allocated values.</p>
+</li>
+</ul>
+<h2>GPU Computing</h2>
+<p>GPUs are not fast. In fact, the problem with GPUs is that each processor is slow. However, GPUs have a lot of cores... like thousands.</p>
+<p><img src="https://miro.medium.com/max/832/0*xzPjWMqXC0NB6D69.jpg" alt="" /></p>
+<p>An RTX2080, a standard &quot;gaming&quot; GPU &#40;not even the ones in the cluster&#41;, has 2944 cores. However, not only are GPUs slow, but they also need to be programmed in a style that is <em>SPMD</em>, which standard for Single Program Multiple Data. This means that every single thread must be running the same program but on different pieces of data. Exactly the same program. If you have</p>
+
+
+
+<pre class='hljl'>
+<span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-cs'># Do something</span><span class='hljl-t'>
+</span><span class='hljl-k'>else</span><span class='hljl-t'>
+  </span><span class='hljl-cs'># Do something else</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<p>where some of the data goes on one branch and other data goes on the other branch, every single thread will run both branches &#40;performing &quot;fake&quot; computations while on the other branch&#41;. This means that GPU tasks should be &quot;very parallel&quot; with as few conditionals as possible.</p>
+<p>This can be very difficult to actually use effectively, so for the most part GPUs are used as array-operation accelerators. CuArrays.jl has a CUDA-accelerated BLAS for high-performance linear algebra. If one wants to generate GPU code from Julia, one can use CudaNative.jl or GPUifyLoops.jl, which will be a topic for later in the course.</p>
+<h3>GPU Memory</h3>
+<p>GPUs themselves are shared memory devices, meaning they have a heap that is shared amongst all threads. However, GPUs are heavily in the NUMA camp, where different blocks of the GPU have much faster access to certain parts of the memory. Additionally, this heap is disconnected from the standard processor, so data must be passed to the GPU and data must be returned.</p>
+<p>GPU memory size is relatively small compared to CPUs. Example: the RTX2080Ti has 8GB of RAM. Thus one needs to be doing computations that are memory compact &#40;such as matrix multiplications, which are O&#40;n^3&#41; making the computation time scale quicker than the memory cost&#41;.</p>
+<h3>Note on GPU Hardware</h3>
+<p>Standard GPU hardware &quot;for gaming&quot;, like RTX2070, is just as fast as higher end GPU hardware for Float32. Higher end hardware, like the Tesla, add more memory, memory safety, and Float64 support. However, these require being in a server since they have alternative cooling strategies, making them a higher end product.</p>
+<h3>GPU Computing Example with CuArrays</h3>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>A</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>,</span><span class='hljl-ni'>100</span><span class='hljl-p'>);</span><span class='hljl-t'> </span><span class='hljl-n'>B</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>,</span><span class='hljl-ni'>100</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>CuArrays</span><span class='hljl-t'>
+</span><span class='hljl-cs'># Pass to the GPU</span><span class='hljl-t'>
+</span><span class='hljl-n'>cuA</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>cu</span><span class='hljl-p'>(</span><span class='hljl-n'>A</span><span class='hljl-p'>);</span><span class='hljl-t'> </span><span class='hljl-n'>cuB</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>cu</span><span class='hljl-p'>(</span><span class='hljl-n'>B</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>cuC</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>cuA</span><span class='hljl-oB'>*</span><span class='hljl-n'>cuB</span><span class='hljl-t'>
+</span><span class='hljl-cs'># Pass to the CPU</span><span class='hljl-t'>
+</span><span class='hljl-n'>C</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Array</span><span class='hljl-p'>(</span><span class='hljl-n'>cuC</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+100×100 Array&#123;Float32,2&#125;:
+ 25.3107  22.7298  25.5692  24.3045  …  24.2161  21.6363  24.8899  26.2532
+ 26.6793  24.9427  27.8811  26.3918     27.9027  24.1422  27.4993  26.7786
+ 26.5908  24.0974  25.7496  25.9126     27.7348  23.4801  25.7065  26.4204
+ 28.7188  23.8214  27.9859  25.211      26.4259  24.363   26.2981  26.9884
+ 27.4881  25.1147  26.7679  26.3187     26.8501  25.4026  29.6349  28.3685
+ 21.5718  20.3469  22.8488  22.6915  …  23.022   20.9601  24.3381  23.0586
+ 26.3455  23.5796  27.653   26.2658     26.5764  24.2969  27.4871  26.5515
+ 26.9288  25.0956  28.7806  29.758      29.3532  27.068   30.7919  28.6132
+ 25.0739  22.1758  26.9618  24.7945     24.6738  22.7741  24.013   25.1917
+ 24.9346  25.1186  27.074   25.589      27.3505  23.7031  28.206   26.3026
+  ⋮                                  ⋱                                    
+ 21.8821  21.6143  24.6156  22.287      23.1155  22.3583  23.7767  22.4511
+ 24.0125  22.6128  23.5028  24.4777     23.8922  20.7687  24.281   25.8209
+ 22.8917  21.6158  23.719   23.2208     21.579   21.4846  24.077   26.0685
+ 25.8146  22.9446  26.1122  26.0201     25.5328  22.512   25.4883  25.252 
+ 26.8133  23.2904  26.8035  26.0081  …  24.999   23.7144  26.8481  26.9805
+ 22.9258  22.3818  24.1611  23.3293     23.5227  20.5523  23.4254  24.4378
+ 24.0151  22.5584  27.2785  21.295      24.0352  22.2044  23.0835  24.6288
+ 25.6003  23.6021  24.6391  25.5412     26.4169  22.6339  25.2036  26.8669
+ 27.4531  23.8239  26.3994  26.8437     28.7813  25.2764  28.0294  28.5478
+</pre>
+
+
+<p>Let&#39;s see the transfer times:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>cu</span><span class='hljl-p'>(</span><span class='hljl-n'>A</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+58.100 μs &#40;21 allocations: 78.64 KiB&#41;
+100×100 CuArrays.CuArray&#123;Float32,2&#125;:
+ 0.0957158  0.0822288   0.832487   …  0.87214    0.0760202  0.590729 
+ 0.0144815  0.622855    0.881261      0.33415    0.0712413  0.846761 
+ 0.378166   0.986902    0.0464911     0.81872    0.122787   0.141584 
+ 0.571106   0.721337    0.643075      0.0771098  0.881677   0.749174 
+ 0.151795   0.583606    0.160998      0.829109   0.604337   0.852383 
+ 0.937345   0.94373     0.137428   …  0.987506   0.1646     0.912784 
+ 0.704714   0.543219    0.542691      0.748799   0.719914   0.342393 
+ 0.772732   0.256546    0.956927      0.035975   0.678482   0.871433 
+ 0.999848   0.941949    0.76449       0.261359   0.617673   0.0275737
+ 0.307927   0.451561    0.334097      0.602481   0.55241    0.0251871
+ ⋮                                 ⋱                                 
+ 0.511491   0.108915    0.987897      0.220209   0.714782   0.491357 
+ 0.949688   0.144914    0.25579       0.594408   0.349565   0.610267 
+ 0.107148   0.00617826  0.713126      0.739051   0.480235   0.684719 
+ 0.731386   0.884892    0.621268      0.515833   0.171045   0.615208 
+ 0.0583768  0.578275    0.734511   …  0.582012   0.137375   0.784945 
+ 0.408481   0.0287324   0.292208      0.688842   0.636986   0.279396 
+ 0.206525   0.388333    0.613621      0.0891181  0.270656   0.263189 
+ 0.434286   0.122891    0.256494      0.580923   0.811442   0.754561 
+ 0.873519   0.0980525   0.468673      0.0951486  0.974195   0.304249
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>Array</span><span class='hljl-p'>(</span><span class='hljl-n'>cuC</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+72.299 μs &#40;6 allocations: 39.22 KiB&#41;
+100×100 Array&#123;Float32,2&#125;:
+ 25.3107  22.7298  25.5692  24.3045  …  24.2161  21.6363  24.8899  26.2532
+ 26.6793  24.9427  27.8811  26.3918     27.9027  24.1422  27.4993  26.7786
+ 26.5908  24.0974  25.7496  25.9126     27.7348  23.4801  25.7065  26.4204
+ 28.7188  23.8214  27.9859  25.211      26.4259  24.363   26.2981  26.9884
+ 27.4881  25.1147  26.7679  26.3187     26.8501  25.4026  29.6349  28.3685
+ 21.5718  20.3469  22.8488  22.6915  …  23.022   20.9601  24.3381  23.0586
+ 26.3455  23.5796  27.653   26.2658     26.5764  24.2969  27.4871  26.5515
+ 26.9288  25.0956  28.7806  29.758      29.3532  27.068   30.7919  28.6132
+ 25.0739  22.1758  26.9618  24.7945     24.6738  22.7741  24.013   25.1917
+ 24.9346  25.1186  27.074   25.589      27.3505  23.7031  28.206   26.3026
+  ⋮                                  ⋱                                    
+ 21.8821  21.6143  24.6156  22.287      23.1155  22.3583  23.7767  22.4511
+ 24.0125  22.6128  23.5028  24.4777     23.8922  20.7687  24.281   25.8209
+ 22.8917  21.6158  23.719   23.2208     21.579   21.4846  24.077   26.0685
+ 25.8146  22.9446  26.1122  26.0201     25.5328  22.512   25.4883  25.252 
+ 26.8133  23.2904  26.8035  26.0081  …  24.999   23.7144  26.8481  26.9805
+ 22.9258  22.3818  24.1611  23.3293     23.5227  20.5523  23.4254  24.4378
+ 24.0151  22.5584  27.2785  21.295      24.0352  22.2044  23.0835  24.6288
+ 25.6003  23.6021  24.6391  25.5412     26.4169  22.6339  25.2036  26.8669
+ 27.4531  23.8239  26.3994  26.8437     28.7813  25.2764  28.0294  28.5478
+</pre>
+
+
+<p>The cost transferring is about 50μs-100μs in each direction, meaning that one needs to be doing operations that cost at least 200μs for GPUs to break even. A good rule of thumb is that GPU computations should take at least a milisecond, or GPU memory should be re-used.</p>
+<h3>Summary of GPUs</h3>
+<ul>
+<li><p>GPUs cores are slow</p>
+</li>
+<li><p>GPUs are SPMD</p>
+</li>
+<li><p>GPUs are generally used for linear algebra</p>
+</li>
+<li><p>Suitable for SPMD 1ms computations</p>
+</li>
+</ul>
+<h2>Xeon Phi Accelerators and OpenCL</h2>
+<p>Other architectures exist to keep in mind. Xeon Phis are a now-defunct accelerator that used X86 &#40;standard processors&#41; as the base, using hundreds of them. For example, the Knights Landing series had 256 core accelerator cards. These were all clocked down, meaning they were still slower than a standard CPU, but there were less restrictions on SPMD &#40;though SPMD-like computations were still preferred in order to heavily make use of SIMD&#41;. However, because machine learning essentially only needs linear algebra, and linear algebra is faster when restricting to SPMD-architectures, this failed. These devices can still be found on many high end clusters.</p>
+<p>One alternative to CUDA is OpenCL which supports alternative architectures such as the Xeon Phi at the same time that it supports GPUs. However, one of the issues with OpenCL is that its BLAS implementation currently does not match the speed of CuBLAS, which makes NVIDIA-specific libraries still the king of machine learning and most scientific computing.</p>
+<h2>TPU Computing</h2>
+<p>TPUs are tensor processing units, which is Google&#39;s newest accelerator technology. They are essentially just &quot;tensor operation compilers&quot;, which in computer science speak is simply higher dimensional linear algebra. To do this, they internally utilize a BFloat16 type, which is a 16-bit floating point number with the same exponent size as a Float32 with an 8-bit significand. This means that computations are highly prone to <em>catastrophic cancellation</em>. This computational device only works because BFloat16 has primative operations for FMA which allows 32-bit-like accuracy of multiply-add operations, and thus computations which are only dot products &#40;linear algebra&#41; end up okay. Thus this is simply a GPU-like device which has gone further to completely specialize in linear algebra.</p>
+<h2>Multiprocessing &#40;Distributed Computing&#41;</h2>
+<p>While multithreading computes with multiple threads, multiprocessing computes with multiple independent processes. Note that processes do not share any memory, not heap or data, and thus this mode of computing also allows for <em>distributed computations</em>, which is the case where processes may be on separate computing hardware. However, even if they are on the same hardware, the lack of a shared address space means that multiprocessing has to do <em>message passing</em>, i.e. send data from one process to the other.</p>
+<h3>The Master-Worker Model</h3>
+<p>Given the amount of control over data handling, there are many different models for distributed computing. The simplest, the one that Julia&#39;s Distributed Standard Library defaults to, is the <em>master-worker model</em>. The master-worker model has one process, deemed the master, which controls the worker processes.</p>
+<p>Here we can start by adding some new worker processes:</p>
+<pre><code>using Distributed
+addprocs&#40;4&#41;</code></pre>
+<p>This adds 4 worker processes for the master to control. The simplest computations are those where the master process gives the worker process a job which returns the value afterwards. For example, a <code>pmap</code> operation or <code>@distributed</code> loop gives the worker a function to execute, along with the data, and the worker then computes and returns the result.</p>
+<p>At a lower level, this is done by <code>Distributed.@spawn</code>ing jobs, or using a <code>remotecall</code> and <code>fetch</code>ing the result. <a href="https://github.com/ChrisRackauckas/ParallelDataTransfer.jl">ParallelDataTransfer.jl</a> gives an extended set of primative message passing operations.</p>
+<h3>SharedArrays, Elemental, and DArrays</h3>
+<p>Because array operations are a standard way to compute in scientific computing, there are higher level primatives to help with message passing. A <code>SharedArray</code> is an array which acts like a shared memory device. This means that every change to a <code>SharedArray</code> causes message passing to keep them in sync, and thus this should be used with a performance caution. <a href="https://github.com/JuliaParallel/DistributedArrays.jl">DistributedArrays.jl</a> is a parallel array type which has local blocks and can be used for writing higher level abstractions with explicit message passing. Because it is currently missing high-level parallel linear algebra, currently the recommended tool for distributed linear algebra is <a href="https://github.com/JuliaParallel/Elemental.jl">Elemental.jl</a>.</p>
+<h3>MapReduce, Hadoop, and Spark: The Map-Reduce Model</h3>
+<p>Many data-parallel operations work by mapping a function <code>f</code> onto each piece of data and then reducing it. For example, the sum of squares maps the function <code>x -&gt; x^2</code> onto each value, and then these values are reduced by performing a summation. MapReduce was a Google framework in the 2000&#39;s built around this as the parallel computing concept, and current data-handling frameworks, like Hadoop and Spark, continue this as the core distributed programming model.</p>
+<p>In Julia, there exists the <code>mapreduce</code> function for performing serial mapreduce operations. It also work on GPUs. However, it does not auto-distribute. For distributed map-reduce programming, the <code>@distributed</code> for-loop macro can be used. For example, sum of squares of random numbers is:</p>
+<pre><code>@distributed &#40;&#43;&#41; for i in 1:1000
+  rand&#40;&#41;^2
+end</code></pre>
+<p>One can see that computing summary statistics is easily done in this framework which is why it was majorly adopted among &quot;big data&quot; communities.</p>
+<h3>MPI</h3>
+<p>The main way to do high-performace multiprocessing is <em>MPI</em>, which is an old distributed computing interface from the C/Fortran days. Julia has access to the MPI programming model through MPI.jl which is installed on the Supercloud. The programming model for MPI is that every computer is running the same program, and synchronization is performed by blocking communication. For example, the following prints on every process:</p>
+<pre><code>using MPI
+MPI.Init&#40;&#41;
+
+comm &#61; MPI.COMM_WORLD
+print&#40;&quot;Hello world, I am rank &#36;&#40;MPI.Comm_rank&#40;comm&#41;&#41; of &#36;&#40;MPI.Comm_size&#40;comm&#41;&#41;\n&quot;&#41;
+MPI.Barrier&#40;comm&#41;</code></pre>
+<pre><code>&gt; mpiexec -n 3 julia examples/01-hello.jl
+Hello world, I am rank 0 of 3
+Hello world, I am rank 1 of 3
+Hello world, I am rank 2 of 3</code></pre>
+<p>We will go into detail on using MPI later in the course. This model can be faster than the master-worker model because less communication to a single master is required, but care has to be taken to make sure the computation doesn&#39;t deadlock.</p>
+<h3>Summary of Multiprocessing</h3>
+<ul>
+<li><p>Cost is hardware dependent: only suitable for 1ms or higher depending on the connections through which the messages are being passed and the topology of the network.</p>
+</li>
+<li><p>Master-worker is Julia&#39;s model</p>
+</li>
+<li><p>Map-reduce is a common data-handling model</p>
+</li>
+<li><p>Array-based distributed computations are another abstraction</p>
+</li>
+<li><p>MPI is the lowest abstract, where each process is completely independent and one just controls the memory handling.</p>
+</li>
+</ul>
+
+
+
+          <HR/>
+          <div class="footer"><p>
+          Published from <a href="styles_of_parallelism.jmd">styles_of_parallelism.jmd</a> using
+          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
+           on 2019-09-23.
+          <p></div>
+
+
+        </div>
+      </div>
+    </div>
+  </BODY>
+</HTML>

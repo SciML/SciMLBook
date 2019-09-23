@@ -324,8 +324,6 @@ further explored through the rest of the course.
 
 - [The Basics of Single Node Parallel Computing](https://mitmath.github.io/18337/lecture5/parallelism_overview)
 
-#### Optional Pre-Reading Materials
-
 Now that we have a concrete problem, let's start investigating ways to parallelize
 its solution. We will first see that many systems have an almost automatic way
 of parallelizing through array operations, which we will call array-based
@@ -338,8 +336,20 @@ how this is a form of data parallelism, and use this as a framework to
 introduce shared memory and distributed parallelism. The interactions between
 these parallelization methods and application considerations will be discussed.
 
-## Lecture 6: Ordinary Differential Equations Across the Sciences
+## Lecture 6: Styles of Parallelism
 
-## Lecture 7: Numerical Methods for ODEs
+#### Lecture Notes
 
-## Lecture 8: Designing ODE Methods for Within-Method Parallelism
+- [Styles of Parallelism](https://mitmath.github.io/18337/lecture6/styles_of_parallelism)
+
+Here we continue down the line of describing methods of parallelism by giving
+a high level overview of the types of parallelism. SIMD and multithreading
+are reviewed as the basic forms of parallelism where message passing is not a
+concern. Then accelerators, such as GPUs and TPUs are introduced. Moving further,
+distributed parallel computing and its models are showcased.
+
+## Lecture 7: Ordinary Differential Equations Across the Sciences
+
+## Lecture 8: Numerical Methods for ODEs
+
+## Lecture 9: Designing ODE Methods for Within-Method Parallelism

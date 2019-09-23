@@ -140,6 +140,17 @@ main event loop will keep switching between them until they are all handled.
 are handled. This could be done more manually with `Task` and `Channel`s,
 which will be something we touch on in the future.
 
+### Examples of the Differences
+
+Synchronous = Thread will complete an action
+Blocking = Thread will wait until action is completed
+
+- Asynchronous + Non-Blocking: I/O
+- Asynchronous + Blocking: Threaded atomics (demonstrated next lecture)
+- Synchronous + Blocking: Standard computing, `@sync`
+- Synchronous + Non-Blocking: Webservers where an I/O operation can be performed,
+  but one never checks if the operation is completed.
+
 ### Multithreading
 
 If your threads are independent, then it may make sense to run them in parallel.
@@ -252,7 +263,7 @@ using Base.Threads
 function lorenz_mt!(du,u,p)
   α,σ,ρ,β = p
   let du=du, u=u, p=p
-    for i in 1:3
+    Threads.@threads for i in 1:3
       @inbounds begin
         if i == 1
           du[1] = u[1] + α*(σ*(u[2]-u[1]))
