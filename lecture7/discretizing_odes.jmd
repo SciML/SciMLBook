@@ -357,7 +357,9 @@ plot(sol)
 plot(sol, xscale=:log10, tspan=(1e-6, 60), layout=(3,1))
 ```
 
-## Linear Ordinary Differential Equations
+## Geometric Properties
+
+### Linear Ordinary Differential Equations
 
 The simplest ordinary differential equation is the scalar linear ODE, which
 is given in the form
@@ -371,9 +373,9 @@ $$u(t) = u(0)e^{\alpha t}$$
 
 From the analytical solution we have that:
 
-- $\Vert \alpha \Vert > 0$ implies that $u(t) \rightarrow \infty$ as $t \rightarrow \infty$
-- $\Vert \alpha \Vert < 0$ implies that $u(t) \rightarrow 0$ as $t \rightarrow \infty$
-- $\alpha = 0$ has a constant solution.
+- $Re{\alpha} > 0$ implies that $u(t) \rightarrow \infty$ as $t \rightarrow \infty$
+- $Re{\alpha} < 0$ implies that $u(t) \rightarrow 0$ as $t \rightarrow \infty$
+- $Re{\alpha} = 0$ has a constant or periodic solution.
 
 This theory can then be extended to multivariable systems in the same way as the
 discrete dynamics case. Let $u$ be a vector and have
@@ -395,6 +397,15 @@ discrete dynamical system, we have that:
 
 - If all of the eigenvalues negative, then $u(t) \rightarrow 0$ as $t \rightarrow \infty$
 - If any eigenvalue is positive, then $u(t) \rightarrow \infty$ as $t \rightarrow \infty$
+
+### Nonlinear Ordinary Differential Equations
+
+As with discerte dynamical systems, the geometric properties extend locally to
+the linearization of the continuous dynamical system as defined by:
+
+$$u' = df/du u$$
+
+where $df/du$ is the Jacobian of the system. This is the
 
 ## Numerically Solving Ordinary Differential Equations
 
@@ -593,3 +604,48 @@ which is stable for all $Re(z) < 0$ a property which is known as A-stability.
 It is also stable as $z \rightarrow \infty$, a property known as L-stability.
 This means that for equations with very ill-conditioned Jacobians, this method
 is still able to be use reasonably large stepsizes and can thus be efficient.
+
+### Stiffness and Timescale Separation
+
+From this we see that there is a maximal stepsize whenever the eigenvalues
+of the Jacobian are sufficiently large. It turns out that's not an issue if
+the phonomena we fast to see is fast, since then the total integration time
+tends to be small. However, is we have some equations with both fast modes
+and slow modes, like the Robertson equation, then it is very difficult because
+in order to resolve the slow dynamics over a long timespan, one needs to ensure
+that the fast dynamics do not diverge. This is a property known as stiffness.
+Stiffness can thus be approximated in some sense by the condition number of
+the Jacobian. The condition number of a matrix is its maximal eigenvalue divided
+by its minimal eigenvalue and gives an rough measure of the local timescale
+separations. If this value is large and one wants to resolve the slow dynamics,
+then explict integrators, like the explicit Runge-Kutta methods described before,
+have issues with stability. In this case implicit integrators (or other forms
+of stabilized stepping) are required in order to efficiently reach the end
+time step.
+
+## Exploiting Continuity
+
+So far, we have looked at ordinary differential equations as a $\Delta t \rightarrow 0$
+formulation of a discrete dynamical system. However, continuous dynamics and
+discrete dynamics have very different characteristics which can be utilized in
+order to arrive at simpler models and faster computations.
+
+### Geometric Properties: No Jumping and the Poincaré–Bendixson theorem
+
+In terms of geometric properties, continuity places a large constraint on the
+possible dynamics. This is because of the physical constraint on "jumping", i.e.
+flows of differential equations cannot jump over each other. If you are ever
+at some point in phase space and $f$ is not explicitly time-dependent, then
+the direction of $u'$ is uniquely determined (given reasonable assumptions on
+$f$), meaning that flow lines (solutions to the differential equation) can never
+cross.
+
+A result from this is the Poincaré–Bendixson theorem, which states that, with
+any arbitrary (but nice) two dimensional continuous system, you can only have
+3 behaviors:
+
+- Steady state behavior
+- Divergence
+- Periodic orbits
+
+A simple proof by picture shows this.
