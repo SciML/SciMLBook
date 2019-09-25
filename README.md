@@ -348,8 +348,14 @@ are reviewed as the basic forms of parallelism where message passing is not a
 concern. Then accelerators, such as GPUs and TPUs are introduced. Moving further,
 distributed parallel computing and its models are showcased.
 
-## Lecture 7: Ordinary Differential Equations Across the Sciences
+## Lecture 7: Ordinary Differential Equations: Applications and Discretizations
 
-## Lecture 8: Numerical Methods for ODEs
+- [Discretizing Ordinary Differential Equations](https://mitmath.github.io/18337/lecture7/discretizing_odes)
 
-## Lecture 9: Designing ODE Methods for Within-Method Parallelism
+In this lecture we will describe ordinary differential equations, where they
+arise in scientific contexts, and how they are solved. We will see that
+understanding the properties of the numerical methods requires understanding
+the dynamics of the discrete system generated from the approximation to the
+continuous system, and thus stability of a numerical method is directly tied
+to the stability properties of the dynamics. This gives the idea of stiffness,
+which is a larger computational idea about ill-conditioned systems.

@@ -1,0 +1,595 @@
+ ---
+title: Discretizing Ordinary Differential Equations
+author: Chris Rackauckas
+date: September 24nd, 2019
+---
+
+Now that we have a sense of parallelism, let's return back to our thread on
+scientific machine learning to start constructing parallel algorithms for
+integration of scientific models. We previously introduced discrete dynamical
+systems and their asymtopic behavior. However, many physical systems are not
+discrete and are in fact continuous. In this discussion we will understand how
+to numerically compute ordinary differential equations by transforming them into
+discrete dynamical systems, and use this to come up with simulation techniques
+for physical systems.
+
+## What is an Ordinary Differential Equation?
+
+An ordinary differential equation is an equation defined by a relationship on
+the derivative. In its general form we have that
+
+$$u' = f(u,p,t)$$
+
+describes the evolution of some variable $u(t)$ which we would like to solve
+for. In its simplest sense, the solution to the ordinary differential equation
+is just the integral, since by taking the integral of both sides and applying
+the Fundamental Theorem of Calculus we have that
+
+$$u = \int_{t_0}^{t_f} f(u,p,t)dt$$
+
+The difficulty of this equation is that the variable $u(t)$ is unknown and
+dependent on $t$, meaning that the integral cannot readily be solved by simple
+calculus. In fact, in almost all cases there exists no analytical solution for
+$u$ which is readily available. However, we can understand the behavior by
+looking at some simple cases.
+
+## Solving Ordinary Differential Equations in Julia
+
+To solve an ordinary differential equation in Julia, one can use the
+[DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/) package to
+define the differential equation you'd like to solve. Let's say we want to
+solve the Lorenz equations:
+
+```math
+\begin{align}
+\frac{dx}{dt} &= σ(y-x) \\
+\frac{dy}{dt} &= x(ρ-z) - y \\
+\frac{dz}{dt} &= xy - βz \\
+\end{align}
+```
+
+which was the system used in our investigation of discrete dynamics. The first
+thing we need to do is give it this differential equation. We can either write
+it in an in-place form `f(du,u,p,t)` or an out-of-place form `f(u,p,t)`. Let's
+write it in the in-place form:
+
+```julia
+function lorenz(du,u,p,t)
+ du[1] = p[1]*(u[2]-u[1])
+ du[2] = u[1]*(p[2]-u[3]) - u[2]
+ du[3] = u[1]*u[2] - p[3]*u[3]
+end
+```
+
+**Question: How could I maybe speed this up a little?**
+
+Next we give an *initial condition*. Here, this is a vector
+of equations, so our initial condition has to be a vector. Let's choose the
+following initial condition:
+
+```julia
+u0 = [1.0,0.0,0.0]
+```
+
+Notice that I made sure to use `Float64` values in the initial condition. The
+Julia library's functions are generic and internally use the corresponding
+types that you give it. Integer types do not bode well for continuous problems.
+
+Next, we have to tell it the timespan to solve on. Here, let's some from time
+0 to 100. This means that we would use:
+
+```julia
+tspan = (0.0,100.0)
+```
+
+Now we need to define our parameters. We will use the same ones as from our
+discrete dynamical system investigation.
+
+```julia
+p = (10.0,28.0,8/3)
+```
+
+These describe an `ODEProblem`. Let's bring in DifferentialEquations.jl and
+define the ODE:
+
+```julia
+using DifferentialEquations
+prob = ODEProblem(lorenz,u0,tspan,p)
+```
+
+Now we can solve it by calling `solve`:
+
+```julia
+sol = solve(prob)
+```
+
+To see what the solution looks like, we can call `plot`:
+
+```julia
+using Plots
+plot(sol)
+```
+
+We can also plot phase space diagrams by telling it which `vars` to compare on
+which axis. Let's plot this in the `(x,y,z)` plane:
+
+```julia
+plot(sol,vars=(1,2,3))
+```
+
+Note that the sentinal to time is `0`, so we can also do `(t,y,z)` with:
+
+```julia
+plot(sol,vars=(0,2,3))
+```
+
+The equation is continuous and therefore the solution is continuous. We can
+see this by checking how it is at any random time value:
+
+```julia
+sol(0.5)
+```
+
+which gives the current evolution at that time point.
+
+## Differential Equations from Scientific Contexts
+
+### N-Body Problems and Astronomy
+
+There are many different contexts in which differential equations show up. In
+fact, it's not a stretch to say that the laws in all fields of
+science are encoded in differential equations. The starting point for physics
+is Newton's laws of gravity, which define an N-body ordinary differential equation
+system by describing the force between two particles as:
+
+$$F = G \frac{m_1m_2}{r^2}$$
+
+where $r^2$ is the Euclidian distance between the two particles. From here, we
+use the fact that
+
+$$F = ma$$
+
+to receive differential equations in terms of the accelerations of each particle.
+The differential equation is a system, where we know the change in position is
+due to the current velocity:
+
+$$x' = v$$
+
+and the change in velocity is the acceleration:
+
+$$v' = F/m = G \frac{m_i}{r_i^2}$$
+
+where $i$ runs over the other particles. Thus we have a vector of position
+derivatives and a vector of velocity derivatives that evolve over time to give
+the evolving positions and velocity.
+
+An example of this is the Pleiades problem, which is an approximation to a 7-star
+chaotic system. It can be written as:
+
+```julia
+using OrdinaryDiffEq, ODE, ODEInterfaceDiffEq, LSODA, Sundials, DiffEqDevTools
+
+function pleiades(du,u,p,t)
+  @inbounds begin
+  x = view(u,1:7)   # x
+  y = view(u,8:14)  # y
+  v = view(u,15:21) # x′
+  w = view(u,22:28) # y′
+  du[1:7] .= v
+  du[8:14].= w
+  for i in 14:28
+    du[i] = zero(u[1])
+  end
+  for i=1:7,j=1:7
+    if i != j
+      r = ((x[i]-x[j])^2 + (y[i] - y[j])^2)^(3/2)
+      du[14+i] += j*(x[j] - x[i])/r
+      du[21+i] += j*(y[j] - y[i])/r
+    end
+  end
+  end
+end
+tspan = (0.0,3.0)
+prob = ODEProblem(pleiades,[3.0,3.0,-1.0,-3.0,2.0,-2.0,2.0,3.0,-3.0,2.0,0,0,-4.0,4.0,0,0,0,0,0,1.75,-1.5,0,0,0,-1.25,1,0,0],tspan)
+```
+
+where we assume $m_i = i$. When we solve this equation we receive the following:
+
+```julia
+sol = solve(prob,Vern8(),abstol=1e-10,reltol=1e-10)
+plot(sol)
+```
+
+```julia
+tspan = (0.0,200.0)
+prob = ODEProblem(pleiades,[3.0,3.0,-1.0,-3.0,2.0,-2.0,2.0,3.0,-3.0,2.0,0,0,-4.0,4.0,0,0,0,0,0,1.75,-1.5,0,0,0,-1.25,1,0,0],tspan)
+sol = solve(prob,Vern8(),abstol=1e-10,reltol=1e-10)
+plot(sol,vars=((1:7),(8:14)))
+```
+
+### Population Ecology: Lotka-Volterra
+
+Population ecology's starting point is the Lotka-Volterra equations which describes
+the interactions between a predator and a prey. In this case, the prey grows at
+an exponential rate but has a term that reduces its population by being eaten
+by the predator. The predator's growth is dependent on the available food
+(the amount of prey) and has a decay rate due to old age. This model is then
+written as follows:
+
+```julia
+function lotka(du,u,p,t)
+  du[1] = p[1]*u[1] - p[2]*u[1]*u[2]
+  du[2] = -p[3]*u[2] + p[4]*u[1]*u[2]
+end
+
+p = [1.5,1.0,3.0,1.0]
+prob = ODEProblem(lotka,[1.0,1.0],(0.0,10.0),p)
+sol = solve(prob)
+plot(sol)
+```
+
+### Biochemistry: Robertson Equations
+
+Biochemical equations commonly display large separation of timescales which lead
+to a stiffness phonomena that will be investigated later. The classic "hard"
+equations for ODE integration thus tend to come from biology (not physics!)
+due to this property. One of the standard models is the Robertson model, which
+can be described as:
+
+```julia
+using Sundials, ParameterizedFunctions
+rober = @ode_def begin
+  dy₁ = -k₁*y₁+k₃*y₂*y₃
+  dy₂ =  k₁*y₁-k₂*y₂^2-k₃*y₂*y₃
+  dy₃ =  k₂*y₂^2
+end k₁ k₂ k₃
+prob = ODEProblem(rober,[1.0,0.0,0.0],(0.0,1e5),(0.04,3e7,1e4))
+sol = solve(prob,Rosenbrock23())
+plot(sol)
+```
+
+```julia
+plot(sol, xscale=:log10, tspan=(1e-6, 1e5), layout=(3,1))
+```
+
+### Chemical Physics: Pollution Models
+
+Chemical reactions in physical models are also described as differential
+equation systems. The following is a classic model of dynamics between different
+species of pollutants:
+
+```julia
+k1=.35e0
+k2=.266e2
+k3=.123e5
+k4=.86e-3
+k5=.82e-3
+k6=.15e5
+k7=.13e-3
+k8=.24e5
+k9=.165e5
+k10=.9e4
+k11=.22e-1
+k12=.12e5
+k13=.188e1
+k14=.163e5
+k15=.48e7
+k16=.35e-3
+k17=.175e-1
+k18=.1e9
+k19=.444e12
+k20=.124e4
+k21=.21e1
+k22=.578e1
+k23=.474e-1
+k24=.178e4
+k25=.312e1
+p = (k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25)
+function f(dy,y,p,t)
+ k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25 = p
+ r1  = k1 *y[1]
+ r2  = k2 *y[2]*y[4]
+ r3  = k3 *y[5]*y[2]
+ r4  = k4 *y[7]
+ r5  = k5 *y[7]
+ r6  = k6 *y[7]*y[6]
+ r7  = k7 *y[9]
+ r8  = k8 *y[9]*y[6]
+ r9  = k9 *y[11]*y[2]
+ r10 = k10*y[11]*y[1]
+ r11 = k11*y[13]
+ r12 = k12*y[10]*y[2]
+ r13 = k13*y[14]
+ r14 = k14*y[1]*y[6]
+ r15 = k15*y[3]
+ r16 = k16*y[4]
+ r17 = k17*y[4]
+ r18 = k18*y[16]
+ r19 = k19*y[16]
+ r20 = k20*y[17]*y[6]
+ r21 = k21*y[19]
+ r22 = k22*y[19]
+ r23 = k23*y[1]*y[4]
+ r24 = k24*y[19]*y[1]
+ r25 = k25*y[20]
+
+ dy[1]  = -r1-r10-r14-r23-r24+
+          r2+r3+r9+r11+r12+r22+r25
+ dy[2]  = -r2-r3-r9-r12+r1+r21
+ dy[3]  = -r15+r1+r17+r19+r22
+ dy[4]  = -r2-r16-r17-r23+r15
+ dy[5]  = -r3+r4+r4+r6+r7+r13+r20
+ dy[6]  = -r6-r8-r14-r20+r3+r18+r18
+ dy[7]  = -r4-r5-r6+r13
+ dy[8]  = r4+r5+r6+r7
+ dy[9]  = -r7-r8
+ dy[10] = -r12+r7+r9
+ dy[11] = -r9-r10+r8+r11
+ dy[12] = r9
+ dy[13] = -r11+r10
+ dy[14] = -r13+r12
+ dy[15] = r14
+ dy[16] = -r18-r19+r16
+ dy[17] = -r20
+ dy[18] = r20
+ dy[19] = -r21-r22-r24+r23+r25
+ dy[20] = -r25+r24
+end
+```
+
+```julia
+u0 = zeros(20)
+u0[2]  = 0.2
+u0[4]  = 0.04
+u0[7]  = 0.1
+u0[8]  = 0.3
+u0[9]  = 0.01
+u0[17] = 0.007
+prob = ODEProblem(f,u0,(0.0,60.0),p)
+sol = solve(prob,Rodas5())
+```
+
+```julia
+plot(sol)
+```
+
+```julia
+plot(sol, xscale=:log10, tspan=(1e-6, 60), layout=(3,1))
+```
+
+## Linear Ordinary Differential Equations
+
+The simplest ordinary differential equation is the scalar linear ODE, which
+is given in the form
+
+$$u' = \alpha u$$
+
+We can solve this by noticing that $(e^{\alpha t})^\prime = \alpha e^{\alpha t}$
+satisfies the differential equation and thus the general solution is:
+
+$$u(t) = u(0)e^{\alpha t}$$
+
+From the analytical solution we have that:
+
+- $\Vert \alpha \Vert > 0$ implies that $u(t) \rightarrow \infty$ as $t \rightarrow \infty$
+- $\Vert \alpha \Vert < 0$ implies that $u(t) \rightarrow 0$ as $t \rightarrow \infty$
+- $\alpha = 0$ has a constant solution.
+
+This theory can then be extended to multivariable systems in the same way as the
+discrete dynamics case. Let $u$ be a vector and have
+
+$$u' = Au$$
+
+be a linear ordinary differential equation. Assuming $A$ is diagonaliziable,
+we diagonalize $A = P^{-1}DP$ to get
+
+$$Pu' = DPu$$
+
+and change coordinates $z = Pu$ so that we have
+
+$$z' = Dz$$
+
+which decouples the equation into a system of linear ordinary differential
+equations which we solve individually. Thus we see that, similarly to the
+discrete dynamical system, we have that:
+
+- If all of the eigenvalues negative, then $u(t) \rightarrow 0$ as $t \rightarrow \infty$
+- If any eigenvalue is positive, then $u(t) \rightarrow \infty$ as $t \rightarrow \infty$
+
+## Numerically Solving Ordinary Differential Equations
+
+### Euler's Method
+
+To numerically solve an ordinary differential equation, one turns the continuous
+equation into a discrete equation by *discretizing* it. The simplest discretization
+is the *Euler method*. The Euler method can be thought of as a simple approximation
+replacing $dt$ with a small non-infinitesimal $\Delta t$. Thus we can approximate
+
+$$ f(u,p,t) = u' = \frac{du}{dt} \approx \frac{\Delta u}{Delta t}$$
+
+and now since $\Delta u = u_{n+1} - u_n$ we have that
+
+$$ \Delta t f(u,p,t) = u_{n+1} - u_n $$
+
+We need to make a choice as to where we evaluate $f$ at. The simplest approximation
+is to evaluate it at $t_n$ with $u_n$ where we already have the data, and thus
+we re-arrange to get
+
+$$ u_{n+1} = u_n + \Delta t f(u,p,t)$$
+
+This is the Euler method.
+
+We can interpret it more rigorously by looking at the Taylor series expansion.
+First write out the Taylor series for the ODE's solution in the near future:
+
+$$u(t+\Delta t) = u(t) + \Delta t u'(t) + \frac{\Delta t^2}{2} u''(t) + \ldots$$
+
+Recall that $u' = f(u,p,t)$ by the definition of the ODE system, and thus we have
+that
+
+$$u(t+\Delta t) = u(t) + \Delta t f(u,p,t) + \mathcal{O}(\Delta t^2)$$
+
+This is a first order approximation because the error in our step can be
+expresed as an error in the derivative, i.e.
+
+$$\frac{u(t + \Delta t) - u(t)}{\Delta t} = f(u,p,t) + \mathcal{O}(\Delta t)$$
+
+### Higher Order Methods
+
+We can use this analysis to extend our methods to higher order approximation
+by simply matching the Taylor series to a higher order. Intuitively, when we
+developed the Euler method we had to make a choice:
+
+$$ u_{n+1} = u_n + \Delta t f(u,p,t)$$
+
+where do we evaluate $f$? One may think that the best derivative approximation
+my come from the middle of the interval, in which case we might want to evaluate
+it at $t + \frac{\Delta t}{2}$. To do so, we can use the Euler method to
+approximate the value at $t + \frac{\Delta t}{2}$ and then use that value to
+approximate the derivative at $t + \frac{\Delta t}{2}$. This looks like:
+
+```math
+k_1 = f(u_n,p,t)
+k_2 = f(u_n + \frac{\Delta t}{2} k_1,p,t + \frac{\Delta t}{2})
+u_{n+1} = u_n + \Delta t k_2
+```
+
+which we can also write as:
+
+```math
+u_{n+1} = u_n + \Delta t f(t + \frac{\Delta t}{2},u_n + \frac{\Delta t}{2} f_n)
+```
+
+where $f_n = f(u_n,p,t)$. If we do the two-dimensional Taylor expansion we get:
+
+```math
+u_{n+1} = u_n + \Delta t f_n + \frac{\Delta t^2}{2}(f_t + f_u f)(u_n,p,t)
++ \frac{\Delta t^3}{8} (f_{tt} + 2f_{tu}f + f_{uu}f^2)(u_n,p,t)
+```
+
+which when we compare against the true Taylor series:
+
+```math
+u(t+\Delta t) = u_n + \Delta t f(u_n,p,t) + \frac{\Delta t^2}{2}(f_t + f_u f)(u_n,p,t)
++ \frac{\Delta t^3}{6}(f_{tt} + 2f_{tu} + f_{uu}f^2 + f_t f_u + f_u^2 f)(u_n,p,t)
+```
+
+and thus we see that
+
+```math
+u(t + \Delta t) - u_n = \mathcal{O}(\Delta t^3)
+```
+
+### Runge-Kutta Methods
+
+More generally, Runge-Kutta methods are of the form:
+
+```math
+k_1 = f(u_n,p,t)
+k_2 = f(u_n + \Delta t (a_{21} k_1),p,t + \Delta t c_1)
+k_3 = f(u_n + \Delta t (a_{31} k_1 + a_{32} k_2),p,t + \Delta t c_2)
+\vdots
+u_{n+1} = u_n + \Delta t (b_1 k_1 + \ldots + b_s k_s)
+```
+
+where $s$ is the number of stages. These tableaus can be expressed as a tableau:
+
+![](https://en.wikipedia.org/wiki/List_of_Runge%E2%80%93Kutta_methods)
+
+The order of the Runge-Kutta method is simply the number of terms in the Taylor
+series that ends up being matched by the resulting expansion.
+
+The classic Runge-Kutta method is also known as RK4 and is the following 4th
+order method:
+
+```math
+k_1 = f(u_n,p,t)
+k_2 = f(u_n + \frac{\Delta t}{2} k_1,p,t + \frac{\Delta t}{2})
+k_3 = f(u_n + \frac{\Delta t}{2} k_2,p,t + \frac{\Delta t}{2})
+k_4 = f(u_n + \Delta t k_3,p,t + \Delta t)
+u_{n+1} = u_n + \frac{1}{6}(k_1 + 2 k_2 + 2 k_3 + k_4)
+```
+
+While it's widely known and simple to remember, it's not necessarily good. The
+way to judge a Runge-Kutta method is by looking at the size of the coefficient
+of the next term in the Taylor series: if it's large then the true error can
+be larger, even if it matches another one asymtopically.
+
+The most widely used method is the Dormand-Prince 5th order Runge-Kutta method,
+whose tableau is represented as:
+
+![](http://rotordynamics.files.wordpress.com/2014/05/new-picture6.png)
+
+### Stability of a Method
+
+Simply having an order on the truncation error does not imply convergence of the
+method. The disconnect is that the errors at a given time point may not dissipate.
+What also needs to be checked is the asymtopic behavior of a disturbance. To
+see this, one can utilize the linear test problem:
+
+$$u' = \alpha u$$
+
+and ask the question, does the discrete dynamical system defined by the
+discretized ODE end up going to zero? You would hope that the discretized
+dynamical system and the continuous dynamical system have the same properties
+in this simple case, and this is known as linear stability analysis of the
+method.
+
+As an example, take a look at the Euler method. Recall that the Euler method
+was given by:
+
+$$ u_{n+1} = u_n + \Delta t f(u_n,p,t)$$
+
+When we plug in the linear test equation, we get that
+
+$$ u_{n+1} = u_n + \Delta t \alpha u_n$$
+
+If we let $z = \Delta t \alpha$, then we get the following:
+
+$$ u_{n+1} = u_n + z u_n = (1+z)u_n $$
+
+which is stable when $z$ is in the shifted unit circle. This means that, as a
+necessary condition, the step size $\Delta t$ needs to be small enough that
+$z$ satisfies this condition, placing a stepsize limit on the method.
+
+### Interpretation of the Linear Stability Condition
+
+To interpret the linear stability condition, recall that the linearization of
+a system interprets the dynamics as locally being due to the Jacobian of the
+system. Thus
+
+$$u' = f(u,p,t)$$
+
+is locally equivalent to
+
+$$u' = df/du u$$
+
+You can understand the local behavior through diagonalizing this matrix. Therefore,
+the scalar for the linear stability analysis is performing an analysis on the
+eigenvalues of the Jacobian. The method will be stable if the largest eigenvalues
+of df/du are all within the stability limit. This means that stability effects
+different
+
+### Implicit Methods
+
+If instead of the Euler method we defined $f$ to be evaluated at the future
+point, we would receive a method like:
+
+$$ u_{n+1} = u_n + \Delta t f(u_{n+1},p,t+\Delta t)$$
+
+in which case, for the stability calculation we would have that
+
+$$ u_{n+1} = u_n + \Delta t \alpha u_n $$
+
+or
+
+$$ (1-z) u_{n+1} = u_n $$
+
+which means that
+
+$$ u_{n+1} = \frac{1}{1-z} u_n $$
+
+which is stable for all $Re(z) < 0$ a property which is known as A-stability.
+It is also stable as $z \rightarrow \infty$, a property known as L-stability.
+This means that for equations with very ill-conditioned Jacobians, this method
+is still able to be use reasonably large stepsizes and can thus be efficient.
