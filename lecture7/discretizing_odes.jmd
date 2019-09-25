@@ -167,7 +167,7 @@ An example of this is the Pleiades problem, which is an approximation to a 7-sta
 chaotic system. It can be written as:
 
 ```julia
-using OrdinaryDiffEq, ODE, ODEInterfaceDiffEq, LSODA, Sundials, DiffEqDevTools
+using OrdinaryDiffEq
 
 function pleiades(du,u,p,t)
   @inbounds begin
@@ -238,11 +238,13 @@ can be described as:
 
 ```julia
 using Sundials, ParameterizedFunctions
-rober = @ode_def begin
-  dy₁ = -k₁*y₁+k₃*y₂*y₃
-  dy₂ =  k₁*y₁-k₂*y₂^2-k₃*y₂*y₃
-  dy₃ =  k₂*y₂^2
-end k₁ k₂ k₃
+function rober(du,u,p,t)
+  y₁,y₂,y₃ = u
+  k₁,k₂,k₃ = p
+  du[1] = -k₁*y₁+k₃*y₂*y₃
+  du[2] =  k₁*y₁-k₂*y₂^2-k₃*y₂*y₃
+  du[3] =  k₂*y₂^2
+end
 prob = ODEProblem(rober,[1.0,0.0,0.0],(0.0,1e5),(0.04,3e7,1e4))
 sol = solve(prob,Rosenbrock23())
 plot(sol)
@@ -373,9 +375,9 @@ $$u(t) = u(0)e^{\alpha t}$$
 
 From the analytical solution we have that:
 
-- $Re{\alpha} > 0$ implies that $u(t) \rightarrow \infty$ as $t \rightarrow \infty$
-- $Re{\alpha} < 0$ implies that $u(t) \rightarrow 0$ as $t \rightarrow \infty$
-- $Re{\alpha} = 0$ has a constant or periodic solution.
+- If $Re(\alpha) > 0$ then $u(t) \rightarrow \infty$ as $t \rightarrow \infty$
+- If $Re(\alpha) < 0$ then $u(t) \rightarrow 0$ as $t \rightarrow \infty$
+- If $Re(\alpha) = 0$ then $u(t)$ has a constant or periodic solution.
 
 This theory can then be extended to multivariable systems in the same way as the
 discrete dynamics case. Let $u$ be a vector and have
@@ -403,9 +405,10 @@ discrete dynamical system, we have that:
 As with discerte dynamical systems, the geometric properties extend locally to
 the linearization of the continuous dynamical system as defined by:
 
-$$u' = df/du u$$
+$$u' = \frac{df}{du} u$$
 
-where $df/du$ is the Jacobian of the system. This is the
+where $\frac{df}{du}$ is the Jacobian of the system. This is a consequence of
+the Hartman-Grubman Theorem.
 
 ## Numerically Solving Ordinary Differential Equations
 
@@ -416,17 +419,17 @@ equation into a discrete equation by *discretizing* it. The simplest discretizat
 is the *Euler method*. The Euler method can be thought of as a simple approximation
 replacing $dt$ with a small non-infinitesimal $\Delta t$. Thus we can approximate
 
-$$ f(u,p,t) = u' = \frac{du}{dt} \approx \frac{\Delta u}{Delta t}$$
+$$f(u,p,t) = u' = \frac{du}{dt} \approx \frac{\Delta u}{\Delta t}$$
 
 and now since $\Delta u = u_{n+1} - u_n$ we have that
 
-$$ \Delta t f(u,p,t) = u_{n+1} - u_n $$
+$$\Delta t f(u,p,t) = u_{n+1} - u_n$$
 
 We need to make a choice as to where we evaluate $f$ at. The simplest approximation
 is to evaluate it at $t_n$ with $u_n$ where we already have the data, and thus
 we re-arrange to get
 
-$$ u_{n+1} = u_n + \Delta t f(u,p,t)$$
+$$u_{n+1} = u_n + \Delta t f(u,p,t)$$
 
 This is the Euler method.
 
@@ -451,7 +454,7 @@ We can use this analysis to extend our methods to higher order approximation
 by simply matching the Taylor series to a higher order. Intuitively, when we
 developed the Euler method we had to make a choice:
 
-$$ u_{n+1} = u_n + \Delta t f(u,p,t)$$
+$$u_{n+1} = u_n + \Delta t f(u,p,t)$$
 
 where do we evaluate $f$? One may think that the best derivative approximation
 my come from the middle of the interval, in which case we might want to evaluate
@@ -549,15 +552,15 @@ method.
 As an example, take a look at the Euler method. Recall that the Euler method
 was given by:
 
-$$ u_{n+1} = u_n + \Delta t f(u_n,p,t)$$
+$$u_{n+1} = u_n + \Delta t f(u_n,p,t)$$
 
 When we plug in the linear test equation, we get that
 
-$$ u_{n+1} = u_n + \Delta t \alpha u_n$$
+$$u_{n+1} = u_n + \Delta t \alpha u_n$$
 
 If we let $z = \Delta t \alpha$, then we get the following:
 
-$$ u_{n+1} = u_n + z u_n = (1+z)u_n $$
+$$u_{n+1} = u_n + z u_n = (1+z)u_n$$
 
 which is stable when $z$ is in the shifted unit circle. This means that, as a
 necessary condition, the step size $\Delta t$ needs to be small enough that
@@ -573,7 +576,7 @@ $$u' = f(u,p,t)$$
 
 is locally equivalent to
 
-$$u' = df/du u$$
+$$u' = \frac{df}{du}u$$
 
 You can understand the local behavior through diagonalizing this matrix. Therefore,
 the scalar for the linear stability analysis is performing an analysis on the
@@ -586,19 +589,19 @@ different
 If instead of the Euler method we defined $f$ to be evaluated at the future
 point, we would receive a method like:
 
-$$ u_{n+1} = u_n + \Delta t f(u_{n+1},p,t+\Delta t)$$
+$$u_{n+1} = u_n + \Delta t f(u_{n+1},p,t+\Delta t)$$
 
 in which case, for the stability calculation we would have that
 
-$$ u_{n+1} = u_n + \Delta t \alpha u_n $$
+$$u_{n+1} = u_n + \Delta t \alpha u_n$$
 
 or
 
-$$ (1-z) u_{n+1} = u_n $$
+$$(1-z) u_{n+1} = u_n$$
 
 which means that
 
-$$ u_{n+1} = \frac{1}{1-z} u_n $$
+$$u_{n+1} = \frac{1}{1-z} u_n$$
 
 which is stable for all $Re(z) < 0$ a property which is known as A-stability.
 It is also stable as $z \rightarrow \infty$, a property known as L-stability.
