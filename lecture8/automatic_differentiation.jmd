@@ -1,12 +1,16 @@
 
-# Automatic differentiation
+# Automatic differentiation and applications
+
+Guest lecturer: David P. Sanders, Universidad Nacional Autónoma de México (UNAM) & MIT
+
+## Introduction
 
 Automatic differentiation (AD, also called "algorithmic" or "computational" differentiation) is a set of techniques to calculate **exact** derivatives of functions or programs in an automatic way. It is neither symbolic differentiation, nor something like finite differences (although it is very close to the "complex step differentiation" method). The output is an exact (up to round-off error) value for the derivative of a function.
 
 There are two main methods: "forward-mode" AD and "reverse-mode" AD.
 Each has its strengths and weaknesses. Forward mode is significantly easier to implement, so we'll start with that.
 
-# Forward-mode AD
+## Forward-mode AD
 
 Let's start by thinking about univariate functions $f: \mathbb{R} \to \mathbb{R}$. We would like to calculate the derivative $f'(a)$ at a point $a \in \mathbb{R}$.
 
