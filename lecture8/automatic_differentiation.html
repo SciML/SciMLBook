@@ -3,7 +3,7 @@
 <HEAD>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Discretizing Ordinary Differential Equations</title>
+  <title>Automatic Differentiation and Applications</title>
   
 
   <script type="text/x-mathjax-config">
@@ -656,13 +656,12 @@ div.title {text-align: center;}
         <div class = "col-md-12 twelve columns">
 
           <div class="title">
-            <h1 class="title">Discretizing Ordinary Differential Equations</h1>
+            <h1 class="title">Automatic Differentiation and Applications</h1>
             <h5>David P. Sanders</h5>
             <h5>September 28th, 2019</h5>
           </div>
 
-          <h1>Automatic differentiation and applications</h1>
-<p>Guest lecturer: Prof. David P. Sanders, Universidad Nacional Autónoma de México &#40;UNAM&#41; &amp; MIT</p>
+          <p>Guest lecturer: Prof. David P. Sanders, Universidad Nacional Autónoma de México &#40;UNAM&#41; &amp; MIT</p>
 <h2>Introduction</h2>
 <p>Automatic differentiation &#40;AD, also called &quot;algorithmic&quot; or &quot;computational&quot; differentiation&#41; is a set of techniques to calculate <strong>exact</strong> derivatives of functions or programs in an automatic way. It is neither symbolic differentiation, nor something like finite differences &#40;although it is very close to the &quot;complex step differentiation&quot; method&#41;. The output is an exact &#40;up to round-off error&#41; value for the derivative of a function.</p>
 <p>There are two main methods: &quot;forward-mode&quot; AD and &quot;reverse-mode&quot; AD. Each has its strengths and weaknesses. Forward mode is significantly easier to implement, so we&#39;ll start with that.</p>
@@ -770,7 +769,7 @@ f(x) = f(a + \epsilon) = f(a) + \epsilon f'(a) + \mathcal{O}(\epsilon^2),
 
 
 <pre class="output">
-^ &#40;generic function with 80 methods&#41;
+^ &#40;generic function with 81 methods&#41;
 </pre>
 
 
@@ -786,7 +785,7 @@ f(x) = f(a + \epsilon) = f(a) + \epsilon f'(a) + \mathcal{O}(\epsilon^2),
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;8, 10&#41;
+Main.WeaveSandBox2.Dual&#123;Int64&#125;&#40;8, 10&#41;
 </pre>
 
 
@@ -797,7 +796,7 @@ Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;8, 10&#41;
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;15, 38&#41;
+Main.WeaveSandBox2.Dual&#123;Int64&#125;&#40;15, 38&#41;
 </pre>
 
 
@@ -808,7 +807,7 @@ Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;15, 38&#41;
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;30, 76&#41;
+Main.WeaveSandBox2.Dual&#123;Int64&#125;&#40;30, 76&#41;
 </pre>
 
 
@@ -837,7 +836,7 @@ add &#40;generic function with 1 method&#41;
 
 
 <pre class="output">
-2.699 ns &#40;0 allocations: 0 bytes&#41;
+3.799 ns &#40;0 allocations: 0 bytes&#41;
 &#40;4, 6&#41;
 </pre>
 
@@ -854,8 +853,8 @@ add &#40;generic function with 1 method&#41;
 
 
 <pre class="output">
-2.199 ns &#40;0 allocations: 0 bytes&#41;
-Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;4, 6&#41;
+2.499 ns &#40;0 allocations: 0 bytes&#41;
+Main.WeaveSandBox2.Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre>
 
 
@@ -928,7 +927,7 @@ Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;4, 6&#41;
 
 
 <pre class="output">
-exp &#40;generic function with 18 methods&#41;
+exp &#40;generic function with 19 methods&#41;
 </pre>
 
 
@@ -939,7 +938,7 @@ exp &#40;generic function with 18 methods&#41;
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;3, 4&#41;
+Main.WeaveSandBox2.Dual&#123;Int64&#125;&#40;3, 4&#41;
 </pre>
 
 
@@ -950,7 +949,7 @@ Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;3, 4&#41;
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Float64&#125;&#40;20.085536923187668, 80.34214769275067&#41;
+Main.WeaveSandBox2.Dual&#123;Float64&#125;&#40;20.085536923187668, 80.34214769275067&#41;
 </pre>
 
 
@@ -985,7 +984,7 @@ h = \iota^2 - 2.\mathbf{1},
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;3, 1&#41;
+Main.WeaveSandBox2.Dual&#123;Int64&#125;&#40;3, 1&#41;
 </pre>
 
 
@@ -999,7 +998,7 @@ Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;3, 1&#41;
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;11, 6&#41;
+Main.WeaveSandBox2.Dual&#123;Int64&#125;&#40;11, 6&#41;
 </pre>
 
 
@@ -1082,7 +1081,7 @@ ff_1 &#40;generic function with 1 method&#41;
 
 
 <pre class="output">
-Main.WeaveSandBox1.Dual&#123;Float64&#125;&#40;21.0, 10.0&#41;
+Main.WeaveSandBox2.Dual&#123;Float64&#125;&#40;21.0, 10.0&#41;
 </pre>
 
 
@@ -1143,7 +1142,7 @@ f(a + \epsilon) = f(a) + \nabla f(a) \cdot \epsilon + \mathcal{O}(\epsilon^2),
 
 
 <pre class="output">
-* &#40;generic function with 401 methods&#41;
+* &#40;generic function with 405 methods&#41;
 </pre>
 
 
@@ -1161,7 +1160,7 @@ f(a + \epsilon) = f(a) + \nabla f(a) \cdot \epsilon + \mathcal{O}(\epsilon^2),
 
 
 <pre class="output">
-Main.WeaveSandBox1.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#41;
+Main.WeaveSandBox2.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#41;
 </pre>
 
 
@@ -1176,10 +1175,10 @@ Main.WeaveSandBox1.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#4
 
 
 <pre class="output">
-2-element StaticArrays.SArray&#123;Tuple&#123;2&#125;,Main.WeaveSandBox1.MultiDual&#123;2,Float
+2-element StaticArrays.SArray&#123;Tuple&#123;2&#125;,Main.WeaveSandBox2.MultiDual&#123;2,Float
 64&#125;,1,2&#125;:
- Main.WeaveSandBox1.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;2.0, 4.0&#93;&#41;
- Main.WeaveSandBox1.MultiDual&#123;2,Float64&#125;&#40;3.0, &#91;1.0, 1.0&#93;&#41;
+ Main.WeaveSandBox2.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;2.0, 4.0&#93;&#41;
+ Main.WeaveSandBox2.MultiDual&#123;2,Float64&#125;&#40;3.0, &#91;1.0, 1.0&#93;&#41;
 </pre>
 
 
