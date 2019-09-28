@@ -1,73 +1,99 @@
+---
+title: Automatic Differentiation and Applications
+author: David P. Sanders
+date: September 28th, 2019
+---
 
-# Automatic differentiation and applications
-
-Guest lecturer: Prof. David P. Sanders, Universidad Nacional Autónoma de México (UNAM) & MIT
+Guest lecturer: Prof. David P. Sanders, Universidad Nacional Autónoma de
+México (UNAM) & MIT
 
 ## Introduction
 
-Automatic differentiation (AD, also called "algorithmic" or "computational" differentiation) is a set of techniques to calculate **exact** derivatives of functions or programs in an automatic way. It is neither symbolic differentiation, nor something like finite differences (although it is very close to the "complex step differentiation" method). The output is an exact (up to round-off error) value for the derivative of a function.
+Automatic differentiation (AD, also called "algorithmic" or "computational"
+differentiation) is a set of techniques to calculate **exact** derivatives of
+functions or programs in an automatic way. It is neither symbolic
+differentiation, nor something like finite differences (although it is very
+close to the "complex step differentiation" method). The output is an exact
+(up to round-off error) value for the derivative of a function.
 
 There are two main methods: "forward-mode" AD and "reverse-mode" AD.
-Each has its strengths and weaknesses. Forward mode is significantly easier to implement, so we'll start with that.
+Each has its strengths and weaknesses. Forward mode is significantly easier to
+implement, so we'll start with that.
 
 ## Forward-mode AD
 
-Let's start by thinking about univariate functions $f: \mathbb{R} \to \mathbb{R}$. We would like to calculate the derivative $f'(a)$ at a point $a \in \mathbb{R}$.
+Let's start by thinking about univariate functions $f: \mathbb{R} \to \mathbb{R}$.
+We would like to calculate the derivative $f'(a)$ at a point $a \in \mathbb{R}$.
 
-We learned various rules about how to calculate such derivatives from basic calculus. Let's look at one way to calculate these.
+We learned various rules about how to calculate such derivatives from basic
+calculus. Let's look at one way to calculate these.
 
-Let's fix a point $a$ and consider two (sufficiently smooth) functions $f$ and $g$ near $a$. For $x$ near to $a$ we can (use Taylor's theorem to) write
-$$ f(x) = f(a + \epsilon) = f(a) + \epsilon f'(a) + \mathcal{O}(\epsilon^2), $$
-where $\epsilon$ is a shorthand for $(x - a)$, and similarly for $g$. We can use this to calculate results for combinations of $f$ and $g$, where in the following we neglect terms of order $\epsilon^2$. The sum of two functions satisfies
-$$
-\begin{align}
+Let's fix a point $a$ and consider two (sufficiently smooth) functions $f$ and
+$g$ near $a$. For $x$ near to $a$ we can (use Taylor's theorem to) write
+
+$$f(x) = f(a + \epsilon) = f(a) + \epsilon f'(a) + \mathcal{O}(\epsilon^2),$$
+
+where $\epsilon$ is a shorthand for $(x - a)$, and similarly for $g$. We can use
+this to calculate results for combinations of $f$ and $g$, where in the following
+we neglect terms of order $\epsilon^2$. The sum of two functions satisfies
+
+$$\begin{align}
 (f + g)(x) &= f(x) + g(x) = f(a) + \epsilon f'(a) + g(a) + \epsilon g'(a) \\
 &= [f(a) + g(a)] + \epsilon [f'(a) + g'(a)]
-\end{align}
-$$
+\end{align}$$
+
 and the product gives
-$$
-\begin{align}
+
+$$\begin{align}
 (f \cdot g)(x) &= f(x) \cdot g(x) = [f(a) + \epsilon f'(a)
 ] \cdot [g(a) + \epsilon g'(a)] \\
 &= [f(a) \cdot g(a)] + \epsilon [f(a) g'(a) + g(a) f'(a)].
-\end{align}
-$$
+\end{align}$$
 
-By extracting the constant and order $\epsilon$ components from these results, we obtain
-$$
-\begin{align}
+By extracting the constant and order $\epsilon$ components from these results,
+we obtain
+
+$$\begin{align}
 (f+g)'(a) &= f'(a) + g'(a)\\
 (f \cdot g)'(a) &= f'(a) \, g(a) + f(a) \, g'(a)
-\end{align}
-$$
+\end{align}$$
+
 (One way of seeing that this is correct is via the definition of a derivative as a limit.)
 
 
 We also have the chain rule, which plays a crucial role:
 
-$$
-\begin{align}
+$$\begin{align}
 (f \circ g)(x) &= f(g(x)) = f(g(a) + \epsilon g'(a)) \\
 &= f(g(a)) + \epsilon g'(a) f'(g(a))
-\end{align}
-$$
+\end{align}$$
+
 and hence
+
 $$(f \circ g)'(a) = f'(g(a)) \, g'(a).$$
 
 
-From the above results we can see which information about each function we need in order to calculate derivatives of their combinations: for each function $f$ we need its value $f(a)$ and its derivative $f'(a)$; this is the *only* information that we require in order to calculate the first derivative of any combination of functions.
+From the above results we can see which information about each function we need
+in order to calculate derivatives of their combinations: for each function $f$
+we need its value $f(a)$ and its derivative $f'(a)$; this is the *only*
+information that we require in order to calculate the first derivative of any
+combination of functions.
 
 ## Jets
 
-The above can be put into a more formal mathematical context using the  first-order Taylor polynomial of $f$, called the (degree-1)
-[**jet** of $f$](https://en.wikipedia.org/wiki/Dual_(mathematics) at $a$, denoted $J_a(f)$:
+The above can be put into a more formal mathematical context using the
+first-order Taylor polynomial of $f$, called the (degree-1)
+[**jet** of $f$](https://en.wikipedia.org/wiki/Dual_(mathematics) at $a$,
+denoted $J_a(f)$:
 
 $$[J_a(f)](x) := f(a) + x f'(a).$$
 
-[This can be thought of as representing the **equivalence class of all functions** with the same value $f(a)$ and derivative $f'(a)$ at $a$.]
+[This can be thought of as representing the **equivalence class of all
+functions** with the same value $f(a)$ and derivative $f'(a)$ at $a$.]
 
-Formally, it is common to think of this as a "dual number", $f + \epsilon f'$, that we can manipulate, following the rule that $\epsilon^2 = 0$. (Cf. complex numbers, which have the same structure, but with $\epsilon^2 = -1$.) E.g.
+Formally, it is common to think of this as a "dual number", $f + \epsilon f'$,
+that we can manipulate, following the rule that $\epsilon^2 = 0$. (Cf. complex
+numbers, which have the same structure, but with $\epsilon^2 = -1$.) E.g.
 
 $$(f + \epsilon f') \times (g + \epsilon g') = f \, g + \epsilon (f' g + f g')$$
 
@@ -76,21 +102,26 @@ shows how to define the multiplication of two jets.
 ## Computer representation
 
 Setup (not necessary from the REPL):
+
 ```julia
 using InteractiveUtils  # only needed when using Weave
 ```
 
-Each function requires two pieces of information and some particualr "behavior", so we store these in a `struct`. It's common to call this a "dual number":
+Each function requires two pieces of information and some particualr "behavior",
+so we store these in a `struct`. It's common to call this a "dual number":
+
 ```julia
 struct Dual{T}
     val::T   # value
     der::T  # derivative
 end
 ```
-Each `Dual` object represents a function. We define arithmetic operations to mirror performing those operations on the corresponding functions.
 
+Each `Dual` object represents a function. We define arithmetic operations to
+mirror performing those operations on the corresponding functions.
 
 We must first import the operations from `Base`:
+
 ```julia
 import Base: +, *, -, ^
 ```
@@ -130,7 +161,9 @@ f * (g + g)
 
 ## Performance
 
-It seems like we may have introduced significant computational overhead by creating a new data structure, and associated methods. Let's see how the performance is:
+It seems like we may have introduced significant computational overhead by
+creating a new data structure, and associated methods. Let's see how the
+performance is:
 
 ```julia
 add(a1, a2, b1, b2) = (a1+b1, a2+b2)
@@ -162,11 +195,15 @@ It seems like we have lost *no* performance.
 @code_native add(a, b)
 ```
 
-We see that the data structure itself has disappeared, and we basically have a standard Julia tuple.
+We see that the data structure itself has disappeared, and we basically have a
+standard Julia tuple.
 
 ## Functions on jets: chain rule
 
-We can also define functions of `Dual` objects, using the chain rule. If `f` is a `Dual` representing the function $f$, then `exp(f)` should be a `Dual` representing the function $\exp \circ f$, i.e. with value $\exp(f(a))$ and derivative $(\exp \circ f)'(a) = \exp(f(a)) \, f'(a)$:
+We can also define functions of `Dual` objects, using the chain rule. If `f` is
+a `Dual` representing the function $f$, then `exp(f)` should be a `Dual`
+representing the function $\exp \circ f$, i.e. with value $\exp(f(a))$ and
+derivative $(\exp \circ f)'(a) = \exp(f(a)) \, f'(a)$:
 
 ```julia
 import Base: exp
@@ -187,7 +224,8 @@ exp(f)
 
 ## Differentiating arbitrary functions
 
-Now we are in a position to calculate the derivative of an arbitrary function $f$, e.g. to calculate $h'(a)$ where
+Now we are in a position to calculate the derivative of an arbitrary function
+$f$, e.g. to calculate $h'(a)$ where
 
 ```julia
 h(x) = x^2 + 2
@@ -195,7 +233,8 @@ h(x) = x^2 + 2
 a = 3
 ```
 
-This is a function of $x$, which itself we can think of as the identity function $\iota: x \mapsto x$, so that
+This is a function of $x$, which itself we can think of as the identity
+function $\iota: x \mapsto x$, so that
 
 $$h = \iota^2 - 2.\mathbf{1},$$
 
@@ -216,7 +255,8 @@ Now we simply evaluate the function `h` at the `Dual` number `xx`:
 h(xx)
 ```
 
-The first component of the resulting `Dual` is the value $h(a)$, and the second component is the derivative, $h'(a)$!
+The first component of the resulting `Dual` is the value $h(a)$, and the
+second component is the derivative, $h'(a)$!
 
 We can codify this into a function as follows:
 
@@ -224,7 +264,8 @@ We can codify this into a function as follows:
 derivative(f, x) = f(Dual(x, one(x))).der
 ```
 
-Here, `one` is the function that gives the value $1$ with the same type as that of `x`.
+Here, `one` is the function that gives the value $1$ with the same type as
+that of `x`.
 
 Finally we can now calculate derivatives such as
 
@@ -234,13 +275,15 @@ derivative(x -> 3x^5 + 2, 2)
 
 # Higher dimensions
 
-How can we extend this to higher dimensional functions? For example, we wish to differentiate the following function $f: \mathbb{R}^2 \to \mathbb{R}$:
+How can we extend this to higher dimensional functions? For example, we wish
+to differentiate the following function $f: \mathbb{R}^2 \to \mathbb{R}$:
 
 ```julia
 ff(x, y) = x^2 + x*y
 ```
 
-Recall that the **partial derivative** $\partial f/\partial x$ is defined by fixing $y$ and differentiating the resulting function of $x$:
+Recall that the **partial derivative** $\partial f/\partial x$ is defined by
+fixing $y$ and differentiating the resulting function of $x$:
 
 
 ```julia
@@ -270,33 +313,34 @@ derivative(ff_2, b)
 
 ```
 
-Note that we must do **two separate calculations** to get the two partial derivatives; in general, calculating the gradient $\nabla$ of a function $f:\mathbb{R}^n \to \mathbb{R}$ requires $n$ separate calculations.
+Note that we must do **two separate calculations** to get the two partial
+derivatives; in general, calculating the gradient $\nabla$ of a function
+$f:\mathbb{R}^n \to \mathbb{R}$ requires $n$ separate calculations.
 
 ## Implementation of higher-dimensional forward-mode AD
 
-We can implement derivatives of functions $f: \mathbb{R}^n \to \mathbb{R}$ by adding several independent partial derivative components to our dual numbers.
+We can implement derivatives of functions $f: \mathbb{R}^n \to \mathbb{R}$
+by adding several independent partial derivative components to our dual numbers.
 
-
-
-We can think of these as $\epsilon$ perturbations in different directions, which satisfy $\epsilon_i^2 = \epsilon_i \epsilon_j = 0$, and
+We can think of these as $\epsilon$ perturbations in different directions,
+which satisfy $\epsilon_i^2 = \epsilon_i \epsilon_j = 0$, and
 we will call $\epsilon$ the vector of all perturbations. Then we have
 
 $$f(a + \epsilon) = f(a) + \nabla f(a) \cdot \epsilon + \mathcal{O}(\epsilon^2),$$
 
-where $a \in \mathbb{R}^n$ and $\nabla f(a)$ is the **gradient** of $f$ at $a$, i.e. the vector of partial derivatives in each direction.
-$\nabla f(a) \cdot \epsilon$ is the **directional derivative** of $f$ in the direction $\epsilon$.
+where $a \in \mathbb{R}^n$ and $\nabla f(a)$ is the **gradient** of $f$ at $a$,
+i.e. the vector of partial derivatives in each direction.
+$\nabla f(a) \cdot \epsilon$ is the **directional derivative** of $f$ in the
+direction $\epsilon$.
 
 We now proceed similarly to the univariate case:
 
 $$(f + g)(a + \epsilon) = [f(a) + g(a)] + [\nabla f(a) + \nabla g(a)] \cdot \epsilon$$
 
-$$
-\begin{align}
+$$\begin{align}
 (f \cdot g)(a + \epsilon) &= [f(a) + \nabla f(a) \cdot \epsilon ] \, [g(a) + \nabla g(a) \cdot \epsilon ] \\
 &= f(a) g(a) + [f(a) \nabla g(a) + g(a) \nabla f(a)] \cdot \epsilon.
-\end{align}
-$$
-
+\end{align}$$
 
 We will use the `StaticArrays.jl` package for efficient small vectors:
 
@@ -336,6 +380,7 @@ gg(xx, yy)
 
 We can calculate the Jacobian of a function $\mathbb{R}^n \to \mathbb{R}^m$
 by applying this to each component function:
+
 ```julia
 ff(x, y) = SVector(x*x + y*y , x + y)
 
@@ -345,7 +390,9 @@ ff(xx, yy)
 It would be possible (and better for performance in many cases) to
 store all of the partials in a matrix instead.
 
-Forward-mode AD is implemented in a clean and efficient way in the `ForwardDiff.jl` package:
+Forward-mode AD is implemented in a clean and efficient way in the
+`ForwardDiff.jl` package:
+
 ```julia
 using ForwardDiff, StaticArrays
 
@@ -359,20 +406,31 @@ improve performance for high-dimensional functions.
 
 ## Forward-mode
 
-To understand what forward-mode AD is doing, and its name, it is useful to think of an expression as a **syntax tree**; cf. [this notebook](Syntax trees in Julia.ipynb).
+To understand what forward-mode AD is doing, and its name, it is useful to
+think of an expression as a **syntax tree**; cf.
+[this notebook](Syntax trees in Julia.ipynb).
 
-If we label the nodes in the tree as $v_i$, then forward differentiation fixes a variable, e.g. $y$, and calculates $\partial v_i / \partial y$ for each $i$. If e.g. $v_1 = v_2 + v_3$, then we have
+If we label the nodes in the tree as $v_i$, then forward differentiation fixes
+a variable, e.g. $y$, and calculates $\partial v_i / \partial y$ for each $i$.
+If e.g. $v_1 = v_2 + v_3$, then we have
 
 $$\frac{\partial v_1}{\partial y} = \frac{\partial v_2}{\partial y} + \frac{\partial v_3}{\partial y}.$$
 
-Denoting $v_1' := \frac{\partial v_1}{\partial y}$, we have $v_1' = v_2' + v_3'$, so we need to calculate the derivatives and nodes lower down in the graph first, and propagate the information up. We start at $v_x' = 0$, since $\frac{\partial x}{\partial y} = 0$, and $v_y' = 1$; these are called the **seed values** of the derivative calculation.
+Denoting $v_1' := \frac{\partial v_1}{\partial y}$, we have
+$v_1' = v_2' + v_3'$, so we need to calculate the derivatives and nodes lower
+down in the graph first, and propagate the information up. We start at
+$v_x' = 0$, since $\frac{\partial x}{\partial y} = 0$, and $v_y' = 1$; these
+are called the **seed values** of the derivative calculation.
 
 Note that we need $n$ seed values in order to calculate the gradient
 of a function $\mathbb{R}^n \to \mathbb{R}$.
 
 ## Reverse mode
 
-An alternative method to calculate derivatives is to fix not the variable with which to differentiate, but *what it is* that we differentiate, i.e. to calculate the **adjoint**, $\bar{v_i} := \frac{\partial f}{\partial v_i}$, for each $i$.
+An alternative method to calculate derivatives is to fix not the variable with
+which to differentiate, but *what it is* that we differentiate, i.e. to
+calculate the **adjoint**, $\bar{v_i} := \frac{\partial f}{\partial v_i}$,
+for each $i$.
 
 If $f = v_1 + v_2$, with $v_1 = v_3 + v_4$ and $v_2 = v_3 + v_5$, then
 
@@ -382,21 +440,28 @@ i.e.
 
 $$\bar{v_3} = \alpha_{13} \, \bar{v_1} + \alpha_{2,3} \, \bar{v_2},$$
 
-where $\alpha_{ij}$ are the coefficients specifying the relationship between the different terms. Thus, the adjoint information propagates **down** the graph, in **reverse** order, hence the name "reverse-mode".
+where $\alpha_{ij}$ are the coefficients specifying the relationship between
+the different terms. Thus, the adjoint information propagates **down** the graph,
+in **reverse** order, hence the name "reverse-mode".
 
-For this reason, reverse mode is much harder to implement. However, it has the advantage that all derivatives $\partial f / \partial x_i$ are calculated in a *single pass* of the tree, and hence this is the method of choice for calculating the gradient of a function $\mathbb{R}^n \to \mathbb{R}$, which is a very common case, e.g. in the context of mathematical optimization and machine learning.
+For this reason, reverse mode is much harder to implement. However, it has the
+advantage that all derivatives $\partial f / \partial x_i$ are calculated in a
+*single pass* of the tree, and hence this is the method of choice for calculating
+the gradient of a function $\mathbb{R}^n \to \mathbb{R}$, which is a very common
+case, e.g. in the context of mathematical optimization and machine learning.
 
-Julia has several implementations of reverse-mode AD that are useful in different situations, e.g. https://github.com/JuliaDiff/ReverseDiff.jl.
-
-
+Julia has several implementations of reverse-mode AD that are useful in
+different situations, e.g. https://github.com/JuliaDiff/ReverseDiff.jl.
 
 ## Example of reverse mode
 
-Reverse mode is difficult to implement in a general way, but easy to do by hand. e.g. consider the function
+Reverse mode is difficult to implement in a general way, but easy to do by
+hand. e.g. consider the function
 
 $$f(x,y,z) = x \, y - \sin(z)$$
 
-We decompose this into its tree with labelled nodes, corresponding to the following sequence of elementary operations:
+We decompose this into its tree with labelled nodes, corresponding to the
+following sequence of elementary operations:
 
 ```julia
 ff(x, y, z) = x*y - 2*sin(x*z)
@@ -416,7 +481,9 @@ v₇ = v₄ - 2v₆  # f
 ff(x, y, z)
 ```
 
-We have decomposed the **forward pass** into elementary operations. We now proceed to calculate the adjoints. The difficulty is to *find which variables depend on the current variable under question*.
+We have decomposed the **forward pass** into elementary operations. We now
+proceed to calculate the adjoints. The difficulty is to
+*find which variables depend on the current variable under question*.
 
 ```julia
 v̄₇ = 1   # seed
@@ -428,7 +495,8 @@ v̄₂ = v̄₄ * v₁
 v̄₁ = v̄₅*v₃ + v̄₄*v₂   # two *different* paths
 ```
 
-When implementing reverse-mode, it is common to *accumulate* into the gradients when each path is traversed.
+When implementing reverse-mode, it is common to *accumulate* into the gradients
+when each path is traversed.
 
 Thus, in a single pass we have calculated the gradient $\nabla f(1, 2, 3)$:
 
@@ -448,25 +516,41 @@ As an application, we will see how to solve nonlinear equations of the form
 $$f(x) = 0$$
 for functions $f: \mathbb{R}^n \to \mathbb{R}^n$.
 
-Since in general we cannot do anything with nonlinearity, we try to reduce it (approximate it) with something linear. Furthermore, in general we know that it is not possible to solve nonlinear equations in closed form (even for polynomials of degree $\ge 5$), so we will need some kind of iterative method.
+Since in general we cannot do anything with nonlinearity, we try to reduce it
+(approximate it) with something linear. Furthermore, in general we know that it
+is not possible to solve nonlinear equations in closed form (even for
+polynomials of degree $\ge 5$), so we will need some kind of iterative method.
 
-We start from an initial guess $x_0$. The idea of the **Newton method** is to follow the tangent line to the function $f$ at the point $x_0$ and find where it intersects the $x$-axis; this will give the next iterate $x_1$.
+We start from an initial guess $x_0$. The idea of the **Newton method** is to
+follow the tangent line to the function $f$ at the point $x_0$ and find where
+it intersects the $x$-axis; this will give the next iterate $x_1$.
 
-Algebraically, we want to solve $f(x_1) = 0$. Suppose that $x_1 = x_0 + \delta$ for some $\delta$ that is currently unknown and which we wish to calculate.
+Algebraically, we want to solve $f(x_1) = 0$. Suppose that
+$x_1 = x_0 + \delta$ for some $\delta$ that is currently unknown and which we
+wish to calculate.
 
 Assuming $\delta$ is small, we can expand:
+
 $$f(x_1) = f(x_0 + \delta) = f(x_0) + Df(x_0) \cdot \delta + \mathcal{O}(\| \delta \|^2).$$
 
 Since we wish to solve
+
 $$f(x_0 + \delta) \simeq 0,$$
+
 we put
-$$f(x_0) + Df(x_0) \cdot \delta = 0, $$
+
+$$f(x_0) + Df(x_0) \cdot \delta = 0,$$
+
 so that *mathematically* we have
+
 $$\delta = -[Df(x_0)]^{-1} \cdot f(x_0).$$
 
 Computationally we prefer to solve the matrix equation
+
 $$J \delta = -f(x_0),$$
-where $J := Df(x_0)$ is the Jacobian of the function; Julia uses the syntax `\` ("backslash") for solving linear systems in an efficient  way:
+
+where $J := Df(x_0)$ is the Jacobian of the function; Julia uses the syntax
+`\` ("backslash") for solving linear systems in an efficient  way:
 
 ```julia
 using ForwardDiff, StaticArrays
@@ -489,10 +573,10 @@ function newton(f, x0)
     return x
 end
 
-f(xx) = ( (x, y) = xx;  SVector(x^2 + y^2 - 1, x - y) )
+ff(xx) = ( (x, y) = xx;  SVector(x^2 + y^2 - 1, x - y) )
 
 x0 = SVector(3.0, 3.0)
 
-x = newton(f, x0)
+x = newton(ff, x0)
 
 ```

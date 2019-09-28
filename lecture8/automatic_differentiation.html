@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<HTML lang = "en">
+<HEAD>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Discretizing Ordinary Differential Equations</title>
+  
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+  </script>
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+
+  
+<style>
+pre.hljl {
+    border: 1px solid #ccc;
+    margin: 5px;
+    padding: 5px;
+    overflow-x: auto;
+    color: rgb(68,68,68); background-color: rgb(251,251,251); }
+pre.hljl > span.hljl-t { }
+pre.hljl > span.hljl-w { }
+pre.hljl > span.hljl-e { }
+pre.hljl > span.hljl-eB { }
+pre.hljl > span.hljl-o { }
+pre.hljl > span.hljl-k { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kc { color: rgb(59,151,46); font-style: italic; }
+pre.hljl > span.hljl-kd { color: rgb(214,102,97); font-style: italic; }
+pre.hljl > span.hljl-kn { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kp { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kr { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kt { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-n { }
+pre.hljl > span.hljl-na { }
+pre.hljl > span.hljl-nb { }
+pre.hljl > span.hljl-nbp { }
+pre.hljl > span.hljl-nc { }
+pre.hljl > span.hljl-ncB { }
+pre.hljl > span.hljl-nd { color: rgb(214,102,97); }
+pre.hljl > span.hljl-ne { }
+pre.hljl > span.hljl-neB { }
+pre.hljl > span.hljl-nf { color: rgb(66,102,213); }
+pre.hljl > span.hljl-nfm { color: rgb(66,102,213); }
+pre.hljl > span.hljl-np { }
+pre.hljl > span.hljl-nl { }
+pre.hljl > span.hljl-nn { }
+pre.hljl > span.hljl-no { }
+pre.hljl > span.hljl-nt { }
+pre.hljl > span.hljl-nv { }
+pre.hljl > span.hljl-nvc { }
+pre.hljl > span.hljl-nvg { }
+pre.hljl > span.hljl-nvi { }
+pre.hljl > span.hljl-nvm { }
+pre.hljl > span.hljl-l { }
+pre.hljl > span.hljl-ld { color: rgb(148,91,176); font-style: italic; }
+pre.hljl > span.hljl-s { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sa { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sb { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sc { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sd { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdC { color: rgb(201,61,57); }
+pre.hljl > span.hljl-se { color: rgb(59,151,46); }
+pre.hljl > span.hljl-sh { color: rgb(201,61,57); }
+pre.hljl > span.hljl-si { }
+pre.hljl > span.hljl-so { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sr { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ss { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ssB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-nB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nbB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nfB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nh { color: rgb(59,151,46); }
+pre.hljl > span.hljl-ni { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nil { color: rgb(59,151,46); }
+pre.hljl > span.hljl-noB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-oB { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-ow { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-p { }
+pre.hljl > span.hljl-c { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-ch { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cm { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cp { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cpB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cs { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-csB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-g { }
+pre.hljl > span.hljl-gd { }
+pre.hljl > span.hljl-ge { }
+pre.hljl > span.hljl-geB { }
+pre.hljl > span.hljl-gh { }
+pre.hljl > span.hljl-gi { }
+pre.hljl > span.hljl-go { }
+pre.hljl > span.hljl-gp { }
+pre.hljl > span.hljl-gs { }
+pre.hljl > span.hljl-gsB { }
+pre.hljl > span.hljl-gt { }
+</style>
+
+
+
+  <style type="text/css">
+  @font-face {
+  font-style: normal;
+  font-weight: 300;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 600;
+}
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+body {
+  margin: 0;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+audio,
+canvas,
+progress,
+video {
+  display: inline-block; /* 1 */
+  vertical-align: baseline; /* 2 */
+}
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+[hidden],
+template {
+  display: none;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+b,
+strong {
+  font-weight: bold;
+}
+dfn {
+  font-style: italic;
+}
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+mark {
+  background: #ff0;
+  color: #000;
+}
+small {
+  font-size: 80%;
+}
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}
+img {
+  border: 0;
+}
+svg:not(:root) {
+  overflow: hidden;
+}
+figure {
+  margin: 1em 40px;
+}
+hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+pre {
+  overflow: auto;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit; /* 1 */
+  font: inherit; /* 2 */
+  margin: 0; /* 3 */
+}
+button {
+  overflow: visible;
+}
+button,
+select {
+  text-transform: none;
+}
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button; /* 2 */
+  cursor: pointer; /* 3 */
+}
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+input {
+  line-height: normal;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+input[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box; /* 2 */
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+legend {
+  border: 0; /* 1 */
+  padding: 0; /* 2 */
+}
+textarea {
+  overflow: auto;
+}
+optgroup {
+  font-weight: bold;
+}
+table {
+  font-family: monospace, monospace;
+  font-size : 0.8em;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td,
+th {
+  padding: 0;
+}
+thead th {
+    border-bottom: 1px solid black;
+    background-color: white;
+}
+tr:nth-child(odd){
+  background-color: rgb(248,248,248);
+}
+
+
+/*
+* Skeleton V2.0.4
+* Copyright 2014, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 12/29/2014
+*/
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box; }
+.column,
+.columns {
+  width: 100%;
+  float: left;
+  box-sizing: border-box; }
+@media (min-width: 400px) {
+  .container {
+    width: 85%;
+    padding: 0; }
+}
+@media (min-width: 550px) {
+  .container {
+    width: 80%; }
+  .column,
+  .columns {
+    margin-left: 4%; }
+  .column:first-child,
+  .columns:first-child {
+    margin-left: 0; }
+
+  .one.column,
+  .one.columns                    { width: 4.66666666667%; }
+  .two.columns                    { width: 13.3333333333%; }
+  .three.columns                  { width: 22%;            }
+  .four.columns                   { width: 30.6666666667%; }
+  .five.columns                   { width: 39.3333333333%; }
+  .six.columns                    { width: 48%;            }
+  .seven.columns                  { width: 56.6666666667%; }
+  .eight.columns                  { width: 65.3333333333%; }
+  .nine.columns                   { width: 74.0%;          }
+  .ten.columns                    { width: 82.6666666667%; }
+  .eleven.columns                 { width: 91.3333333333%; }
+  .twelve.columns                 { width: 100%; margin-left: 0; }
+
+  .one-third.column               { width: 30.6666666667%; }
+  .two-thirds.column              { width: 65.3333333333%; }
+
+  .one-half.column                { width: 48%; }
+
+  /* Offsets */
+  .offset-by-one.column,
+  .offset-by-one.columns          { margin-left: 8.66666666667%; }
+  .offset-by-two.column,
+  .offset-by-two.columns          { margin-left: 17.3333333333%; }
+  .offset-by-three.column,
+  .offset-by-three.columns        { margin-left: 26%;            }
+  .offset-by-four.column,
+  .offset-by-four.columns         { margin-left: 34.6666666667%; }
+  .offset-by-five.column,
+  .offset-by-five.columns         { margin-left: 43.3333333333%; }
+  .offset-by-six.column,
+  .offset-by-six.columns          { margin-left: 52%;            }
+  .offset-by-seven.column,
+  .offset-by-seven.columns        { margin-left: 60.6666666667%; }
+  .offset-by-eight.column,
+  .offset-by-eight.columns        { margin-left: 69.3333333333%; }
+  .offset-by-nine.column,
+  .offset-by-nine.columns         { margin-left: 78.0%;          }
+  .offset-by-ten.column,
+  .offset-by-ten.columns          { margin-left: 86.6666666667%; }
+  .offset-by-eleven.column,
+  .offset-by-eleven.columns       { margin-left: 95.3333333333%; }
+
+  .offset-by-one-third.column,
+  .offset-by-one-third.columns    { margin-left: 34.6666666667%; }
+  .offset-by-two-thirds.column,
+  .offset-by-two-thirds.columns   { margin-left: 69.3333333333%; }
+
+  .offset-by-one-half.column,
+  .offset-by-one-half.columns     { margin-left: 52%; }
+
+}
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #222; }
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-weight: 300; }
+h1 { font-size: 3.6rem; line-height: 1.2;  letter-spacing: -.1rem;}
+h2 { font-size: 3.4rem; line-height: 1.25; letter-spacing: -.1rem; }
+h3 { font-size: 3.2rem; line-height: 1.3;  letter-spacing: -.1rem; }
+h4 { font-size: 2.8rem; line-height: 1.35; letter-spacing: -.08rem; }
+h5 { font-size: 2.4rem; line-height: 1.5;  letter-spacing: -.05rem; }
+h6 { font-size: 1.5rem; line-height: 1.6;  letter-spacing: 0; }
+
+p {
+  margin-top: 0; }
+a {
+  color: #1EAEDB; }
+a:hover {
+  color: #0FA0CE; }
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  display: inline-block;
+  height: 38px;
+  padding: 0 30px;
+  color: #555;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box; }
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
+.button:focus,
+button:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
+  color: #333;
+  border-color: #888;
+  outline: 0; }
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+  color: #FFF;
+  background-color: #33C3F0;
+  border-color: #33C3F0; }
+.button.button-primary:hover,
+button.button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus,
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
+  color: #FFF;
+  background-color: #1EAEDB;
+  border-color: #1EAEDB; }
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
+select {
+  height: 38px;
+  padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box; }
+/* Removes awkward default styles on some inputs for iOS */
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none; }
+textarea {
+  min-height: 65px;
+  padding-top: 6px;
+  padding-bottom: 6px; }
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid #33C3F0;
+  outline: 0; }
+label,
+legend {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600; }
+fieldset {
+  padding: 0;
+  border-width: 0; }
+input[type="checkbox"],
+input[type="radio"] {
+  display: inline; }
+label > .label-body {
+  display: inline-block;
+  margin-left: .5rem;
+  font-weight: normal; }
+ul {
+  list-style: circle; }
+ol {
+  list-style: decimal; }
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin: 1.5rem 0 1.5rem 3rem;
+  font-size: 90%; }
+li > p {margin : 0;}
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E1E1E1; }
+th:first-child,
+td:first-child {
+  padding-left: 0; }
+th:last-child,
+td:last-child {
+  padding-right: 0; }
+button,
+.button {
+  margin-bottom: 1rem; }
+input,
+textarea,
+select,
+fieldset {
+  margin-bottom: 1.5rem; }
+pre,
+blockquote,
+dl,
+figure,
+table,
+p,
+ul,
+ol,
+form {
+  margin-bottom: 1.0rem; }
+.u-full-width {
+  width: 100%;
+  box-sizing: border-box; }
+.u-max-full-width {
+  max-width: 100%;
+  box-sizing: border-box; }
+.u-pull-right {
+  float: right; }
+.u-pull-left {
+  float: left; }
+hr {
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
+  border-width: 0;
+  border-top: 1px solid #E1E1E1; }
+.container:after,
+.row:after,
+.u-cf {
+  content: "";
+  display: table;
+  clear: both; }
+
+pre {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  word-break: break-all;
+  word-wrap: break-word;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+pre.hljl {
+  margin: 0 0 10px;
+  display: block;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding : 5px;
+}
+
+pre.output {
+  background: #ffffff;
+}
+
+pre.code {
+  background: #ffffff;
+}
+
+pre.julia-error {
+  color : red
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+
+
+@media (min-width: 400px) {}
+@media (min-width: 550px) {}
+@media (min-width: 750px) {}
+@media (min-width: 1000px) {}
+@media (min-width: 1200px) {}
+
+h1.title {margin-top : 20px}
+img {max-width : 100%}
+div.title {text-align: center;}
+
+  </style>
+
+
+
+</HEAD>
+  <BODY>
+    <div class ="container">
+      <div class = "row">
+        <div class = "col-md-12 twelve columns">
+
+          <div class="title">
+            <h1 class="title">Discretizing Ordinary Differential Equations</h1>
+            <h5>David P. Sanders</h5>
+            <h5>September 28th, 2019</h5>
+          </div>
+
+          <h1>Automatic differentiation and applications</h1>
+<p>Guest lecturer: Prof. David P. Sanders, Universidad Nacional Autónoma de México &#40;UNAM&#41; &amp; MIT</p>
+<h2>Introduction</h2>
+<p>Automatic differentiation &#40;AD, also called &quot;algorithmic&quot; or &quot;computational&quot; differentiation&#41; is a set of techniques to calculate <strong>exact</strong> derivatives of functions or programs in an automatic way. It is neither symbolic differentiation, nor something like finite differences &#40;although it is very close to the &quot;complex step differentiation&quot; method&#41;. The output is an exact &#40;up to round-off error&#41; value for the derivative of a function.</p>
+<p>There are two main methods: &quot;forward-mode&quot; AD and &quot;reverse-mode&quot; AD. Each has its strengths and weaknesses. Forward mode is significantly easier to implement, so we&#39;ll start with that.</p>
+<h2>Forward-mode AD</h2>
+<p>Let&#39;s start by thinking about univariate functions <span class="math">$f: \mathbb{R} \to \mathbb{R}$</span>. We would like to calculate the derivative <span class="math">$f'(a)$</span> at a point <span class="math">$a \in \mathbb{R}$</span>.</p>
+<p>We learned various rules about how to calculate such derivatives from basic calculus. Let&#39;s look at one way to calculate these.</p>
+<p>Let&#39;s fix a point <span class="math">$a$</span> and consider two &#40;sufficiently smooth&#41; functions <span class="math">$f$</span> and <span class="math">$g$</span> near <span class="math">$a$</span>. For <span class="math">$x$</span> near to <span class="math">$a$</span> we can &#40;use Taylor&#39;s theorem to&#41; write</p>
+<p class="math">\[
+f(x) = f(a + \epsilon) = f(a) + \epsilon f'(a) + \mathcal{O}(\epsilon^2),
+\]</p>
+<p>where <span class="math">$\epsilon$</span> is a shorthand for <span class="math">$(x - a)$</span>, and similarly for <span class="math">$g$</span>. We can use this to calculate results for combinations of <span class="math">$f$</span> and <span class="math">$g$</span>, where in the following we neglect terms of order <span class="math">$\epsilon^2$</span>. The sum of two functions satisfies</p>
+<p class="math">\[
+\begin{align}
+(f + g)(x) &= f(x) + g(x) = f(a) + \epsilon f'(a) + g(a) + \epsilon g'(a) \\
+&= [f(a) + g(a)] + \epsilon [f'(a) + g'(a)]
+\end{align}
+\]</p>
+<p>and the product gives</p>
+<p class="math">\[
+\begin{align}
+(f \cdot g)(x) &= f(x) \cdot g(x) = [f(a) + \epsilon f'(a)
+] \cdot [g(a) + \epsilon g'(a)] \\
+&= [f(a) \cdot g(a)] + \epsilon [f(a) g'(a) + g(a) f'(a)].
+\end{align}
+\]</p>
+<p>By extracting the constant and order <span class="math">$\epsilon$</span> components from these results, we obtain</p>
+<p class="math">\[
+\begin{align}
+(f+g)'(a) &= f'(a) + g'(a)\\
+(f \cdot g)'(a) &= f'(a) \, g(a) + f(a) \, g'(a)
+\end{align}
+\]</p>
+<p>&#40;One way of seeing that this is correct is via the definition of a derivative as a limit.&#41;</p>
+<p>We also have the chain rule, which plays a crucial role:</p>
+<p class="math">\[
+\begin{align}
+(f \circ g)(x) &= f(g(x)) = f(g(a) + \epsilon g'(a)) \\
+&= f(g(a)) + \epsilon g'(a) f'(g(a))
+\end{align}
+\]</p>
+<p>and hence</p>
+<p class="math">\[
+(f \circ g)'(a) = f'(g(a)) \, g'(a).
+\]</p>
+<p>From the above results we can see which information about each function we need in order to calculate derivatives of their combinations: for each function <span class="math">$f$</span> we need its value <span class="math">$f(a)$</span> and its derivative <span class="math">$f'(a)$</span>; this is the <em>only</em> information that we require in order to calculate the first derivative of any combination of functions.</p>
+<h2>Jets</h2>
+<p>The above can be put into a more formal mathematical context using the first-order Taylor polynomial of <span class="math">$f$</span>, called the &#40;degree-1&#41; &#91;<strong>jet</strong> of <span class="math">$f$</span>&#93;&#40;https://en.wikipedia.org/wiki/Dual<em>&#40;mathematics&#41; at <span class="math">$a$</span>, denoted J</em>a&#40;f&#41;:</p>
+<p class="math">\[
+[J_a(f)](x) := f(a) + x f'(a).
+\]</p>
+<p>&#91;This can be thought of as representing the <strong>equivalence class of all functions</strong> with the same value <span class="math">$f(a)$</span> and derivative <span class="math">$f'(a)$</span> at <span class="math">$a$</span>.&#93;</p>
+<p>Formally, it is common to think of this as a &quot;dual number&quot;, <span class="math">$f + \epsilon f'$</span>, that we can manipulate, following the rule that <span class="math">$\epsilon^2 = 0$</span>. &#40;Cf. complex numbers, which have the same structure, but with <span class="math">$\epsilon^2 = -1$</span>.&#41; E.g.</p>
+<p class="math">\[
+(f + \epsilon f') \times (g + \epsilon g') = f \, g + \epsilon (f' g + f g')
+\]</p>
+<p>shows how to define the multiplication of two jets.</p>
+<h2>Computer representation</h2>
+<p>Setup &#40;not necessary from the REPL&#41;:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>InteractiveUtils</span><span class='hljl-t'>  </span><span class='hljl-cs'># only needed when using Weave</span>
+</pre>
+
+
+
+<p>Each function requires two pieces of information and some particualr &quot;behavior&quot;, so we store these in a <code>struct</code>. It&#39;s common to call this a &quot;dual number&quot;:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>struct</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>{</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
+    </span><span class='hljl-n'>val</span><span class='hljl-oB'>::</span><span class='hljl-n'>T</span><span class='hljl-t'>   </span><span class='hljl-cs'># value</span><span class='hljl-t'>
+    </span><span class='hljl-n'>der</span><span class='hljl-oB'>::</span><span class='hljl-n'>T</span><span class='hljl-t'>  </span><span class='hljl-cs'># derivative</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+
+<p>Each <code>Dual</code> object represents a function. We define arithmetic operations to mirror performing those operations on the corresponding functions.</p>
+<p>We must first import the operations from <code>Base</code>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>import</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-oB'>^</span>
+</pre>
+
+
+
+
+<pre class='hljl'>
+<span class='hljl-oB'>+</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-oB'>+</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>::</span><span class='hljl-n'>Number</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-oB'>+</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-oB'>::</span><span class='hljl-n'>Number</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-t'>
+
+
+</span><span class='hljl-oB'>-</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-oB'>*</span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-oB'>*</span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-oB'>*</span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-oB'>::</span><span class='hljl-n'>Number</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>::</span><span class='hljl-n'>Number</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-t'>
+
+
+</span><span class='hljl-oB'>^</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>n</span><span class='hljl-oB'>::</span><span class='hljl-n'>Integer</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.</span><span class='hljl-nf'>power_by_squaring</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># use repeated squaring for integer powers</span>
+</pre>
+
+
+<pre class="output">
+^ &#40;generic function with 80 methods&#41;
+</pre>
+
+
+<p>We can now define <code>Dual</code>s and manipulate them:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>g</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>5</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>6</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;8, 10&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>g</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;15, 38&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>g</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;30, 76&#41;
+</pre>
+
+
+<h2>Performance</h2>
+<p>It seems like we may have introduced significant computational overhead by creating a new data structure, and associated methods. Let&#39;s see how the performance is:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b2</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>a1</span><span class='hljl-oB'>+</span><span class='hljl-n'>b1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-oB'>+</span><span class='hljl-n'>b2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+add &#40;generic function with 1 method&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>BenchmarkTools</span><span class='hljl-t'>
+</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>c</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>c</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>d</span><span class='hljl-p'>))[])</span>
+</pre>
+
+
+<pre class="output">
+2.699 ns &#40;0 allocations: 0 bytes&#41;
+&#40;4, 6&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>b</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>j1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>j2</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>j1</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>j2</span><span class='hljl-t'>
+</span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[])</span>
+</pre>
+
+
+<pre class="output">
+2.199 ns &#40;0 allocations: 0 bytes&#41;
+Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;4, 6&#41;
+</pre>
+
+
+<p>It seems like we have lost <em>no</em> performance.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@code_native</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+.text
+; ┌ @ none:1 within &#96;add&#39;
+	pushq	&#37;rbp
+	movq	&#37;rsp, &#37;rbp
+; │┌ @ int.jl:53 within &#96;&#43;&#39;
+	addq	&#37;r9, &#37;rdx
+	addq	48&#40;&#37;rbp&#41;, &#37;r8
+; │└
+	movq	&#37;rdx, &#40;&#37;rcx&#41;
+	movq	&#37;r8, 8&#40;&#37;rcx&#41;
+	movq	&#37;rcx, &#37;rax
+	popq	&#37;rbp
+	retq
+	nopw	&#40;&#37;rax,&#37;rax&#41;
+; └
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@code_native</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+.text
+; ┌ @ none:2 within &#96;add&#39;
+	pushq	&#37;rbp
+	movq	&#37;rsp, &#37;rbp
+; │┌ @ none:1 within &#96;&#43;&#39; @ int.jl:53
+	vmovdqu	&#40;&#37;r8&#41;, &#37;xmm0
+	vpaddq	&#40;&#37;rdx&#41;, &#37;xmm0, &#37;xmm0
+; │└
+	vmovdqu	&#37;xmm0, &#40;&#37;rcx&#41;
+	movq	&#37;rcx, &#37;rax
+	popq	&#37;rbp
+	retq
+	nopw	&#37;cs:&#40;&#37;rax,&#37;rax&#41;
+; └
+</pre>
+
+
+<p>We see that the data structure itself has disappeared, and we basically have a standard Julia tuple.</p>
+<h2>Functions on jets: chain rule</h2>
+<p>We can also define functions of <code>Dual</code> objects, using the chain rule. If <code>f</code> is a <code>Dual</code> representing the function <span class="math">$f$</span>, then <code>exp&#40;f&#41;</code> should be a <code>Dual</code> representing the function <span class="math">$\exp \circ f$</span>, i.e. with value <span class="math">$\exp(f(a))$</span> and derivative <span class="math">$(\exp \circ f)'(a) = \exp(f(a)) \, f'(a)$</span>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>import</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>exp</span>
+</pre>
+
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>exp</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-nf'>exp</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>exp</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+exp &#40;generic function with 18 methods&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-n'>f</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;3, 4&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>exp</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Float64&#125;&#40;20.085536923187668, 80.34214769275067&#41;
+</pre>
+
+
+<h2>Differentiating arbitrary functions</h2>
+<p>Now we are in a position to calculate the derivative of an arbitrary function <span class="math">$f$</span>, e.g. to calculate <span class="math">$h'(a)$</span> where</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>h</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span>
+</pre>
+
+
+<pre class="output">
+3
+</pre>
+
+
+<p>This is a function of <span class="math">$x$</span>, which itself we can think of as the identity function <span class="math">$\iota: x \mapsto x$</span>, so that</p>
+<p class="math">\[
+h = \iota^2 - 2.\mathbf{1},
+\]</p>
+<p>where <span class="math">$\mathbf{1}$</span> is the constant &quot;all ones&quot; function.</p>
+<p>We represent the identity function as follows:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-t'>
+</span><span class='hljl-n'>xx</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;3, 1&#41;
+</pre>
+
+
+<p>since <span class="math">$\iota'(a) = 1$</span> for any <span class="math">$a$</span>.</p>
+<p>Now we simply evaluate the function <code>h</code> at the <code>Dual</code> number <code>xx</code>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>h</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Int64&#125;&#40;11, 6&#41;
+</pre>
+
+
+<p>The first component of the resulting <code>Dual</code> is the value <span class="math">$h(a)$</span>, and the second component is the derivative, <span class="math">$h'(a)$</span>&#33;</p>
+<p>We can codify this into a function as follows:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>one</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)))</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span>
+</pre>
+
+
+<pre class="output">
+derivative &#40;generic function with 1 method&#41;
+</pre>
+
+
+<p>Here, <code>one</code> is the function that gives the value <span class="math">$1$</span> with the same type as that of <code>x</code>.</p>
+<p>Finally we can now calculate derivatives such as</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>5</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+240
+</pre>
+
+
+<h1>Higher dimensions</h1>
+<p>How can we extend this to higher dimensional functions? For example, we wish to differentiate the following function <span class="math">$f: \mathbb{R}^2 \to \mathbb{R}$</span>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span>
+</pre>
+
+
+<pre class="output">
+ff &#40;generic function with 1 method&#41;
+</pre>
+
+
+<p>Recall that the <strong>partial derivative</strong> <span class="math">$\partial f/\partial x$</span> is defined by fixing <span class="math">$y$</span> and differentiating the resulting function of <span class="math">$x$</span>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>3.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>4.0</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>ff_1</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># single-variable function</span>
+</pre>
+
+
+<pre class="output">
+ff_1 &#40;generic function with 1 method&#41;
+</pre>
+
+
+<p>Since we now have a single-variable function, we can differentiate it:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>ff_1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+10.0
+</pre>
+
+
+<p>Under the hood this is doing</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>one</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>)),</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.Dual&#123;Float64&#125;&#40;21.0, 10.0&#41;
+</pre>
+
+
+<p>Similarly, we can differentiate with respect to <span class="math">$y$</span> by doing</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>ff_2</span><span class='hljl-p'>(</span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># single-variable function</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>ff_2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+3.0
+</pre>
+
+
+<p>Note that we must do <strong>two separate calculations</strong> to get the two partial derivatives; in general, calculating the gradient <span class="math">$\nabla$</span> of a function <span class="math">$f:\mathbb{R}^n \to \mathbb{R}$</span> requires <span class="math">$n$</span> separate calculations.</p>
+<h2>Implementation of higher-dimensional forward-mode AD</h2>
+<p>We can implement derivatives of functions <span class="math">$f: \mathbb{R}^n \to \mathbb{R}$</span> by adding several independent partial derivative components to our dual numbers.</p>
+<p>We can think of these as <span class="math">$\epsilon$</span> perturbations in different directions, which satisfy <span class="math">$\epsilon_i^2 = \epsilon_i \epsilon_j = 0$</span>, and we will call <span class="math">$\epsilon$</span> the vector of all perturbations. Then we have</p>
+<p class="math">\[
+f(a + \epsilon) = f(a) + \nabla f(a) \cdot \epsilon + \mathcal{O}(\epsilon^2),
+\]</p>
+<p>where <span class="math">$a \in \mathbb{R}^n$</span> and <span class="math">$\nabla f(a)$</span> is the <strong>gradient</strong> of <span class="math">$f$</span> at <span class="math">$a$</span>, i.e. the vector of partial derivatives in each direction. <span class="math">$\nabla f(a) \cdot \epsilon$</span> is the <strong>directional derivative</strong> of <span class="math">$f$</span> in the direction <span class="math">$\epsilon$</span>.</p>
+<p>We now proceed similarly to the univariate case:</p>
+<p class="math">\[
+(f + g)(a + \epsilon) = [f(a) + g(a)] + [\nabla f(a) + \nabla g(a)] \cdot \epsilon
+\]</p>
+<p class="math">\[
+\begin{align}
+(f \cdot g)(a + \epsilon) &= [f(a) + \nabla f(a) \cdot \epsilon ] \, [g(a) + \nabla g(a) \cdot \epsilon ] \\
+&= f(a) g(a) + [f(a) \nabla g(a) + g(a) \nabla f(a)] \cdot \epsilon.
+\end{align}
+\]</p>
+<p>We will use the <code>StaticArrays.jl</code> package for efficient small vectors:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>StaticArrays</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>struct</span><span class='hljl-t'> </span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
+    </span><span class='hljl-n'>val</span><span class='hljl-oB'>::</span><span class='hljl-n'>T</span><span class='hljl-t'>
+    </span><span class='hljl-n'>derivs</span><span class='hljl-oB'>::</span><span class='hljl-nf'>SVector</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>import</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>},</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>::</span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>})</span><span class='hljl-t'> </span><span class='hljl-n'>where</span><span class='hljl-t'> </span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
+    </span><span class='hljl-k'>return</span><span class='hljl-t'> </span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>}(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>derivs</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>derivs</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>},</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>::</span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>})</span><span class='hljl-t'> </span><span class='hljl-n'>where</span><span class='hljl-t'> </span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>}</span><span class='hljl-t'>
+    </span><span class='hljl-k'>return</span><span class='hljl-t'> </span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>{</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-n'>T</span><span class='hljl-p'>}(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>.*</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>derivs</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>.*</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>derivs</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<pre class="output">
+* &#40;generic function with 401 methods&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>gg</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-t'>
+
+</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>xx</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>))</span><span class='hljl-t'>
+</span><span class='hljl-n'>yy</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>))</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>gg</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>yy</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+Main.WeaveSandBox1.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#41;
+</pre>
+
+
+<p>We can calculate the Jacobian of a function <span class="math">$\mathbb{R}^n \to \mathbb{R}^m$</span> by applying this to each component function:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>yy</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+2-element StaticArrays.SArray&#123;Tuple&#123;2&#125;,Main.WeaveSandBox1.MultiDual&#123;2,Float
+64&#125;,1,2&#125;:
+ Main.WeaveSandBox1.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;2.0, 4.0&#93;&#41;
+ Main.WeaveSandBox1.MultiDual&#123;2,Float64&#125;&#40;3.0, &#91;1.0, 1.0&#93;&#41;
+</pre>
+
+
+<p>It would be possible &#40;and better for performance in many cases&#41; to store all of the partials in a matrix instead.</p>
+<p>Forward-mode AD is implemented in a clean and efficient way in the <code>ForwardDiff.jl</code> package:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>ForwardDiff</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>StaticArrays</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>ForwardDiff</span><span class='hljl-oB'>.</span><span class='hljl-nf'>gradient</span><span class='hljl-p'>(</span><span class='hljl-t'> </span><span class='hljl-n'>xx</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>xx</span><span class='hljl-p'>;</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>])</span>
+</pre>
+
+
+<pre class="output">
+2-element Array&#123;Int64,1&#125;:
+ 6
+ 2
+</pre>
+
+
+<p>There is also a <code>ForwardDiff2.jl</code> package in the works which aims to improve performance for high-dimensional functions.</p>
+<h1>Syntax trees</h1>
+<h2>Forward-mode</h2>
+<p>To understand what forward-mode AD is doing, and its name, it is useful to think of an expression as a <strong>syntax tree</strong>; cf. <a href="Syntax trees in Julia.ipynb">this notebook</a>.</p>
+<p>If we label the nodes in the tree as <span class="math">$v_i$</span>, then forward differentiation fixes a variable, e.g. <span class="math">$y$</span>, and calculates <span class="math">$\partial v_i / \partial y$</span> for each <span class="math">$i$</span>. If e.g. <span class="math">$v_1 = v_2 + v_3$</span>, then we have</p>
+<p class="math">\[
+\frac{\partial v_1}{\partial y} = \frac{\partial v_2}{\partial y} + \frac{\partial v_3}{\partial y}.
+\]</p>
+<p>Denoting <span class="math">$v_1' := \frac{\partial v_1}{\partial y}$</span>, we have <span class="math">$v_1' = v_2' + v_3'$</span>, so we need to calculate the derivatives and nodes lower down in the graph first, and propagate the information up. We start at <span class="math">$v_x' = 0$</span>, since <span class="math">$\frac{\partial x}{\partial y} = 0$</span>, and <span class="math">$v_y' = 1$</span>; these are called the <strong>seed values</strong> of the derivative calculation.</p>
+<p>Note that we need <span class="math">$n$</span> seed values in order to calculate the gradient of a function <span class="math">$\mathbb{R}^n \to \mathbb{R}$</span>.</p>
+<h2>Reverse mode</h2>
+<p>An alternative method to calculate derivatives is to fix not the variable with which to differentiate, but <em>what it is</em> that we differentiate, i.e. to calculate the <strong>adjoint</strong>, <span class="math">$\bar{v_i} := \frac{\partial f}{\partial v_i}$</span>, for each <span class="math">$i$</span>.</p>
+<p>If <span class="math">$f = v_1 + v_2$</span>, with <span class="math">$v_1 = v_3 + v_4$</span> and <span class="math">$v_2 = v_3 + v_5$</span>, then</p>
+<p class="math">\[
+\frac{\partial f}{\partial v_3} = \frac{\partial f}{\partial v_1} \frac{\partial v_1}{\partial v_3} + \frac{\partial f}{\partial v_2} \frac{\partial v_2}{\partial v_3},
+\]</p>
+<p>i.e.</p>
+<p class="math">\[
+\bar{v_3} = \alpha_{13} \, \bar{v_1} + \alpha_{2,3} \, \bar{v_2},
+\]</p>
+<p>where <span class="math">$\alpha_{ij}$</span> are the coefficients specifying the relationship between the different terms. Thus, the adjoint information propagates <strong>down</strong> the graph, in <strong>reverse</strong> order, hence the name &quot;reverse-mode&quot;.</p>
+<p>For this reason, reverse mode is much harder to implement. However, it has the advantage that all derivatives <span class="math">$\partial f / \partial x_i$</span> are calculated in a <em>single pass</em> of the tree, and hence this is the method of choice for calculating the gradient of a function <span class="math">$\mathbb{R}^n \to \mathbb{R}$</span>, which is a very common case, e.g. in the context of mathematical optimization and machine learning.</p>
+<p>Julia has several implementations of reverse-mode AD that are useful in different situations, e.g. https://github.com/JuliaDiff/ReverseDiff.jl.</p>
+<h2>Example of reverse mode</h2>
+<p>Reverse mode is difficult to implement in a general way, but easy to do by hand. e.g. consider the function</p>
+<p class="math">\[
+f(x,y,z) = x \, y - \sin(z)
+\]</p>
+<p>We decompose this into its tree with labelled nodes, corresponding to the following sequence of elementary operations:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>z</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-oB'>*</span><span class='hljl-nf'>sin</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>z</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>z</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>v₁</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'>
+</span><span class='hljl-n'>v₂</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-t'>
+</span><span class='hljl-n'>v₃</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>z</span><span class='hljl-t'>
+</span><span class='hljl-n'>v₄</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>v₁</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>v₂</span><span class='hljl-t'>
+</span><span class='hljl-n'>v₅</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>v₁</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>v₃</span><span class='hljl-t'>
+</span><span class='hljl-n'>v₆</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>sin</span><span class='hljl-p'>(</span><span class='hljl-n'>v₅</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>v₇</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>v₄</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-n'>v₆</span><span class='hljl-t'>  </span><span class='hljl-cs'># f</span>
+</pre>
+
+
+<pre class="output">
+1.7177599838802655
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>z</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+1.7177599838802655
+</pre>
+
+
+<p>We have decomposed the <strong>forward pass</strong> into elementary operations. We now proceed to calculate the adjoints. The difficulty is to <em>find which variables depend on the current variable under question</em>.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>v̄₇</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>   </span><span class='hljl-cs'># seed</span><span class='hljl-t'>
+</span><span class='hljl-n'>v̄₆</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-cs'># ∂f/∂v₆ = ∂v₇/∂v₆</span><span class='hljl-t'>
+</span><span class='hljl-n'>v̄₅</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>v̄₆</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-nf'>cos</span><span class='hljl-p'>(</span><span class='hljl-n'>v₅</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># ∂v₇/∂v₆ * ∂v₆/∂v₅</span><span class='hljl-t'>
+</span><span class='hljl-n'>v̄₄</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>   </span><span class='hljl-cs'># ∂f/∂v₄ = ∂v₇/∂v₄</span><span class='hljl-t'>
+</span><span class='hljl-n'>v̄₃</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>v̄₅</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>v₁</span><span class='hljl-t'>  </span><span class='hljl-cs'># ∂f/∂v₃ = ∂f/∂v₅ . ∂v₅/∂v₃. # This gives ∂f/∂z</span><span class='hljl-t'>
+</span><span class='hljl-n'>v̄₂</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>v̄₄</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>v₁</span><span class='hljl-t'>
+</span><span class='hljl-n'>v̄₁</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>v̄₅</span><span class='hljl-oB'>*</span><span class='hljl-n'>v₃</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>v̄₄</span><span class='hljl-oB'>*</span><span class='hljl-n'>v₂</span><span class='hljl-t'>   </span><span class='hljl-cs'># two *different* paths</span>
+</pre>
+
+
+<pre class="output">
+7.939954979602673
+</pre>
+
+
+<p>When implementing reverse-mode, it is common to <em>accumulate</em> into the gradients when each path is traversed.</p>
+<p>Thus, in a single pass we have calculated the gradient <span class="math">$\nabla f(1, 2, 3)$</span>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-p'>(</span><span class='hljl-n'>v̄₁</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v̄₂</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v̄₃</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+&#40;7.939954979602673, 1, 1.9799849932008908&#41;
+</pre>
+
+
+<p>Let&#39;s check that it&#39;s correct:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>ForwardDiff</span><span class='hljl-oB'>.</span><span class='hljl-nf'>gradient</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>-&gt;</span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>...</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-n'>z</span><span class='hljl-p'>])</span>
+</pre>
+
+
+<pre class="output">
+3-element Array&#123;Float64,1&#125;:
+ 7.939954979602673 
+ 1.0               
+ 1.9799849932008908
+</pre>
+
+
+<h1>Application: solving nonlinear equations using the Newton method</h1>
+<p>As an application, we will see how to solve nonlinear equations of the form <span class="math">$f(x) = 0$</span> for functions <span class="math">$f: \mathbb{R}^n \to \mathbb{R}^n$</span>.</p>
+<p>Since in general we cannot do anything with nonlinearity, we try to reduce it &#40;approximate it&#41; with something linear. Furthermore, in general we know that it is not possible to solve nonlinear equations in closed form &#40;even for polynomials of degree <span class="math">$\ge 5$</span>&#41;, so we will need some kind of iterative method.</p>
+<p>We start from an initial guess <span class="math">$x_0$</span>. The idea of the <strong>Newton method</strong> is to follow the tangent line to the function <span class="math">$f$</span> at the point <span class="math">$x_0$</span> and find where it intersects the <span class="math">$x$</span>-axis; this will give the next iterate <span class="math">$x_1$</span>.</p>
+<p>Algebraically, we want to solve <span class="math">$f(x_1) = 0$</span>. Suppose that <span class="math">$x_1 = x_0 + \delta$</span> for some <span class="math">$\delta$</span> that is currently unknown and which we wish to calculate.</p>
+<p>Assuming <span class="math">$\delta$</span> is small, we can expand:</p>
+<p class="math">\[
+f(x_1) = f(x_0 + \delta) = f(x_0) + Df(x_0) \cdot \delta + \mathcal{O}(\| \delta \|^2).
+\]</p>
+<p>Since we wish to solve</p>
+<p class="math">\[
+f(x_0 + \delta) \simeq 0,
+\]</p>
+<p>we put</p>
+<p class="math">\[
+f(x_0) + Df(x_0) \cdot \delta = 0,
+\]</p>
+<p>so that <em>mathematically</em> we have</p>
+<p class="math">\[
+\delta = -[Df(x_0)]^{-1} \cdot f(x_0).
+\]</p>
+<p>Computationally we prefer to solve the matrix equation</p>
+<p class="math">\[
+J \delta = -f(x_0),
+\]</p>
+<p>where <span class="math">$J := Df(x_0)$</span> is the Jacobian of the function; Julia uses the syntax <code>\</code> &#40;&quot;backslash&quot;&#41; for solving linear systems in an efficient  way:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>ForwardDiff</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>StaticArrays</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>newton_step</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>J</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>ForwardDiff</span><span class='hljl-oB'>.</span><span class='hljl-nf'>jacobian</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>δ</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>J</span><span class='hljl-t'> </span><span class='hljl-oB'>\</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>x0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+    </span><span class='hljl-k'>return</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>δ</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>newton</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-t'>
+
+    </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10</span><span class='hljl-t'>
+        </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>newton_step</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+    </span><span class='hljl-k'>return</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>xx</span><span class='hljl-p'>;</span><span class='hljl-t'>  </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>x0</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-nfB'>3.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>3.0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>newton</span><span class='hljl-p'>(</span><span class='hljl-n'>ff</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+x &#61; &#91;1.58333, 1.58333&#93;
+x &#61; &#91;0.949561, 0.949561&#93;
+x &#61; &#91;0.73806, 0.73806&#93;
+x &#61; &#91;0.707756, 0.707756&#93;
+x &#61; &#91;0.707107, 0.707107&#93;
+x &#61; &#91;0.707107, 0.707107&#93;
+x &#61; &#91;0.707107, 0.707107&#93;
+x &#61; &#91;0.707107, 0.707107&#93;
+x &#61; &#91;0.707107, 0.707107&#93;
+x &#61; &#91;0.707107, 0.707107&#93;
+2-element StaticArrays.SArray&#123;Tuple&#123;2&#125;,Float64,1,2&#125;:
+ 0.7071067811865475
+ 0.7071067811865475
+</pre>
+
+
+
+
+          <HR/>
+          <div class="footer"><p>
+          Published from <a href="automatic_differentiation.jmd">automatic_differentiation.jmd</a> using
+          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
+           on 2019-09-28.
+          <p></div>
+
+
+        </div>
+      </div>
+    </div>
+  </BODY>
+</HTML>

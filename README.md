@@ -359,3 +359,17 @@ the dynamics of the discrete system generated from the approximation to the
 continuous system, and thus stability of a numerical method is directly tied
 to the stability properties of the dynamics. This gives the idea of stiffness,
 which is a larger computational idea about ill-conditioned systems.
+
+## Lecture 8: Automatic Differentiation
+
+- [Automatic Differentiation and Applications](https://mitmath.github.io/18337/lecture8/automatic_differentiation)
+
+### Guest Lecturer David Sanders
+
+As we will soon see, the ability to calculate derivatives underpins a lot of
+problems in both scientific computing and machine learning. We will specifically
+see it show up in later lectures on solving implicit equations f(x)=0 for stiff
+ordinary differential equation solvers, and in fitting neural networks. The
+common high performance way that this is done is called automatic
+differentiation. This lecture introduces the methods of forward and reverse
+mode automatic differentiation to setup future studies uses of the technique.
