@@ -214,7 +214,7 @@ Homework 3: Solving 100 dimensional PDEs with deep learning
 # Homeworks
 
 - [Homework 0, due September 25th](https://mitmath.github.io/18337/hw0/hw0)
-- [Homework 1, due October 16th](https://mitmath.github.io/18337/hw0/hw0)
+- [Homework 1, due October 16th](https://mitmath.github.io/18337/hw1/hw1)
 
 # Lecture Summaries and Handouts
 
