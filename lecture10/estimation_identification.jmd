@@ -1,0 +1,96 @@
+---
+title: Parameter Estimation, Adjoints, and Inverse Problems
+author: Chris Rackauckas
+date: September 30th, 2019
+---
+
+Have a model. Have data. Fit model to data.
+
+This is a problem that goes under many different names: *parameter estimation*,
+*inverse problems*, *training*, etc. In this lecture we will go through the
+methods for how that's done, starting with the basics and bringing in the
+recent techniques from machine learning that can be used to improve the basic
+implementations.
+
+## The Shooting Method for Parameter Fitting
+
+Assume that we have some model $u = f(p)$ where $p$ is our parameters, where we
+put in some parameters and receive our simulated data $u$. How should you choose
+$p$ such that $u$ best fits that data? The *shooting method* directly uses this
+high level definition of the model by putting a cost function on the output $C(p)$.
+This cost function is dependent on a user-choice and it's model-dependent. However,
+a common one is the L2-loss. If $y$ is our expected data, then the L2-loss function
+against the data is simply:
+
+$$C(p) = \Vert f(p) - y \Vert$$
+
+where $C(p): \mathbb{R}^n \rightarrow R$ is a function that returns a scalar.
+The shooting method then directly optimizes this cost function by having the
+optimizer generate a data given new choices of $p$.
+
+### Methods for Optimization
+
+There are many different
+nonlinear optimization methods which can be used for this purpose, and for
+a full survey one should look at packages like [JuMP](), [Optim.jl](), and
+[NLopt.jl]().
+
+There are generally two sets of methods: global and local optimization methods.
+Local optimization methods attempt to find the best nearby extrema by finding
+a point where the gradient $\frac{dC}{dp} = 0$. Global optimization methods
+attempt to explore the whole space and find the best of the extrema. Global
+methods tend to employ a lot more heuristics and are extremely computationally
+difficult, and thus many studies focus on local optimization. We will focus
+strictly on local optimization, but one may want to look into global optimization
+for many applications of parameter estimation.
+
+Most local optimizers make use of derivative information in order to accelerate
+the solver. The simplest of which is the method of *gradient descent*. In
+this method, given a set of parameters $p_i$, the next step of parameters one
+will try is:
+
+$$p_{i+1} = p_i - \alpha \frac{dC}{dP}$$
+
+that is, update $p_i$ by walking in the downward direction of the gradient.
+Instead of using just first order information, one may want to directly solve
+the rootfinding problem $\frac{dC}{dp} = 0$ using Newton's method. Newton's
+method in this case looks like:
+
+$$p_{i+1} = p_i - (\frac{d}{dp}\frac{dC}{dp})^{}-1} \frac{dC}{dp}$$
+
+But notice that the Jacobian of the gradient is the Hessian, and thus we can
+rewrite this as:
+
+$$p_{i+1} = p_i - H(p_i)^{-1} \frac{dC(p_i)}{dp}$$
+
+where $H(p)$ is the Hessian matrix $H_{ij} = \frac{dC}{dx_i dx_j}$. However,
+solving a system of equations which involves the Hessian can be difficult
+(just like the Jacobian, but now with another layer of differentiation!), and
+thus many optimization techniques attempt to avoid the Hessian. A commonly
+used technique that is somewhat in the middle is the *BFGS* technique, which
+is a gradient-based optimization method that attempts to approximate the Hessian
+along the way to modify its stepping behavior. It uses the history of previously
+calculated points in order to build this quick Hessian approximate. If one keeps
+only a constant length history, say 5 time points, then one arrives at the
+*l-BFGS* technique, which is one of the most common large-scale optimization
+techniques.
+
+### Computing Gradients: The Adjoint Technique
+
+### Accelerated Adjoints with Reverse-Mode vjps
+
+### Reverse-Mode Automatic Differentiation as Chained Adjoints
+
+## Multiple Shooting Techniques
+
+## Collocation Methods
+
+## More Details on Hessians
+
+### Numerical Differentiation for Hessians
+
+### Forward-Mode xor Reverse-Mode for Hessians
+
+### Forward-Over-Reverse Calculations for Hessians
+
+### Hessian-Free Newton Krylov

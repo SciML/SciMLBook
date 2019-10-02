@@ -75,7 +75,7 @@ your own and acknowledge your collaborators.
 The final project is a 10-20 page paper using the style
 template from the [_SIAM Journal on Numerical Analysis_](http://www.siam.org/journals/auth-info.php)
 (or similar). The final project must include code for a high performance
-(parallelized) implementation of the algorithm in a form that is usable by others.
+(or parallelized) implementation of the algorithm in a form that is usable by others.
 A thorough performance analysis is expected. Model your paper on academic
 review articles (e.g. read _SIAM Review_ and similar journals for examples).
 
@@ -214,6 +214,7 @@ Homework 3: Solving 100 dimensional PDEs with deep learning
 # Homeworks
 
 - [Homework 0, due September 25th](https://mitmath.github.io/18337/hw0/hw0)
+- [Homework 1, due October 16th](https://mitmath.github.io/18337/hw0/hw0)
 
 # Lecture Summaries and Handouts
 
@@ -350,6 +351,8 @@ distributed parallel computing and its models are showcased.
 
 ## Lecture 7: Ordinary Differential Equations: Applications and Discretizations
 
+#### Lecture Notes
+
 - [Discretizing Ordinary Differential Equations](https://mitmath.github.io/18337/lecture7/discretizing_odes)
 
 In this lecture we will describe ordinary differential equations, where they
@@ -362,6 +365,8 @@ which is a larger computational idea about ill-conditioned systems.
 
 ## Lecture 8: Automatic Differentiation
 
+#### Lecture Notes
+
 - [Automatic Differentiation and Applications](https://mitmath.github.io/18337/lecture8/automatic_differentiation)
 
 ### Guest Lecturer David Sanders
@@ -373,3 +378,24 @@ ordinary differential equation solvers, and in fitting neural networks. The
 common high performance way that this is done is called automatic
 differentiation. This lecture introduces the methods of forward and reverse
 mode automatic differentiation to setup future studies uses of the technique.
+
+## Lecture 9: Solving Stiff Ordinary Differential Equations
+
+#### Lecture Notes
+
+- [Solving Stiff Ordinary Differential Equations](https://mitmath.github.io/18337/lecture9/stiff_odes)
+
+Solving stiff ordinary differential equations, especially those which arise
+from partial differential equations, are the common bottleneck of scientific
+computing. The largest-scale scientific computing models are generally using
+heavy compute power in order to tackle some implicitly timestepped PDE solve!
+Thus we will take a deep dive into how the different methods which are combined
+to create a stiff ordinary differential equation solver, looking at different
+aspects of Jacobian computations and linear solving and the effects that they
+have.
+
+## Lecture 10: Parameter Estimation, Learning, and Inverse Problems
+
+## Lecture 11: Neural Networks and Neural ODEs
+
+## Lecture 12: Discretizations of Partial Differential Equations and Convolutional Neural Networks
