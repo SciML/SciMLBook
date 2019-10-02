@@ -132,7 +132,7 @@ used for chosen for the final project. Possibilities include:
 - Parallelized implicit ODE solvers for large ODE systems
 - GPU-parallelized ODE/SDE solvers for small systems
 
-Final project topics must be declared by October 11 with a 1 page extended
+Final project topics must be declared by October 18th with a 1 page extended
 abstract.
 
 ## Schedule of Topics
