@@ -132,7 +132,7 @@ used for chosen for the final project. Possibilities include:
 - Parallelized implicit ODE solvers for large ODE systems
 - GPU-parallelized ODE/SDE solvers for small systems
 
-Final project topics must be declared by October 11 with a 1 page extended
+Final project topics must be declared by October 18th with a 1 page extended
 abstract.
 
 ## Schedule of Topics
@@ -214,7 +214,7 @@ Homework 3: Solving 100 dimensional PDEs with deep learning
 # Homeworks
 
 - [Homework 0, due September 25th](https://mitmath.github.io/18337/hw0/hw0)
-- [Homework 1, due October 16th](https://mitmath.github.io/18337/hw0/hw0)
+- [Homework 1, due October 16th](https://mitmath.github.io/18337/hw1/hw1)
 
 # Lecture Summaries and Handouts
 
