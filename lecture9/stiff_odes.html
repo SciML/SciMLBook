@@ -772,6 +772,7 @@ x_{3}\\
 \end{array}\right]
 \]</p>
 <p>we would still get the correct value for every row because the <span class="math">$\epsilon$</span> terms do not collide &#40;a situation known as <em>perturbation confusion</em>&#41;. If we knew the sparsity pattern of the Jacobian included a 0 at &#40;2,1&#41;, &#40;1,2&#41;, and &#40;3,2&#41;, then we would know that the vectors would have to be <span class="math">$[1 0 1]$</span> and <span class="math">$[0 x_3 0]$</span>, meaning that columns 1 and 2 can be computed simultaniously and decompressed. This is the key to sparse differentiation.</p>
+<p><img src="https://user-images.githubusercontent.com/1814174/66027457-efd7cc00-e4c8-11e9-8346-accf468541fb.PNG" alt="" /></p>
 <p>With forward-mode automatic differentiation, recall that we calculate multiple dimensions simultaniously by using a multidimensional dual number seeded by the vectors of the differentiation directions, that is:</p>
 <p class="math">\[
 d = x + v_1 \epsilon_1 + \ldots + v_m \epsilon_m
@@ -792,12 +793,15 @@ d = x + (e_1 + e_2) \epsilon_1 + e_3 \epsilon_2
 <li><p>Repeat by looking at the next set of adjacent nodes and color as conservatively as possible.</p>
 </li>
 </ul>
+<p>This can be visualized as follows:</p>
+<p><img src="https://user-images.githubusercontent.com/1814174/66027433-e189b000-e4c8-11e9-8c2e-3999954cda28.PNG" alt="" /></p>
 <p>The result will color the entire connected component. While not giving an optimal result, it will still give a result that is a sufficient reduction in the number of differentiation directions &#40;without solving an NP-complete problem&#41; and thus can lead to a large computational saving.</p>
 <p>At the end, let <span class="math">$c_i$</span> be the vector of 1&#39;s and 0&#39;s, where it&#39;s 1 for every node that is color <span class="math">$i$</span> and 0 otherwise. Sparse automatic differentiation of the Jacobian is then computed with:</p>
 <p class="math">\[
 d = x + c_1 \epsilon_1 + \ldots + c_k \epsilon_k
 \]</p>
 <p>that is, the full Jacobian is computed with one dual number which consists of the primal calculation along with <span class="math">$k$</span> dual dimensions, where <span class="math">$k$</span> is the computed chromatic number of the connectivity graph on the Jacobian. Once this calculation is complete, the colored columns can be decompressed into the full Jacobian using the sparsity information, generating the original quantity that we wanted to compute.</p>
+<p>For more information on the graph coloring aspects, find the paper titled &quot;What Color Is Your Jacobian? Graph Coloring for Computing Derivatives&quot; by Gebremedhin.</p>
 <h4>Note on Sparse Reverse-Mode AD</h4>
 <p>Reverse-mode automatic differentiation can be though of as a method for computing one row of a Jacobian per seed, as opposed to one column per seed given by forward-mode AD. Thus sparse reverse-mode automatic differentiation can be done by looking at the connectivity graph of the column and using the resulting color vectors to seed the reverse accumulation process.</p>
 <h2>Linear Solving</h2>
@@ -932,6 +936,18 @@ q = \frac{\text{E}}{\max(u_k,u_{k+1}) \tau_r + \tau_a}
 \]</p>
 <p>where <span class="math">$\tau_r$</span> is the relative tolerance and <span class="math">$\tau_a$</span> is the absolute tolerance, then <span class="math">$q$</span> is the ratio of the current error to the current tolerance. If <span class="math">$q<1$</span>, then the error is less than the tolerance and the step is accepted, and vice versa for <span class="math">$q>1$</span>. In either case, we let <span class="math">$\Delta t_{new} = q \Delta t$</span> be the proportional update.</p>
 <p>However, proportional error control has many known features that are undesirable. For example, it happens to work in a &quot;bang bang&quot; manner, meaning that it can drastically change its behavior from step to step. One step may multiply the step size by 10x, then the next by 2x. This is an issue because it effects the stability of the ODE solver method &#40;since the stability is not a property of a single step, but rather it&#39;s a property of the global behavior over time&#41;&#33; Thus to smooth it out, one can use a <em>PI-control</em>, which modifies the control factor by a history value, i.e. the error in one step in the past. This of course also means that one can utilize a PID-controller for time stepping. And there are many other techniques that can be used, but many of the most optimized codes tend to use a PI-control mechanism.</p>
+<h2>Methodological Summary</h2>
+<p>Here&#39;s a quick summary of the methodologies in a hierarchical sense:</p>
+<ul>
+<li><p>At the lowest level is the linear solve, either done by JFNK or &#40;sparse&#41; factorization. For large enough systems, this is brunt of the work. This is thus the piece to computationally optimize as much as possible, and parallelize. For sparse factorizations, this can be done with a distributed sparse library implementation. For JFNK, the efficiency is simply due to the efficiency of your ODE function <code>f</code>.</p>
+</li>
+<li><p>An optional level for JFNK is the preconditioning level, where preconditioners can be used to decrease the total number of iterations required for Krylov subspace methods like GMRES to converge, and thus reduce the total number of <code>f</code> calls.</p>
+</li>
+<li><p>At the nonlinear solver level, different Newton-like techniques are utilized to minimize the number of factorizations/linear solves required, and maximize the stability of the Newton method.</p>
+</li>
+<li><p>At the ODE solver level, more efficient integrators and adaptive methods for stiff ODEs are used to reduce the cost by affecting the linear solves. Most of these calculations are dominated by the linear solve portion when it&#39;s in the regime of large stiff systems. Jacobian reuse techniques, partial factorizations, and IMEX methods come into play as ways to reduce the cost per factorization and reduce the total number of factorizations.</p>
+</li>
+</ul>
 <h2>Examples of Solving Stiff ODEs</h2>
 
 
@@ -940,7 +956,7 @@ q = \frac{\text{E}}{\max(u_k,u_{k+1}) \tau_r + \tau_a}
           <div class="footer"><p>
           Published from <a href="stiff_odes.jmd">stiff_odes.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-10-02.
+           on 2019-10-03.
           <p></div>
 
 
