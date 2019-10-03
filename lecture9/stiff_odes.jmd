@@ -180,6 +180,8 @@ then we would know that the vectors would have to be $[1 0 1]$ and $[0 x_3 0]$,
 meaning that columns 1 and 2 can be computed simultaniously and decompressed.
 This is the key to sparse differentiation.
 
+![](https://user-images.githubusercontent.com/1814174/66027457-efd7cc00-e4c8-11e9-8346-accf468541fb.PNG)
+
 With forward-mode automatic differentiation, recall that we calculate multiple
 dimensions simultaniously by using a multidimensional dual number seeded by
 the vectors of the differentiation directions, that is:
@@ -220,6 +222,10 @@ For example, a greedy algorithm is as follows:
 - Repeat by looking at the next set of adjacent nodes and color as conservatively
   as possible.
 
+This can be visualized as follows:
+
+![](https://user-images.githubusercontent.com/1814174/66027433-e189b000-e4c8-11e9-8c2e-3999954cda28.PNG)
+
 The result will color the entire connected component. While not giving an optimal
 result, it will still give a result that is a sufficient reduction in the number
 of differentiation directions (without solving an NP-complete problem) and thus
@@ -237,6 +243,10 @@ computed chromatic number of the connectivity graph on the Jacobian. Once this
 calculation is complete, the colored columns can be decompressed into the full
 Jacobian using the sparsity information, generating the original quantity that
 we wanted to compute.
+
+For more information on the graph coloring aspects, find the paper titled
+"What Color Is Your Jacobian? Graph Coloring for Computing Derivatives" by
+Gebremedhin.
 
 #### Note on Sparse Reverse-Mode AD
 
@@ -596,5 +606,29 @@ factor by a history value, i.e. the error in one step in the past. This of
 course also means that one can utilize a PID-controller for time stepping.
 And there are many other techniques that can be used, but many of the most
 optimized codes tend to use a PI-control mechanism.
+
+## Methodological Summary
+
+Here's a quick summary of the methodologies in a hierarchical sense:
+
+- At the lowest level is the linear solve, either done by JFNK or (sparse)
+  factorization. For large enough systems, this is brunt of the work. This is
+  thus the piece to computationally optimize as much as possible, and parallelize.
+  For sparse factorizations, this can be done with a distributed sparse library
+  implementation. For JFNK, the efficiency is simply due to the efficiency of
+  your ODE function `f`.
+- An optional level for JFNK is the preconditioning level, where preconditioners
+  can be used to decrease the total number of iterations required for Krylov
+  subspace methods like GMRES to converge, and thus reduce the total number
+  of `f` calls.
+- At the nonlinear solver level, different Newton-like techniques are utilized
+  to minimize the number of factorizations/linear solves required, and maximize
+  the stability of the Newton method.
+- At the ODE solver level, more efficient integrators and adaptive methods for
+  stiff ODEs are used to reduce the cost by affecting the linear solves.
+  Most of these calculations are dominated by the linear solve portion when it's
+  in the regime of large stiff systems. Jacobian reuse techniques, partial
+  factorizations, and IMEX methods come into play as ways to reduce the cost
+  per factorization and reduce the total number of factorizations.
 
 ## Examples of Solving Stiff ODEs
