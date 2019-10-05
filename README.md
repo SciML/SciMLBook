@@ -383,7 +383,7 @@ mode automatic differentiation to setup future studies uses of the technique.
 
 #### Lecture Notes
 
-- [Forward-Mode AD via High Dimensional Algebras](https://mitmath.github.io/18337/lecture8/autodiff_dimensions)
+- [Forward-Mode AD via High Dimensional Algebras](https://mitmath.github.io/18337/lecture9/autodiff_dimensions)
 - [Solving Stiff Ordinary Differential Equations](https://mitmath.github.io/18337/lecture9/stiff_odes)
 
 Solving stiff ordinary differential equations, especially those which arise
