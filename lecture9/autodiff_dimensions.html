@@ -872,7 +872,7 @@ partial &#40;generic function with 1 method&#41;
 </pre>
 
 
-<p>To speed up our derivative function, we can directly hardcode the derivative of known functions which we call <em>primatives</em>. For example, for <code>sin</code> we can add a rule like:</p>
+<p>To speed up our derivative function, we can directly hardcode the derivative of known functions which we call <em>primitives</em>. For example, for <code>sin</code> we can add a rule like:</p>
 <p class="math">\[
 \sin(a + \epsilon b) = \sin(a) + \epsilon b \cos(a).
 \]</p>
@@ -884,7 +884,7 @@ partial &#40;generic function with 1 method&#41;
 
 
 
-<p>For functions where we don&#39;t have a rule, we can recursively do dual number arithmetic within the function until we hit primatives where we know the derivative, and then use the chain rule to propagate the information back up.</p>
+<p>For functions where we don&#39;t have a rule, we can recursively do dual number arithmetic within the function until we hit primitives where we know the derivative, and then use the chain rule to propagate the information back up.</p>
 <p>Under this algebra, we can represent a &#43; \epsilon &#36; as <code>Dual&#40;a, 1&#41;</code>. Thus, applying <code>f</code> to <code>Dual&#40;a, 1&#41;</code> should give <code>Dual&#40;f&#40;a&#41;, f&#39;&#40;a&#41;&#41;</code>. This is thus a 2-dimensional number for calculating the derivative without floating point error, <strong>using the compiler to transform our equations into dual number arithmetic</strong>.</p>
 <h2>Higher dimensions</h2>
 <h3>Directional derivative and gradient of functions <span class="math">$f: \mathbb{R}^n \to \mathbb{R}$</span></h3>
@@ -917,7 +917,7 @@ w_i = \sum_{j}^{m} J_{ij} v_{j}
 <p class="math">\[
 w_i = \sum_j^{m} \frac{df_i}{dx_j} v_j = \nabla f_i(x) \cdot v
 \]</p>
-<p><strong>The primative action of forward-mode AD is f&#39;&#40;x&#41;v&#33;</strong></p>
+<p><strong>The primitive action of forward-mode AD is f&#39;&#40;x&#41;v&#33;</strong></p>
 <p>This is also known as a <em>Jacobian-vector product</em>, or <em>jvp</em> for short.</p>
 <p>We can thus represent vector calculus with multidimensional dual numbers as follows. Let <span class="math">$d =[x,y]$</span>, the vector of dual numbers. We can instead represent this as:</p>
 <p class="math">\[
@@ -955,7 +955,7 @@ f(d) = f(d_0) + Je_1 \epsilon_1 + \ldots + Je_n \epsilon_n
 <p class="math">\[
 D = D_0 + \Sigma \epsilon
 \]</p>
-<p>where <span class="math">$D_0$</span> is a vector in <span class="math">$\mathbb{R}^n$</span>, <span class="math">$\epsilon$</span> is a vector of dimensional signifiers and <span class="math">$\Sigma$</span> is a matrix in <span class="math">$\mathbb{R}^{n \times m}$</span> where <span class="math">$m$</span> is the number of concurrent differentiation dimensions. Each row of this is a dual number, but now we can use this to easily define higher dimensional primatives.</p>
+<p>where <span class="math">$D_0$</span> is a vector in <span class="math">$\mathbb{R}^n$</span>, <span class="math">$\epsilon$</span> is a vector of dimensional signifiers and <span class="math">$\Sigma$</span> is a matrix in <span class="math">$\mathbb{R}^{n \times m}$</span> where <span class="math">$m$</span> is the number of concurrent differentiation dimensions. Each row of this is a dual number, but now we can use this to easily define higher dimensional primitives.</p>
 <p>For example, let <span class="math">$f(x) = Ax$</span>, matrix multiplication. Then, we can show with our dual number arithmetic that:</p>
 <p class="math">\[
 f(D) = A*D_0 + A*\Sigma*\epsilon
@@ -964,7 +964,7 @@ f(D) = A*D_0 + A*\Sigma*\epsilon
 <p class="math">\[
 f(D) = f(D_0) + f'(D_0)\Sigma \epsilon
 \]</p>
-<p>where <span class="math">$f'$</span> is the total derivative or the Jacobian of <span class="math">$f$</span>. This then allows our system to be highly efficient by allowing the definition of multidimensional functions, like linear algebra, to be primatives of multi-directional derivatives.</p>
+<p>where <span class="math">$f'$</span> is the total derivative or the Jacobian of <span class="math">$f$</span>. This then allows our system to be highly efficient by allowing the definition of multidimensional functions, like linear algebra, to be primitives of multi-directional derivatives.</p>
 <h2>Higher derivatives</h2>
 <p>The above techniques can be extended to higher derivatives by <em>adding more terms to the Taylor polynomial</em>, e.g.</p>
 <p class="math">\[

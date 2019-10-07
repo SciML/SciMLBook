@@ -431,7 +431,7 @@ a + b
 when the addition occurs, the Python interpreter will check the object holding
 the values and ask it for its types, and use those types to know how to compute
 the + function. For this reason, the add function in Python is rather complex
-since it needs to decode and have a version for all primative types!
+since it needs to decode and have a version for all primitive types!
 
 Not only is there runtime overhead checks in function calls due to to not being
 explicit about types, there is also a memory overhead since it is impossible
@@ -721,7 +721,7 @@ checking.
 
 ### Value types and isbits
 
-In Julia, types which can fully inferred and which are composed of primative
+In Julia, types which can fully inferred and which are composed of primitive
 or `isbits` types are value types. This means that, inside of an array, their
 values are the values of the type itself, and not a pointer to the values.
 
@@ -1072,7 +1072,7 @@ If you look closely, you will see things like:
 
 What this is saying is that it's loading and adding 4 `Float64`s at a time!
 This feature of the processor is known as SIMD: single input multiple data.
-If certain primative floating point operations, like `+` and `*`, are done
+If certain primitive floating point operations, like `+` and `*`, are done
 in succession (i.e. no inbounds checks between them!), then the processor
 can lump them together and do multiples at once. Since clock cycles have stopped
 improving while transistors have gotten smaller, this "lumping" has been a big

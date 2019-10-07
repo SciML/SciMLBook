@@ -199,7 +199,7 @@ import Base: +, *
 ```
 
 To speed up our derivative function, we can directly hardcode the derivative
-of known functions which we call *primatives*. For example, for `sin` we can
+of known functions which we call *primitives*. For example, for `sin` we can
 add a rule like:
 
 $$\sin(a + \epsilon b) = \sin(a) + \epsilon b \cos(a).$$
@@ -209,7 +209,7 @@ Base.sin(f::Dual) = Dual(sin(val(f)), cos(val(f)) * partial(f))
 ```
 
 For functions where we don't have a rule, we can recursively do dual number
-arithmetic within the function until we hit primatives where we know the derivative,
+arithmetic within the function until we hit primitives where we know the derivative,
 and then use the chain rule to propagate the information back up.
 
 Under this algebra, we can represent $a + \epsilon $ as `Dual(a, 1)`.
@@ -269,7 +269,7 @@ Now write out what $J$ means and we see that:
 
 $$w_i = \sum_j^{m} \frac{df_i}{dx_j} v_j = \nabla f_i(x) \cdot v$$
 
-**The primative action of forward-mode AD is $f'(x)v!**
+**The primitive action of forward-mode AD is $f'(x)v!**
 
 This is also known as a *Jacobian-vector product*, or *jvp* for short.
 
@@ -330,7 +330,7 @@ where $D_0$ is a vector in $\mathbb{R}^n$, $\epsilon$ is a vector of
 dimensional signifiers and $\Sigma$ is a matrix in $\mathbb{R}^{n \times m}$
 where $m$ is the number of concurrent differentiation dimensions. Each row
 of this is a dual number, but now we can use this to easily define higher
-dimensional primatives.
+dimensional primitives.
 
 For example, let $f(x) = Ax$, matrix multiplication. Then, we can show with
 our dual number arithmetic that:
@@ -346,7 +346,7 @@ $$f(D) = f(D_0) + f'(D_0)\Sigma \epsilon$$
 
 where $f'$ is the total derivative or the Jacobian of $f$. This then allows our
 system to be highly efficient by allowing the definition of multidimensional
-functions, like linear algebra, to be primatives of multi-directional
+functions, like linear algebra, to be primitives of multi-directional
 derivatives.
 
 ## Higher derivatives

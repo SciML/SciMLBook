@@ -1038,7 +1038,7 @@ A&#91;1&#93; &#61; 2.0
 <pre><code>a &#61; 2
 b &#61; 4
 a &#43; b</code></pre>
-<p>when the addition occurs, the Python interpreter will check the object holding the values and ask it for its types, and use those types to know how to compute the &#43; function. For this reason, the add function in Python is rather complex since it needs to decode and have a version for all primative types&#33;</p>
+<p>when the addition occurs, the Python interpreter will check the object holding the values and ask it for its types, and use those types to know how to compute the &#43; function. For this reason, the add function in Python is rather complex since it needs to decode and have a version for all primitive types&#33;</p>
 <p>Not only is there runtime overhead checks in function calls due to to not being explicit about types, there is also a memory overhead since it is impossible to know how much memory a value with take since that&#39;s a property of its type. Thus the Python interpreter cannot statically guerentee exact unchanging values for the size that a value would take in the stack, meaning that the variables are not stack-allocated. This means that every number ends up heap-allocated, which hopefully begins to explain why this is not as fast as C.</p>
 <p>The solution is Julia is somewhat of a hybrid. The Julia code looks like:</p>
 
@@ -1564,7 +1564,7 @@ Body::ANY
 <p>Here the type inference algorithm quickly gives up and infers to <code>Any</code>, losing all specialization and automatically switching to Python-style runtime type checking.</p>
 <h3>Type definitions</h3>
 <h3>Value types and isbits</h3>
-<p>In Julia, types which can fully inferred and which are composed of primative or <code>isbits</code> types are value types. This means that, inside of an array, their values are the values of the type itself, and not a pointer to the values.</p>
+<p>In Julia, types which can fully inferred and which are composed of primitive or <code>isbits</code> types are value types. This means that, inside of an array, their values are the values of the type itself, and not a pointer to the values.</p>
 <p>You can check if the type is a value type through <code>isbits</code>:</p>
 
 
@@ -2718,7 +2718,7 @@ L36:                                              ; preds &#61; &#37;L25
 ; └
 ; ┌ @ float.jl:395 within &#96;&#43;&#39;
 &#37;47 &#61; fadd &lt;4 x double&gt; &#37;wide.load, &#37;wide.load24</code></pre>
-<p>What this is saying is that it&#39;s loading and adding 4 <code>Float64</code>s at a time&#33; This feature of the processor is known as SIMD: single input multiple data. If certain primative floating point operations, like <code>&#43;</code> and <code>*</code>, are done in succession &#40;i.e. no inbounds checks between them&#33;&#41;, then the processor can lump them together and do multiples at once. Since clock cycles have stopped improving while transistors have gotten smaller, this &quot;lumping&quot; has been a big source of speedups in computational mathematics even though the actual <code>&#43;</code> and <code>*</code> hasn&#39;t gotten faster. Thus to get full speed we want to make sure this is utilized whenever possible, which essentially just amounts to doing type inferred loops with no branches or bounds checks in the way.</p>
+<p>What this is saying is that it&#39;s loading and adding 4 <code>Float64</code>s at a time&#33; This feature of the processor is known as SIMD: single input multiple data. If certain primitive floating point operations, like <code>&#43;</code> and <code>*</code>, are done in succession &#40;i.e. no inbounds checks between them&#33;&#41;, then the processor can lump them together and do multiples at once. Since clock cycles have stopped improving while transistors have gotten smaller, this &quot;lumping&quot; has been a big source of speedups in computational mathematics even though the actual <code>&#43;</code> and <code>*</code> hasn&#39;t gotten faster. Thus to get full speed we want to make sure this is utilized whenever possible, which essentially just amounts to doing type inferred loops with no branches or bounds checks in the way.</p>
 <h3>FMA</h3>
 <p>Modern processors have a single operation that fuses the multiplication and the addition in the operation <code>x*y&#43;z</code>, known as a <em>fused multiply-add</em> or FMA. Note that FMA has less floating point roundoff error than the two operation form. We can see this intrinsic in the resulting LLVM IR:</p>
 

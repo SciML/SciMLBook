@@ -188,7 +188,7 @@ the vectors of the differentiation directions, that is:
 
 $$d = x + v_1 \epsilon_1 + \ldots + v_m \epsilon_m$$
 
-Instead of using the primative differentiation directions $e_j$, we can instead
+Instead of using the primitive differentiation directions $e_j$, we can instead
 replace this with the mixed values. For example, the Jacobian of the example
 function can be computed in one function call to $f$ with the dual number
 input:
@@ -384,7 +384,7 @@ and thus a single application with a single partial gives the jvp.
 
 #### Note on Reverse-Mode Automatic Differentiation
 
-As noted earlier, reverse-mode automatic differentiation has its primatives
+As noted earlier, reverse-mode automatic differentiation has its primitives
 compute rows of the Jacobian in the seeded direction. This means that the
 seeded reverse-mode call with the vector $v$ computes $v^T J$, that is the
 *vector (transpose) Jacobian transpose*, or *vjp* for short. When discussing

@@ -777,7 +777,7 @@ x_{3}\\
 <p class="math">\[
 d = x + v_1 \epsilon_1 + \ldots + v_m \epsilon_m
 \]</p>
-<p>Instead of using the primative differentiation directions <span class="math">$e_j$</span>, we can instead replace this with the mixed values. For example, the Jacobian of the example function can be computed in one function call to <span class="math">$f$</span> with the dual number input:</p>
+<p>Instead of using the primitive differentiation directions <span class="math">$e_j$</span>, we can instead replace this with the mixed values. For example, the Jacobian of the example function can be computed in one function call to <span class="math">$f$</span> with the dual number input:</p>
 <p class="math">\[
 d = x + (e_1 + e_2) \epsilon_1 + e_3 \epsilon_2
 \]</p>
@@ -868,7 +868,7 @@ f(d) = f(x) + Jv \epsilon
 \]</p>
 <p>and thus a single application with a single partial gives the jvp.</p>
 <h4>Note on Reverse-Mode Automatic Differentiation</h4>
-<p>As noted earlier, reverse-mode automatic differentiation has its primatives compute rows of the Jacobian in the seeded direction. This means that the seeded reverse-mode call with the vector <span class="math">$v$</span> computes <span class="math">$v^T J$</span>, that is the <em>vector &#40;transpose&#41; Jacobian transpose</em>, or <em>vjp</em> for short. When discussing parameter estimation and adjoints, this shorthand will be introduced as a way for using a traditionally machine learning tool to accelerate traditionally scientific computing tasks.</p>
+<p>As noted earlier, reverse-mode automatic differentiation has its primitives compute rows of the Jacobian in the seeded direction. This means that the seeded reverse-mode call with the vector <span class="math">$v$</span> computes <span class="math">$v^T J$</span>, that is the <em>vector &#40;transpose&#41; Jacobian transpose</em>, or <em>vjp</em> for short. When discussing parameter estimation and adjoints, this shorthand will be introduced as a way for using a traditionally machine learning tool to accelerate traditionally scientific computing tasks.</p>
 <h3>Krylov Subspace Methods For Solving Linear Systems</h3>
 <h4>Basic Iterative Solver Methods</h4>
 <p>Now that we have direct access to quick calculations of <span class="math">$Jv$</span>, how would we use this to solve the linear system <span class="math">$Jw = v$</span> quickly? This is done through <em>iterative linear solvers</em>. These methods replace the process of solving for a factorization with, you may have guessed it, a discrete dynamical system whose solution is <span class="math">$w$</span>. To do this, what we want is some iterative process so that</p>

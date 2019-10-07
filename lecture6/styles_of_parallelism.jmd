@@ -21,7 +21,7 @@ automatic vectorization (in the world of computing, "SIMD" is synonymous with
 vectorization since it is taking specific values and instead computing on
 small vectors. That is not to be confused with "vectorization" in the sense
 of Python/R/MATLAB, which is a programming style which prefers using C-defined
-primative functions, like broadcast or matrix multiplication).
+primitive functions, like broadcast or matrix multiplication).
 
 You can check for auto-vectorization inside of the LLVM IR by looking for
 statements like:
@@ -160,7 +160,7 @@ end
 
 ### Explicit SIMD
 
-If you want to pack the vectors yourself, then primatives for doing so from
+If you want to pack the vectors yourself, then primitives for doing so from
 within Julia are available in SIMD.jl. This is for "real" performance warriors.
 
 ### Summary of SIMD
@@ -522,7 +522,7 @@ computer science speak is simply higher dimensional linear algebra. To do this,
 they internally utilize a BFloat16 type, which is a 16-bit floating point number
 with the same exponent size as a Float32 with an 8-bit significand. This means
 that computations are highly prone to *catastrophic cancellation*. This
-computational device only works because BFloat16 has primative operations for
+computational device only works because BFloat16 has primitive operations for
 FMA which allows 32-bit-like accuracy of multiply-add operations, and thus
 computations which are only dot products (linear algebra) end up okay. Thus
 this is simply a GPU-like device which has gone further to completely specialize
@@ -561,12 +561,12 @@ then computes and returns the result.
 At a lower level, this is done by `Distributed.@spawn`ing jobs, or using a
 `remotecall` and `fetch`ing the result.
 [ParallelDataTransfer.jl](https://github.com/ChrisRackauckas/ParallelDataTransfer.jl)
-gives an extended set of primative message passing operations.
+gives an extended set of primitive message passing operations.
 
 ### SharedArrays, Elemental, and DArrays
 
 Because array operations are a standard way to compute in scientific computing,
-there are higher level primatives to help with message passing. A `SharedArray`
+there are higher level primitives to help with message passing. A `SharedArray`
 is an array which acts like a shared memory device. This means that every change
 to a `SharedArray` causes message passing to keep them in sync, and thus this
 should be used with a performance caution.
