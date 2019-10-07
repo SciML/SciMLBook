@@ -96,6 +96,7 @@ and develop a high performance implementation. Some examples include:
 - Parallelization of data analysis methods
 - Type-generic implementations of sparse linear algebra methods
 - A fast regex library
+- Math library primitives (exp, log, etc.)
 
 Another possibility is to work on state-of-the-art performance engineering.
 This would be implementing a new auto-parallelization or performance enhancement.
