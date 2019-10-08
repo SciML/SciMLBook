@@ -39,8 +39,9 @@ Relaxed Quasi-Newton is the method:
 $$x_{n+1} = x_n - \alpha \left(\frac{dg}{dx}(x_0)\right)^{-1} g(x_n)$$
 
 Argue that for some sufficiently small $\alpha$ that the Quasi-Newton iterations
-will be stable if the eigenvalues of $\left(\frac{dg}{dx}(x_0)\right)^{-1} g(x_n)$
-are all positive for every $x$.
+will be stable if the eigenvalues of
+$(\left(\frac{dg}{dx}(x_0)\right)^{-1} g(x_n))^\prime$ are all positive for
+every $x$.
 
 (Technically, these assumptions can be greatly relaxed, but weird cases arise.
 When $x \in \mathbb{C}$, this holds except on some set of Lebesgue measure zero.
