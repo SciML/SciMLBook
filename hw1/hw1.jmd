@@ -39,10 +39,12 @@ Relaxed Quasi-Newton is the method:
 $$x_{n+1} = x_n - \alpha \left(\frac{dg}{dx}(x_0)\right)^{-1} g(x_n)$$
 
 Argue that for some sufficiently small $\alpha$ that the Quasi-Newton iterations
-will be stable.
+will be stable if the eigenvalues of $\left(\frac{dg}{dx}(x_0)\right)^{-1} g(x_n)$
+are all positive for every $x$.
 
-(Technically, when $x \in \mathbb{C}$, this holds except on some set of Lebesgue
-measure zero. Feel free to explore this.)
+(Technically, these assumptions can be greatly relaxed, but weird cases arise.
+When $x \in \mathbb{C}$, this holds except on some set of Lebesgue measure zero.
+Feel free to explore this.)
 
 ### Part 4
 
@@ -127,9 +129,18 @@ for what column to modify.)
 ### Part 3
 
 Multithread your bifurcation graph generator by performing different steady
-state calcuations on different threads. Does your timing improve? Why?
+state calcuations on different threads. Does your timing improve? Why? Be
+careful and check to make sure you have more than 1 thread!
 
 ### Part 4
 
 Multiprocess your bifurcation graph generator first by using `pmap`, and then
-by using `@distributed`. Does your timing improve? Why?
+by using `@distributed`. Does your timing improve? Why? Be careful to add
+processes before doing the distributed call.
+
+(Note: You may need to change your implementation around to be allocating
+differently in order for it to be compatible with multiprocessing!)
+
+### Part 5
+
+Which method is the fastest? Why?
