@@ -27,7 +27,7 @@ However, since it's relative, this value changes as we change our reference valu
 Thus issues with *roundoff error* come when one subtracts out the higher digits.
 For example, $(x + \epsilon) - x$ should just be $\epsilon$ if there was no
 roundoff error, but if $\epsilon$ is small then this kicks in. If $x = 1$
-and $\epsilon$ is of size around $10^{-10}$, then $x+ \epslion$ is correct for
+and $\epsilon$ is of size around $10^{-10}$, then $x+ \epsilon$ is correct for
 10 digits, dropping off the smallest 10 due to error in the addition to $1$.
 But when you subtract off $x$, you don't get those digits back, and thus you
 only have 6 digits of $\epsilon$ correct.
@@ -100,12 +100,12 @@ $$f(x+ih) = f(x) + f'(x)ih + \mathcal{O}(h^2)$$
 
 which we can re-arrange as:
 
-$$if'(x) = \frac{f(x+ih) - f(x)}{h} + \mathcal{O}(h^2)$$
+$$if'(x) = \frac{f(x+ih) - f(x)}{h} + \mathcal{O}(h)$$
 
 Since $x$ is real and $f$ is real-valued on the reals, $if'$ is purely imaginary.
 So let's take the imaginary parts of both sides:
 
-$$f'(x) = \frac{Im(f(x+ih))}{h} + \mathcal{O}(h^2)$$
+$$f'(x) = \frac{Im(f(x+ih))}{h} + \mathcal{O}(h)$$
 
 since $Im(f(x)) = 0$ (since it's real valued!). Thus with a sufficiently small
 choice of $h$, this is the *complex step differentiation* formula for calculating

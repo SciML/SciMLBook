@@ -396,8 +396,16 @@ to create a stiff ordinary differential equation solver, looking at different
 aspects of Jacobian computations and linear solving and the effects that they
 have.
 
-## Lecture 10: Parameter Estimation, Learning, and Inverse Problems
+## Lecture 10: Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems
 
-## Lecture 11: Neural Networks and Neural ODEs
+- [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems](https://mitmath.github.io/18337/lecture10/estimation_identification)
+
+Now that we have models, how do you fit the models to data? This lecture goes
+through the basic shooting method for parameter estimation, showcases how
+it's equivalent to training neural networks, and gives an in-depth discussion
+of how reverse-mode automatic differentiation is utilized in the training
+process for the efficient calculation of gradients.
+
+## Lecture 11: Adjoint Problems and Neural ODEs
 
 ## Lecture 12: Discretizations of Partial Differential Equations and Convolutional Neural Networks

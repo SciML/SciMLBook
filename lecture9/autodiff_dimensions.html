@@ -711,7 +711,7 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 </pre>
 
 
-<p>Thus issues with <em>roundoff error</em> come when one subtracts out the higher digits. For example, <span class="math">$(x + \epsilon) - x$</span> should just be <span class="math">$\epsilon$</span> if there was no roundoff error, but if <span class="math">$\epsilon$</span> is small then this kicks in. If <span class="math">$x = 1$</span> and <span class="math">$\epsilon$</span> is of size around <span class="math">$10^{-10}$</span>, then <span class="math">$x+ \epslion$</span> is correct for 10 digits, dropping off the smallest 10 due to error in the addition to <span class="math">$1$</span>. But when you subtract off <span class="math">$x$</span>, you don&#39;t get those digits back, and thus you only have 6 digits of <span class="math">$\epsilon$</span> correct.</p>
+<p>Thus issues with <em>roundoff error</em> come when one subtracts out the higher digits. For example, <span class="math">$(x + \epsilon) - x$</span> should just be <span class="math">$\epsilon$</span> if there was no roundoff error, but if <span class="math">$\epsilon$</span> is small then this kicks in. If <span class="math">$x = 1$</span> and <span class="math">$\epsilon$</span> is of size around <span class="math">$10^{-10}$</span>, then <span class="math">$x+ \epsilon$</span> is correct for 10 digits, dropping off the smallest 10 due to error in the addition to <span class="math">$1$</span>. But when you subtract off <span class="math">$x$</span>, you don&#39;t get those digits back, and thus you only have 6 digits of <span class="math">$\epsilon$</span> correct.</p>
 <p>Let&#39;s see this in action:</p>
 
 
@@ -722,7 +722,7 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 
 
 <pre class="output">
-ϵ &#61; 7.79267345966254e-11
+ϵ &#61; 5.7848124379111953e-11
 </pre>
 
 
@@ -733,7 +733,7 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 
 
 <pre class="output">
-1 &#43; ϵ &#61; 1.0000000000779268
+1 &#43; ϵ &#61; 1.0000000000578482
 </pre>
 
 
@@ -745,7 +745,7 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 
 
 <pre class="output">
--4.154641925766444e-17
+-4.631898182815095e-17
 </pre>
 
 
@@ -793,11 +793,11 @@ f(x+ih) = f(x) + f'(x)ih + \mathcal{O}(h^2)
 \]</p>
 <p>which we can re-arrange as:</p>
 <p class="math">\[
-if'(x) = \frac{f(x+ih) - f(x)}{h} + \mathcal{O}(h^2)
+if'(x) = \frac{f(x+ih) - f(x)}{h} + \mathcal{O}(h)
 \]</p>
 <p>Since <span class="math">$x$</span> is real and <span class="math">$f$</span> is real-valued on the reals, <span class="math">$if'$</span> is purely imaginary. So let&#39;s take the imaginary parts of both sides:</p>
 <p class="math">\[
-f'(x) = \frac{Im(f(x+ih))}{h} + \mathcal{O}(h^2)
+f'(x) = \frac{Im(f(x+ih))}{h} + \mathcal{O}(h)
 \]</p>
 <p>since <span class="math">$Im(f(x)) = 0$</span> &#40;since it&#39;s real valued&#33;&#41;. Thus with a sufficiently small choice of <span class="math">$h$</span>, this is the <em>complex step differentiation</em> formula for calculating the derivative.</p>
 <p>But to understand the computational advantage, recal that <span class="math">$x$</span> is pure real, and thus <span class="math">$x+ih$</span> is an imaginary number where <strong>the <span class="math">$h$</span> never directly interacts with <span class="math">$x$</span></strong> since a complex number is a two dimensional number where you keep the two pieces separate. Thus there is no numerical cancellation by using a small value of <span class="math">$h$</span>, and thus, due to the relative precision of floating point numbers, both the real and imaginary parts will be computed to &#40;approximately&#41; 16 digits of accuracy for any choice of <span class="math">$h$</span>.</p>
@@ -868,7 +868,7 @@ partial &#40;generic function with 1 method&#41;
 
 
 <pre class="output">
-* &#40;generic function with 357 methods&#41;
+* &#40;generic function with 351 methods&#41;
 </pre>
 
 
@@ -997,7 +997,7 @@ f(x + \epsilon v) = f(x) + \epsilon \left[ \sum_i (\partial_i f)(x) v_i \right] 
           <div class="footer"><p>
           Published from <a href="autodiff_dimensions.jmd">autodiff_dimensions.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-10-05.
+           on 2019-10-09.
           <p></div>
 
 
