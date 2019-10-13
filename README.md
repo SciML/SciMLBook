@@ -387,6 +387,16 @@ mode automatic differentiation to setup future studies uses of the technique.
 - [Forward-Mode AD via High Dimensional Algebras](https://mitmath.github.io/18337/lecture9/autodiff_dimensions)
 - [Solving Stiff Ordinary Differential Equations](https://mitmath.github.io/18337/lecture9/stiff_odes)
 
+#### Additional Readings on Convergence of Newton's Method
+
+- [Newton's Method](https://link.springer.com/chapter/10.1007%2F978-1-4612-0701-6_8)
+- [Relaxed Newton's Method](https://pdfs.semanticscholar.org/1844/34b366f337972aa94a601fabd251d0baf62f.pdf)
+- [Convergence of Pure and Relaxed Newton Methods](https://www.sciencedirect.com/science/article/pii/S00243795130067820)
+- [Smale's Alpha Theory for Newton Convergence](http://cswiercz.info/2016/01/20/narc-talk.html)
+- [alphaCertified: certifying solutions to polynomial systems](https://arxiv.org/abs/1011.1091)
+- [Improved convergence theorem for Newton](https://arxiv.org/ftp/arxiv/papers/1503/1503.03543.pdf)
+- [Generalizations of Newton's Method](https://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFractals.pdf)
+
 Solving stiff ordinary differential equations, especially those which arise
 from partial differential equations, are the common bottleneck of scientific
 computing. The largest-scale scientific computing models are generally using
