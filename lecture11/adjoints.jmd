@@ -144,11 +144,63 @@ derivatve.
 Given our previous discussions on performance, you should be horrified with
 how this approach handles scalar values. Each `TrackedReal` holds as
 `Tracked{T}` which holds a `Call`, not a `Call{F,As<:Tuple}`, and thus it's not
-strictly typed. 
+strictly typed. Because it's not strictly typed, this implies that every single
+operation is going to cause heap allocations. If you measure this in PyTorch,
+TensorFlow Eager, Tracker, etc. you get around 500ns-2ms of overhead. This
+means that a 2ns `+` operation becomes... >500ns! Oh my!
+
+This is not the only issue with tracing. Another issue is that the trace is
+value-dependent, meaning that every new value can build a new trace. Thus one
+cannot easily JIT compile a trace because it'll be different for every gradient
+calculation (you can compile it, but you better make sure the compile times
+are short!). Lastly, the Wengert list can be much larger than the code itself.
+For example, if you trace through a loop that is `for i in 1:100000`, then the
+trace will be huge, even if the function is relatively simple.
+
+To avoid these issues, another version of reverse-mode automatic differentiation
+is *source-to-source* transformations. In order to do source code transformations,
+you need to know how to transform all language constructs via the reverse pass.
+This can be quite difficult (what is the "adjoint" of `lock`?), but when worked
+out this has a few benefits. First of all, you do not have to track values,
+meaning stack-allocated values can stay on the stack. Additionally, you can
+JIT compile one backpass because you have a single function used for all backpasses.
+Lastly, you don't need to unroll you loops! Instead, which each branch you'd
+need to insert some data structure to recall the values used from the forward
+pass (in order to invert in the right directions). However, that can be much
+more lightweight than a tracking pass.
+
+This can be a difficult problem to do on a general programming language. In general
+it needs a strong programatic representation to use as a compute graph. Google's
+engineers did an analysis [when choosing Swift for TensorFlow](https://github.com/tensorflow/swift/blob/master/docs/WhySwiftForTensorFlow.md)
+and narrowed it down to either Swift or Julia due to their internal graph
+structures. Thus, it should be no surprise that the modern source-to-source
+AD systems are Zygote.jl for Julia, and Swift for TensorFlow in Swift. Additionally,
+older AD systems, like Tampenade, ADIFOR, and TAF, all for Fortran, were
+source-to-source AD systems.
 
 ## Derivation of Reverse Mode Rules: Adjoints and Implicit Function Theorem
 
+In order to require the least amount of work from our AD system, we need to
+be able to derive the adjoint rules at the highest level possible. Here are
+a few well-known cases to start understanding. These next examples are from
+[Steven Johnson's resource](https://math.mit.edu/~stevenj/18.336/adjoint.pdf).
+
 ### Adjoint of Linear Solve
+
+Let's say we have the function $A(p)x=b(p)$, i.e. this is the function that is given
+by the linear solving process, and we want to calculate the gradients of a cost
+function $g(x,p)$. To evaluate the gradient directly, we'd calculate:
+
+$$\frac{dg}{dp} = g_p + g_x x_p$$
+
+$x_p$ is the derivative of each value of $x$ with respect to each parameter $p$,
+and thus it's an $M \times P$ matrix (a Jacobian). Since $g$ is a small cost
+function, $g_p$ and $g_x$ are easy to compute, but $x_p$ is given by:
+
+$$x_{p_i} = A^{-1}(b_{p_i}-A_{p_i}x)$$
+
+and so this is $P$ $M \times M$ linear solves, which is expensive! However,
+if we multiply by
 
 ### Adjoint of Nonlinear Solve
 
