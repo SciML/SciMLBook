@@ -594,6 +594,17 @@ However, since optimization needs gradients, reverse-mode definitely has a
 place in the standard toolchain which is why backproogation is so central to
 machine learning.
 
+### Side Note on Mixed Mode
+
+Interestingly, one can find cases where mixing the forward and reverse mode
+results would give an asymtopically better result. For example, if a Jacobian
+was non-zero in only the first 3 rows and first 3 columns, then sparse forward
+mode would still require N partials and reverse mode would require M seeds.
+However, one forward mode call of 3 partials and one reverse mode call of 3
+seeds would calculate all three rows and columns with $\mathcal{O}(1)$ work,
+as opposed to $\mathcal{O}(N)$ or $\mathcal{O}(M)$. Exactly how to make use of
+this insight in an automated manner is an open research question.
+
 ### Forward-Over-Reverse and Hessian-Free Products
 
 Using this knowledge, we can also develop quick ways for computing the Hessian.
