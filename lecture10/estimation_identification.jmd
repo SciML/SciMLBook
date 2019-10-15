@@ -551,6 +551,30 @@ thus a special case where $y$ is scalar, and thus the resulting Jacobian is
 just a single row, and therefore we set the seed equal to $1$ to compute the
 unscaled gradient.
 
+### Multi-Seeding
+
+Similarly to forward-mode having a dual number with multiple simultanious
+derivatives through partials $d = x + v_1 \epsilon_1 + \ldots + v_m \epsilon_m$,
+one can see that multi-seeding is an option in reverse-mode AD by, instead of
+pulling back a matrix instead of a row vector, where each row is a direction.
+Thus the matrix $A = [v_1 v_2 \ldots v_n]^T$ evaluated as $\mathcal{B}_f^x(A)$
+is the equivalent operation to the forward-mode $f(d)$ for generalized
+multivariate multiseeded reverse-mode automatic differentiation. One should take
+care to recognize the Jacobian as a generalized linear operator in this case
+and ensure that the shapes in the program correctly handle this storage of the
+reverse seed. When linear, this will automatically make use of BLAS3 operations,
+making it an efficient form for neural networks.
+
+### Sparse Reverse Mode AD
+
+Since the Jacobian is built row-by-row with reverse mode AD, the sparse
+differentiation disucssion from forward-mode AD applies similarly but to the
+transpose. Therefore, in order to perform sparse reverse mode automatic
+differentiation, one would build up a connectivity graph of the columns, and
+perform a coloring algorithm on this graph. The seeds of the reverse call,
+$v_i$, would then be the color vectors, which would compute compressed rows,
+that are then decompressed similarly to the forward-mode case.
+
 ### Forward Mode vs Reverse Mode
 
 Notice that a pullback of a single scalar gives the gradient of a function,

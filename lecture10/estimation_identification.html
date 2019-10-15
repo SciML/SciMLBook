@@ -992,6 +992,10 @@ exp(x+\epsilon) = exp(x) + exp(x)\epsilon
 v_i^T J = e_i^T J
 \]</p>
 <p>pulls computes a row of the Jacobian. There, if we had a vector function <span class="math">$y=f(x)$</span>, the pullback <span class="math">$\mathcal{B}_f^x(e_i)$</span> is the row of the Jacobian <span class="math">$f'(x)$</span>. Concatenating these is thus a way to build a full Jacobian. The gradient is thus a special case where <span class="math">$y$</span> is scalar, and thus the resulting Jacobian is just a single row, and therefore we set the seed equal to <span class="math">$1$</span> to compute the unscaled gradient.</p>
+<h3>Multi-Seeding</h3>
+<p>Similarly to forward-mode having a dual number with multiple simultanious derivatives through partials <span class="math">$d = x + v_1 \epsilon_1 + \ldots + v_m \epsilon_m$</span>, one can see that multi-seeding is an option in reverse-mode AD by, instead of pulling back a matrix instead of a row vector, where each row is a direction. Thus the matrix <span class="math">$A = [v_1 v_2 \ldots v_n]^T$</span> evaluated as <span class="math">$\mathcal{B}_f^x(A)$</span> is the equivalent operation to the forward-mode <span class="math">$f(d)$</span> for generalized multivariate multiseeded reverse-mode automatic differentiation. One should take care to recognize the Jacobian as a generalized linear operator in this case and ensure that the shapes in the program correctly handle this storage of the reverse seed. When linear, this will automatically make use of BLAS3 operations, making it an efficient form for neural networks.</p>
+<h3>Sparse Reverse Mode AD</h3>
+<p>Since the Jacobian is built row-by-row with reverse mode AD, the sparse differentiation disucssion from forward-mode AD applies similarly but to the transpose. Therefore, in order to perform sparse reverse mode automatic differentiation, one would build up a connectivity graph of the columns, and perform a coloring algorithm on this graph. The seeds of the reverse call, <span class="math">$v_i$</span>, would then be the color vectors, which would compute compressed rows, that are then decompressed similarly to the forward-mode case.</p>
 <h3>Forward Mode vs Reverse Mode</h3>
 <p>Notice that a pullback of a single scalar gives the gradient of a function, while the <em>pushforward</em> using forward-mode of a dual gives a directional derivative. Forward mode computes columns of a Jacobian, while reverse mode computes gradients &#40;rows of a Jacobian&#41;. Therefore, the relative efficiency of the two approaches is based on the size of the Jacobian. If <span class="math">$f:\mathbb{R}^n \rightarrow \mathbb{R}^m$</span>, then the Jacobian is of size <span class="math">$m \times n$</span>. If <span class="math">$m$</span> is much smaller than <span class="math">$n$</span>, then computing by each row will be faster, and thus use reverse mode. In the case of a gradient, <span class="math">$m=1$</span> while <span class="math">$n$</span> can be large, leading to this phonomena. Likewise, if <span class="math">$n$</span> is much smaller than <span class="math">$m$</span>, then computing by each column will be faster. We will see shortly the reverse mode AD has a high overhead with respect to forward mode, and thus if the values are relatively equal &#40;or <span class="math">$n$</span> and <span class="math">$m$</span> are small&#41;, forward mode is more efficient.</p>
 <p>However, since optimization needs gradients, reverse-mode definitely has a place in the standard toolchain which is why backproogation is so central to machine learning.</p>
@@ -1015,7 +1019,7 @@ p_{i+1} = p_i - H(p_i)^{-1} \frac{dC(p_i)}{dp}
           <div class="footer"><p>
           Published from <a href="estimation_identification.jmd">estimation_identification.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-10-09.
+           on 2019-10-15.
           <p></div>
 
 
