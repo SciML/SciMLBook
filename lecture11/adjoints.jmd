@@ -57,7 +57,7 @@ Therefore, if one can transform the program structure into a list of composed
 functions, then reverse-mode AD is the successive application of pullbacks
 going in the reverse direction:
 
-\mathcal{B}_{f}^{x}(A)=\mathcal{B}_{f^{1}}^{x}\left(\ldots\left(\mathcal{\mathcal{B}}_{f^{L-1}}^{f^{L-2}(f^{L-3}(\ldots f^{1}(x)\ldots))}\left(\mathcal{B}_{f^{L}}^{f^{L-1}(f^{L-2}(\ldots f^{1}(x)\ldots))}(A)\right)\right)\ldots\right)
+$$\mathcal{B}_{f}^{x}(A)=\mathcal{B}_{f^{1}}^{x}\left(\ldots\left(\mathcal{\mathcal{B}}_{f^{L-1}}^{f^{L-2}(f^{L-3}(\ldots f^{1}(x)\ldots))}\left(\mathcal{B}_{f^{L}}^{f^{L-1}(f^{L-2}(\ldots f^{1}(x)\ldots))}(A)\right)\right)\ldots\right)$$
 
 Recall that the pullback $\mathcal{B}_f^x(\overline{y})$ requires knowing:
 
@@ -193,7 +193,7 @@ function $g(x,p)$. To evaluate the gradient directly, we'd calculate:
 
 $$\frac{dg}{dp} = g_p + g_x x_p$$
 
-$x_p$ is the derivative of each value of $x$ with respect to each parameter $p$,
+where $x_p$ is the derivative of each value of $x$ with respect to each parameter $p$,
 and thus it's an $M \times P$ matrix (a Jacobian). Since $g$ is a small cost
 function, $g_p$ and $g_x$ are easy to compute, but $x_p$ is given by:
 
@@ -202,16 +202,179 @@ $$x_{p_i} = A^{-1}(b_{p_i}-A_{p_i}x)$$
 and so this is $P$ $M \times M$ linear solves, which is expensive! However,
 if we multiply by
 
+$$\lambda^{T} = g_x A^{-1}$$
+
+then we obtain
+
+$$\frac{dg}{dp}\vert_{f=0} = g_p - \lambda^T f_p = g_p - \lambda^T (A_p x - b_p)$$
+
+which is an alternative formulation of the derivative at the solution value.
+However, in this case there is no computational benefit to this reformulation.
+
 ### Adjoint of Nonlinear Solve
+
+Now let's look at some $f(x,p)=0$ nonlinear solving. Differentiating by $p$
+gives us:
+
+$$f_x x_p + f_p = 0$$
+
+and thus $x_p = -f_x^{-1}f_p$. Therefore, using our cost function we write:
+
+$$\frac{dg}{dp} = g_p + g_x x_p = g_p - g_x \left(f_x^{-1} f_p \right)$$
+
+or
+
+$$\frac{dg}{dp} = g_p - \left(g_x f_x^{-1} \right) f_p$$
+
+Since $g_x$ is $1 \times M$, $f_x^{-1}$ is $M \times M$, and $f_p$ is $M \times P$,
+this grouping changes the problem gets rid of the size $MP$ term.
+
+As is normal with backpasses, we solve for $x$ through the forward pass however
+we like, and then for the backpass solve for
+
+$$f_x^T \lambda = g_x^T$$
+
+to obtain
+
+$$\frac{dg}{dp}\vert_{f=0} = g_p - \lambda^T f_p$$
+
+which does the calculation without ever building the size $M \times MP$ term.
 
 ### Adjoint of Ordinary Differential Equations
 
+We with to solve for some cost function $G(u,p)$ evaluated throughout the
+differential equation, i.e.:
+
+$$G(u,p) = G(u(p)) = \int_{t_0}^T g(u(t,p))dt$$
+
+To derive this adjoint, intoduce the Legrange multiplier $\lambda$ to form:
+
+$$I(p) = G(p) - \int_{t_0}^T \lambda^\ast (u^\prime - f(u,p,t))dt$$
+
+Since $u^\prime = f(u,p,t)$, this is the mathematician's trick of adding zero,
+so then we have that
+
+$$\frac{dG}{dp} = \frac{dI}{dp} = \int_{t_0}^T (g_p + g_u s)dt - \int_{t_0}^T \lambda^\ast (s^\prime f_u s - f_p)dt$$
+
+for $s_i$ being the sensitivity of the ith variable. After applying integration
+by parts to $\lambda^\ast s^\prime$, we require that
+
+$$\lambda^\prime = -\frac{df}{du}^\ast \lambda - \left(\frac{dg}{du} \right)^\ast$$
+$$\lambda(T) = 0$$
+
+to zero out a term get
+
+$$\frac{dG}{dp} = \lambda^\ast(t_0)s(t_0) + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt$$
+
+If $G$ is discrete, then it can be represented via the Dirac delta:
+
+$$G(u,p) = \int_{t_0}^T \sum_{i=1}^N \Vert d_i - u(t_i,p)\Vert^2 \delta(t_i - t)dt$$
+
+in which case
+
+$$g_u(t_i) = 2(d_i - u(t_i,p))$$
+
+at the data points $(t_i,d_i)$. Therefore, the derivative of an ODE solution
+with respect to a cost function is given by solving for $\lambda^\ast$ using an
+ODE for $\lambda^T$ in reverse time, and then using that to calculate $\frac{dG}{dp}$.
+Note that $\frac{dG}{dp}$ can be calculated simultaniously by appending a single
+value to the reverse ODE, since we can simply define the new ODE term as
+$g_p + \lambda^\ast f_p$, which would then calculate the integral on the fly
+(ODE integration is just... integration!).
+
 ### Complexities of Implementing ODE Adjoints
 
-### Neural Ordinary Differential Equations
+The image below explains the dillema:
+
+![](https://user-images.githubusercontent.com/1814174/66882662-4d741a00-ef99-11e9-9233-4d6804fec2ec.PNG)
+
+Essentially, the whole problem is that we need to solve the ODE
+
+$$\lambda^\prime = -\frac{df}{du}^\ast \lambda - \left(\frac{dg}{du} \right)^\ast$$
+$$\lambda(T) = 0$$
+
+in reverse, but $\frac{df}{du}$ is defined by $u(t)$ which is a value only
+computed in the forward pass (the forward pass is embedded within the backpass!).
+Thus we need to be able to retrieve the value of $u(t)$ to get the Jacobian
+on-demand. There are three ways which this can be done:
+
+1. If you solve the reverse ODE $u^\prime = f(u,p,t)$ backwards in time,
+   mathematically it'll give equivalent values. Computation-wise, this means
+   that you can append $u(t)$ to $\lambda(t)$ (to $\frac{dG}{dp}$) to calculate
+   all terms at the same time with a single reverse pass ODE. However,
+   numerically this is unstable and thus not always recommended (ODEs are
+   reversable, but ODE solver methods are not necessarily going to generate the
+   same exact values or trajectories in reverse!)
+2. If you solve the forward ODE and receieve a continuous solution $u(t)$, you
+   can interpolate it to retrieve the values at any given the time reverse pass
+   needs the $\frac{df}{du}$ Jacobian. This is fast but memory-intensive.
+3. Every time you need a value $u(t)$ during the backpass, you re-solve the
+   forward ODE to $u(t)$. This is expensive! Thus one can instead use
+   *checkpoints*, i.e. save at finitely many time points during the forward
+   pass, and use those as starting points for the $u(t)$ calculation.
+
+Alternative strategies can be investigated, such as an interpolation which
+stores values in a compressed form.
+
+### The vjp and Neural Ordinary Differential Equations
+
+It is here that we can note that, if $f$ is a function defined by a neural
+network, we arrive at the *neural ordinary differential equation*. This adjoint
+method is thus the backpropogation method for the neural ODE. However, the
+backpass
+
+$$\lambda^\prime = -\frac{df}{du}^\ast \lambda - \left(\frac{dg}{du} \right)^\ast$$
+$$\lambda(T) = 0$$
+
+can be improved by noticing $\frac{df}{du}^\ast \lambda$ is a vjp, and thus it
+can be calculated using $\mathcal{B}_f^{u(t)}(\lambda^\ast)$, i.e. reverse-mode
+AD on the function $f$. If $f$ is a neural network, this means that the reverse
+ODE is defined through successive backpropogation passes of that neural network.
+The result is a derivative with respect to the cost function of the parameters
+defining $f$ (either a model or a neural network), which can then be used to
+fit the data ("train").
 
 ## Alternative "Training" Strategies
 
+Those are the "brute force" training methods which simply use $u(t,p)$ evaluations
+to calculate the cost. However, it is worth noting that there are a few better
+strategies that one can employ in the case of dynamical models.
+
 ### Multiple Shooting Techniques
 
+Instead of shooting just from the beginning, one can instead shoot from multiple
+points in time:
+
+![](https://user-images.githubusercontent.com/1814174/66883548-561a1f80-ef9c-11e9-9ce1-0b6b55c950f9.PNG)
+
+Of course, one won't know what the "initial condition in the future" is, but one
+can instead make that a parameter. By doing so, each interval can be solved
+independently, and one can then add to the cost function that the end of one
+interval must match up with the beginning of the other. This can make the
+integration more robust, since shooting with incorrect parameters over long
+time spans can give massive gradients which makes it hard to hone in on the
+correct values.
+
 ### Collocation Methods
+
+If the data is dense enough, one can fit a curve through the points, such as a
+spline:
+
+![](https://user-images.githubusercontent.com/1814174/66883762-fc662500-ef9c-11e9-91c7-c445e32d120f.PNG)
+
+If that's the case, one can use the fit spline in order to estimate the derivative
+at each point. Since the ODE is defined as $u^\prime = f(u,p,t)$, one then then
+use the cost function
+
+$$C(p) = \sum_{i=1}^N \Vert\tilde{u}^{\prime}(t_i) - f(u(t_i),p,t)\Vert$$
+
+where $\tilde{u}^{\prime}(t_i)$ is the estimated derivative at the time point
+$t_i$. Then one can fit the parameters to ensure this holds. This method can
+be extremely fast since the ODE doesn't ever have to be solved! However, note
+that this is not able to compensate for error accumulation, and thus early
+errors are not accounted for in the later parts of the data. This means that
+the integration won't necessarily match the data even if this fit is "good"
+if the data points are too far apart, a property that is not true with fitting.
+Thus, this is usually done as part of a *two-stage method*, where the starting
+stage uses collocation to get initial parameters which is then completed with
+a shooting method.
