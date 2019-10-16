@@ -416,6 +416,14 @@ it's equivalent to training neural networks, and gives an in-depth discussion
 of how reverse-mode automatic differentiation is utilized in the training
 process for the efficient calculation of gradients.
 
-## Lecture 11: Adjoint Problems and Neural ODEs
+## Lecture 11: Differentiable Programming and Neural Differential Equations
 
-## Lecture 12: Discretizations of Partial Differential Equations and Convolutional Neural Networks
+- [Differentiable Programming and Neural Differential Equations](https://mitmath.github.io/18337/lecture11/adjoints)
+
+Given the efficiency of reverse-mode automatic differentiation, we want to see
+how far we can push this idea. How could one implement reverse-mode AD without
+computational graphs, and include problems like nonlinear solving and ordinary
+differential equations? Are there methods other than shooting methods that can
+be utilized for parameter fitting? This lecture will explore where reverse-mode
+AD intersects with scientific modeling, and where machine learning begins to
+enter scientific computing.
