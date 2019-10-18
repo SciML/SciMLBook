@@ -37,8 +37,8 @@ defined our differentiation structure was on a compute graph. Tensorflow is a
 modern example of this approach, where a user must define variables and
 operations in a graph language (that's embedded into Python, R, Julia, etc.),
 and then execution on the graph is easy to differentiate. This has the advantage
-of being a simplified and controlled form, which means that not only differetiation
-tranformations are possible, but also things like automatic parallelization.
+of being a simplified and controlled form, which means that not only differentiation
+transformations are possible, but also things like automatic parallelization.
 However, many see directly writing a (static) computation graph as a barrier
 for practical use since it requires completely rewriting all existing programs
 to this structure.
@@ -164,13 +164,13 @@ This can be quite difficult (what is the "adjoint" of `lock`?), but when worked
 out this has a few benefits. First of all, you do not have to track values,
 meaning stack-allocated values can stay on the stack. Additionally, you can
 JIT compile one backpass because you have a single function used for all backpasses.
-Lastly, you don't need to unroll you loops! Instead, which each branch you'd
+Lastly, you don't need to unroll your loops! Instead, which each branch you'd
 need to insert some data structure to recall the values used from the forward
 pass (in order to invert in the right directions). However, that can be much
 more lightweight than a tracking pass.
 
 This can be a difficult problem to do on a general programming language. In general
-it needs a strong programatic representation to use as a compute graph. Google's
+it needs a strong programmatic representation to use as a compute graph. Google's
 engineers did an analysis [when choosing Swift for TensorFlow](https://github.com/tensorflow/swift/blob/master/docs/WhySwiftForTensorFlow.md)
 and narrowed it down to either Swift or Julia due to their internal graph
 structures. Thus, it should be no surprise that the modern source-to-source
@@ -247,7 +247,7 @@ differential equation, i.e.:
 
 $$G(u,p) = G(u(p)) = \int_{t_0}^T g(u(t,p))dt$$
 
-To derive this adjoint, intoduce the Legrange multiplier $\lambda$ to form:
+To derive this adjoint, introduce the Lagrange multiplier $\lambda$ to form:
 
 $$I(p) = G(p) - \int_{t_0}^T \lambda^\ast (u^\prime - f(u,p,t))dt$$
 
@@ -284,7 +284,7 @@ $g_p + \lambda^\ast f_p$, which would then calculate the integral on the fly
 
 ### Complexities of Implementing ODE Adjoints
 
-The image below explains the dillema:
+The image below explains the dilemma:
 
 ![](https://user-images.githubusercontent.com/1814174/66882662-4d741a00-ef99-11e9-9233-4d6804fec2ec.PNG)
 
@@ -303,9 +303,9 @@ on-demand. There are three ways which this can be done:
    that you can append $u(t)$ to $\lambda(t)$ (to $\frac{dG}{dp}$) to calculate
    all terms at the same time with a single reverse pass ODE. However,
    numerically this is unstable and thus not always recommended (ODEs are
-   reversable, but ODE solver methods are not necessarily going to generate the
+   reversible, but ODE solver methods are not necessarily going to generate the
    same exact values or trajectories in reverse!)
-2. If you solve the forward ODE and receieve a continuous solution $u(t)$, you
+2. If you solve the forward ODE and receive a continuous solution $u(t)$, you
    can interpolate it to retrieve the values at any given the time reverse pass
    needs the $\frac{df}{du}$ Jacobian. This is fast but memory-intensive.
 3. Every time you need a value $u(t)$ during the backpass, you re-solve the
