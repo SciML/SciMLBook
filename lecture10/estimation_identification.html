@@ -670,7 +670,7 @@ C(p) = \Vert f(p) - y \Vert
 \]</p>
 <p>where <span class="math">$C(p): \mathbb{R}^n \rightarrow R$</span> is a function that returns a scalar. The shooting method then directly optimizes this cost function by having the optimizer generate a data given new choices of <span class="math">$p$</span>.</p>
 <h3>Methods for Optimization</h3>
-<p>There are many different nonlinear optimization methods which can be used for this purpose, and for a full survey one should look at packages like <a href="">JuMP</a>, <a href="">Optim.jl</a>, and <a href="">NLopt.jl</a>.</p>
+<p>There are many different nonlinear optimization methods which can be used for this purpose, and for a full survey one should look at packages like <a href="https://github.com/JuliaOpt/JuMP.jl">JuMP</a>, <a href="https://github.com/JuliaNLSolvers/Optim.jl">Optim.jl</a>, and <a href="https://github.com/JuliaOpt/NLopt.jl">NLopt.jl</a>.</p>
 <p>There are generally two sets of methods: global and local optimization methods. Local optimization methods attempt to find the best nearby extrema by finding a point where the gradient <span class="math">$\frac{dC}{dp} = 0$</span>. Global optimization methods attempt to explore the whole space and find the best of the extrema. Global methods tend to employ a lot more heuristics and are extremely computationally difficult, and thus many studies focus on local optimization. We will focus strictly on local optimization, but one may want to look into global optimization for many applications of parameter estimation.</p>
 <p>Most local optimizers make use of derivative information in order to accelerate the solver. The simplest of which is the method of <em>gradient descent</em>. In this method, given a set of parameters <span class="math">$p_i$</span>, the next step of parameters one will try is:</p>
 <p class="math">\[
@@ -1021,7 +1021,7 @@ p_{i+1} = p_i - H(p_i)^{-1} \frac{dC(p_i)}{dp}
           <div class="footer"><p>
           Published from <a href="estimation_identification.jmd">estimation_identification.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-10-15.
+           on 2019-10-18.
           <p></div>
 
 
