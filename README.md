@@ -430,6 +430,7 @@ enter scientific computing.
 
 ## Lecture 12: MPI.jl
 
+- [MPI.jl](https://mitmath.github.io/18337/lecture12/MPI.jl.pptx)
 - [MPI.jl Examples](https://github.com/llsc-supercloud/teaching-examples/tree/master/Julia/word_count/Parallel/mpi)
 
 In this lecture we went over the basics of MPI (Message Passing Interface) for
