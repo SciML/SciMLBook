@@ -427,3 +427,10 @@ differential equations? Are there methods other than shooting methods that can
 be utilized for parameter fitting? This lecture will explore where reverse-mode
 AD intersects with scientific modeling, and where machine learning begins to
 enter scientific computing.
+
+## Lecture 12: MPI.jl
+
+- [MPI.jl Examples](https://github.com/llsc-supercloud/teaching-examples/tree/master/Julia/word_count/Parallel/mpi)
+
+In this lecture we went over the basics of MPI (Message Passing Interface) for
+distributed computing and examples on how to use `MPI.jl`.
