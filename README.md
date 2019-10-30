@@ -427,3 +427,20 @@ differential equations? Are there methods other than shooting methods that can
 be utilized for parameter fitting? This lecture will explore where reverse-mode
 AD intersects with scientific modeling, and where machine learning begins to
 enter scientific computing.
+
+## Lecture 13: GPU computing
+
+#### Lecture Notes
+
+- [GPU computing in Julia](https://mitmath.github.io/18337/lecture13/gpus)
+- [Lecture slides](https://docs.google.com/presentation/d/1JfxmqJx7BdVyfBSL0N4bzBYdy8RIJ6hSSTHHJfPAo1o/edit?usp=sharing)
+
+#### Optional pre-reading materials
+
+- [Styles of Parallelism](https://mitmath.github.io/18337/lecture6/styles_of_parallelism)
+- [Computer Architecture 6ed: Chapter 4.4](https://dl.acm.org/citation.cfm?id=3207796)
+- [NVIDIA devblog](https://devblogs.nvidia.com/gpu-computing-julia-programming-language/)
+- [CuArrays tutorial](https://juliagpu.gitlab.io/CuArrays.jl/tutorials/generated/intro/)
+
+We will revisit parallel architectures and the programming models associated with them,
+before focusing on GPU programming in Julia.
