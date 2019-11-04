@@ -1,0 +1,28 @@
+---
+title: Homework 3
+author: Chris Rackauckas
+date: November 27th, 2019
+---
+
+## Problem 1
+
+In this problem we will work through the development of a neural ODE.
+
+### Part 1: Gradients as vjps
+
+Use the definition of the pullback as a vector-Jacobian product (vjp) to show
+that $B_f^x(1) = \right(\nabla f(x)\left)^T$.
+
+### Part 2: Implementing an ODE adjoint
+
+The adjoint of an ODE can be described as the set of vector equations:
+
+$$\begin{align}
+u' &= f(u,p,t)\\
+\lambda' &= -\lambda^\ast \frac{\partial f}{\partial u}\\
+\mu' &= -lambda^\ast \frac{\partial f}{\partial p}\\
+\end{algin}$$
+
+### Part 3: Backpropagation of a neural network
+
+### Part 4: Training the neural ODE
