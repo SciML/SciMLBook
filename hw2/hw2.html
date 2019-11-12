@@ -661,11 +661,10 @@ div.title {text-align: center;}
             <h5>November 3rd, 2019</h5>
           </div>
 
-          <p>Due November 13th, 2019 at the beginning of class.</p>
+          <p>Due November 15th, 2019 at midnight.</p>
 <p>Please email the results to both crackauc@mit.edu and sungwooj.mit@gmail.com.</p>
 <h1>Problem 1: Parameter Estimation in Dynamical Systems</h1>
 <p>In this problem you will work through the development of a parameter estimation method for the Lotka-Volterra equations.</p>
-<p>Please email the results to both crackauc@mit.edu and sungwooj.mit@gmail.com.</p>
 <h3>Part 1: Simulator</h3>
 <p>Implement a fixed timestep version of the <a href="https://en.wikipedia.org/wiki/Dormand&#37;E2&#37;80&#37;93Prince_method">Dormand-Prince method</a> to solve the Lotka-Volterra equations:</p>
 <p class="math">\[
@@ -674,7 +673,7 @@ div.title {text-align: center;}
 \frac{dy}{dt} &= - \gamma y + \delta x y\\
 \end{align}
 \]</p>
-<p>with <span class="math">$dt=\frac{1}{4}$</span> on <span class="math">$t \in (0,10)$</span> with parameters <span class="math">$\alpha = 1.5$</span>, <span class="math">$\beta = 1.0$</span>, <span class="math">$\gamma = 3.0$</span>, and <span class="math">$\delta = 1.0$</span>.</p>
+<p>with <span class="math">$u(0) = [x(0) y(0)] = [1 1]$</span>, <span class="math">$dt=\frac{1}{4}$</span> on <span class="math">$t \in (0,10)$</span> with parameters <span class="math">$\alpha = 1.5$</span>, <span class="math">$\beta = 1.0$</span>, <span class="math">$\gamma = 3.0$</span>, and <span class="math">$\delta = 1.0$</span>.</p>
 <h3>Part 2: Forward Sensitivity Equations</h3>
 <p>The forward sensitivity equations are derived directly by the chain rule. Given an ODE:</p>
 <p class="math">\[
