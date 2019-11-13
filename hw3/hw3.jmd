@@ -7,6 +7,10 @@ date: November 6th, 2019
 In this homework, we will write an implementation of neural ordinary differential
 equations with GPU-accleration from scratch.
 
+Due December 4th, 2019 at 9:30AM.
+
+Please email the results to both crackauc@mit.edu and sungwooj.mit@gmail.com.
+
 ## Problem 1: Neural ODE from Scratch
 
 In this problem we will work through the development of a neural ODE.
@@ -14,13 +18,16 @@ In this problem we will work through the development of a neural ODE.
 ### Part 1: Gradients as vjps
 
 Use the definition of the pullback as a vector-Jacobian product (vjp) to show
-that $B_f^x(1) = \right(\nabla f(x)\left)^T$.
+that $B_f^x(1) = \left( \nabla f(x) \right)^{T}$.
+
+(Hint: if you put 1 into the pullback, what kind of function is it? What does
+the Jacobian look like?)
 
 ### Part 2: Backpropagation of a neural network
 
 Implement a simple $NN: \mathbb{R}^2 \rightarrow \mathbb{R}^2$ neural network
 
-$$ NN(u) = W_2 * tanh.(W_1*u + b_1) + b_2$$
+$$NN(u) = W_2 tanh.(W_1 u + b_1) + b_2$$
 
 where $W_1$ is $50 \times 2$, $b_1$ is length 50, $W_2$ is $2 \times 50$, and $b_2$
 is length 2. Implement the pullback of the neural network: $B_{NN}^u(y)$. Check
@@ -33,10 +40,15 @@ The adjoint of an ODE can be described as the set of vector equations:
 $$\begin{align}
 u' &= f(u,p,t)\\
 \lambda' &= -\lambda^\ast \frac{\partial f}{\partial u}\\
-\mu' &= -lambda^\ast \frac{\partial f}{\partial p}\\
+\mu' &= -\lambda^\ast \frac{\partial f}{\partial p}\\
 \end{align}$$
 
-solved in reverse time.
+solved in reverse time for some cost function $C(p)$. For this problem, we will
+use the L2 loss function. Note that $\mu(0) = \frac{\partial C}{\partial p}$,
+$\mu(T) = 0$, and $\lambda(T) = \frac{\partial C}{\partial u(T)}$. This is
+written in the form where the only data point is at time $T$. If that is not the
+case, the reverse solve needs to add the jump $\frac{\partial C}{\partial u(t_i)}$
+to $\lambda$ at each data point $u(t_i)$.
 
 Notice that $B_f^u(\lambda) = \lambda^\ast \frac{\partial f}{\partial u}$ and
 similarly for $\mu$. Implement an adjoint caluculation for a neural ordinary
@@ -46,12 +58,15 @@ $$u' = NN(u)$$
 
 from above. Solve the ODE forwards using OrdinaryDiffEq.jl's `Tsit5()` integrator,
 then use the interpolation from the forward pass for the `u` values of the backpass
-and solve
+and solve.
+
+(Note: you will want to double check this gradient by using something like ForwardDiff!
+Start with only measuring the datapoint at the end, then try multiple data points.)
 
 ### Part 4: Training the neural ODE
 
 Generate data from the ODE $u' = Au$ where `A = [-0.1 2.0; -2.0 -0.1]` at
-`t=0.0:0.1:1.0` (use `saveat`).  Define the cost function `C(\theta)` to be
+`t=0.0:0.1:1.0` (use `saveat`).  Define the cost function `C(θ)` to be
 the Euclidian distance between the neural ODE's solution and the data. Optimize
 this cost function by using gradient descent where the gradient is your
 adjoint method's output.

@@ -169,54 +169,53 @@ dynamical systems
   - Utilizing type systems and generic algorithms as a mathematical tool
   - Forward-mode automatic differentiation for solving f(x)=0
   - Matrix coloring and sparse differentiation
-- Partial differential equations, neural networks, and array-based parallelism (Week 4-5)
-  - Cache optimization in numerical linear algebra
-  - Discretizations of PDEs
-  - Basics of neural networks and definitions
-  - The relationship between convolutional neural networks and PDEs
-  - Parallelism through array operations
-  - How to optimize algorithms for GPUs
 
-Homework 2: Use Convolutional Neural Network Primitives to GPU-accelerate a
-PDE solver
+Homework 2: Parameter estimation in dynamical systems and overhead of parallelism
 
 - Inverse problems and Differentiable Programming (Week 6)
   - Definition of inverse problems with applications to clinical pharmacology
     and smartgrid optimization
   - Adjoint methods for fast gradients
   - Automated adjoints through reverse-mode automatic differentiation (backpropogation)
-- Physics-Informed Neural Networks and Neural Differential Equations (Week 6-7)
   - Adjoints of differential equations
   - Using neural ordinary differential equations as a memory-efficient RNN for
     deep learning
-  - Automatic discovery of differential equations
-  - Solving differential equations with neural networks
-
-Homework 3: Solving 100 dimensional PDEs with deep learning
-
+- Neural networks, and array-based parallelism (Week 8)
+  - Cache optimization in numerical linear algebra
+  - Parallelism through array operations
+  - How to optimize algorithms for GPUs
 - Distributed parallel computing (Jeremy Kepner: Weeks 7-8)
   - Forms of parallelism
   - Using distributed computing vs multithreading
   - Message passing and deadlock
   - Map-Reduce as a framework for distributed parallelism
   - Implementing distributed parallel algorithms with MPI
-- Probabilistic Programming, AKA Bayesian Estimation on Programs (Week 9)
+
+Homework 3: Training neural ordinary differential equations (with GPUs)
+
+- Physics-Informed Neural Networks and Neural Differential Equations (Week 9-10)
+  - Automatic discovery of differential equations
+  - Solving differential equations with neural networks
+  - Discretizations of PDEs
+  - Basics of neural networks and definitions
+  - The relationship between convolutional neural networks and PDEs
+- Probabilistic Programming, AKA Bayesian Estimation on Programs (Week 10-11)
   - The connection between optimization and Bayesian methods: Bayesian posteriors
     vs MAP optimization
   - Introduction to Markov-Chain Monte Carlo methods
   - Hamiltonian Monte Carlo is just a symplectic ODE solver
   - Uncertainty quantification of parameter estimates through posteriors
-- Methods for understanding the fitness of models (Week 10)
+- Methods for understanding the fitness of models (Week 11-12)
   - Global sensitivity analysis
   - Fast methods for uncertainty quantification
   - Surrogate modeling techniques for accelerating sensitivity calculations
-- Final Project Presentations (Weeks 11-12)
 
 # Homeworks
 
 - [Homework 0, due September 25th](https://mitmath.github.io/18337/hw0/hw0.html)
 - [Homework 1, due October 16th](https://mitmath.github.io/18337/hw1/hw1.html)
-- [Homework 2, due November 13th](https://mitmath.github.io/18337/hw2/hw2.html)
+- [Homework 2, due November 13th](https://mitmath.github.io/18337/hw2/hw2.html) (Extended to the 15th!)
+- [Homework 3, due December 4th](https://mitmath.github.io/18337/hw3/hw3.html)
 
 # Lecture Summaries and Handouts
 
