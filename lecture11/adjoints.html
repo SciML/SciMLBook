@@ -826,7 +826,7 @@ I(p) = G(p) - \int_{t_0}^T \lambda^\ast (u^\prime - f(u,p,t))dt
 \]</p>
 <p>to zero out a term get</p>
 <p class="math">\[
-\frac{dG}{dp} = \lambda^\ast(t_0)s(t_0) + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt
+\frac{dG}{dp} = \lambda^\ast(t_0)\frac{dG}{du}(t_0) + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt
 \]</p>
 <p>If <span class="math">$G$</span> is discrete, then it can be represented via the Dirac delta:</p>
 <p class="math">\[
@@ -887,7 +887,7 @@ C(p) = \sum_{i=1}^N \Vert\tilde{u}^{\prime}(t_i) - f(u(t_i),p,t)\Vert
           <div class="footer"><p>
           Published from <a href="adjoints.jmd">adjoints.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-10-15.
+           on 2019-11-13.
           <p></div>
 
 
