@@ -3,7 +3,7 @@
 <HEAD>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Homework 2</title>
+  <title>Homework 3</title>
   
 
   <script type="text/x-mathjax-config">
@@ -656,67 +656,58 @@ div.title {text-align: center;}
         <div class = "col-md-12 twelve columns">
 
           <div class="title">
-            <h1 class="title">Homework 2</h1>
+            <h1 class="title">Homework 3</h1>
             <h5>Chris Rackauckas</h5>
-            <h5>November 3rd, 2019</h5>
+            <h5>November 6th, 2019</h5>
           </div>
 
-          <p>Due November 15th, 2019 at midnight.</p>
+          <p>In this homework, we will write an implementation of neural ordinary differential equations with GPU-accleration from scratch.</p>
+<p>Due December 4th, 2019 at 9:30AM.</p>
 <p>Please email the results to both crackauc@mit.edu and sungwooj.mit@gmail.com.</p>
-<h1>Problem 1: Parameter Estimation in Dynamical Systems</h1>
-<p>In this problem you will work through the development of a parameter estimation method for the Lotka-Volterra equations.</p>
-<h3>Part 1: Simulator</h3>
-<p>Implement a fixed timestep version of the <a href="https://en.wikipedia.org/wiki/Dormand&#37;E2&#37;80&#37;93Prince_method">Dormand-Prince method</a> to solve the Lotka-Volterra equations:</p>
+<h2>Problem 1: Neural ODE from Scratch</h2>
+<p>In this problem we will work through the development of a neural ODE.</p>
+<h3>Part 1: Gradients as vjps</h3>
+<p>Use the definition of the pullback as a vector-Jacobian product &#40;vjp&#41; to show that <span class="math">$B_f^x(1) = \left( \nabla f(x) \right)^{T}$</span>.</p>
+<p>&#40;Hint: if you put 1 into the pullback, what kind of function is it? What does the Jacobian look like?&#41;</p>
+<h3>Part 2: Backpropagation of a neural network</h3>
+<p>Implement a simple <span class="math">$NN: \mathbb{R}^2 \rightarrow \mathbb{R}^2$</span> neural network</p>
+<p class="math">\[
+NN(u) = W_2 tanh.(W_1 u + b_1) + b_2
+\]</p>
+<p>where <span class="math">$W_1$</span> is <span class="math">$50 \times 2$</span>, <span class="math">$b_1$</span> is length 50, <span class="math">$W_2$</span> is <span class="math">$2 \times 50$</span>, and <span class="math">$b_2$</span> is length 2. Implement the pullback of the neural network: <span class="math">$B_{NN}^u(y)$</span>. Check for correctness by using ForwardDiff.jl to calculate the gradient.</p>
+<h3>Part 3: Implementing an ODE adjoint</h3>
+<p>The adjoint of an ODE can be described as the set of vector equations:</p>
 <p class="math">\[
 \begin{align}
-\frac{dx}{dt} &= \alpha x - \beta x y\\
-\frac{dy}{dt} &= - \gamma y + \delta x y\\
+u' &= f(u,p,t)\\
+\lambda' &= -\lambda^\ast \frac{\partial f}{\partial u}\\
+\mu' &= -\lambda^\ast \frac{\partial f}{\partial p}\\
 \end{align}
 \]</p>
-<p>with <span class="math">$u(0) = [x(0),y(0)] = [1,1]$</span>, <span class="math">$dt=\frac{1}{4}$</span> on <span class="math">$t \in (0,10)$</span> with parameters <span class="math">$\alpha = 1.5$</span>, <span class="math">$\beta = 1.0$</span>, <span class="math">$\gamma = 3.0$</span>, and <span class="math">$\delta = 1.0$</span>.</p>
-<h3>Part 2: Forward Sensitivity Equations</h3>
-<p>The forward sensitivity equations are derived directly by the chain rule. Given an ODE:</p>
+<p>solved in reverse time for some cost function <span class="math">$C(p)$</span>. For this problem, we will use the L2 loss function. Note that <span class="math">$\mu(0) = \frac{\partial C}{\partial p}$</span>, <span class="math">$\mu(T) = 0$</span>, and <span class="math">$\lambda(T) = \frac{\partial C}{\partial u(T)}$</span>. This is written in the form where the only data point is at time <span class="math">$T$</span>. If that is not the case, the reverse solve needs to add the jump <span class="math">$\frac{\partial C}{\partial u(t_i)}$</span> to <span class="math">$\lambda$</span> at each data point <span class="math">$u(t_i)$</span>.</p>
+<p>Notice that <span class="math">$B_f^u(\lambda) = \lambda^\ast \frac{\partial f}{\partial u}$</span> and similarly for <span class="math">$\mu$</span>. Implement an adjoint caluculation for a neural ordinary differential equation where</p>
 <p class="math">\[
-u' = f(u,p,t)
+u' = NN(u)
 \]</p>
-<p>The forward sensitivity equations are given by:</p>
-<p class="math">\[
-\frac{d}{dt}\left(\frac{du}{dp}\right) = \frac{df}{du}\frac{du}{dp} + \frac{df}{dp}
-\]</p>
-<p>Use this definition to simultaniously solve for the solution to the ODE along with its derivative with respect to parameters.</p>
-<h3>Part 3: Parameter Estimation</h3>
-<p>Generate data using the parameters from Part 1. Then perturb the parameters to start at <span class="math">$\alpha = 1.2$</span>, <span class="math">$\beta = 0.8$</span>, <span class="math">$\gamma = 2.8$</span>, and <span class="math">$\delta = 0.8$</span>. Use the L2 loss against the data as a cost function, and use the forward sensitivity equations to implement gradient descent and optimize the cost function to retreive the true parameters</p>
-<h1>Problem 2: Bandwidth Maximization</h1>
-<p>In this problem we will look at maximizing the bandwidth of a channel, and the difference when going from serial to parallel computing.</p>
-<h2>Part 1: Serial Bandwidth</h2>
-<p>Recreate the bandwidth vs message size plot by doing the following. Create two processes on one node and communicate using MPI on the Supercloud. Have both processes send an array of <code>2^n</code> <code>Int8</code> values. Compute the time <code>T&#40;n&#41;</code> of sending each message size and the bandwidth <code>B&#40;n&#41; &#61; n/T&#40;n&#41;</code> for <code>n&#61;1:25</code>.</p>
-<h2>Part 2: Interpretation</h2>
-<p>Given these plots, what is the minimal latency? What is the total bandwidth? What is the number of operations needed for small messages and large messages on each value in order for a calculation to be efficient enough to overcome the message passing cost?</p>
-<h2>Part 3: Parallel Bandwith</h2>
-<p>Use the following batch script:</p>
-<pre><code class="language-bash;eval&#61;false">#&#33;/bin/sh
-
-#SBATCH -o mylog.out-&#37;j
-#SBATCH -n 2
-#SBATCH -N 2
-
-# Initialize Modules
-source /etc/profile
-
-# Load Julia and MPI Modules
-module load julia-latest
-module load mpi/mpich-x86_64
-
-mpirun julia mycode.jl</code></pre>
-<p>to receive two cores on two nodes. Recreate the bandwidth vs message plots and the interpretation. Does the fact that the nodes are physically disconnected cause a substantial difference?</p>
+<p>from above. Solve the ODE forwards using OrdinaryDiffEq.jl&#39;s <code>Tsit5&#40;&#41;</code> integrator, then use the interpolation from the forward pass for the <code>u</code> values of the backpass and solve.</p>
+<p>&#40;Note: you will want to double check this gradient by using something like ForwardDiff&#33; Start with only measuring the datapoint at the end, then try multiple data points.&#41;</p>
+<h3>Part 4: Training the neural ODE</h3>
+<p>Generate data from the ODE <span class="math">$u' = Au$</span> where <code>A &#61; &#91;-0.1 2.0; -2.0 -0.1&#93;</code> at <code>t&#61;0.0:0.1:1.0</code> &#40;use <code>saveat</code>&#41;.  Define the cost function <code>C&#40;θ&#41;</code> to be the Euclidian distance between the neural ODE&#39;s solution and the data. Optimize this cost function by using gradient descent where the gradient is your adjoint method&#39;s output.</p>
+<p>&#40;Note: calculate the cost and the gradient at the same time by using the forward pass to calculate the cost, and then use it in the adjoint for the interpolation. Note that you should not use <code>saveat</code> in the forward pass then, because otherwise the interpolation is linear. Instead, post-interpolate the data points.&#41;</p>
+<h2>&#40;Optional&#41; Problem 2: Array-Based GPU Computing</h2>
+<p>If you have access to a GPU, you may wish to try the following.</p>
+<h3>Part 1: GPU Neural Network</h3>
+<p>Change your neural network to be GPU-accelerated by using CuArrays.jl for the underlying array types.</p>
+<h3>Part 2: GPU Neural ODE</h3>
+<p>Change the inital condition of the ODE solves to a CuArray to make your neural ODE GPU-accelerated.</p>
 
 
 
           <HR/>
           <div class="footer"><p>
-          Published from <a href="hw2.jmd">hw2.jmd</a> using
+          Published from <a href="hw3.jmd">hw3.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-11-12.
+           on 2019-11-13.
           <p></div>
 
 
