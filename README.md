@@ -453,3 +453,14 @@ distributed computing and examples on how to use `MPI.jl`.
 
 We will revisit parallel architectures and the programming models associated with them,
 before focusing on GPU programming in Julia.
+
+## Lecture 14: Partial Differential Equations and Convolutional Neural Networks
+
+#### Lecture Notes
+
+- [PDEs, Convolutions, and the Mathematics of Locality](https://mitmath.github.io/18337/lecture14/pdes_and_convolutions)
+
+In this lecture we will continue to relate the methods of machine learning to
+those in scientific computing by looking at the relationship between convolutional
+neural networks and partial differential equations. It turns out they are more
+than just similar: the two are both stencil computations on spatial data!
