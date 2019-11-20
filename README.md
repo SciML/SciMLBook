@@ -466,7 +466,7 @@ than just similar: the two are both stencil computations on spatial data!
 
 ## Lecture 15: Algorithms which Connect Differential Equations and Machine Learning
 
-- [Mixing Differential Equations and Neural Networks for Physics-Informed Learning](https://mitmath.github.io/18337/lecture15/ode_ml_survey)
+- [Mixing Differential Equations and Neural Networks for Physics-Informed Learning](https://mitmath.github.io/18337/lecture15/diffeq_machine_learning)
 
 Neural ordinary differential equations are only the tip of the iceberg. In this
 lecture we will look into other algorithms which are utilizing the connection
