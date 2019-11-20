@@ -27,11 +27,11 @@ the Jacobian look like?)
 
 Implement a simple $NN: \mathbb{R}^2 \rightarrow \mathbb{R}^2$ neural network
 
-$$NN(u) = W_2 tanh.(W_1 u + b_1) + b_2$$
+$$NN(u;W_i,b_i) = W_2 tanh.(W_1 u + b_1) + b_2$$
 
 where $W_1$ is $50 \times 2$, $b_1$ is length 50, $W_2$ is $2 \times 50$, and $b_2$
-is length 2. Implement the pullback of the neural network: $B_{NN}^u(y)$. Check
-for correctness by using ForwardDiff.jl to calculate the gradient.
+is length 2. Implement the pullback of the neural network: $B_{NN}^{u,W_i,b_i}(y)$.
+Check for correctness by using ForwardDiff.jl to calculate the gradient.
 
 ### Part 3: Implementing an ODE adjoint
 

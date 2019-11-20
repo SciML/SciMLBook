@@ -672,9 +672,9 @@ div.title {text-align: center;}
 <h3>Part 2: Backpropagation of a neural network</h3>
 <p>Implement a simple <span class="math">$NN: \mathbb{R}^2 \rightarrow \mathbb{R}^2$</span> neural network</p>
 <p class="math">\[
-NN(u) = W_2 tanh.(W_1 u + b_1) + b_2
+NN(u;W_i,b_i) = W_2 tanh.(W_1 u + b_1) + b_2
 \]</p>
-<p>where <span class="math">$W_1$</span> is <span class="math">$50 \times 2$</span>, <span class="math">$b_1$</span> is length 50, <span class="math">$W_2$</span> is <span class="math">$2 \times 50$</span>, and <span class="math">$b_2$</span> is length 2. Implement the pullback of the neural network: <span class="math">$B_{NN}^u(y)$</span>. Check for correctness by using ForwardDiff.jl to calculate the gradient.</p>
+<p>where <span class="math">$W_1$</span> is <span class="math">$50 \times 2$</span>, <span class="math">$b_1$</span> is length 50, <span class="math">$W_2$</span> is <span class="math">$2 \times 50$</span>, and <span class="math">$b_2$</span> is length 2. Implement the pullback of the neural network: <span class="math">$B_{NN}^{u,W_i,b_i}(y)$</span>. Check for correctness by using ForwardDiff.jl to calculate the gradient.</p>
 <h3>Part 3: Implementing an ODE adjoint</h3>
 <p>The adjoint of an ODE can be described as the set of vector equations:</p>
 <p class="math">\[
@@ -707,7 +707,7 @@ u' = NN(u)
           <div class="footer"><p>
           Published from <a href="hw3.jmd">hw3.jmd</a> using
           <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-11-13.
+           on 2019-11-20.
           <p></div>
 
 
