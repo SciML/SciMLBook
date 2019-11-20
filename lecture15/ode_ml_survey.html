@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<HTML lang = "en">
+<HEAD>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Mixing Differential Equations with Neural Networks; Deep Galerkin PDE Solvers, Physics-Informed Neural Networks, Deep BSDEs, and Surrogates</title>
+  
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+  </script>
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+
+  
+<style>
+pre.hljl {
+    border: 1px solid #ccc;
+    margin: 5px;
+    padding: 5px;
+    overflow-x: auto;
+    color: rgb(68,68,68); background-color: rgb(251,251,251); }
+pre.hljl > span.hljl-t { }
+pre.hljl > span.hljl-w { }
+pre.hljl > span.hljl-e { }
+pre.hljl > span.hljl-eB { }
+pre.hljl > span.hljl-o { }
+pre.hljl > span.hljl-k { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kc { color: rgb(59,151,46); font-style: italic; }
+pre.hljl > span.hljl-kd { color: rgb(214,102,97); font-style: italic; }
+pre.hljl > span.hljl-kn { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kp { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kr { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kt { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-n { }
+pre.hljl > span.hljl-na { }
+pre.hljl > span.hljl-nb { }
+pre.hljl > span.hljl-nbp { }
+pre.hljl > span.hljl-nc { }
+pre.hljl > span.hljl-ncB { }
+pre.hljl > span.hljl-nd { color: rgb(214,102,97); }
+pre.hljl > span.hljl-ne { }
+pre.hljl > span.hljl-neB { }
+pre.hljl > span.hljl-nf { color: rgb(66,102,213); }
+pre.hljl > span.hljl-nfm { color: rgb(66,102,213); }
+pre.hljl > span.hljl-np { }
+pre.hljl > span.hljl-nl { }
+pre.hljl > span.hljl-nn { }
+pre.hljl > span.hljl-no { }
+pre.hljl > span.hljl-nt { }
+pre.hljl > span.hljl-nv { }
+pre.hljl > span.hljl-nvc { }
+pre.hljl > span.hljl-nvg { }
+pre.hljl > span.hljl-nvi { }
+pre.hljl > span.hljl-nvm { }
+pre.hljl > span.hljl-l { }
+pre.hljl > span.hljl-ld { color: rgb(148,91,176); font-style: italic; }
+pre.hljl > span.hljl-s { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sa { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sb { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sc { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sd { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdC { color: rgb(201,61,57); }
+pre.hljl > span.hljl-se { color: rgb(59,151,46); }
+pre.hljl > span.hljl-sh { color: rgb(201,61,57); }
+pre.hljl > span.hljl-si { }
+pre.hljl > span.hljl-so { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sr { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ss { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ssB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-nB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nbB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nfB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nh { color: rgb(59,151,46); }
+pre.hljl > span.hljl-ni { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nil { color: rgb(59,151,46); }
+pre.hljl > span.hljl-noB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-oB { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-ow { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-p { }
+pre.hljl > span.hljl-c { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-ch { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cm { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cp { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cpB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cs { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-csB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-g { }
+pre.hljl > span.hljl-gd { }
+pre.hljl > span.hljl-ge { }
+pre.hljl > span.hljl-geB { }
+pre.hljl > span.hljl-gh { }
+pre.hljl > span.hljl-gi { }
+pre.hljl > span.hljl-go { }
+pre.hljl > span.hljl-gp { }
+pre.hljl > span.hljl-gs { }
+pre.hljl > span.hljl-gsB { }
+pre.hljl > span.hljl-gt { }
+</style>
+
+
+
+  <style type="text/css">
+  @font-face {
+  font-style: normal;
+  font-weight: 300;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 600;
+}
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+body {
+  margin: 0;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+audio,
+canvas,
+progress,
+video {
+  display: inline-block; /* 1 */
+  vertical-align: baseline; /* 2 */
+}
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+[hidden],
+template {
+  display: none;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+b,
+strong {
+  font-weight: bold;
+}
+dfn {
+  font-style: italic;
+}
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+mark {
+  background: #ff0;
+  color: #000;
+}
+small {
+  font-size: 80%;
+}
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}
+img {
+  border: 0;
+}
+svg:not(:root) {
+  overflow: hidden;
+}
+figure {
+  margin: 1em 40px;
+}
+hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+pre {
+  overflow: auto;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit; /* 1 */
+  font: inherit; /* 2 */
+  margin: 0; /* 3 */
+}
+button {
+  overflow: visible;
+}
+button,
+select {
+  text-transform: none;
+}
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button; /* 2 */
+  cursor: pointer; /* 3 */
+}
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+input {
+  line-height: normal;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+input[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box; /* 2 */
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+legend {
+  border: 0; /* 1 */
+  padding: 0; /* 2 */
+}
+textarea {
+  overflow: auto;
+}
+optgroup {
+  font-weight: bold;
+}
+table {
+  font-family: monospace, monospace;
+  font-size : 0.8em;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td,
+th {
+  padding: 0;
+}
+thead th {
+    border-bottom: 1px solid black;
+    background-color: white;
+}
+tr:nth-child(odd){
+  background-color: rgb(248,248,248);
+}
+
+
+/*
+* Skeleton V2.0.4
+* Copyright 2014, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 12/29/2014
+*/
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box; }
+.column,
+.columns {
+  width: 100%;
+  float: left;
+  box-sizing: border-box; }
+@media (min-width: 400px) {
+  .container {
+    width: 85%;
+    padding: 0; }
+}
+@media (min-width: 550px) {
+  .container {
+    width: 80%; }
+  .column,
+  .columns {
+    margin-left: 4%; }
+  .column:first-child,
+  .columns:first-child {
+    margin-left: 0; }
+
+  .one.column,
+  .one.columns                    { width: 4.66666666667%; }
+  .two.columns                    { width: 13.3333333333%; }
+  .three.columns                  { width: 22%;            }
+  .four.columns                   { width: 30.6666666667%; }
+  .five.columns                   { width: 39.3333333333%; }
+  .six.columns                    { width: 48%;            }
+  .seven.columns                  { width: 56.6666666667%; }
+  .eight.columns                  { width: 65.3333333333%; }
+  .nine.columns                   { width: 74.0%;          }
+  .ten.columns                    { width: 82.6666666667%; }
+  .eleven.columns                 { width: 91.3333333333%; }
+  .twelve.columns                 { width: 100%; margin-left: 0; }
+
+  .one-third.column               { width: 30.6666666667%; }
+  .two-thirds.column              { width: 65.3333333333%; }
+
+  .one-half.column                { width: 48%; }
+
+  /* Offsets */
+  .offset-by-one.column,
+  .offset-by-one.columns          { margin-left: 8.66666666667%; }
+  .offset-by-two.column,
+  .offset-by-two.columns          { margin-left: 17.3333333333%; }
+  .offset-by-three.column,
+  .offset-by-three.columns        { margin-left: 26%;            }
+  .offset-by-four.column,
+  .offset-by-four.columns         { margin-left: 34.6666666667%; }
+  .offset-by-five.column,
+  .offset-by-five.columns         { margin-left: 43.3333333333%; }
+  .offset-by-six.column,
+  .offset-by-six.columns          { margin-left: 52%;            }
+  .offset-by-seven.column,
+  .offset-by-seven.columns        { margin-left: 60.6666666667%; }
+  .offset-by-eight.column,
+  .offset-by-eight.columns        { margin-left: 69.3333333333%; }
+  .offset-by-nine.column,
+  .offset-by-nine.columns         { margin-left: 78.0%;          }
+  .offset-by-ten.column,
+  .offset-by-ten.columns          { margin-left: 86.6666666667%; }
+  .offset-by-eleven.column,
+  .offset-by-eleven.columns       { margin-left: 95.3333333333%; }
+
+  .offset-by-one-third.column,
+  .offset-by-one-third.columns    { margin-left: 34.6666666667%; }
+  .offset-by-two-thirds.column,
+  .offset-by-two-thirds.columns   { margin-left: 69.3333333333%; }
+
+  .offset-by-one-half.column,
+  .offset-by-one-half.columns     { margin-left: 52%; }
+
+}
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #222; }
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-weight: 300; }
+h1 { font-size: 3.6rem; line-height: 1.2;  letter-spacing: -.1rem;}
+h2 { font-size: 3.4rem; line-height: 1.25; letter-spacing: -.1rem; }
+h3 { font-size: 3.2rem; line-height: 1.3;  letter-spacing: -.1rem; }
+h4 { font-size: 2.8rem; line-height: 1.35; letter-spacing: -.08rem; }
+h5 { font-size: 2.4rem; line-height: 1.5;  letter-spacing: -.05rem; }
+h6 { font-size: 1.5rem; line-height: 1.6;  letter-spacing: 0; }
+
+p {
+  margin-top: 0; }
+a {
+  color: #1EAEDB; }
+a:hover {
+  color: #0FA0CE; }
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  display: inline-block;
+  height: 38px;
+  padding: 0 30px;
+  color: #555;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box; }
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
+.button:focus,
+button:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
+  color: #333;
+  border-color: #888;
+  outline: 0; }
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+  color: #FFF;
+  background-color: #33C3F0;
+  border-color: #33C3F0; }
+.button.button-primary:hover,
+button.button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus,
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
+  color: #FFF;
+  background-color: #1EAEDB;
+  border-color: #1EAEDB; }
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
+select {
+  height: 38px;
+  padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box; }
+/* Removes awkward default styles on some inputs for iOS */
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none; }
+textarea {
+  min-height: 65px;
+  padding-top: 6px;
+  padding-bottom: 6px; }
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid #33C3F0;
+  outline: 0; }
+label,
+legend {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600; }
+fieldset {
+  padding: 0;
+  border-width: 0; }
+input[type="checkbox"],
+input[type="radio"] {
+  display: inline; }
+label > .label-body {
+  display: inline-block;
+  margin-left: .5rem;
+  font-weight: normal; }
+ul {
+  list-style: circle; }
+ol {
+  list-style: decimal; }
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin: 1.5rem 0 1.5rem 3rem;
+  font-size: 90%; }
+li > p {margin : 0;}
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E1E1E1; }
+th:first-child,
+td:first-child {
+  padding-left: 0; }
+th:last-child,
+td:last-child {
+  padding-right: 0; }
+button,
+.button {
+  margin-bottom: 1rem; }
+input,
+textarea,
+select,
+fieldset {
+  margin-bottom: 1.5rem; }
+pre,
+blockquote,
+dl,
+figure,
+table,
+p,
+ul,
+ol,
+form {
+  margin-bottom: 1.0rem; }
+.u-full-width {
+  width: 100%;
+  box-sizing: border-box; }
+.u-max-full-width {
+  max-width: 100%;
+  box-sizing: border-box; }
+.u-pull-right {
+  float: right; }
+.u-pull-left {
+  float: left; }
+hr {
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
+  border-width: 0;
+  border-top: 1px solid #E1E1E1; }
+.container:after,
+.row:after,
+.u-cf {
+  content: "";
+  display: table;
+  clear: both; }
+
+pre {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  word-break: break-all;
+  word-wrap: break-word;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+pre.hljl {
+  margin: 0 0 10px;
+  display: block;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding : 5px;
+}
+
+pre.output {
+  background: #ffffff;
+}
+
+pre.code {
+  background: #ffffff;
+}
+
+pre.julia-error {
+  color : red
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+
+
+@media (min-width: 400px) {}
+@media (min-width: 550px) {}
+@media (min-width: 750px) {}
+@media (min-width: 1000px) {}
+@media (min-width: 1200px) {}
+
+h1.title {margin-top : 20px}
+img {max-width : 100%}
+div.title {text-align: center;}
+
+  </style>
+
+
+
+</HEAD>
+  <BODY>
+    <div class ="container">
+      <div class = "row">
+        <div class = "col-md-12 twelve columns">
+
+          <div class="title">
+            <h1 class="title">Mixing Differential Equations with Neural Networks; Deep Galerkin PDE Solvers, Physics-Informed Neural Networks, Deep BSDEs, and Surrogates</h1>
+            <h5>Chris Rackauckas</h5>
+            <h5>November 19th, 2019</h5>
+          </div>
+
+          <p>Given this background in both neural network and differential equation modeling, let&#39;s take a moment to survey some methods which integrate the two ideas. Neural differential equations are of course one possible method, but there are methods which utilize the composition of these ideas. Some are good, some are not.</p>
+<p>Julia codes for these methods are being developed, optimized, and tested in the <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl">NeuralNetDiffEq.jl package</a>. A generalized neural differential equation solver can be found at <a href="https://github.com/JuliaDiffEq/DiffEqFlux.jl">DiffEqFlux.jl</a>. Note that as a standard and maintained Julia package, these methods are available today for solving these kinds of problems with these neural-enhanced methods.</p>
+<h2>Generalized Neural Differential Equations</h2>
+<p>While our previous lectures focused on ordinary differential equations, the larger classes of differential equations can also have neural networks, for example:</p>
+<ul>
+<li><p>Stiff neural ordinary differential equations &#40;neural ODEs&#41;</p>
+</li>
+<li><p>Neural <a href="https://en.wikipedia.org/wiki/Stochastic_differential_equation">stochastic differential equations</a> &#40;neural SDEs&#41;</p>
+</li>
+<li><p>Neural <a href="https://en.wikipedia.org/wiki/Delay_differential_equation">delay differential equations</a> &#40;neural DDEs&#41;</p>
+</li>
+<li><p>Neural <a href="https://en.wikipedia.org/wiki/Partial_differential_equation">partial differential equations</a> &#40;neural PDEs&#41;</p>
+</li>
+<li><p>Neural <a href="https://en.wikipedia.org/wiki/Jump_diffusion">jump stochastic differential equations</a> &#40;neural jump diffusions&#41;</p>
+</li>
+<li><p><a href="http://docs.juliadiffeq.org/latest/features/callback_functions/">Hybrid neural differential equations</a> &#40;neural DEs with event handling&#41;</p>
+</li>
+</ul>
+<p>For each of these equations, one can come up with an adjoint definition in order to define a backpropogation. However, there are limitatinos to this. In many cases, such as with stochastic differential equations, the time complexity of the continuous adjoint method is actually worse than backpropogation through the solver itself. Secondly, every single one of these equations requires an adjoint method, and some of them need different adjoint methods in different contexts &#40;state-dependent delay differential equations vs constant-time delay differential equations&#41;.</p>
+<p>DiffEqFlux.jl is the first library to support the wide gambit of possible differential equations. It does so by using Julia&#39;s language-wide AD tooling, such as Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations available whenever adjoint methods are known &#40;and the choice between the two is given to the user&#41;.</p>
+<p>For example, a neural stochastic differential equation can be trained <a href="https://github.com/JuliaDiffEq/DiffEqFlux.jl/tree/967ae0e74bbf772c78f81859c2f205066d08f184#neural-sde-example">using the following example</a>, and <a href="https://github.com/JuliaDiffEq/DiffEqFlux.jl/tree/967ae0e74bbf772c78f81859c2f205066d08f184#mixed-neural-des">known differential equations can be mixed with unknown portions</a>. Additionally, <a href="https://www.stochasticlifestyle.com/neural-jump-sdes-jump-diffusions-and-neural-pdes/">this blog post</a> showcases the mixing of event handling with neural stochastic differential equations and using stiff solvers for ODEs to train neural partial differential equations.</p>
+<p>Many of the methods below can be encapsolated as a choice of a neural differential equation and trained with higher order, adaptive, and more efficient methods with DiffEqFlux.jl. A paper detailing this is to come out in the next few weeks.</p>
+<h2>Artificial neural networks for solving ordinary and partial differential equations</h2>
+<h3>Solving Ordinary Differential Equations</h3>
+<p><a href="https://arxiv.org/pdf/physics/9705023.pdf">This is a result due to Lagaris et. al from 1998</a>. The idea is to solve differential equations using neural networks by representing the solution by a neural network and training the resulting network to satisfy the conditions required by the differential equation.</p>
+<p>Let&#39;s say we want to solve a system of ordinary differential equations</p>
+<p class="math">\[
+u' = f(u,t)
+\]</p>
+<p>with <span class="math">$t \in [0,1]$</span> and a known initial condition <span class="math">$u(0)=u_0$</span>. To solve this, we approximate the solution by a neural network:</p>
+<p class="math">\[
+N(t) \approx u(t)
+\]</p>
+<p>If <span class="math">$N(t)$</span> was the true solution, then it would hold that <span class="math">$N'(t) = f(N(t),t)$</span> for all <span class="math">$t$</span>. Thus we turn this condition into our loss function. This motivates the loss function:</p>
+<p class="math">\[
+L(p) = \sum_i \left(\frac{dN(t_i)}{dt} - f(N(t_i),t_i) \right)^2
+\]</p>
+<p>The choice of <span class="math">$t_i$</span> could be done in many ways: it can be random, it can be a grid, etc. Anyways, when this loss function is minimized &#40;gradients computed with standard reverse-mode automatic differentiation&#41;, then we have that <span class="math">$\frac{dN(t_i)}{dt} \approx f(N(t_i),t_i)$</span> and thus <span class="math">$N(t)$</span> approximately solves the differential equation.</p>
+<h4>Quick Question for Understanding: What is an effective way to compute dN/dt?</h4>
+<p>If you thought reverse-mode automatic differentiation, go back and think about why that is incorrect&#33; Hint: what is the dimensionality of the input and the output?</p>
+<p>Note that we still have to handle the initial condition. One simple way to do this is to add an initial condition term to the cost function. While that would work, it can be more efficient to encode the initial condition into the function itself so that it&#39;s trivially satisfied for any possible set of parameters. For example, instead of directly using a neural network, we can use:</p>
+<p class="math">\[
+T(t) = u_0 + tN(t)
+\]</p>
+<p>as our solution. Notice that this will always satisfy the initial condition, so if we train this to satisfy the derivative function then it will automatically be a solution to the derivative function.</p>
+<h3>Solving Partial Differential Equations</h3>
+<p>This same idea can be employed to solve partial differential equations. For example, take the Poisson equation:</p>
+<p class="math">\[
+\Delta u = f(x,y)
+\]</p>
+<p>for the 2-dimensional Poisson equation with <span class="math">$x \in [0,1]$</span> and <span class="math">$y \in [0,1]$</span>. Assume that the boundary conditions are Dirichlet, i.e. <span class="math">$u(0,y) = u_{0x}(y)$</span>, <span class="math">$u(1,y) = u_{1x}(y)$</span>, <span class="math">$u(x,0) = u_{0y}(x)$</span>, and <span class="math">$u(x,1)=u_{1y}(y)$</span> are all given. If this is the case, we can have</p>
+<p class="math">\[
+T(x,y) = A(x,y) + x(1-x)y(1-y)N(x,y)
+\]</p>
+<p>where <span class="math">$A(x,y)$</span> is a function that is made so <span class="math">$T(x,y)$</span> satisfies the boundary conditions. Then we have the loss function:</p>
+<p class="math">\[
+L(p) = \sum_i \left(\Delta T(x_i,y_i) - f(x_i,y_i) \right)^2
+\]</p>
+<h3>Julia Implementation</h3>
+<p>A Julia implementation for solving ODEs via neural networks through this method <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/src/ode_solve.jl">exists in NeuralNetDiffEq.jl</a>. Take a look at the code and make sure you understand it. It should be easily understandable given this description of the method&#33;</p>
+<h3>Analysis of the Method and Dimensionality</h3>
+<p>While the method &quot;will work&quot; with large enough neural networks due to the universal approximation theorem, this method is highly inefficient since no information about differential equations are embedded into the problem. There is no convergence rate guarantee, and there are no strict bounds like one would expect from numerical analysis. All implementations of the method that I have found &#40;including my own&#41; show that this method is very very inefficient. For example, it can be hard to train a solver on the Lotka-Volterra equation using a few GPU hours, while a Runge-Kutta method will solve it in nanoseconds...</p>
+<p>That said, the method itself is an interesting starting point. While other ODE and PDE solvers need to approximate an equation at specific points, i.e. on a mesh, this method is <em>mesh-free</em> in the sense that there is no mesh and just a direct representation of the continuous solution itself. This algorithm was <a href="https://arxiv.org/pdf/1708.07469.pdf">reinvented in 2018 as the Deep Galerkin Method &#40;DGM&#41;</a> and exploited the mesh-free behavior to see this as a method for high dimensional partial differential equations. While a finite difference method would require <span class="math">$N^d$</span> many points, a neural network just needs to have its parameters in memory, and thus it can scale well to high dimensional partial differential equation problems.</p>
+<h2>Physics-Informed Deep Learning</h2>
+<p>The results on this are found across three papers, <a href="https://www.sciencedirect.com/science/article/pii/S0021999118307125">the main being this article from the Journal of Computational Physics</a>. with this <a href="http://www.jmlr.org/papers/volume19/18-046/18-046.pdf">JMLR paper having a similar flavor</a> and all stemming from <a href="https://arxiv.org/abs/1711.10561">this arxiv paper</a>. The authors are M.Raissi, P.Perdikaris, and G.E.Karniadakis, two at Brown university and Perdikaris at UPenn.</p>
+<p>The main idea behind the Physics-Informed Neural Network &#40;PINN&#41; is to use known physical information as a form of prior information in the structure of the neural network architecture in order to build a more data-efficient form of machine learning for scientific computing applications. This setup starts by assuming that the underlying data follows some nonlinear partial differential equation</p>
+<p class="math">\[
+u_t + \mathcal{N}[u;\lambda] = 0
+\]</p>
+<p>for some <span class="math">$\lambda$</span> parameterized PDE operator over some space <span class="math">$x \in \Omega$</span> and <span class="math">$t \in [0,T]$</span>. From here, we proceed by approximating <span class="math">$u(t,x)$</span> by a neural network <span class="math">$N(t,x)$</span>. Let</p>
+<p class="math">\[
+f(t,x) = N_t + \mathcal{N}[N;\lambda]
+\]</p>
+<p>The loss function that is used is:</p>
+<p class="math">\[
+MSE = MSE_u + MSE_f
+\]</p>
+<p>where</p>
+<p class="math">\[
+MSE_u = \frac{1}{N_u} \sum_i |N(t_i^u,x_i^u) - u_i |^2
+\]</p>
+<p>is the difference between the neural network and the data <span class="math">$u$</span>, while</p>
+<p class="math">\[
+MSE_f = \frac{1}{N_f} \sum_i |f(t_i^f,x_i^f)|^2
+\]</p>
+<p>.</p>
+<p>is the loss on the PDE function itself. Notice that, if <span class="math">$f=0$</span> then the PDE is satisfied, and thus the second term indeed looks like a regularization to push towards the solution of the PDE.</p>
+<p>Thus in some sense one can understand this as an extension to the previous deep learning methods for solving partial differential equations, where here the <span class="math">$MSE_f$</span> term is enforcing that the neural network solves the PDE, just like before, but it is mixed with a loss function that drives <span class="math">$N(t,x)$</span> towards the known data <span class="math">$u_i(t_i,x_i)$</span>. In this sense, this is a method not for solving a partial differential equation with a neural network, but by using the structure of a neural network PDE solver as a component within a data-driven deep learning approach to relax the solution towards an underlying known physical structure.</p>
+<p>Once this is established, the authors present two separate ways of training the physics-informed neural network <span class="math">$f$</span>. One way to do this is to directly evaluate the loss function <span class="math">$MSE_f$</span> at chosen or random points in time using automatic differentiation. However, the number of points needed for this method to work is seen as a computational bottleneck &#40;indeed, as noted before, the continuous mesh-free algorithm for partial differential equations is highly ineffecient&#33;&#41;. To overcome this difficulty, they move towards a discrete-time model.</p>
+<p>For this discrete time model, they discretize the partial differential equation by a Runge-Kutta method. For example, we the simplest Runge-Kutta method is the Euler method, which we can write out as:</p>
+<p class="math">\[
+u_{n+1} = u_n - \Delta t \mathcal{N}[u_n;\lambda]
+\]</p>
+<p>Now in this case, instead of making a neural network apply to <span class="math">$u(t,x)$</span> and try to approximate the full continuous function of time, the authors make a neural networks</p>
+<p class="math">\[
+N_n(x) = u_{n}(x)
+\]</p>
+<p>In this form, the previous loss function can be reinterpreted to be on this discretized set of neural networks. Specifically,</p>
+<p class="math">\[
+SSE = SSE_n + SSE_f + SSE_b
+\]</p>
+<p>where</p>
+<p class="math">\[
+SSE_n = \sum_i |N_i(x_i) - u_i|^2
+\]</p>
+<p>and <span class="math">$SSE_b$</span> is a loss function of each <span class="math">$u_i$</span> against the boundary conditions. Here <span class="math">$SSE_f$</span> is simply the loss on the equation of the discretization:</p>
+<p class="math">\[
+SSE_f = \sum_i N_{n+1}(x_i) - N_n(x_i) + \Delta t \mathcal{N}[N_n;\lambda]
+\]</p>
+<p>to relax towards the solution of the PDE.</p>
+<p>Using this style, the authors show that this method is a data-efficient form of learning because it can use the known physics as a form of heavy prior information.</p>
+<h2>Deep BSDE Methods for High Dimensional Partial Differential Equations</h2>
+<p>The key paper on deep BSDE methods is <a href="https://www.pnas.org/content/115/34/8505">this article from PNAS</a> by Jiequn Han, Arnulf Jentzen, and Weinan E. Follow up papers have <a href="https://arxiv.org/pdf/1804.07010.pdf">like this one</a> have identified a larger context in the sense of forward-backwards SDEs for a large class of partial differential equations.</p>
+<h3>Understanding the Setup for Terminal PDEs</h3>
+<p>While this setup may seem a bit contrived given the &quot;very specific&quot; partial differential equation form &#40;you know the end value? You have some parabolic form?&#41;, it turns out that there is a large class of problems in economics and finance that satisfy this form. The reason is because in these problems you may know the value of something at the end, when you&#39;re going to sell it, and you want to evaluate it right now. The classic example is in options pricing. An option is a contract to be able to solve a stock at a given value. The simplest case is a contract that can only be executed at a pre-determined time in the future. Let&#39;s say we have an option to sell a stock at 100 no matter what. This means that, if the stock at the strike time &#40;the time the option can be sold&#41; is 70, we will make 30 from this option, and thus the option itself is worth 30. The question is, if I have this option today, the strike time is 3 months in the future, and the stock price is currently 70, how much should I value the option <strong>today</strong>?</p>
+<p>To solve this, we need to put a model on how we think the stock price will evolve. One simple version is a linear stochastic differential equation, i.e. the stock price will evolve with a constant interest rate <span class="math">$r$</span> with some volitility &#40;randomness&#41; <span class="math">$\sigma$</span>, in which case:</p>
+<p class="math">\[
+dX_t = r X_t dt + \sigma X_t dW_t.
+\]</p>
+<p>From this model, we can evaluate the probability that the stock is going to be at given values, which then gives us the probability that the option is worth a given value, which then gives us the expected &#40;or average&#41; value of the option. This is the Black-Scholes problem. However, a more direct way of calculating this result is writing down a partial differential equation for the evolution of the value of the option <span class="math">$V$</span> as a function of time <span class="math">$t$</span> and the current stock price <span class="math">$x$</span>. At the final time point, if we know the stock price then we know the value of the option, and thus we have a terminal condition <span class="math">$V(T,x) = g(x)$</span> for some known value function <span class="math">$g(x)$</span>. The question is, given this value at time <span class="math">$T$</span>, what is the value of the option at time <span class="math">$t=0$</span> given that the stock currently has a value <span class="math">$x = \zeta$</span>. Why is this interesting? This will tell you what you think the option is currently valued at, and thus if it&#39;s cheaper than that, you can gain money by buying the option right now&#33; This means that the &quot;solution&quot; to the PDE is the value <span class="math">$V(0,\zeta)$</span>, where we know the final points <span class="math">$V(T,x) = g(x)$</span>. This is precisely the type of problem that is solved by the deep BSDE method.</p>
+<h3>The Deep BSDE Method</h3>
+<p>Consider the class of semilinear parabolic PDEs, in finite time <span class="math">$t\in[0, T]$</span> and <span class="math">$d$</span>-dimensional space <span class="math">$x\in\mathbb R^d$</span>, that have the form</p>
+<p class="math">\[
+\begin{align}
+  \frac{\partial u}{\partial t}(t,x) 	&+\frac{1}{2}\text{trace}\left(\sigma\sigma^{T}(t,x)\left(\text{Hess}_{x}u\right)(t,x)\right)\\
+	&+\nabla u(t,x)\cdot\mu(t,x) \\
+	&+f\left(t,x,u(t,x),\sigma^{T}(t,x)\nabla u(t,x)\right)=0,\end{align}
+\]</p>
+<p>with a terminal condition <span class="math">$u(T,x)=g(x)$</span>. In this equation, <span class="math">$\text{trace}$</span> is the trace of a matrix, <span class="math">$\sigma^T$</span> is the transpose of <span class="math">$\sigma$</span>, <span class="math">$\nabla u$</span> is the gradient of <span class="math">$u$</span>, and <span class="math">$\text{Hess}_x u$</span> is the Hessian of <span class="math">$u$</span> with respect to <span class="math">$x$</span>. Furthermore, <span class="math">$\mu$</span> is a vector-valued function, <span class="math">$\sigma$</span> is a <span class="math">$d \times d$</span> matrix-valued function and <span class="math">$f$</span> is a nonlinear function. We assume that <span class="math">$\mu$</span>, <span class="math">$\sigma$</span>, and <span class="math">$f$</span> are known. We wish to find the solution at initial time, <span class="math">$t=0$</span>, at some starting point, <span class="math">$x = \zeta$</span>.</p>
+<p>Let <span class="math">$W_{t}$</span> be a Brownian motion and take <span class="math">$X_t$</span> to be the solution to the stochastic differential equation</p>
+<p class="math">\[
+dX_t = \mu(t,X_t) dt + \sigma (t,X_t) dW_t
+\]</p>
+<p>with initial condition <span class="math">$X(0)=\zeta$</span>. Previous work has shown that the solution to satisfies the following BSDE:</p>
+<p class="math">\[
+\begin{align}
+u(t, &X_t) - u(0,\zeta) = \\
+& -\int_0^t f(s,X_s,u(s,X_s),\sigma^T(s,X_s)\nabla u(s,X_s)) ds \\
+& + \int_0^t \left[\nabla u(s,X_s) \right]^T \sigma (s,X_s) dW_s,\end{align}
+\]</p>
+<p>with terminating condition <span class="math">$g(X_T) = u(X_T,W_T)$</span>.</p>
+<p>At this point, the authors approximate <span class="math">$\left[\nabla u(s,X_s) \right]^T \sigma (s,X_s)$</span> and <span class="math">$u(0,\zeta)$</span> as neural networks. Using the Euler-Maruyama discretization of the stochstic differential equation system, one arrives at a recurrent neural network:</p>
+<p><img src="https://user-images.githubusercontent.com/1814174/69241180-357d5080-0b6c-11ea-926d-6e27d0a1b26b.PNG" alt="Deep BSDE" /></p>
+<h3>Julia Implementation</h3>
+<p>A Julia implementation for the deep BSDE method can be found at <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/master/src/pde_solve.jl">NeuralNetDiffEq.jl</a>. The examples considered below are part of the <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/master/test/NNPDEHan_tests.jl">standard test suite</a>.</p>
+<h3>Financial Applications of Deep BSDEs: Nonlinear Black-Scholes</h3>
+<p>Now let&#39;s look at a few applications which have PDEs that are solved by this method. One set of problems that are solved, given our setup, are Black-Scholes types of equations. Unless a lot of previous literature, this works for a wide class of nonlinear extensions to Black-Scholes with large portfolios. Here, the dimension of the PDE for <span class="math">$V(t,x)$</span> is the dimension of <span class="math">$x$</span>, where the dimension is the number of stocks in the portfolio that we want to consider. If we want to track 1000 stocks, this means our PDE is 1000 dimensional&#33; Traditional PDE solvers would need around <span class="math">$N^{1000}$</span> points evolving over time in order to arrive at the solution, which is completely impractical.</p>
+<p>One example of a nonlinear Black-Scholes equation in this form is the Black-Scholes equation with default risk. Here we are adding to the standard model the idea that the companies that we are buying stocks for can default, and thus our valuation has to take into account this default probability as the option will thus become value-less. The PDE that is arrived at is:</p>
+<p class="math">\[
+\frac{\partial u}{\partial t}(t,x) + \bar{\mu}\cdot \nabla u(t, x) + \frac{\bar{\sigma}^{2}}{2} \sum_{i=1}^{d} \left |x_{i}  \right |^{2} \frac{\partial^2 u}{\partial {x_{i}}^2}(t,x) \\ - (1 -\delta )Q(u(t,x))u(t,x) - Ru(t,x) = 0
+\]</p>
+<p>with terminating condition <span class="math">$g(x) = \min_{i} x_i$</span> for <span class="math">$x = (x_{1}, . . . , x_{100}) \in R^{100}$</span>, where <span class="math">$\delta \in [0, 1)$</span>, <span class="math">$R$</span> is the interest rate of the risk-free asset, and Q is a piecewise linear function of the current value with three regions <span class="math">$(v^{h} < v ^{l}, \gamma^{h} > \gamma^{l})$</span>,</p>
+<p class="math">\[
+\begin{align}
+Q(y) &= \mathbb{1}_{(-\infty,\upsilon^{h})}(y)\gamma ^{h}
++ \mathbb{1}_{[\upsilon^{l},\infty)}(y)\gamma ^{l}
+\\ &+ \mathbb{1}_{[\upsilon^{h},\upsilon^{l}]}(y)
+\left[ \frac{(\gamma ^{h} - \gamma ^{l})}{(\upsilon ^{h}- \upsilon ^{l})}
+(y - \upsilon ^{h}) + \gamma ^{h}  \right  ].
+\end{align}
+\]</p>
+<p>This PDE can be cast into the form of the deep BSDE method by setting:</p>
+<p class="math">\[
+\begin{align}
+    \mu &= \overline{\mu} X_{t} \\
+    \sigma &= \overline{\sigma} \text{diag}(X_{t}) \\
+    f &= -(1 -\delta )Q(u(t,x))u(t,x) - R u(t,x)
+\end{align}
+\]</p>
+<p>The Julia code for this exact problem in 100 dimensions can be found <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/test/NNPDEHan_tests.jl#L213-L270">here</a></p>
+<h3>Stochastic Optimal Control as a Deep BSDE Application</h3>
+<p>Another type of problem that fits into this terminal PDE form is the <em>stochastic optimal control problem</em>. The problem is a generalized context to what motivated us before. In this case, there are a set of agents which undergo some known stochastic model. What we want to do is apply some control &#40;push them in some direction&#41; at every single timepoint towards some goal. For example, we have the physics for the dynamics of drone flight, but there&#39;s randomness in the wind condition, and so we want to control the engine speeds to move in a certain direction. However, there is a cost associated with controling, and thus the question is how to best balance the use of controls with the natural stochastic evolution.</p>
+<p>It turns out this is in the same form as the Black-Scholes problem. There is a model evolving forwards, and when we get to the end we know how much everything &quot;cost&quot; because we know if the drone got to the right location and how much energy it took. So in the same sense as Black-Scholes, we can know the value at the end and try and propogate it backwards given the current state of the system <span class="math">$x$</span>, to find out <span class="math">$u(0,\zeta)$</span>, i.e. how should we control right now given the current system is in the state <span class="math">$x = \zeta$</span>. It turns out that the solution of <span class="math">$u(t,x)$</span> where <span class="math">$u(T,x)=g(x)$</span> is given and we want to find <span class="math">$u(0,\zeta)$</span> is given by a partial differential equation which is known as the Hamilton-Jacobi-Bellman equation, which is one of these terminal PDEs that is representable by the deep BSDE method.</p>
+<p>Take the classical linear-quadratic Gaussian &#40;LQG&#41; control problem in 100 dimensions</p>
+<p class="math">\[
+dX_t = 2\sqrt{\lambda} c_t dt + \sqrt{2} dW_t
+\]</p>
+<p>with <span class="math">$t\in [0,T]$</span>, <span class="math">$X_0 = x$</span>, and with a cost function</p>
+<p class="math">\[
+C(c_t) = \mathbb{E}\left[\int_0^T \Vert c_t \Vert^2 dt + g(X_t) \right]
+\]</p>
+<p>where <span class="math">$X_t$</span> is the state we wish to control, <span class="math">$\lambda$</span> is the strength of the control, and <span class="math">$c_t$</span> is the control process.  To minimize the control, the Hamilton–Jacobi–Bellman equation:</p>
+<p class="math">\[
+\frac{\partial u}{\partial t}(t,x) + \Delta u(t,x) - \lambda \Vert \nabla u(t,x) \Vert^2 = 0
+\]</p>
+<p>has a solution <span class="math">$u(t,x)$</span> which at <span class="math">$t=0$</span> represents the optimal cost of starting from <span class="math">$x$</span>.</p>
+<p>This PDE can be rewritten into the canonical form of \Cref&#123;pdeform&#125; by setting:</p>
+<p class="math">\[
+\begin{align}
+    \mu &= 0, \\
+    \sigma &= \overline{\sigma} I, \\
+    f &= -\alpha \left \| \sigma^T(s,X_s)\nabla u(s,X_s)) \right \|^{2},
+\end{align}
+\]</p>
+<p>where <span class="math">$\overline{\sigma} = \sqrt{2}$</span>, T &#61; 1 and <span class="math">$X_0 = (0,. . . , 0) \in R^{100}$</span>.</p>
+<p>The Julia code for solving this exact problem in 100 dimensions <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/test/NNPDEHan_tests.jl#L166-L211">can be found here</a></p>
+<h2>Surrogate Acceleration Methods</h2>
+<p>Another approach for mixing neural networks with differential equations is as a surrogate method. These methods are more mathematically trivial than the previous ideas, but can still achieve interesting results. A full example is explained <a href="https://youtu.be/FGfx8CQHdQA?t&#61;925">in this video</a>.</p>
+<p>Say we have some function <span class="math">$g(p)$</span> which depends on a solution to a differential equation <span class="math">$u(t;p)$</span> and choices of parameters <span class="math">$p$</span>. Computationally how we evaluate this  equation is we do the following:</p>
+<ul>
+<li><p>Solve the differential equation with parameters <span class="math">$p$</span></p>
+</li>
+<li><p>Evaluate <span class="math">$g$</span> on the numerical solution for <span class="math">$u$</span></p>
+</li>
+</ul>
+<p>However, this process is computationally expensive since it requires the numerical solution of <span class="math">$u$</span> for every evaluation. Thus, one can look at this setup and see <span class="math">$g(p)$</span> itself is a nonlinear function. The idea is to train a neural network to be the function <span class="math">$g(p)$</span>, i.e. directly put in <span class="math">$p$</span> and return the appropriate value without ever solving the differential equation.</p>
+<p>The video highlights an important fact about this method: it can be computationally expensive to train this kind of surrogate since many data points <span class="math">$(p,g(p))$</span> are required. In fact, many more data points than you might use. However, after training, the surrogate network for <span class="math">$g(p)$</span> can be a lot faster than the original simulation-based approach. This means that this is a method for accelerating real-time solutions by doing upfront computations. The total compute time will always be more, but in some sense the cost is amortized or shifted to be done before hand, so that the model does not need to be simulated on the fly. This can allow for things like computationally expensive models of drone flight to be used in a real-time controller.</p>
+<p>This technique goes a long way back, but some recent examples of this have been shown. For example, there&#39;s <a href="https://arxiv.org/abs/1910.07291">this paper which &quot;accelerated&quot; the solution of the 3-body problem</a> using a neural network surrogate trained over a few days to get a 1 million times acceleration &#40;after generating many points beforehand of course&#33; In the paper, notice that it took 10 days to generate the training dataset&#41;. Additionally, there is this <a href="https://fluxml.ai/2019/03/05/dp-vs-rl.html">deep learning trebuchet example</a> which showcased that inverse problems, i.e. control or finding parameters, can be completely encapsolated as a <span class="math">$g(p)$</span> and learned with sufficient data.</p>
+
+
+
+          <HR/>
+          <div class="footer"><p>
+          Published from <a href="ode_ml_survey.jmd">ode_ml_survey.jmd</a> using
+          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
+           on 2019-11-20.
+          <p></div>
+
+
+        </div>
+      </div>
+    </div>
+  </BODY>
+</HTML>

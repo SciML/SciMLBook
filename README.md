@@ -463,3 +463,26 @@ In this lecture we will continue to relate the methods of machine learning to
 those in scientific computing by looking at the relationship between convolutional
 neural networks and partial differential equations. It turns out they are more
 than just similar: the two are both stencil computations on spatial data!
+
+## Lecture 15: Algorithms which Connect Differential Equations and Machine Learning
+
+- [Mixing Differential Equations with Neural Networks; Deep Galerkin PDE Solvers, Physics-Informed Neural Networks, Deep BSDEs, and Surrogates](https://mitmath.github.io/18337/lecture15/ode_ml_survey.jmd)
+
+Neural ordinary differential equations are only the tip of the iceberg. In this
+lecture we will look into other algorithms which are utilizing the connection
+between neural networks and machine learning. First we will generalize to
+neural differential equations with DiffEqFlux.jl, which now allows for stiff
+equations, stochasticity, delays, constraint equations, event handling, etc.
+to all take place in a neural differential equation format. Then we will look
+into how ordinary and partial differential equations can be solved using neural
+networks and the same backpropagation ideas that we had developed earlier. Next
+we dig into physics-informed neural networks (PINNs), a new methodology which
+utilizes a known physical equation (a partial differential equation) to relax
+the data towards to allow for a data-efficient machine learning algorithm. Then
+we will dig into the methods for solving high dimensional partial differential
+equations through transformations to backwards stochastic differential equations
+(BSDEs), and the applications to mathematical finance through Black-Scholes along
+with stochastic optimal control through Hamilton-Jacobi-Bellman equations.
+To end it, we will look into methods for accelerating differential equation
+solving through neural surrogate models, and uncover the true idea of what's
+going on, along with understanding when these applications can be used effectively.
