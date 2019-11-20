@@ -63,8 +63,8 @@ and [Gilbert Strang's Computational Science and Engineering](https://www.amazon.
 Much of the reading will come in the form of primary literature from journal
 articles posted here.
 
-**Grading**: 66% problem sets, 34% **final project + presentation** due the last
-day of class. Problem sets and final projects will be submitted electronically.
+**Grading**: 66% problem sets, 34% **final project** due the last
+day of class (December 11th). Problem sets and final projects will be submitted electronically.
 
 **Collaboration policy**: Make an effort to solve the problem on your own before
 discussing with any classmates. When collaborating, write up the solution on
