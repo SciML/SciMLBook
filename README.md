@@ -63,7 +63,7 @@ and [Gilbert Strang's Computational Science and Engineering](https://www.amazon.
 Much of the reading will come in the form of primary literature from journal
 articles posted here.
 
-**Grading**: 66% problem sets, 34% **final project** (due December 16th). 
+**Grading**: 66% problem sets, 34% **final project** (due December 16th).
 Problem sets and final projects will be submitted electronically.
 
 **Collaboration policy**: Make an effort to solve the problem on your own before
@@ -486,3 +486,24 @@ with stochastic optimal control through Hamilton-Jacobi-Bellman equations.
 To end it, we will look into methods for accelerating differential equation
 solving through neural surrogate models, and uncover the true idea of what's
 going on, along with understanding when these applications can be used effectively.
+
+## Lecture 16: Probabilistic Programming
+
+- [From Optimization to Probabilistic Programming](https://mitmath.github.io/18337/lecture15/diffeq_machine_learning)
+
+All of our previous discussions lived in a deterministic world. Not this one.
+Here we turn to a probabilistic view and allow programs to have random variables.
+Forward simulation of a random program is seen to be simple through Monte Carlo
+sampling. However, parameter estimation is now much more involved, since in this
+case we need to estimate not just values but probability distributions. It turns
+out that Bayes' rule gives a framework for performing such estimations. We see
+that classical parameter estimation falls out as a maximization of probability
+with the "simplest" form of distributions, and thus this gives a nice generalization
+even to standard parameter estimation and justifies the use of L2 loss functions
+and regularization (as a perturbation by a prior). Next, we turn to estimating
+the distributions, which we see is possible for small problems using Metropolis
+Hastings, but for larger problems we develop Hamiltonian Monte Carlo. It turns
+out that Hamiltonian Monte Carlo has strong ties to both ODEs and differentiable
+programming: it is defined as solving ODEs which arise from a Hamiltonian, and
+derivatives of the likelihood are required, which is essentially the same idea
+as derivatives of cost functions!
