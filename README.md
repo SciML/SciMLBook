@@ -205,10 +205,10 @@ Homework 3: Training neural ordinary differential equations (with GPUs)
   - Introduction to Markov-Chain Monte Carlo methods
   - Hamiltonian Monte Carlo is just a symplectic ODE solver
   - Uncertainty quantification of parameter estimates through posteriors
-- Methods for understanding the fitness of models (Week 11-12)
+- Globalizing the understanding of models (Week 11-12)
   - Global sensitivity analysis
-  - Fast methods for uncertainty quantification
-  - Surrogate modeling techniques for accelerating sensitivity calculations
+  - Global optimization
+  - Uncertainty Quantification
 
 # Homeworks
 
@@ -506,4 +506,11 @@ Hastings, but for larger problems we develop Hamiltonian Monte Carlo. It turns
 out that Hamiltonian Monte Carlo has strong ties to both ODEs and differentiable
 programming: it is defined as solving ODEs which arise from a Hamiltonian, and
 derivatives of the likelihood are required, which is essentially the same idea
-as derivatives of cost functions!
+as derivatives of cost functions! We then describe an alternative approach:
+Automatic Differentiation Variational Inference (ADVI), which once again is using
+the tools of differentiable programming to estimate distributions of probabilistic
+programs.
+
+## Lecture 17: Global Sensitivity Analysis
+
+- [Global Sensitivity Analysis](https://mitmath.github.io/18337/lecture17/global_sensitivity)
