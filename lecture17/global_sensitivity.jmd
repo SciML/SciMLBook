@@ -21,7 +21,7 @@ the relationship
 
 $$y = f(x_i)$$
 
-$f$ can be a neural network, an ODE solve, etc. where the $X_i$ are items like
+Recall $f$ can be a neural network, an ODE solve, etc. where the $X_i$ are items like
 initial conditions and parameters. What we want to do is understand how much
 the total changes in $y$ can be attributed to changes in specific $x_i$.
 
@@ -183,7 +183,7 @@ $$f_{ij}(x_i,y_j) = E(y|x_i,x_j) - f_0 - f_i - f_j$$
 
 Assuming that $f(x)$ is L2, it holds that
 
-\int_\Omega f^2(x)dx - f_0^2 = \sum_s \sum_i \int f^2_{i_1,i_2,\ldots,i_s} dx
+\int_\Omega f^2(x)dx - f_0^2 = \sum_s \sum_i \int f^2_{i_1,i_2,\ldots,i_s} dx$$
 
 and thus
 
@@ -191,8 +191,8 @@ $$V[y] = \sum V_i + \sum V_{ij} + \ldots$$
 
 where
 
-$$V_i = V[E_{x_{\sim i}[y|x_i]]$$
-$$V_{ij} = V[E_{x_{\sim ij}[y|x_i,x_j]]-V_i - V_j$$
+$$V_i = V[E_{x_{\sim i}}[y|x_i]]$$
+$$V_{ij} = V[E_{x_{\sim ij}}[y|x_i,x_j]]-V_i - V_j$$
 
 where $X_{\sim i}$ means all of the variables except $X_i$. This means that the
 total variance can be decomposed into each of these variances.
