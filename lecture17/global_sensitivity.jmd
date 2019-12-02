@@ -48,6 +48,11 @@ What are the things we can learn from doing such a global sensitivity analysis?
    the output. These variables would be practically unidentifiable from data
    and models can be reduced by removing the terms. It also is predictive as to
    robustness properties.
+3. You can find ways to automatically sparsify a model by dropping off the
+   components which contribute the least. This matters in automatically generated
+   or automatically detected models, where many pieces may be spurious and
+   global sensitivities would be a method to detect that in a manner that is not
+   sensitive to the chosen parameters.
 
 ## Global Sensitivity Analysis Measures
 
@@ -314,4 +319,12 @@ $$S_{T_i} = 1 - S_{c_i}$$
 
 Note that this then is a fast measure for the total contribution of variable $i$,
 including all higher-order nonlinear interactions, all from one-dimensional
-integrals!
+integrals! (This extension is called extended FAST or eFAST)
+
+## A Quick Note on Parallelism
+
+Very quick note: all of these are hyper parallel since it does the same calculation
+per parameter or trajectory, and each calculation is long. For quasi-Monte Carlo,
+after generating "good enough" trajectories, one can evaluate the model at all
+points in parallel, and then simply do the GSA index measurement. For FAST, one
+can do each quadrature in parallel.
