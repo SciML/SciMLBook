@@ -489,7 +489,7 @@ going on, along with understanding when these applications can be used effective
 
 ## Lecture 16: Probabilistic Programming
 
-- [From Optimization to Probabilistic Programming](https://mitmath.github.io/18337/lecture15/diffeq_machine_learning)
+- [From Optimization to Probabilistic Programming](https://mitmath.github.io/18337/lecture16/probabilistic_programming)
 
 All of our previous discussions lived in a deterministic world. Not this one.
 Here we turn to a probabilistic view and allow programs to have random variables.
