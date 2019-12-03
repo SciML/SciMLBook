@@ -206,7 +206,7 @@ posterior point matches that of the maximum likelihood estimation. However, this
 formulation allows us to get point estimates in a way that takes into account
 prior knowledge, and is call *maximum a posteriori estimation* (MAP).
 
-## Bayesian Estimation with Distributional Estimates
+## Bayesian Estimation of Posterior Distributions with Monte Carlo
 
 The previous discussion still solely focused on getting point estimates for
 the most probable parameters. However, what if we wanted to find the distributions
@@ -390,7 +390,7 @@ Monte Carlo methods then dig into good ways to choose the kinetic energy functio
 This is done at the start (along with the choice of ODE solver time step) in such
 a way that it maximizes acceptance probabilities.
 
-## Connections to Differentiable Programming
+### Connections to Differentiable Programming
 
 $-\frac{dH}{dx}$ requires calculating the gradient of the likelihood function
 with respect to the parameters, so we are once again using the gradient of
@@ -402,7 +402,7 @@ There's another thread to follow that transformations of probability distributio
 are pushforwards of the Jacobian transformations (given the transformation of
 an integral formula), and this is used when doing variational inference.
 
-## Symplectic and Geometric Integration
+### Symplectic and Geometric Integration
 
 One way to integrate the system of ODEs which result from the Hamiltonian
 system is to convert it to a system of first order ODEs and solve it directly.
@@ -450,12 +450,69 @@ $\mathcal{O}(\Delta t^k)$ where $k$ is the order of the method. For more
 information on symplectic integration, consult
 [this StackOverflow response which goes into depth](https://scicomp.stackexchange.com/a/29154/18981).
 
-## Application: Bayesian Estimation of Differential equation Parameters
+### Application: Bayesian Estimation of Differential Equation Parameters
 
 For a full demo of probabilistic programming on a differential equation system,
 see
 [this tutorial on Bayesian inference of pendulum parameteres](https://tutorials.juliadiffeq.org/html/models/06-pendulum_bayesian_inference.html)
 utilizing DifferentialEquations.jl and DiffEqBayes.jl.
+
+## Bayesian Estimation of Posterior Distributions with Variational Inference
+
+Instead of using sampling, one can use variational inference to push through
+probability distributions. There are many ways to do variational inference, but
+a lot of the methods can be very model-specific. However, a recent change to
+probabilistic programming has been the development of *Automatic Differentiation
+Variational Inference (ADVI)*: a general variational inference method which
+is not model-specific and instead uses AD. This has allowed for large expensive
+models to get effective distributional estimation, something that wasn't
+previously possible with HMC. In this section we will build up this methodology
+and understand its performance characteristics.
+
+### ADVI as Optimization
+
+In this form of variational inference, we wish to directly estimate the posterior
+distribution. To do so, we pick a functional form to represent the solution
+$q(\theta; \phi)$ where $\phi$ are latent variables. We want our resulting
+distribution to fit the posterior, and tus we enforce that:
+
+$$\phi^\ast = \text{argmin}_{\phi} \text{KL} \left(q(\theta; \phi) \Vert p(\theta | D)\right)$$
+
+where KL is the KL-divergence. KL-divergence is a distance function over
+probability distributions, and so this is simply a cost function over the
+distance between a chosen distribution and a desired distribution, where when
+$\phi$ are good we will have $q$ as a good approximation to the posterior.
+
+However, the KL divergence lacks an analytical form because it requires knowing
+the posterior, the quantity we are trying to numerically estimate. However,
+it turns out that we can instead maximize the *Evidence Lower Bound (ELBO)*:
+
+$$\mathcal{L}(\phi) = \mathbb{E}_{q}[\log p(x,\theta)] - \mathbb{E}_q [\log q(\theta; \phi)]$$
+
+The ELBO is equivalent to the negative KL divergence up to a constant $\log p(x)$,
+which means that maximizing this is equivalent to minimizing the KL divergence.
+
+One last detail is neccessary in order for this problem to be tractible. To know
+the set of possible values to optimize over, we assume that the support of $q$
+is a subset of the support of the prior. This means that our prior has to cover
+the probability distribution, which makes sense and matches Cromwell's rule for
+MCMC.
+
+At this point we now assume that $q$ is Gaussian. When we rewrite the ELBO in
+terms of the standard Gaussian, we receive an expectation that is automatically
+differentiable. Calculating gradients is thus done with AD. Using only one
+or a few solves gives a noisy gradient to sample and optimize the latent variables
+to hone in on latent variables.
+
+## A Note on Implementation of Optimization for Probabilistic Programming
+
+Variable domains can be constrained. For example, you may require a positive
+value. This can be handled by a transformation. For example, if $y$ must be
+positive, then one can optimize implicitly using $\exp(y)$ at every point, this
+allowing $y$ to be any real value with then $\exp(y)$ is positive. This turns
+the problem into an unconstrained optimization over the real numbers, and similar
+transformations can be done with any of the standard probability distribution's
+support function.
 
 #### Citation
 

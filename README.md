@@ -205,10 +205,11 @@ Homework 3: Training neural ordinary differential equations (with GPUs)
   - Introduction to Markov-Chain Monte Carlo methods
   - Hamiltonian Monte Carlo is just a symplectic ODE solver
   - Uncertainty quantification of parameter estimates through posteriors
-- Methods for understanding the fitness of models (Week 11-12)
+- Globalizing the understanding of models (Week 11-12)
   - Global sensitivity analysis
-  - Fast methods for uncertainty quantification
-  - Surrogate modeling techniques for accelerating sensitivity calculations
+  - Global optimization
+  - Surrogate Modeling
+  - Uncertainty Quantification
 
 # Homeworks
 
@@ -506,4 +507,28 @@ Hastings, but for larger problems we develop Hamiltonian Monte Carlo. It turns
 out that Hamiltonian Monte Carlo has strong ties to both ODEs and differentiable
 programming: it is defined as solving ODEs which arise from a Hamiltonian, and
 derivatives of the likelihood are required, which is essentially the same idea
-as derivatives of cost functions!
+as derivatives of cost functions! We then describe an alternative approach:
+Automatic Differentiation Variational Inference (ADVI), which once again is using
+the tools of differentiable programming to estimate distributions of probabilistic
+programs.
+
+## Lecture 17: Global Sensitivity Analysis
+
+- [Global Sensitivity Analysis](https://mitmath.github.io/18337/lecture17/global_sensitivity)
+
+Our previous analysis of sensitivities was all local. What does it mean to example
+the sensitivities of a model globally? It turns out the probabilistic programming
+viewpoint gives us a solid way of describing how we expect values to be changing
+over larger sets of parameters via the random variables that describe the program's
+inputs. This means we can decompose the output variance into indices which can
+be calculated via various quadrature approximations which then give a tractable
+measurement to "variable x has no effect on the mean solution".
+
+## Lecture 18: Code Profiling
+
+- [Code Profiling](https://mitmath.github.io/18337/lecture18/code_profiling)
+
+Here we take a small diversion back towards code performance and take a quick
+look at tools for profiling code and use this to understand how to find the
+correct lines to improve our code's timings. This is something that will be
+essential in many research codes (including your project!)
