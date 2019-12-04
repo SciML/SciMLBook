@@ -279,7 +279,7 @@ $$X_j(s) = \frac{1}{2\pi} (\omega_j s \mod 2\pi)$$
 
 By the ergodic theorem, if $\omega_j$ are irrational numbers, then the dynamical
 system will never repeat values and thus it will create a solution that is dense
-in the plane. As an animation:
+in the plane (Let's prove a bit later). As an animation:
 
 ![](https://upload.wikimedia.org/wikipedia/commons/6/64/Search_curve_1.gif)
 
@@ -320,6 +320,41 @@ $$S_{T_i} = 1 - S_{c_i}$$
 Note that this then is a fast measure for the total contribution of variable $i$,
 including all higher-order nonlinear interactions, all from one-dimensional
 integrals! (This extension is called extended FAST or eFAST)
+
+#### Proof of the Ergodic Theorem
+
+Look at the map $x_{n+1} = x_n + \alpha (\text{mod} 1)$, where $\alpha$
+is irrational. This is the irrational rotation map that corresponds to our
+problem. We wish to prove that in any interval $I$, there is a point of our
+orbit in this interval.
+
+First let's prove a useful result: our points get arbitrarily close.
+Assume that for some finite $\epsilon$ that no two points are $\epsilon$
+apart. This means that we at most have spacings of $\epsilon$ between the points,
+and thus we have at most $\frac{2\pi}{\epsilon}$ points (rounded up). This means
+our orbit is periodic. This means that there is a $p$ such that
+
+$$x_{n+p} = x_n$$
+
+which means that $p \alpha = 1$ or $p = \frac{1}{\alpha}$ which is a contradiction
+since $\alpha$ is irrational.
+
+Thus for every $\epsilon$ there are two points which are $\epsilon$ apart. Now
+take any arbitrary $I$. Let $\epsilon < d/2$ where $d$ is the length of the
+interval. We have just shown that there are two points $\epsilon$ apart, so
+there is a point that is $x_{n+m}$ and $x_{n+k}$ which are $<\epsilon$ apart.
+Assuming WLOG $m>k$, this means that $m-k$ rotations takes one from $x_{n+k}$
+to $x_{n+m}$, and so $m-k$ rotations is a rotation by $\epsilon$. If we do
+$\frac{1}{\epsilon}$ rounded up rotations, we will then cover the space with
+intervals of length epsilon, each with one point of the orbit in it. Since
+$\epsilon < d/2$, one of those intervals is completely encapsolated in $I$,
+which means there is at least one point in our orbit that is in $I$.
+
+Thus for every interval we have at least one point in our orbit that lies in
+it, proving that the rotation map with irrational $\alpha$ is dense. Note that
+during the proof we essentially showed as well that if $\alpha$ is rational,
+then the map is periodic based on the denominator of the map in its reduced
+form.
 
 ## A Quick Note on Parallelism
 
