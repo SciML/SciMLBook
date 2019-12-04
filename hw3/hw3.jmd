@@ -30,8 +30,9 @@ Implement a simple $NN: \mathbb{R}^2 \rightarrow \mathbb{R}^2$ neural network
 $$NN(u;W_i,b_i) = W_2 tanh.(W_1 u + b_1) + b_2$$
 
 where $W_1$ is $50 \times 2$, $b_1$ is length 50, $W_2$ is $2 \times 50$, and $b_2$
-is length 2. Implement the pullback of the neural network: $B_{NN}^{u,W_i,b_i}(y)$.
-Check for correctness by using ForwardDiff.jl to calculate the gradient.
+is length 2. Implement the pullback of the neural network: $B_{NN}^{u,W_i,b_i}(y)$
+to calculate the derivative of the neural network with respect to each of these
+inputs. Check for correctness by using ForwardDiff.jl to calculate the gradient.
 
 ### Part 3: Implementing an ODE adjoint
 
@@ -39,16 +40,27 @@ The adjoint of an ODE can be described as the set of vector equations:
 
 $$\begin{align}
 u' &= f(u,p,t)\\
+\end{align}$$
+
+forward, and then
+
+$$\begin{align}
 \lambda' &= -\lambda^\ast \frac{\partial f}{\partial u}\\
 \mu' &= -\lambda^\ast \frac{\partial f}{\partial p}\\
 \end{align}$$
 
-solved in reverse time for some cost function $C(p)$. For this problem, we will
-use the L2 loss function. Note that $\mu(0) = \frac{\partial C}{\partial p}$,
-$\mu(T) = 0$, and $\lambda(T) = \frac{\partial C}{\partial u(T)}$. This is
-written in the form where the only data point is at time $T$. If that is not the
+solved in reverse time from $T$ to $0$ for some cost function $C(p)$. For this
+problem, we will use the L2 loss function.
+
+Note that $\mu(T) = 0$ and $\lambda(T) = \frac{\partial C}{\partial u(T)}$. This
+is written in the form where the only data point is at time $T$. If that is not the
 case, the reverse solve needs to add the jump $\frac{\partial C}{\partial u(t_i)}$
-to $\lambda$ at each data point $u(t_i)$.
+to $\lambda$ at each data point $u(t_i)$. [Use this example](https://docs.juliadiffeq.org/latest/features/callback_functions/#Example-1:-Interventions-at-Preset-Times-1)
+for how to add these jumps to the equation.
+
+Using this formulation of the adjoint, it holds that
+$\mu(0) = \frac{\partial C}{\partial p}$, and thus solving these ODEs in reverse
+gives the solution for the gradient as a part of the system at time zero.
 
 Notice that $B_f^u(\lambda) = \lambda^\ast \frac{\partial f}{\partial u}$ and
 similarly for $\mu$. Implement an adjoint caluculation for a neural ordinary
@@ -66,7 +78,7 @@ Start with only measuring the datapoint at the end, then try multiple data point
 ### Part 4: Training the neural ODE
 
 Generate data from the ODE $u' = Au$ where `A = [-0.1 2.0; -2.0 -0.1]` at
-`t=0.0:0.1:1.0` (use `saveat`).  Define the cost function `C(θ)` to be
+`t=0.0:0.1:1.0` (use `saveat`) with $u(0) = [2,0]$.  Define the cost function `C(θ)` to be
 the Euclidian distance between the neural ODE's solution and the data. Optimize
 this cost function by using gradient descent where the gradient is your
 adjoint method's output.
