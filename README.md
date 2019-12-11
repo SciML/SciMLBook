@@ -532,3 +532,21 @@ Here we take a small diversion back towards code performance and take a quick
 look at tools for profiling code and use this to understand how to find the
 correct lines to improve our code's timings. This is something that will be
 essential in many research codes (including your project!)
+
+## Lecture 19: Uncertainty Programming and Generalized Uncertainty Quantification
+
+- [Uncertainty Programming](https://mitmath.github.io/18337/lecture19/uncertainty_programming)
+
+We end the course by taking a look at another mathematical topic to see whether
+it can be addressed in a similar manner: uncertainty quantification (UQ). There are
+ways which it can be handled similar to automatic differentiation. Measurements.jl
+gives a forward-propagation approach, somewhat like ForwardDiff's dual numbers,
+through a number type which is representative of normal distributions and pushes
+these values through a program. This has many advantages, since it allows for
+uncertainty quantification without sampling, but turns the number types into a
+value that is heap allocated. Other approaches are investigated, like interval
+arithmetic which is rigorous but limited in scope. But on the entirely other end,
+a non-general method for ODEs is shown which utilizes the trajectory structure
+of the differential equation solution and doesn't give the blow up that the
+other methods see. This showcases that uses higher level information can be
+helpful in UQ, and less local approaches may be necessary.
