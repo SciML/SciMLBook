@@ -241,6 +241,7 @@ programming experience.
 
 - [The Essential Tools of Scientific Machine Learning](http://www.stochasticlifestyle.com/the-essential-tools-of-scientific-machine-learning-scientific-ml/)
 - [Workshop videos on Scientific Machine Learning](https://icerm.brown.edu/events/ht19-1-sml/)
+- [SciML Open Source Scientific Machine Learning](https://sciml.ai/)
 
 #### Summary
 
@@ -420,6 +421,7 @@ process for the efficient calculation of gradients.
 ## Lecture 11: Differentiable Programming and Neural Differential Equations
 
 - [Differentiable Programming and Neural Differential Equations](https://mitmath.github.io/18337/lecture11/adjoints)
+- [Universal Differential Equations for Scientific Machine Learning](https://arxiv.org/abs/2001.04385)
 
 Given the efficiency of reverse-mode automatic differentiation, we want to see
 how far we can push this idea. How could one implement reverse-mode AD without
