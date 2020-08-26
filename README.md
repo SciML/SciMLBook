@@ -161,21 +161,17 @@ Each topic is a group of three pieces: a numerical method, a performance-enginee
 technique, and a scientific application. These three together form a complete
 usable program that is demonstrated.
 
-Homework 0: Using HPC Clusters
-
 - The basics of scientific simulators (Week 1-2)
   - What is Scientific Machine Learning?
   - Optimization of serial code.
   - Introduction to discrete and continuous dynamical systems.
 - Introduction to Parallel Computing (Week 2-3)
-  - Tutorial on using the Supercloud HPC (Get an account setup!)
   - Forms of parallelism and applications
   - Parallelizing differential equation solvers
   - Optimal local parallelism via multithreading
   - Linear Algebra libraries you should know
 
-Homework 1: Parallelized global sensitivity analysis of discrete and continuous
-dynamical systems
+Homework 1: Parallelized dynamical system simulations and ODE integrators
 
 - Continuous Dynamics (Week 4)
   - Ordinary differential equations as the language for ecology, Newtonian mechanics,
