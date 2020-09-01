@@ -234,3 +234,11 @@ Homeworks will be posted as they become available.
 
 Note that lectures are broken down by topic, not by day. Some lectures are more
 than 1 class day, others are less.
+
+# Lecture 1: Introduction and Syllabus
+
+- [Introduction and Syllabus](https://youtu.be/3IoqyXmAAkU)
+
+This is to make sure we're all on the same page. It goes over the syllabus and
+what will be expected of you throughout the course. If you have not joined the Slack,
+please use the link from the introduction email (or email me if you need the link!).
