@@ -936,7 +936,7 @@ A&#91;1&#93; &#61; 2.0
 
 
 <p>However, this means that <code>@view A&#91;1:5,1:5&#93;</code> did not allocate an array &#40;it does allocate a pointer if the escape analysis is unable to prove that it can be elided. This means that in small loops there will be no allocation, while if the view is returned from a function for example it will allocate the pointer, ~80 bytes, but not the memory of the array. This means that it is O&#40;1&#41; in cost but with a relatively small constant&#41;.</p>
-<h3>Asymtopic Cost of Heap Allocations</h3>
+<h3>Asymptopic Cost of Heap Allocations</h3>
 <p>Heap allocations have to locate and prepare a space in RAM that is proportional to the amount of memory that is calcuated, which means that the cost of a heap allocation for an array is O&#40;n&#41;, with a large constant. As RAM begins to fill up, this cost dramatically increases. If you run out of RAM, your computer may begin to use <em>swap</em>, which is essentially RAM simulated on your hard drive. Generally when you hit swap your performance is so dead that you may think that your computation froze, but if you check your resource use you will notice that it&#39;s actually just filled the RAM and starting to use the swap.</p>
 <p>But think of it as O&#40;n&#41; with a large constant factor. This means that for operations which only touch the data once, heap allocations can dominate the computational cost:</p>
 
