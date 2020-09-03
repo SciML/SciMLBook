@@ -235,10 +235,86 @@ Homeworks will be posted as they become available.
 Note that lectures are broken down by topic, not by day. Some lectures are more
 than 1 class day, others are less.
 
-# Lecture 1: Introduction and Syllabus
+## Lecture 1: Introduction and Syllabus
 
-- [Introduction and Syllabus](https://youtu.be/3IoqyXmAAkU)
+### Lecture and Notes
+
+- [Introduction and Syllabus (Lecture)](https://youtu.be/3IoqyXmAAkU)
 
 This is to make sure we're all on the same page. It goes over the syllabus and
 what will be expected of you throughout the course. If you have not joined the Slack,
 please use the link from the introduction email (or email me if you need the link!).
+
+## Lecture 1.1: Getting Started with Julia
+
+### Lecture and Notes
+
+- [Getting Started with Julia for Experienced Programmers (Lecture)](https://youtu.be/-lJK92bEKow)
+
+### Optional Extra Resources
+
+If you are not comfortable with Julia yet, here's a few resources as sort of a
+"crash course" to get you up an running:
+
+- [The Julia Manual](https://docs.julialang.org/en/v1/)
+- [Developing Julia Packages](https://youtu.be/QVmU29rCjaA)
+- [Julia Tutorial (Youtube Video by Jane Herriman)](https://www.youtube.com/watch?v=8h8rQyEpiZA)
+
+Some deeper materials:
+
+- [ThinkJulia](https://benlauwens.github.io/ThinkJulia.jl/latest/book.html)
+- [Julia Wikibook](https://en.wikibooks.org/wiki/Introducing_Julia)
+- [Intro To Julia for Data Science and Scientific Computing (With Problems and Answers)](http://ucidatascienceinitiative.github.io/IntroToJulia/)
+- [QuantEcon Cheatsheet](https://cheatsheets.quantecon.org/)
+- [Julia Noteworthy Differences from Other Languages](https://docs.julialang.org/en/v1/manual/noteworthy-differences/)
+
+Steven Johnson will be running a Julia workshop on 9/8/2020 for people who are
+interested. More details TBA.
+
+## Lecture 2: Optimizing Serial Code
+
+### Lecture and Notes
+
+- [Optimizing Serial Code in Julia 1: Memory Models, Mutation, and Vectorization (Lecture)](https://youtu.be/M2i7sSRcSIw)
+- [Optimizing Serial Code in Julia 2: Type inference, function specialization, and dispatch (Lecture)](https://youtu.be/10_Ukm9wr9g)
+- [Optimizing Serial Code (Notes)](https://mitmath.github.io/18337/lecture2/optimizing)
+
+### Optional Extra Resources
+
+- [Optimizing Your DiffEq Code](https://tutorials.sciml.ai/html/introduction/03-optimizing_diffeq_code.html)
+- [Type-Dispatch Design: Post Object-Oriented Programming for Julia](https://www.stochasticlifestyle.com/type-dispatch-design-post-object-oriented-programming-julia/)
+- [Performance Matters](https://www.youtube.com/watch?v=r-TLSBdHe1A0)
+- [You're doing it wrong (B-heaps vs Binary Heaps and Big O)](http://phk.freebsd.dk/B-Heap/queue.html)
+- [Bjarne Stroustrup: Why you should avoid Linked Lists](https://www.youtube.com/watch?v=YQs6IC-vgmo)
+- [What scientists must know about hardware to write fast code](https://biojulia.net/post/hardware/)
+
+Before we start to parallelize code, build huge models, and automatically learn
+physics, we need to make sure our code is "good". How do you know you're writing
+"good" code? That's what this lecture seeks to answer. In this lecture we'll go
+through the techniques for writing good serial code and checking that your code
+is efficient.
+
+## Lecture 3: Introduction to Scientific Machine Learning Through Physics-Informed Neural Networks
+
+Lecture is coming soon, but in the meantime please check out the additional resources.
+
+### Optional Extra Resources
+
+- [Doing Scientific Machine Learning (4 hour workshop)](https://www.youtube.com/watch?v=QwVO0Xh2Hbg)
+- [Universal Differential Equations for Scientific Machine Learning](https://www.youtube.com/watch?v=5zaB1B4hOnQ)
+- [JuliaCon 2020 | Keynote: Scientific Machine Learning | Prof Karen Willcox (High Level)](https://www.youtube.com/watch?v=Bk4PJnjuPps)
+- [DOE Workshop Report on Basic Research Needs for Scientific Machine Learning](https://www.osti.gov/servlets/purl/1478744)
+
+Now let's take our first stab at the application: scientific machine learning.
+What is scientific machine learning? We will define the field by looking at a
+few approaches people are taking and what kinds of problems are being solved
+using scientific machine learning. The field of scientific machine learning and
+its span across computational science to applications in climate modeling and
+aerospace will be introduced. The methodologies that will be studied, in their
+various names, will be introduced, and the general formula that is arising in
+the discipline will be laid out: a mixture of scientific simulation tools like
+differential equations with machine learning primitives like neural networks,
+tied together through differentiable programming to achieve results that were
+previously not possible. After doing a survey, we while dive straight into
+developing a physics-informed neural network solver which solves an ordinary
+differential equation.
