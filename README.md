@@ -250,6 +250,8 @@ please use the link from the introduction email (or email me if you need the lin
 ### Lecture and Notes
 
 - [Getting Started with Julia for Experienced Programmers (Lecture)](https://youtu.be/-lJK92bEKow)
+- [Julia for Numerical Computation in MIT Courses](https://github.com/mitmath/julia-mit)
+- [Steven Johnson: MIT Julia Tutorial](https://mit.zoom.us/rec/play/E4zN_2MXQmCjX12admWsmsbG6hIlWJztnMmFjlfDEBnlAj8V2qisRn-CLI_WVnUGJFZ4bV6JGM-41m-u.LeAWxiLriV5HwqBK?startTime=1599594382000)
 
 ### Optional Extra Resources
 
@@ -296,7 +298,9 @@ is efficient.
 
 ## Lecture 3: Introduction to Scientific Machine Learning Through Physics-Informed Neural Networks
 
-Lecture is coming soon, but in the meantime please check out the additional resources.
+- [Introduction to Scientific Machine Learning 1: Deep Learning as Function Approximation](https://youtu.be/C3vf9ZFYbjI)
+- [Introduction to Scientific Machine Learning 2: Physics-Informed Neural Networks](https://youtu.be/hKHl68Fdpq4)
+- [Introduction to Scientific Machine Learning through Physics-Informed Neural Networks (Notes)](https://mitmath.github.io/18337/lecture3/sciml)
 
 ### Optional Extra Resources
 
