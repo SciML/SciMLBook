@@ -300,7 +300,7 @@ is efficient.
 
 - [Introduction to Scientific Machine Learning 1: Deep Learning as Function Approximation](https://youtu.be/C3vf9ZFYbjI)
 - [Introduction to Scientific Machine Learning 2: Physics-Informed Neural Networks](https://youtu.be/hKHl68Fdpq4)
-- [Introduction to Scientific Machine Learning through Physics-Informed Neural Networks (Notes)](https://mitmath.github.io/18337/lecture3/sciml)
+- [Introduction to Scientific Machine Learning through Physics-Informed Neural Networks (Notes)](https://mitmath.github.io/18337/lecture3/sciml.html)
 
 ### Optional Extra Resources
 
