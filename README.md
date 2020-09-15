@@ -323,33 +323,6 @@ previously not possible. After doing a survey, we while dive straight into
 developing a physics-informed neural network solver which solves an ordinary
 differential equation.
 
-## Lecture 3: Introduction to Scientific Machine Learning Through Physics-Informed Neural Networks
-
-- [Introduction to Scientific Machine Learning 1: Deep Learning as Function Approximation (Lecture)](https://youtu.be/C3vf9ZFYbjI)
-- [Introduction to Scientific Machine Learning 2: Physics-Informed Neural Networks (Lecture)](https://youtu.be/hKHl68Fdpq4)
-- [Introduction to Scientific Machine Learning through Physics-Informed Neural Networks (Notes)](https://mitmath.github.io/18337/lecture3/sciml.html)
-
-### Optional Extra Resources
-
-- [Doing Scientific Machine Learning (4 hour workshop)](https://www.youtube.com/watch?v=QwVO0Xh2Hbg)
-- [Universal Differential Equations for Scientific Machine Learning](https://www.youtube.com/watch?v=5zaB1B4hOnQ)
-- [JuliaCon 2020 | Keynote: Scientific Machine Learning | Prof Karen Willcox (High Level)](https://www.youtube.com/watch?v=Bk4PJnjuPps)
-- [DOE Workshop Report on Basic Research Needs for Scientific Machine Learning](https://www.osti.gov/servlets/purl/1478744)
-
-Now let's take our first stab at the application: scientific machine learning.
-What is scientific machine learning? We will define the field by looking at a
-few approaches people are taking and what kinds of problems are being solved
-using scientific machine learning. The field of scientific machine learning and
-its span across computational science to applications in climate modeling and
-aerospace will be introduced. The methodologies that will be studied, in their
-various names, will be introduced, and the general formula that is arising in
-the discipline will be laid out: a mixture of scientific simulation tools like
-differential equations with machine learning primitives like neural networks,
-tied together through differentiable programming to achieve results that were
-previously not possible. After doing a survey, we while dive straight into
-developing a physics-informed neural network solver which solves an ordinary
-differential equation.
-
 ## Lecture 4: Introduction to Discrete Dynamical Systems
 
 - [How Loops Work, An Introduction to Discrete Dynamics (Notes)](https://mitmath.github.io/18337/lecture4/dynamical_systems.html)
