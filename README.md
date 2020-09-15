@@ -228,7 +228,7 @@ Homework 3: Training neural ordinary differential equations (with GPUs)
 
 # Homeworks
 
-Homeworks will be posted as they become available.
+- [Homework 1: Parallelized Dynamics. Due October 1st](https://mitmath.github.io/18337/hw1/hw1)
 
 # Lecture Summaries and Handouts
 
@@ -322,3 +322,59 @@ tied together through differentiable programming to achieve results that were
 previously not possible. After doing a survey, we while dive straight into
 developing a physics-informed neural network solver which solves an ordinary
 differential equation.
+
+## Lecture 3: Introduction to Scientific Machine Learning Through Physics-Informed Neural Networks
+
+- [Introduction to Scientific Machine Learning 1: Deep Learning as Function Approximation (Lecture)](https://youtu.be/C3vf9ZFYbjI)
+- [Introduction to Scientific Machine Learning 2: Physics-Informed Neural Networks (Lecture)](https://youtu.be/hKHl68Fdpq4)
+- [Introduction to Scientific Machine Learning through Physics-Informed Neural Networks (Notes)](https://mitmath.github.io/18337/lecture3/sciml.html)
+
+### Optional Extra Resources
+
+- [Doing Scientific Machine Learning (4 hour workshop)](https://www.youtube.com/watch?v=QwVO0Xh2Hbg)
+- [Universal Differential Equations for Scientific Machine Learning](https://www.youtube.com/watch?v=5zaB1B4hOnQ)
+- [JuliaCon 2020 | Keynote: Scientific Machine Learning | Prof Karen Willcox (High Level)](https://www.youtube.com/watch?v=Bk4PJnjuPps)
+- [DOE Workshop Report on Basic Research Needs for Scientific Machine Learning](https://www.osti.gov/servlets/purl/1478744)
+
+Now let's take our first stab at the application: scientific machine learning.
+What is scientific machine learning? We will define the field by looking at a
+few approaches people are taking and what kinds of problems are being solved
+using scientific machine learning. The field of scientific machine learning and
+its span across computational science to applications in climate modeling and
+aerospace will be introduced. The methodologies that will be studied, in their
+various names, will be introduced, and the general formula that is arising in
+the discipline will be laid out: a mixture of scientific simulation tools like
+differential equations with machine learning primitives like neural networks,
+tied together through differentiable programming to achieve results that were
+previously not possible. After doing a survey, we while dive straight into
+developing a physics-informed neural network solver which solves an ordinary
+differential equation.
+
+## Lecture 4: Introduction to Discrete Dynamical Systems
+
+- [How Loops Work, An Introduction to Discrete Dynamics (Notes)](https://mitmath.github.io/18337/lecture4/dynamical_systems.html)
+
+### Optional Extra Resources
+
+- [Strogatz: Nonlinear Dynamics and Chaos](https://www.amazon.com/Nonlinear-Dynamics-Chaos-Applications-Nonlinearity/dp/0738204536)
+- [Stability of discrete dynamics equilibrium](https://mathinsight.org/equilibria_discrete_dynamical_systems_stability)
+- [Behavior of continuous linear dynamical systems](https://chrisrackauckas.com/assets/Papers/ChrisRackauckas-ContinuousDynamics.pdf)
+
+Now that the stage is set, we see that to go deeper we will need a good grasp
+on how both discrete and continuous dynamical systems work. We will start by
+developing the basics of our scientific simulators: differential and difference
+equations. A quick overview of geometric results in the study of differential
+and difference equations will set the stage for understanding nonlinear dynamics,
+which we will quickly turn to numerical methods to visualize. Even if there is
+not analytical solution to the dynamical system, overarching behavior such as
+convergence to zero can be determined through asymptotic means and linearization.
+We will see later that these same techniques for the basis for the analysis
+of numerical methods for differential equations, such as the Runge-Kutta and
+Adams-Bashforth methods.
+
+Since the discretization of differential equations is indeed a discrete dynamical
+system, we will use this as a case study to see how serial scalar-heavy codes
+should be optimized. SIMD, in-place operations, broadcasting, heap allocations,
+and static arrays will be used to get fast codes for dynamical system simulation.
+These simulations will then be used to reveal some intriguing properties of
+dynamical systems which will be further explored through the rest of the course.
