@@ -1025,7 +1025,7 @@ A&#91;1&#93; &#61; 2.0
 <p>These two features naturally give rise to Julia&#39;s core design feature: multiple dispatch. Let&#39;s break down these pieces.</p>
 <h3>Type Inference</h3>
 <p>At the core level of the computer, everything has a type. Some languages are more explicit about said types, while others try to hide the types from the user. A type tells the compiler how to to store and interpret the memory of a value. For example, if the compiled code knows that the value in the register is supposed to be interpreted as a 64-bit floating point number, then it understands that slab of memory like:</p>
-<p><img src="https://www.google.com/url?sa&#61;i&amp;source&#61;images&amp;cd&#61;&amp;ved&#61;2ahUKEwjVnMqWkrbkAhVmRN8KHUAJCC0QjRx6BAgBEAQ&amp;url&#61;https&#37;3A&#37;2F&#37;2Fstackoverflow.com&#37;2Fquestions&#37;2F5113005&#37;2Fquestion-regarding-ieee-754-64-bits-double&amp;psig&#61;AOvVaw3oZeV3nq-TYI8pDPzaRZ1_&amp;ust&#61;1567651252167050" alt="" /></p>
+<p><img src="https://i.stack.imgur.com/ZUbLc.png" alt="" /></p>
 <p>Importantly, it will know what to do for function calls. If the code tells it to add two floating point numbers, it will send them as inputs to the Floating Point Unit &#40;FPU&#41; which will give the output.</p>
 <p>If the types are not known, then... ? So one cannot actually compute until the types are known, since otherwise it&#39;s impossible to interpret the memory. In languages like C, the programmer has to declare the types of variables in the program:</p>
 <pre><code>void add&#40;double *a, double *b, double *c, size_t n&#41;&#123;
