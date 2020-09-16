@@ -325,6 +325,8 @@ differential equation.
 
 ## Lecture 4: Introduction to Discrete Dynamical Systems
 
+- [How Loops Work 1: An Introduction to the Theory of Discrete Dynamical Systems (Lecture)](https://www.youtube.com/watch?v=GhBARuHEydM)
+- [How Loops Work 2: Computationally-Efficient Discrete Dynamics (Lecture)](https://youtu.be/AXHLyHfyEuA)
 - [How Loops Work, An Introduction to Discrete Dynamics (Notes)](https://mitmath.github.io/18337/lecture4/dynamical_systems.html)
 
 ### Optional Extra Resources

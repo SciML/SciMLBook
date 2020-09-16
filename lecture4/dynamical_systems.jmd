@@ -87,12 +87,12 @@ the Banach Fixed Point Theorem (also known as the Contraction Mapping Theorem).
 Let $(X,d)$ be a metric space ($X$ is the set of points we are thinking of, here
 the real numbers. $d$ is a distance function). $f$ is a contraction mapping if
 
-$$d(f(x),f(y)) \leq \alpha d(x,y)$$
+$$d(f(x),f(y)) \leq q d(x,y)$$
 
-where $\alpha < 1$, that is, if applying $f$ always decreases the distance.
+where $q < 1$, that is, if applying $f$ always decreases the distance.
 The theorem then states
 that if $f$ is a contraction mapping, then there is a unique fixed point
-(point $x\ast$ where $f(x\ast)=x\ast$) and a sequence such that $x_0 \rightarrow x\ast$
+(point $x^\ast$ where $f(x^\ast)=x^\ast$) and a sequence such that $x_0 \rightarrow x^\ast$
 where
 
 $$x_{n+1} = f(x_n)$$
@@ -131,7 +131,7 @@ Assume that $\Vert f^\prime (x^\ast) \Vert < 1$ at some point where $f(x)=x$. Th
 continuity of the second derivative, it follows that there is a neighborhood
 where $\Vert f^\prime (x) \Vert < 1$ (). Now recall that this means
 
-$$df/dx \leq 1$$
+$$\frac{df}{dx} \leq 1$$
 
 which means that, for any $x$ and $y$ in the neighborhood,
 
@@ -188,11 +188,23 @@ same stability idea except now with a condition shifted to zero instead of one.
 
 ## Multivariable Systems
 
-Now let $x \in R^k$ be a vector, and define discrete mappings
+Now let $x \in R^k$ be a vector, and define discrete mappings:
 
 $$x_{n+1} = f(x_n)$$
 
-The linear system is
+To visualize this, let's write out the version for $x \in R^3$:
+
+$$x_{n+1}=\left[\begin{array}{c}
+a_{n+1}\\
+b_{n+1}\\
+c_{n+1}
+\end{array}\right]=\left[\begin{array}{c}
+f_{1}(a_{n},b_{n},c_{n})\\
+f_{2}(a_{n},b_{n},c_{n})\\
+f_{3}(a_{n},b_{n},c_{n})
+\end{array}\right]=f(x_{n})$$
+
+The linear multidimensional discrete dynamical system is:
 
 $$x_{n+1} = A x_n$$
 
@@ -375,7 +387,7 @@ step through the function pointer.
 #### Quick Check
 
 What will approximately be the value of this dynamical system after 1000 steps
-if you start at `1.0` with paramter `p=0.25`? Can you guess without solving the
+if you start at `1.0` with parameter `p=0.25`? Can you guess without solving the
 system? Think about steady states and stabiltiy.
 
 ```julia
@@ -402,7 +414,7 @@ solve_system(f,1.25,0.25,1000)
 ```
 
 ```julia
-solve_system(f,1.251,0.25,10)
+solve_system(f,1.251,0.25,20)
 ```
 
 Notice that the moment we go above the steady state `p+1`, we exponentially
@@ -411,9 +423,9 @@ grow to infinity.
 Just to double check the implementation:
 
 ```julia
-@time solve_system(f,1.251,0.25,10)
-@time solve_system(f,1.251,0.25,100)
-@time solve_system(f,1.251,0.25,1000)
+solve_system(f,1.251,0.25,10)
+solve_system(f,1.251,0.25,100)
+solve_system(f,1.251,0.25,1000)
 ```
 
 Those allocations are just the output, and notice it's independent of the loop
@@ -502,7 +514,7 @@ using BenchmarkTools
 @btime solve_system_save_push(lorenz,[1.0,0.0,0.0],p,1000)
 ```
 
-This is because growth costs are amortized, meaning taht when pushing, the size
+This is because growth costs are amortized, meaning that when pushing, the size
 isn't increasing by one each time, but rather it's doing something like doubling,
 so that it's averaging O(1) cost to keep growing (in theory the best is to do
 Golden ratio resizing, and long discussions can be had on this topic).
@@ -611,12 +623,29 @@ function solve_system_mutate(f,u0,p,n)
   # non-allocating loop
   for i in 1:n-1
     f(du,u,p)
-    u .= du
+    u,du = du,u
   end
   u
 end
 solve_system_mutate(lorenz,[1.0,0.0,0.0],p,1000)
 ```
+
+Here we see a little trick: the line `u,du = du,u` is swapping the pointer of
+`u` with the pointer of `du` (since the value of the array is its reference).
+An alternative way to write the loop is:
+
+```julia;eval=false
+for i in 1:n-1
+  f(du,u,p)
+  u .= du
+end
+```
+
+which would compute `f` and then take the values of `du` and update `u` with them,
+but that's 3 extra operations than required, whereas `u,du = du,u` will change `u`
+to be a pointer to the updated memory and now `du` is an "empty" cache array that
+we can refill (this decreases the computational cost by ~33%). Let's see what the
+cost is with this newest version:
 
 ```julia
 @btime solve_system(lorenz,[1.0,0.0,0.0],p,1000)

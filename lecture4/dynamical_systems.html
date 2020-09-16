@@ -708,9 +708,9 @@ u_{n+1} = \alpha^n u_0
 <h4>Banach Fixed Point Theorem</h4>
 <p>There are surprisingly simple results that we can prove. First let&#39;s recall the Banach Fixed Point Theorem &#40;also known as the Contraction Mapping Theorem&#41;. Let <span class="math">$(X,d)$</span> be a metric space &#40;<span class="math">$X$</span> is the set of points we are thinking of, here the real numbers. <span class="math">$d$</span> is a distance function&#41;. <span class="math">$f$</span> is a contraction mapping if</p>
 <p class="math">\[
-d(f(x),f(y)) \leq \alpha d(x,y)
+d(f(x),f(y)) \leq q d(x,y)
 \]</p>
-<p>where <span class="math">$\alpha < 1$</span>, that is, if applying <span class="math">$f$</span> always decreases the distance. The theorem then states that if <span class="math">$f$</span> is a contraction mapping, then there is a unique fixed point &#40;point <span class="math">$x\ast$</span> where <span class="math">$f(x\ast)=x\ast$</span>&#41; and a sequence such that <span class="math">$x_0 \rightarrow x\ast$</span> where</p>
+<p>where <span class="math">$q < 1$</span>, that is, if applying <span class="math">$f$</span> always decreases the distance. The theorem then states that if <span class="math">$f$</span> is a contraction mapping, then there is a unique fixed point &#40;point <span class="math">$x^\ast$</span> where <span class="math">$f(x^\ast)=x^\ast$</span>&#41; and a sequence such that <span class="math">$x_0 \rightarrow x^\ast$</span> where</p>
 <p class="math">\[
 x_{n+1} = f(x_n)
 \]</p>
@@ -741,7 +741,7 @@ x_{n+1} = f(x_n)
 \]</p>
 <p>Assume that <span class="math">$\Vert f^\prime (x^\ast) \Vert < 1$</span> at some point where <span class="math">$f(x)=x$</span>. Then by continuity of the second derivative, it follows that there is a neighborhood where <span class="math">$\Vert f^\prime (x) \Vert < 1$</span> &#40;&#41;. Now recall that this means</p>
 <p class="math">\[
-df/dx \leq 1
+\frac{df}{dx} \leq 1
 \]</p>
 <p>which means that, for any <span class="math">$x$</span> and <span class="math">$y$</span> in the neighborhood,</p>
 <p class="math">\[
@@ -773,11 +773,23 @@ x_{n+1} = g(x_n)
 \]</p>
 <p>and so if <span class="math">$-2 < f^\prime < 0$</span>, then <span class="math">$\Vert g^\prime \Vert = \Vert 1 + f^\prime \Vert < 1$</span> and so we have the same stability idea except now with a condition shifted to zero instead of one.</p>
 <h2>Multivariable Systems</h2>
-<p>Now let <span class="math">$x \in R^k$</span> be a vector, and define discrete mappings</p>
+<p>Now let <span class="math">$x \in R^k$</span> be a vector, and define discrete mappings:</p>
 <p class="math">\[
 x_{n+1} = f(x_n)
 \]</p>
-<p>The linear system is</p>
+<p>To visualize this, let&#39;s write out the version for <span class="math">$x \in R^3$</span>:</p>
+<p class="math">\[
+x_{n+1}=\left[\begin{array}{c}
+a_{n+1}\\
+b_{n+1}\\
+c_{n+1}
+\end{array}\right]=\left[\begin{array}{c}
+f_{1}(a_{n},b_{n},c_{n})\\
+f_{2}(a_{n},b_{n},c_{n})\\
+f_{3}(a_{n},b_{n},c_{n})
+\end{array}\right]=f(x_{n})
+\]</p>
+<p>The linear multidimensional discrete dynamical system is:</p>
 <p class="math">\[
 x_{n+1} = A x_n
 \]</p>
@@ -864,7 +876,7 @@ for N steps. Returns the solution at step `n` with parameters `p`.
 
 
 <pre class="output">
-Main.##WeaveSandBox#345.solve_system
+Main.##WeaveSandBox#2406.solve_system
 </pre>
 
 
@@ -889,7 +901,7 @@ Main.##WeaveSandBox#345.solve_system
 
 
 <pre class="output">
-typeof&#40;Main.##WeaveSandBox#345.f&#41;
+typeof&#40;Main.##WeaveSandBox#2406.f&#41;
 </pre>
 
 
@@ -897,7 +909,7 @@ typeof&#40;Main.##WeaveSandBox#345.f&#41;
 <p>Note that this does mean that the function will need to recompile for every new <code>f</code>. This is similar to statically compiling a function for use in a C/Fortran library. What is the equivalent to using a function like a shared library or a shared object? This is given by FunctionWrappers.jl. This directly stores the function pointer in an object that can have shared type information in order to keep every function as the same type. However, the wrapped function has more information about the pointer... what&#39;s necessary?</p>
 <p>The answer is that FunctionWrappers.jl allows for specifying the input and output types, in order for the wrapper to do the right assertions for inference to carry forward type stability, since in this case inference is not able to step through the function pointer.</p>
 <h4>Quick Check</h4>
-<p>What will approximately be the value of this dynamical system after 1000 steps if you start at <code>1.0</code> with paramter <code>p&#61;0.25</code>? Can you guess without solving the system? Think about steady states and stabiltiy.</p>
+<p>What will approximately be the value of this dynamical system after 1000 steps if you start at <code>1.0</code> with parameter <code>p&#61;0.25</code>? Can you guess without solving the system? Think about steady states and stabiltiy.</p>
 
 
 <pre class='hljl'>
@@ -947,12 +959,12 @@ typeof&#40;Main.##WeaveSandBox#345.f&#41;
 
 
 <pre class='hljl'>
-<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>20</span><span class='hljl-p'>)</span>
 </pre>
 
 
 <pre class="output">
-3.8234317863564664
+Inf
 </pre>
 
 
@@ -961,16 +973,13 @@ typeof&#40;Main.##WeaveSandBox#345.f&#41;
 
 
 <pre class='hljl'>
-<span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span><span class='hljl-t'>
-</span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>100</span><span class='hljl-p'>)</span><span class='hljl-t'>
-</span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>100</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.251</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre>
 
 
 <pre class="output">
-0.000000 seconds
-  0.000000 seconds
-  0.000002 seconds
 NaN
 </pre>
 
@@ -1072,7 +1081,7 @@ NaN
 
 
 <pre class="output">
-0.000031 seconds &#40;1.00 k allocations: 117.312 KiB&#41;
+0.000062 seconds &#40;1.00 k allocations: 117.312 KiB&#41;
 1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -1104,7 +1113,7 @@ NaN
 
 
 <pre class="output">
-0.010775 seconds &#40;19.79 k allocations: 1.149 MiB&#41;
+0.025693 seconds &#40;19.79 k allocations: 1.150 MiB&#41;
 1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -1138,7 +1147,7 @@ NaN
 
 
 <pre class="output">
-0.000038 seconds &#40;1.01 k allocations: 125.781 KiB&#41;
+0.000112 seconds &#40;1.01 k allocations: 125.781 KiB&#41;
 1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -1173,7 +1182,7 @@ NaN
 
 
 <pre class="output">
-23.100 μs &#40;1001 allocations: 117.31 KiB&#41;
+38.700 μs &#40;1001 allocations: 117.31 KiB&#41;
 1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -1205,7 +1214,7 @@ NaN
 
 
 <pre class="output">
-28.400 μs &#40;1010 allocations: 125.78 KiB&#41;
+34.700 μs &#40;1010 allocations: 125.78 KiB&#41;
 1000-element Array&#123;Array&#123;Float64,1&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -1230,7 +1239,7 @@ NaN
 </pre>
 
 
-<p>This is because growth costs are amortized, meaning taht when pushing, the size isn&#39;t increasing by one each time, but rather it&#39;s doing something like doubling, so that it&#39;s averaging O&#40;1&#41; cost to keep growing &#40;in theory the best is to do Golden ratio resizing, and long discussions can be had on this topic&#41;.</p>
+<p>This is because growth costs are amortized, meaning that when pushing, the size isn&#39;t increasing by one each time, but rather it&#39;s doing something like doubling, so that it&#39;s averaging O&#40;1&#41; cost to keep growing &#40;in theory the best is to do Golden ratio resizing, and long discussions can be had on this topic&#41;.</p>
 <p>We can also look at what happens if we use matrices:</p>
 
 
@@ -1248,7 +1257,7 @@ NaN
 
 
 <pre class="output">
-57.100 μs &#40;2001 allocations: 242.16 KiB&#41;
+80.500 μs &#40;2001 allocations: 242.16 KiB&#41;
 3×1000 Array&#123;Float64,2&#125;:
  1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744
  0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
@@ -1274,7 +1283,7 @@ NaN
 
 
 <pre class="output">
-30.799 μs &#40;1002 allocations: 132.89 KiB&#41;
+36.801 μs &#40;1002 allocations: 132.89 KiB&#41;
 3×1000 Array&#123;Float64,2&#125;:
  1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744
  0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
@@ -1300,7 +1309,7 @@ NaN
 
 
 <pre class="output">
-1.100 ms &#40;2318 allocations: 11.69 MiB&#41;
+1.860 ms &#40;2318 allocations: 11.69 MiB&#41;
 3×1000 Array&#123;Float64,2&#125;:
  1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744
  0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
@@ -1412,7 +1421,7 @@ NaN
   </span><span class='hljl-cs'># non-allocating loop</span><span class='hljl-t'>
   </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
     </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
-    </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>.=</span><span class='hljl-t'> </span><span class='hljl-n'>du</span><span class='hljl-t'>
+    </span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>du</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-t'>
   </span><span class='hljl-k'>end</span><span class='hljl-t'>
   </span><span class='hljl-n'>u</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
@@ -1428,6 +1437,20 @@ NaN
 </pre>
 
 
+<p>Here we see a little trick: the line <code>u,du &#61; du,u</code> is swapping the pointer of <code>u</code> with the pointer of <code>du</code> &#40;since the value of the array is its reference&#41;. An alternative way to write the loop is:</p>
+
+
+
+<pre class='hljl'>
+<span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>n</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>.=</span><span class='hljl-t'> </span><span class='hljl-n'>du</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<p>which would compute <code>f</code> and then take the values of <code>du</code> and update <code>u</code> with them, but that&#39;s 3 extra operations than required, whereas <code>u,du &#61; du,u</code> will change <code>u</code> to be a pointer to the updated memory and now <code>du</code> is an &quot;empty&quot; cache array that we can refill &#40;this decreases the computational cost by ~33&#37;&#41;. Let&#39;s see what the cost is with this newest version:</p>
+
 
 <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
@@ -1435,7 +1458,7 @@ NaN
 
 
 <pre class="output">
-21.799 μs &#40;1000 allocations: 109.38 KiB&#41;
+38.901 μs &#40;1000 allocations: 109.38 KiB&#41;
 3-element Array&#123;Float64,1&#125;:
   1.4744010677851374
   0.8530017039412324
@@ -1450,7 +1473,7 @@ NaN
 
 
 <pre class="output">
-12.199 μs &#40;3 allocations: 336 bytes&#41;
+6.500 μs &#40;3 allocations: 336 bytes&#41;
 3-element Array&#123;Float64,1&#125;:
   1.4744010677851374
   0.8530017039412324
@@ -1484,7 +1507,7 @@ NaN
 
 
 <pre class="output">
-1000-element Array&#123;StaticArrays.SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -1515,8 +1538,8 @@ NaN
 
 
 <pre class="output">
-6.660 μs &#40;2 allocations: 23.52 KiB&#41;
-1000-element Array&#123;StaticArrays.SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+7.934 μs &#40;2 allocations: 23.52 KiB&#41;
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -1566,7 +1589,7 @@ NaN
 
 
 <pre class="output">
-1000-element Array&#123;StaticArrays.SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -1597,8 +1620,8 @@ NaN
 
 
 <pre class="output">
-4.529 μs &#40;2 allocations: 23.52 KiB&#41;
-1000-element Array&#123;StaticArrays.SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+5.517 μs &#40;2 allocations: 23.52 KiB&#41;
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -1631,8 +1654,8 @@ NaN
 
 
 <pre class="output">
-5.183 μs &#40;1 allocation: 32 bytes&#41;
-3-element StaticArrays.SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125; with indices SOneTo&#40;3&#41;:
+5.867 μs &#40;1 allocation: 32 bytes&#41;
+3-element SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125; with indices SOneTo&#40;3&#41;:
   1.4744010677851374
   0.8530017039412324
  20.62004063423844
@@ -1657,8 +1680,8 @@ NaN
 
 
 <pre class="output">
-4.371 μs &#40;0 allocations: 0 bytes&#41;
-1000-element Array&#123;StaticArrays.SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
+4.957 μs &#40;0 allocations: 0 bytes&#41;
+1000-element Array&#123;SArray&#123;Tuple&#123;3&#125;,Float64,1,3&#125;,1&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
