@@ -334,6 +334,8 @@ differential equation.
 - [Strogatz: Nonlinear Dynamics and Chaos](https://www.amazon.com/Nonlinear-Dynamics-Chaos-Applications-Nonlinearity/dp/0738204536)
 - [Stability of discrete dynamics equilibrium](https://mathinsight.org/equilibria_discrete_dynamical_systems_stability)
 - [Behavior of continuous linear dynamical systems](https://chrisrackauckas.com/assets/Papers/ChrisRackauckas-ContinuousDynamics.pdf)
+- [Golden Ratio Growth Argument](https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md)
+- [Golden Ratio Growth PR and timings](https://github.com/JuliaLang/julia/pull/16305)
 
 Now that the stage is set, we see that to go deeper we will need a good grasp
 on how both discrete and continuous dynamical systems work. We will start by
