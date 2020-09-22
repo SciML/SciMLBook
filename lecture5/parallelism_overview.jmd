@@ -1,7 +1,7 @@
 ---
 title: The Basics of Single Node Parallel Computing
 author: Chris Rackauckas
-date: September 17th, 2019
+date: September 21st, 2020
 ---
 
 Moore's law was the idea that computers double in efficiency at fixed time points,
@@ -444,14 +444,12 @@ serial_out - threaded_out
 @btime threaded_out = tmap(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
 ```
 
-### Julia v1.3 and Hierarchical Multithreading
+### Hierarchical Task-Based Multithreading and Dynamic Scheduling
 
-The major change in Julia v1.3 (not released yet) is that Julia's `Task`s,
-
-which are traditionally its green threads interface, are now the basis of its
-multithreading infrustructure. This means that all independent threads are
-parallelized, and a new interface for multithreading will exist that works
-by spawning threads.
+The major change in Julia v1.3 is that Julia's `Task`s, which are traditionally
+its green threads interface, are now the basis of its multithreading infrustructure.
+This means that all independent threads are parallelized, and a new interface for
+multithreading will exist that works by spawning threads.
 
 This implementation follows Go's goroutines and the classic multithreading
 interface of Cilk. There is a Julia-level scheduler that handles the multithreading
@@ -465,13 +463,97 @@ This is essential for numerical performance because running multiple compute
 threads on a single CPU thread requires constant context switching between
 the threads, which will slow down the computations.
 
+To directly use the task-based interface, simply use `Threads.@spawn` to spawn
+new tasks. For example:
+
+```julia
+function tmap2(f,ps)
+  tasks = [Threads.@spawn f(ps[i]) for i in 1:1000]
+  out = [fetch(t) for t in tasks]
+end
+threaded_out = tmap2(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+However, if we check the timing we see:
+
+```julia
+@btime tmap2(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+`Threads.@threads` is built on the same multithreading infrustructure, so why
+is this so much slower? The reason is because `Threads.@threads` employs
+**static scheduling** while `Threads.@spawn` is using **dynamic scheduling**.
+Dynamic scheduling is the model of allowing the runtime to determine the ordering
+and scheduling of processes, i.e. what tasks will run run where and when. Julia's
+task-based multithreading system has a thread scheduler which will automatically
+do this for you in the background, but because this is done at runtime it will
+have overhead. Static scheduling is the model of pre-determining where and when
+tasks will run, instead of allowing this to be determined at runtime. `Threads.@threads`
+is "quasi-static" in the sense that it cuts the loop so that it spawns only as
+many tasks as there are threads, essentially assigning one thread for even
+chunks of the input data.
+
+Does this lack of runtime overhead mean that static scheduling is "better"? No,
+it simply has trade-offs. Static scheduling assumes that the runtime of each
+block is the same. For this specific case where there are fixed number of loop
+iterations for the dynamical systems, we know that every `compute_trajectory_mean5`
+costs exactly the same, and thus this will be more efficient. However, There are
+many cases where this might not be efficient. For example:
+
+```julia
+function sleepmap_static()
+  out = Vector{Int}(undef,24)
+  Threads.@threads for i in 1:24
+    sleep(i/10)
+    out[i] = i
+  end
+  out
+end
+isleep(i) = (sleep(i/10);i)
+function sleepmap_spawn()
+  tasks = [Threads.@spawn(isleep(i)) for i in 1:24]
+  out = [fetch(t) for t in tasks]
+end
+
+@btime sleepmap_static()
+@btime sleepmap_spawn()
+```
+
+The reason why this occurs is because of how the static scheduling had chunked
+my calculation. On my computer:
+
+```julia
+Threads.nthreads()
+```
+
+This means that there are 6 tasks that are created by `Threads.@threads`. The
+first takes:
+
+```julia
+sum(i/10 for i in 1:4)
+```
+
+1 second, while the next group takes longer, then the next, etc. while the last takes:
+
+```julia
+sum(i/10 for i in 21:24)
+```
+
+9 seconds (which is precisely the result!). Thus by unevenly distributing the
+runtime, we run as fast as the slowest thread. However, dynamic scheduling allows
+new tasks to immediately run when another is finished, meaning that the in that
+case the shorter tasks tend to be piled together, causing a faster execution.
+Thus whether dynamic or static scheduling is beneficial is dependent on the problem
+and the implementation of the static schedule.
+
 #### Possible Project
 
 Note that this can extend to external library calls as well.
 [FFTW.jl recently gained support for this](https://github.com/JuliaMath/FFTW.jl/pull/105).
-A possible final project would be to do a similar change [to OpenBLAS](https://github.com/JuliaLang/julia/issues/32786).
+A possible final project would be to do a similar change
+[to OpenBLAS](https://github.com/JuliaLang/julia/issues/32786).
 
-## Alternative Parallelism Models
+## A Teaser for Alternative Parallelism Models
 
 ### Simplest Parallel Code
 
@@ -521,6 +603,10 @@ codes.
 
 This is also commonly the level at which GPU computing occurs in machine learning
 libraries for reasons which we will explain later.
+
+### MPI
+
+Well, this is a big topic and we'll address this one later!
 
 ## Conclusion
 
