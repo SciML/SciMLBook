@@ -128,7 +128,7 @@ have fetched the result!
 @time begin
     a = Vector{Any}(undef,nworkers())
     @sync for (idx, pid) in enumerate(workers())
-        @async a[idx] = remotecall_fetch(pid, sleep, 2)
+        @async a[idx] = remotecall_fetch(sleep, pid, 2)
     end
 end
 ```
