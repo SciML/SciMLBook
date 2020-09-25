@@ -365,4 +365,31 @@ dynamical systems which will be further explored through the rest of the course.
 
 - [Chart of CPU Operation Costs](http://ithare.com/wp-content/uploads/part101_infographics_v08.png)
 
-Now that we have a concrete problem, let's start investigating ways to parallelize its solution. We will first see that many systems have an almost automatic way of parallelizing through array operations, which we will call array-based parallelism. The ability to easily parallelize large blocked linear algebra will be discussed, along with libraries like OpenBLAS, Intel MKL, CuBLAS (GPU parallelism) and Elemental.jl. This gives a form of Within-Method Parallelism which we can use to optimize specific algorithms which utilize linearity. Another form of parallelism is to parallelize over the inputs. We will describe how this is a form of data parallelism, and use this as a framework to introduce shared memory and distributed parallelism. The interactions between these parallelization methods and application considerations will be discussed.
+Now that we have a concrete problem, let's start investigating ways to
+parallelize its solution. We will first see that many systems have an almost
+automatic way of parallelizing through array operations, which we will call
+array-based parallelism. The ability to easily parallelize large blocked linear
+algebra will be discussed, along with libraries like OpenBLAS, Intel MKL, CuBLAS
+(GPU parallelism) and Elemental.jl. This gives a form of Within-Method
+Parallelism which we can use to optimize specific algorithms which utilize
+linearity. Another form of parallelism is to parallelize over the inputs. We
+will describe how this is a form of data parallelism, and use this as a
+framework to introduce shared memory and distributed parallelism. The
+interactions between these parallelization methods and application
+considerations will be discussed.
+
+## Lecture 6: Styles of Parallelism
+
+- [The Different Flavors of Parallelism: Parallel Programming Models (Lecture)](https://youtu.be/EP5VWwPIews)
+- [The Different Flavors of Parallelism (Notes)](https://mitmath.github.io/18337/lecture6/styles_of_parallelism.html)
+
+Here we continue down the line of describing methods of parallelism by giving a
+high level overview of the types of parallelism. SIMD and multithreading are
+reviewed as the basic forms of parallelism where message passing is not a
+concern. Then accelerators, such as GPUs and TPUs are introduced. Moving
+further, distributed parallel computing and its models are showcased. What we
+will see is that what kind of parallelism we are doing actually is not the main
+determiner as to how we need to think about parallelism. Instead, the determining
+factor is the parallel programming model, where just a handful of models, like
+task-based parallelism or SPMD models, are seen across all of the different
+hardware abstractions.
