@@ -1,7 +1,7 @@
 ---
-title: Discretizing Ordinary Differential Equations
+title: Ordinary Differential Equations, Applications and Discretizations
 author: Chris Rackauckas
-date: September 24nd, 2019
+date: October 1st, 2020
 ---
 
 Now that we have a sense of parallelism, let's return back to our thread on
@@ -163,8 +163,8 @@ where $i$ runs over the other particles. Thus we have a vector of position
 derivatives and a vector of velocity derivatives that evolve over time to give
 the evolving positions and velocity.
 
-An example of this is the Pleiades problem, which is an approximation to a 7-star
-chaotic system. It can be written as:
+An example of this is the [Pleiades problem](https://archimede.dm.uniba.it/~testset/report/plei.pdf),
+which is an approximation to a 7-star chaotic system. It can be written as:
 
 ```julia
 using OrdinaryDiffEq
@@ -177,7 +177,7 @@ function pleiades(du,u,p,t)
   w = view(u,22:28) # y′
   du[1:7] .= v
   du[8:14].= w
-  for i in 14:28
+  for i in 15:28
     du[i] = zero(u[1])
   end
   for i=1:7,j=1:7
@@ -463,8 +463,8 @@ approximate the value at $t + \frac{\Delta t}{2}$ and then use that value to
 approximate the derivative at $t + \frac{\Delta t}{2}$. This looks like:
 
 ```math
-k_1 = f(u_n,p,t)
-k_2 = f(u_n + \frac{\Delta t}{2} k_1,p,t + \frac{\Delta t}{2})
+k_1 = f(u_n,p,t)\\
+k_2 = f(u_n + \frac{\Delta t}{2} k_1,p,t + \frac{\Delta t}{2})\\
 u_{n+1} = u_n + \Delta t k_2
 ```
 
@@ -477,7 +477,7 @@ u_{n+1} = u_n + \Delta t f(t + \frac{\Delta t}{2},u_n + \frac{\Delta t}{2} f_n)
 where $f_n = f(u_n,p,t)$. If we do the two-dimensional Taylor expansion we get:
 
 ```math
-u_{n+1} = u_n + \Delta t f_n + \frac{\Delta t^2}{2}(f_t + f_u f)(u_n,p,t)
+u_{n+1} = u_n + \Delta t f_n + \frac{\Delta t^2}{2}(f_t + f_u f)(u_n,p,t)\\
 + \frac{\Delta t^3}{8} (f_{tt} + 2f_{tu}f + f_{uu}f^2)(u_n,p,t)
 ```
 
@@ -499,10 +499,10 @@ u(t + \Delta t) - u_n = \mathcal{O}(\Delta t^3)
 More generally, Runge-Kutta methods are of the form:
 
 ```math
-k_1 = f(u_n,p,t)
-k_2 = f(u_n + \Delta t (a_{21} k_1),p,t + \Delta t c_1)
-k_3 = f(u_n + \Delta t (a_{31} k_1 + a_{32} k_2),p,t + \Delta t c_2)
-\vdots
+k_1 = f(u_n,p,t)\\
+k_2 = f(u_n + \Delta t (a_{21} k_1),p,t + \Delta t c_1)\\
+k_3 = f(u_n + \Delta t (a_{31} k_1 + a_{32} k_2),p,t + \Delta t c_2)\\
+\vdots \\
 u_{n+1} = u_n + \Delta t (b_1 k_1 + \ldots + b_s k_s)
 ```
 
@@ -511,17 +511,21 @@ where $s$ is the number of stages. These tableaus can be expressed as a tableau:
 ![](https://en.wikipedia.org/wiki/List_of_Runge%E2%80%93Kutta_methods)
 
 The order of the Runge-Kutta method is simply the number of terms in the Taylor
-series that ends up being matched by the resulting expansion.
+series that ends up being matched by the resulting expansion. For example, for
+the 4th order you can expand out and see that the following equations need to
+be satisfied:
+
+![](https://user-images.githubusercontent.com/1814174/95117136-105ae780-0716-11eb-9f6a-49fecf7adbeb.PNG)
 
 The classic Runge-Kutta method is also known as RK4 and is the following 4th
 order method:
 
 ```math
-k_1 = f(u_n,p,t)
-k_2 = f(u_n + \frac{\Delta t}{2} k_1,p,t + \frac{\Delta t}{2})
-k_3 = f(u_n + \frac{\Delta t}{2} k_2,p,t + \frac{\Delta t}{2})
-k_4 = f(u_n + \Delta t k_3,p,t + \Delta t)
-u_{n+1} = u_n + \frac{1}{6}(k_1 + 2 k_2 + 2 k_3 + k_4)
+k_1 = f(u_n,p,t)\\
+k_2 = f(u_n + \frac{\Delta t}{2} k_1,p,t + \frac{\Delta t}{2})\\
+k_3 = f(u_n + \frac{\Delta t}{2} k_2,p,t + \frac{\Delta t}{2})\\
+k_4 = f(u_n + \Delta t k_3,p,t + \Delta t)\\
+u_{n+1} = u_n + \frac{1}{6}(k_1 + 2 k_2 + 2 k_3 + k_4)\\
 ```
 
 While it's widely known and simple to remember, it's not necessarily good. The
@@ -529,10 +533,101 @@ way to judge a Runge-Kutta method is by looking at the size of the coefficient
 of the next term in the Taylor series: if it's large then the true error can
 be larger, even if it matches another one asymtopically.
 
+## What Makes a Good Method?
+
+### Leading Truncation Coeffcients
+
+For given orders of explicit Runge-Kutta methods, lower bounds for the number of
+`f` evaluations (stages) required to receive a given order are known:
+
+![](https://user-images.githubusercontent.com/1814174/95117078-f8836380-0715-11eb-9acf-0626338307d1.PNG)
+
+While uninuitive, using the method is not necessarily the one that reduces the
+coefficient the most. The reason is because what is attempted in ODE solving
+is precisely the opposite of the analysis. In the ODE analysis, we're looking at
+behavior as $\Delta t \rightarrow 0$. However, when efficiently solving ODEs, we
+want to use the largest $\Delta t$ which satisfies error tolerances.
+
 The most widely used method is the Dormand-Prince 5th order Runge-Kutta method,
 whose tableau is represented as:
 
 ![](http://rotordynamics.files.wordpress.com/2014/05/new-picture6.png)
+
+Notice that this method takes 7 calls to `f` for 5th order. The key to this method
+is that it has optimized leading truncation error coefficients, under some extra
+assumptions which allow for the analysis to be simplified.
+
+### Looking at the Effects of RK Method Choices and Code Optimizations
+
+Pulling from the [SciML Benchmarks](https://github.com/SciML/SciMLBenchmarks.jl),
+we can see the general effect of these different properties on a given set of
+Runge-Kutta methods:
+
+![](https://user-images.githubusercontent.com/1814174/95118000-7c8a1b00-0717-11eb-8080-2179da500cd2.PNG)
+
+Here, the order of the method is given in the name. We can see one immediate factor
+is that, as the requested error in the calculation decreases, the higher order
+methods become more efficient. This is because to decrease error, you decrease
+$\Delta t$, and thus the exponent difference with respect to $\Delta t$ has more
+of a chance to pay off for the extra calls to `f`. Additionally, we can see that
+order is not the only determining factor for efficiency: the Vern8 method seems
+to have a clear approximate 2.5x performance advantage over the whole span of the
+benchmark compared to the DP8 method, even though both are 8th order methods.
+This is because of the leading truncation terms: with a small enough $\Delta t$,
+the more optimized method (Vern8) will generally have low error in a step for the
+same $\Delta t$ because the coefficients in the expansion are generally smaller.
+
+This is a factor which is generally ignored in high level discussions of
+numerical differential equations, but can lead to orders of magnitude differences!
+This is highlighted in the following plot:
+
+![](https://user-images.githubusercontent.com/1814174/95118457-544eec00-0718-11eb-8c19-f402e2cb8842.PNG)
+
+Here we see ODEInterface.jl's ODEInterfaceDiffEq.jl wrapper into the SciML
+common interface for the standard `dopri` method from Fortran, and ODE.jl, the
+original ODE solvers in Julia, have a performance disadvantage compared to the
+DifferentialEquations.jl methods due in part to some of the coding performance
+pieces that we discussed in the first few lectures.
+
+Specifically, a large part of this can be attributed to inlining of the higher order
+functions, i.e. ODEs are defined by a user function and then have to be called
+from the solver. If the solver code is compiled as a shared library ahead of
+time, like is commonly done in C++ or Fortran, then there can be a function
+call overhead that is eliminted by JIT compilation optimizing across the
+function call barriers (known as interprocedural optimization). This is one way
+which a JIT system can outperform an AOT (ahead of time) compiled system in
+real-world code (for completeness, two other ways are by doing full function
+specialization, which is something that is [not generally possible in AOT
+languages given that you cannot know all types ahead of time for a fully generic
+function](https://scalac.io/specialized-generics-object-instantiation/),
+and [calling C itself, i.e. c-ffi (foreign function interface), can be optimized
+using the runtime information of the JIT compiler to outperform C!](https://github.com/dyu/ffi-overhead#results-500m-calls)).
+
+The other performance difference being shown here is due to optimization of the
+method. While a slightly different order, we can see a clear difference in the
+performance of RK4 vs the coefficient optimized methods. It's about the same
+order of magnitude as "highly optimized code differences", showing that what's
+different about a both the Runge-Kutta coefficients and the code implementation
+can both have a significant impact on performance.
+
+Taking a look at what happens when interpreted languages get involved highlights
+some of the code challenges in this domain. Let's take a look at for example the
+results when simulating 3 ODE systems with the various RK methods:
+
+![](https://user-images.githubusercontent.com/1814174/95131785-b1549d00-072c-11eb-8d2a-490f69a4b99f.PNG)
+
+We see that using interpreted languages introduces around a 50x-100x performance
+penalty. If the you recall in your previous lecture, the discrete dynamical
+system that was being simulated was the 3-dimensional Lorenz equation discretized
+by Euler's method, meaning that the performance of that implementation is a good
+proxy for understanding the performance differences in this graph. Recall that
+in previous lectures we saw an approximately 5x performance advantage when
+specializing on the system function and size and around 10x by reducing
+allocations: these features account for the performance differences noticed
+between library implementations, which are then compounded by the use of
+different RK methods (note that R uses "call by copy" which even further increases
+the memory usages and makes standard usage of the language incompatible with
+mutating function calls!).
 
 ### Stability of a Method
 
@@ -566,6 +661,23 @@ which is stable when $z$ is in the shifted unit circle. This means that, as a
 necessary condition, the step size $\Delta t$ needs to be small enough that
 $z$ satisfies this condition, placing a stepsize limit on the method.
 
+![](https://user-images.githubusercontent.com/1814174/95117231-3c766880-0716-11eb-9069-039253bcebda.PNG)
+
+If $\Delta t$ is ever too large, it will cause the equation to overshoot zero,
+which then causes oscillations that spiral out to infinity.
+
+![](https://user-images.githubusercontent.com/1814174/95132604-0d6bf100-072e-11eb-8af5-663512a0db14.PNG)
+
+![](https://user-images.githubusercontent.com/1814174/95132963-9125dd80-072e-11eb-878e-61f77a20d03e.gif)
+
+Thus the stability condition places a hard constraint on the allowed $\Delta t$
+which will result in a realistic simulation.
+
+For reference, the stability regions of the 2nd and 4th order Runge-Kutta methods
+that we discussed are as follows:
+
+![](https://user-images.githubusercontent.com/1814174/95117286-56b04680-0716-11eb-9c6a-07fc4d190a09.PNG)
+
 ### Interpretation of the Linear Stability Condition
 
 To interpret the linear stability condition, recall that the linearization of
@@ -582,7 +694,9 @@ You can understand the local behavior through diagonalizing this matrix. Therefo
 the scalar for the linear stability analysis is performing an analysis on the
 eigenvalues of the Jacobian. The method will be stable if the largest eigenvalues
 of df/du are all within the stability limit. This means that stability effects
-different
+are different throughout the solution of a nonlinear equation and are generally
+understood locally (though different more comprehensive stability conditions
+exist!).
 
 ### Implicit Methods
 
@@ -608,6 +722,8 @@ It is also stable as $z \rightarrow \infty$, a property known as L-stability.
 This means that for equations with very ill-conditioned Jacobians, this method
 is still able to be use reasonably large stepsizes and can thus be efficient.
 
+![](https://user-images.githubusercontent.com/1814174/95117191-28326b80-0716-11eb-8e17-889308bdff53.PNG)
+
 ### Stiffness and Timescale Separation
 
 From this we see that there is a maximal stepsize whenever the eigenvalues
@@ -625,6 +741,8 @@ then explict integrators, like the explicit Runge-Kutta methods described before
 have issues with stability. In this case implicit integrators (or other forms
 of stabilized stepping) are required in order to efficiently reach the end
 time step.
+
+![](https://user-images.githubusercontent.com/1814174/95132552-f6c59a00-072d-11eb-881e-24364b7b728f.PNG)
 
 ## Exploiting Continuity
 

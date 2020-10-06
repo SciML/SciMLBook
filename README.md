@@ -393,3 +393,11 @@ determiner as to how we need to think about parallelism. Instead, the determinin
 factor is the parallel programming model, where just a handful of models, like
 task-based parallelism or SPMD models, are seen across all of the different
 hardware abstractions.
+
+## Lecture 7: Ordinary Differential Equations: Applications and Discretizations
+
+- [Ordinary Differential Equations 1: Applications and Solution Characteristics (Lecture)](https://youtu.be/riAbPZy9gFc)
+- [Ordinary Differential Equations 2: Discretizations and Stability (Lecture)](https://youtu.be/HMmOk9GIhsw)
+- [Ordinary Differential Equations: Applications and Discretizations (Notes)](https://mitmath.github.io/18337/lecture7/discretizing_odes.html)
+
+In this lecture we will describe ordinary differential equations, where they arise in scientific contexts, and how they are solved. We will see that understanding the properties of the numerical methods requires understanding the dynamics of the discrete system generated from the approximation to the continuous system, and thus stability of a numerical method is directly tied to the stability properties of the dynamics. This gives the idea of stiffness, which is a larger computational idea about ill-conditioned systems.
