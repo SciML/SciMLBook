@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Homework 1, Parallelized Dynamics</title>
-  
+
 
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -16,7 +16,7 @@
   <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   </script>
 
-  
+
 <style>
 pre.hljl {
     border: 1px solid #ccc;
@@ -697,7 +697,7 @@ x_{n+1} = g(x_n)
 <h2>Problem 2: The Root of all Problems</h2>
 <p>In this problem we will practice writing fast and type-generic Julia code by producing an algorithm that will compute the quantile of any probability distribution.</p>
 <h3>Part 1</h3>
-<p>Many problems can be interpreted as a rootfinding problem. For example, let&#39;s take a look at a problem in statistics. Let <span class="math">$X$</span> be a random variable with a continuous distribution function &#40;CDF&#41; of <span class="math">$cdf(x)$</span>. Recall that the CDF is a monotonically increasing function in <span class="math">$[0,1]$</span> which is the total probability of <span class="math">$X < x$</span>. The <span class="math">$y$</span>th quantile of <span class="math">$X$</span> is the value <span class="math">$x$</span> at with <span class="math">$X$</span> has a y&#37; chance of being less than <span class="math">$x$</span>. Interpret the problem of computing an arbitrary quantile <span class="math">$y$</span> as a rootfinding problem, and use Newton&#39;s method to write an algorithm for computing <span class="math">$x$</span>.</p>
+<p>Many problems can be interpreted as a rootfinding problem. For example, let&#39;s take a look at a problem in statistics. Let <span class="math">$X$</span> be a random variable with a cumulative distribution function &#40;CDF&#41; of <span class="math">$cdf(x)$</span>. Recall that the CDF is a monotonically increasing function in <span class="math">$[0,1]$</span> which is the total probability of <span class="math">$X < x$</span>. The <span class="math">$y$</span>th quantile of <span class="math">$X$</span> is the value <span class="math">$x$</span> at with <span class="math">$X$</span> has a y&#37; chance of being less than <span class="math">$x$</span>. Interpret the problem of computing an arbitrary quantile <span class="math">$y$</span> as a rootfinding problem, and use Newton&#39;s method to write an algorithm for computing <span class="math">$x$</span>.</p>
 <p>&#40;Hint: Recall that <span class="math">$cdf^{\prime}(x) = pdf(x)$</span>, the probability distribution function.&#41;</p>
 <h3>Part 2</h3>
 <p>Use the types from Distributions.jl to write a function <code>my_quantile&#40;y,d&#41;</code> which uses multiple dispatch to compute the <span class="math">$y$</span>th quantile for any <code>UnivariateDistribution</code> <code>d</code> from Distributions.jl. Test your function on <code>Gamma&#40;5, 1&#41;</code>, <code>Normal&#40;0, 1&#41;</code>, and <code>Beta&#40;2, 4&#41;</code> against the <code>Distributions.quantile</code> function built into the library.</p>
