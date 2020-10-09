@@ -1,103 +1,176 @@
 ---
-title: Automatic Differentiation and Applications
-author: David P. Sanders
-date: September 28th, 2019
+title: Forward-Mode Automatic Differentiation (AD) via High Dimensional Algebras
+author: Chris Rackauckas
+date: October 5th, 2020
 ---
 
-Guest lecturer: Prof. David P. Sanders, Universidad Nacional Autónoma de
-México (UNAM) & MIT
+# Machine Epsilon and Roundoff Error
 
-## Introduction
+Floating point arithmetic is relatively scaled, which means that the precision
+that you get from calculations is relative to the size of the floating point
+numbers. Generally, you have 16 digits of accuracy in (64-bit) floating
+point operations. To measure this, we define *machine epsilon* as the value
+by which `1 + E = 1`. For floating point numbers, this is:
 
-Automatic differentiation (AD, also called "algorithmic" or "computational"
-differentiation) is a set of techniques to calculate **exact** derivatives of
-functions or programs in an automatic way. It is neither symbolic
-differentiation, nor something like finite differences (although it is very
-close to the "complex step differentiation" method). The output is an exact
-(up to round-off error) value for the derivative of a function.
+```julia
+eps(Float64)
+```
 
-There are two main methods: "forward-mode" AD and "reverse-mode" AD.
-Each has its strengths and weaknesses. Forward mode is significantly easier to
-implement, so we'll start with that.
+However, since it's relative, this value changes as we change our reference value:
 
-## Forward-mode AD
+```julia
+@show eps(1.0)
+@show eps(0.1)
+@show eps(0.01)
+```
 
-Let's start by thinking about univariate functions $f: \mathbb{R} \to \mathbb{R}$.
-We would like to calculate the derivative $f'(a)$ at a point $a \in \mathbb{R}$.
+Thus issues with *roundoff error* come when one subtracts out the higher digits.
+For example, $(x + \epsilon) - x$ should just be $\epsilon$ if there was no
+roundoff error, but if $\epsilon$ is small then this kicks in. If $x = 1$
+and $\epsilon$ is of size around $10^{-10}$, then $x+ \epsilon$ is correct for
+10 digits, dropping off the smallest 6 due to error in the addition to $1$.
+But when you subtract off $x$, you don't get those digits back, and thus you
+only have 6 digits of $\epsilon$ correct.
 
-We learned various rules about how to calculate such derivatives from basic
-calculus. Let's look at one way to calculate these.
+Let's see this in action:
 
-Let's fix a point $a$ and consider two (sufficiently smooth) functions $f$ and
-$g$ near $a$. For $x$ near to $a$ we can (use Taylor's theorem to) write
+```julia
+ϵ = 1e-10rand()
+@show ϵ
+@show (1+ϵ)
+ϵ2 = (1+ϵ) - 1
+(ϵ - ϵ2)
+```
 
-$$f(x) = f(a + \epsilon) = f(a) + \epsilon f'(a) + \mathcal{O}(\epsilon^2),$$
+See how $\epsilon$ is only rebuilt at accuracy around $10^{-16}$ and thus we only
+keep around 6 digits of accuracy when it's generated at the size of around $10^{-10}$!
 
-where $\epsilon$ is a shorthand for $(x - a)$, and similarly for $g$. We can use
-this to calculate results for combinations of $f$ and $g$, where in the following
-we neglect terms of order $\epsilon^2$. The sum of two functions satisfies
+## Finite Differencing and Numerical Stability
 
-$$\begin{align}
-(f + g)(x) &= f(x) + g(x) = f(a) + \epsilon f'(a) + g(a) + \epsilon g'(a) \\
-&= [f(a) + g(a)] + \epsilon [f'(a) + g'(a)]
-\end{align}$$
+To start understanding how to compute derivatives on a computer, we start with
+*finite differencing*. For finite differencing, recall that the definition of
+the derivative is:
 
-and the product gives
+$$f'(x) = \lim_{\epsilon \rightarrow \infty} \frac{f(x+\epsilon)-f(x)}{\epsilon}$$
 
-$$\begin{align}
-(f \cdot g)(x) &= f(x) \cdot g(x) = [f(a) + \epsilon f'(a)
-] \cdot [g(a) + \epsilon g'(a)] \\
-&= [f(a) \cdot g(a)] + \epsilon [f(a) g'(a) + g(a) f'(a)].
-\end{align}$$
+Finite differencing directly follows from this definition by choosing a small
+$\epsilon$. However, choosing a good $\epsilon$ is very difficult. If $\epsilon$
+is too large than there is error since this definition is asymtopic. However,
+if $\epsilon$ is too small, you receive roundoff error. To understand why
+you would get roundoff error, recall that floating point error is relative,
+and can essentially store 16 digits of accuracy. So let's say we choose
+$\epsilon = 10^{-6}$. Then $f(x+\epsilon) - f(x)$ is roughly the same in the
+first 6 digits, meaning that after the subtraction there is only 10 digits of
+accuracy, and then dividing by $10^{-6}$ simply brings those 10 digits back up
+to the correct relative size.
 
-By extracting the constant and order $\epsilon$ components from these results,
-we obtain
+![](https://www.researchgate.net/profile/Jongrae_Kim/publication/267216155/figure/fig1/AS:651888458493955@1532433728729/Finite-Difference-Error-Versus-Step-Size.png)
 
-$$\begin{align}
-(f+g)'(a) &= f'(a) + g'(a)\\
-(f \cdot g)'(a) &= f'(a) \, g(a) + f(a) \, g'(a)
-\end{align}$$
+This means that we want to choose $\epsilon$ small enough that the
+$\mathcal{O}(\epsilon^2)$ error of the truncation is balanced by the $O(1/\epsilon)$
+roundoff error. Under some minor assumptions, one can argue that the average
+best point is $\sqrt(E)$, where E is machine epsilon
 
-(One way of seeing that this is correct is via the definition of a derivative as a limit.)
+```julia
+@show eps(Float64)
+@show sqrt(eps(Float64))
+```
 
+This means we should not expect better than 8 digits of accuracy, even when
+things are good with finite differencing.
 
-We also have the chain rule, which plays a crucial role:
+![](http://degenerateconic.com/wp-content/uploads/2014/11/complex_step1.png)
 
-$$\begin{align}
-(f \circ g)(x) &= f(g(x)) = f(g(a) + \epsilon g'(a)) \\
-&= f(g(a)) + \epsilon g'(a) f'(g(a))
-\end{align}$$
+The centered difference formula is a little bit better, but this picture
+suggests something much better...
 
-and hence
+## Differencing in a Different Dimension: Complex Step Differentiation
 
-$$(f \circ g)'(a) = f'(g(a)) \, g'(a).$$
+The problem with finite differencing is that we are mixing our really small
+number with the really large number, and so when we do the subtract we lose
+accuracy. Instead, we want to keep the small perturbation completely separate.
 
+To see how to do this, assume that $x \in \mathbb{R}$ and assume that $f$ is
+complex analytic. You want to calculate a real derivative, but your function
+just happens to also be complex analytic when extended to the complex plane.
+Thus it has a Taylor series, and let's see what happens when we expand out this
+Taylor series purely in the complex direction:
 
-From the above results we can see which information about each function we need
-in order to calculate derivatives of their combinations: for each function $f$
-we need its value $f(a)$ and its derivative $f'(a)$; this is the *only*
-information that we require in order to calculate the first derivative of any
-combination of functions.
+$$f(x+ih) = f(x) + f'(x)ih + \mathcal{O}(h^2)$$
 
-## Jets
+which we can re-arrange as:
 
-The above can be put into a more formal mathematical context using the
-first-order Taylor polynomial of $f$, called the (degree-1)
-[**jet** of $f$](https://en.wikipedia.org/wiki/Dual_(mathematics) at $a$,
-denoted $J_a(f)$:
+$$if'(x) = \frac{f(x+ih) - f(x)}{h} + \mathcal{O}(h)$$
 
-$$[J_a(f)](x) := f(a) + x f'(a).$$
+Since $x$ is real and $f$ is real-valued on the reals, $if'$ is purely imaginary.
+So let's take the imaginary parts of both sides:
 
-[This can be thought of as representing the **equivalence class of all
-functions** with the same value $f(a)$ and derivative $f'(a)$ at $a$.]
+$$f'(x) = \frac{Im(f(x+ih))}{h} + \mathcal{O}(h)$$
 
-Formally, it is common to think of this as a "dual number", $f + \epsilon f'$,
-that we can manipulate, following the rule that $\epsilon^2 = 0$. (Cf. complex
-numbers, which have the same structure, but with $\epsilon^2 = -1$.) E.g.
+since $Im(f(x)) = 0$ (since it's real valued!). Thus with a sufficiently small
+choice of $h$, this is the *complex step differentiation* formula for calculating
+the derivative.
 
-$$(f + \epsilon f') \times (g + \epsilon g') = f \, g + \epsilon (f' g + f g')$$
+But to understand the computational advantage, recal that $x$ is pure real, and
+thus $x+ih$ is an imaginary number where **the $h$ never directly interacts with
+$x$** since a complex number is a two dimensional number where you keep the two
+pieces separate. Thus there is no numerical cancellation by using a small value
+of $h$, and thus, due to the relative precision of floating point numbers, both
+the real and imaginary parts will be computed to (approximately) 16 digits of
+accuracy for any choice of $h$.
 
-shows how to define the multiplication of two jets.
+## Derivatives as nilpotent sensitivities
+
+The derivative measures the **sensitivity** of a function, i.e. how much the
+function output changes when the input changes by a small amount $\epsilon$:
+
+$$f(a + \epsilon) = f(a) + f'(a) \epsilon + o(\epsilon).$$
+
+In the following we will ignore higher-order terms; formally we set
+$\epsilon^2 = 0$. This form of analysis can be made rigorous through a form
+of non-standard analysis called *Smooth Infinitesimal Analysis* [1], though
+note that nilpotent infinitesimal requires *constructive logic*, and thus proof
+by contradiction is not allowed in this logic due to a lack of the *law of the
+excluded middle*.
+
+A function $f$ will be represented by its value $f(a)$ and derivative $f'(a)$,
+encoded as the coefficients of a degree-1 (Taylor) polynomial in $\epsilon$:
+
+$$f \rightsquigarrow f(a) + \epsilon f'(a)$$
+
+Conversely, if we have such an expansion in $\epsilon$ for a given function $f$,
+then we can identify the coefficient of $\epsilon$ as the derivative of $f$.
+
+## Dual numbers
+
+Thus, to extend the idea of complex step differentiation beyond complex analytic
+functions, we define a new number type, the *dual number*. A dual number is a
+multidimensional number where the sensitivity of the function is propagated
+along the dual portion.
+
+Here we will now start to use $\epsilon$ as a dimensional signifier, like $i$,
+$j$, or $k$ for quaternion numbers. In order for this to work out, we need
+to derive an appropriate algebra for our numbers. To do this, we will look
+at Taylor series to make our algebra reconstruct differentiation.
+
+Note that the chain rule has been explicitly encoded in the derivative part.
+
+$$f(a + \epsilon) = f(a) + \epsilon f'(a)$$
+
+to first order. If we have two functions
+
+$$f \rightsquigarrow f(a) + \epsilon f'(a)$$
+$$g \rightsquigarrow g(a) + \epsilon g'(a)$$
+
+then we can manipulate these Taylor expansions to calculate combinations of
+these functions as follows. Using the nilpotent algebra, we have that:
+
+$$(f + g) = [f(a) + g(a)] + \epsilon[f'(a) + g'(a)]$$
+
+$$(f \cdot g) = [f(a) \cdot g(a)] + \epsilon[f(a) \cdot g'(a) + g(a) \cdot f'(a) ]$$
+
+From these we can *infer* the derivatives by taking the component of $\epsilon$.
+These also tell us the way to implement these in the computer.
 
 ## Computer representation
 
@@ -107,7 +180,7 @@ Setup (not necessary from the REPL):
 using InteractiveUtils  # only needed when using Weave
 ```
 
-Each function requires two pieces of information and some particualr "behavior",
+Each function requires two pieces of information and some particular "behavior",
 so we store these in a `struct`. It's common to call this a "dual number":
 
 ```julia
@@ -123,23 +196,29 @@ mirror performing those operations on the corresponding functions.
 We must first import the operations from `Base`:
 
 ```julia
-import Base: +, *, -, ^
-```
+Base.:+(f::Dual, g::Dual) = Dual(f.val + g.val, f.der + g.der)
+Base.:+(f::Dual, α::Number) = Dual(f.val + α, f.der)
+Base.:+(α::Number, f::Dual) = f + α
 
-```julia
-+(f::Dual, g::Dual) = Dual(f.val + g.val, f.der + g.der)
-+(f::Dual, α::Number) = Dual(f.val + α, f.der)
-+(α::Number, f::Dual) = f + α
+#=
+You can also write:
+import Base: +
+f::Dual + g::Dual = Dual(f.val + g.val, f.der + g.der)
+=#
 
+Base.:-(f::Dual, g::Dual) = Dual(f.val - g.val, f.der - g.der)
 
--(f::Dual, g::Dual) = Dual(f.val - g.val, f.der - g.der)
+# Product Rule
+Base.:*(f::Dual, g::Dual) = Dual(f.val*g.val, f.der*g.val + f.val*g.der)
+Base.:*(α::Number, f::Dual) = Dual(f.val * α, f.der * α)
+Base.:*(f::Dual, α::Number) = α * f
 
-*(f::Dual, g::Dual) = Dual(f.val*g.val, f.der*g.val + f.val*g.der)
-*(α::Number, f::Dual) = Dual(f.val * α, f.der * α)
-*(f::Dual, α::Number) = α * f
+# Quotient Rule
+Base.:/(f::Dual, g::Dual) = Dual(f.val/g.val, (f.der*g.val - f.val*g.der)/(g.val^2))
+Base.:/(α::Number, f::Dual) = Dual(α/f.val, 1/f.der)
+Base.:/(f::Dual, α::Number) = f * inv(α) # Dual(f.val/α, f.der * (1/α))
 
-
-^(f::Dual, n::Integer) = Base.power_by_squaring(f, n)  # use repeated squaring for integer powers
+Base.:^(f::Dual, n::Integer) = Base.power_by_squaring(f, n)  # use repeated squaring for integer powers
 ```
 
 We can now define `Dual`s and manipulate them:
@@ -198,9 +277,11 @@ It seems like we have lost *no* performance.
 We see that the data structure itself has disappeared, and we basically have a
 standard Julia tuple.
 
-## Functions on jets: chain rule
+## Defining Higher Order Primitives
 
-We can also define functions of `Dual` objects, using the chain rule. If `f` is
+We can also define functions of `Dual` objects, using the chain rule.
+To speed up our derivative function, we can directly hardcode the derivative
+of known functions which we call *primitives*. If `f` is
 a `Dual` representing the function $f$, then `exp(f)` should be a `Dual`
 representing the function $\exp \circ f$, i.e. with value $\exp(f(a))$ and
 derivative $(\exp \circ f)'(a) = \exp(f(a)) \, f'(a)$:
@@ -221,33 +302,23 @@ f
 exp(f)
 ```
 
+# Differentiating arbitrary functions
 
-## Differentiating arbitrary functions
-
-Now we are in a position to calculate the derivative of an arbitrary function
-$f$, e.g. to calculate $h'(a)$ where
+For functions where we don't have a rule, we can recursively do dual number
+arithmetic within the function until we hit primitives where we know the derivative,
+and then use the chain rule to propagate the information back up.
+Under this algebra, we can represent $a + \epsilon$ as `Dual(a, 1)`.
+Thus, applying `f` to `Dual(a, 1)` should give `Dual(f(a), f'(a))`. This is thus
+a 2-dimensional number for calculating the derivative without floating point
+error, **using the compiler to transform our equations into dual number arithmetic**.
+To to differentiate an arbitrary function, we define a generic function and then
+change the algebra.
 
 ```julia
 h(x) = x^2 + 2
-
-a = 3
-```
-
-This is a function of $x$, which itself we can think of as the identity
-function $\iota: x \mapsto x$, so that
-
-$$h = \iota^2 - 2.\mathbf{1},$$
-
-where $\mathbf{1}$ is the constant "all ones" function.
-
-We represent the identity function as follows:
-
-```julia
 a = 3
 xx = Dual(a, 1)
 ```
-
-since $\iota'(a) = 1$ for any $a$.
 
 Now we simply evaluate the function `h` at the `Dual` number `xx`:
 
@@ -273,7 +344,23 @@ Finally we can now calculate derivatives such as
 derivative(x -> 3x^5 + 2, 2)
 ```
 
-# Higher dimensions
+As a bigger example, we can take a pure Julia `sqrt` function and differentiate
+it by changing the internal algebra:
+
+```julia
+function newtons(x)
+   a = x
+   for i in 1:300
+       a = 0.5 * (a + x/a)
+   end
+   a
+end
+@show newtons(2.0)
+@show (newtons(2.0+sqrt(eps())) - newtons(2.0))/ sqrt(eps())
+newtons(Dual(2.0,1.0))
+```
+
+## Higher dimensions
 
 How can we extend this to higher dimensional functions? For example, we wish
 to differentiate the following function $f: \mathbb{R}^2 \to \mathbb{R}$:
@@ -310,7 +397,6 @@ Similarly, we can differentiate with respect to $y$ by doing
 ff_2(y) = ff(a, y)  # single-variable function
 
 derivative(ff_2, b)
-
 ```
 
 Note that we must do **two separate calculations** to get the two partial
@@ -345,7 +431,6 @@ $$\begin{align}
 We will use the `StaticArrays.jl` package for efficient small vectors:
 
 ```julia
-
 using StaticArrays
 
 struct MultiDual{N,T}
@@ -362,11 +447,9 @@ end
 function *(f::MultiDual{N,T}, g::MultiDual{N,T}) where {N,T}
     return MultiDual{N,T}(f.val * g.val, f.val .* g.derivs + g.val .* f.derivs)
 end
-
 ```
 
 ```julia
-
 gg(x, y) = x*x*y + x + y
 
 (a, b) = (1.0, 2.0)
@@ -399,116 +482,157 @@ using ForwardDiff, StaticArrays
 ForwardDiff.gradient( xx -> ( (x, y) = xx; x^2 * y + x*y ), [1, 2])
 ```
 
-There is also a `ForwardDiff2.jl` package in the works which aims to
-improve performance for high-dimensional functions.
+## Directional derivative and gradient of functions $f: \mathbb{R}^n \to \mathbb{R}$
 
-# Syntax trees
+For a function $f: \mathbb{R}^n \to \mathbb{R}$ the basic operation is the
+**directional derivative**:
 
-## Forward-mode
+$$\lim_{\epsilon \to 0} \frac{f(\mathbf{x} + \epsilon \mathbf{v}) - f(\mathbf{x})}{\epsilon} =
+[\nabla f(\mathbf{x})] \cdot \mathbf{v},$$
 
-To understand what forward-mode AD is doing, and its name, it is useful to
-think of an expression as a **syntax tree**; cf.
-[this notebook](Syntax trees in Julia.ipynb).
+where $\epsilon$ is still a single dimension and $\nabla f(\mathbf{x})$ is the
+direction in which we calculate.
 
-If we label the nodes in the tree as $v_i$, then forward differentiation fixes
-a variable, e.g. $y$, and calculates $\partial v_i / \partial y$ for each $i$.
-If e.g. $v_1 = v_2 + v_3$, then we have
+We can directly do this using the same simple `Dual` numbers as above,
+using the *same* $\epsilon$, e.g.
 
-$$\frac{\partial v_1}{\partial y} = \frac{\partial v_2}{\partial y} + \frac{\partial v_3}{\partial y}.$$
+$$f(x, y) = x^2  \sin(y)$$
 
-Denoting $v_1' := \frac{\partial v_1}{\partial y}$, we have
-$v_1' = v_2' + v_3'$, so we need to calculate the derivatives and nodes lower
-down in the graph first, and propagate the information up. We start at
-$v_x' = 0$, since $\frac{\partial x}{\partial y} = 0$, and $v_y' = 1$; these
-are called the **seed values** of the derivative calculation.
+$$\begin{align}
+f(x_0 + a\epsilon, y_0 + b\epsilon) &= (x_0 + a\epsilon)^2  \sin(y_0 + b\epsilon) \\
+&= x_0^2  \sin(y_0) + \epsilon[2ax_0  \sin(y_0) + x_0^2 b \cos(y_0)] + o(\epsilon)
+\end{align}$$
 
-Note that we need $n$ seed values in order to calculate the gradient
-of a function $\mathbb{R}^n \to \mathbb{R}$.
+so we have indeed calculated $\nabla f(x_0, y_0) \cdot \mathbf{v},$ where
+$\mathbf{v} = (a, b)$ are the components that we put into the derivative
+component of the `Dual` numbers.
 
-## Reverse mode
+If we wish to calculate the directional derivative in another direction, we
+could repeat the calculation with a different $\mathbf{v}$. A better solution
+is to use another independent epsilon $\epsilon$, expanding
+$$x = x_0 + a_1 \epsilon_1 + a_2 \epsilon_2$$ and putting
+$\epsilon_1 \epsilon_2 = 0$.
 
-An alternative method to calculate derivatives is to fix not the variable with
-which to differentiate, but *what it is* that we differentiate, i.e. to
-calculate the **adjoint**, $\bar{v_i} := \frac{\partial f}{\partial v_i}$,
-for each $i$.
+In particular, if we wish to calculate the gradient itself,
+$\nabla f(x_0, y_0)$, we need to calculate both partial derivatives, which
+corresponds to two directional derivatives, in the directions
+$(1, 0)$ and $(0, 1)$, respectively.
 
-If $f = v_1 + v_2$, with $v_1 = v_3 + v_4$ and $v_2 = v_3 + v_5$, then
+## Forward-Mode AD as jvp
 
-$$\frac{\partial f}{\partial v_3} = \frac{\partial f}{\partial v_1} \frac{\partial v_1}{\partial v_3} + \frac{\partial f}{\partial v_2} \frac{\partial v_2}{\partial v_3},$$
+Note that another representation of the directional derivative is $f'(x)v$,
+where $f'(x)$ is the Jacobian or total derivative of $f$ at $x$. To see the
+equivalence of this to a directional derivative, write it out in the standard
+basis:
 
-i.e.
+$$w_i = \sum_{j}^{m} J_{ij} v_{j}$$
 
-$$\bar{v_3} = \alpha_{13} \, \bar{v_1} + \alpha_{2,3} \, \bar{v_2},$$
+Now write out what $J$ means and we see that:
 
-where $\alpha_{ij}$ are the coefficients specifying the relationship between
-the different terms. Thus, the adjoint information propagates **down** the graph,
-in **reverse** order, hence the name "reverse-mode".
+$$w_i = \sum_j^{m} \frac{df_i}{dx_j} v_j = \nabla f_i(x) \cdot v$$
 
-For this reason, reverse mode is much harder to implement. However, it has the
-advantage that all derivatives $\partial f / \partial x_i$ are calculated in a
-*single pass* of the tree, and hence this is the method of choice for calculating
-the gradient of a function $\mathbb{R}^n \to \mathbb{R}$, which is a very common
-case, e.g. in the context of mathematical optimization and machine learning.
+**The primitive action of forward-mode AD is $f'(x)v!**
 
-Julia has several implementations of reverse-mode AD that are useful in
-different situations, e.g. https://github.com/JuliaDiff/ReverseDiff.jl.
+This is also known as a *Jacobian-vector product*, or *jvp* for short.
 
-## Example of reverse mode
+We can thus represent vector calculus with multidimensional dual numbers as
+follows. Let $d =[x,y]$, the vector of dual numbers. We can instead represent
+this as:
 
-Reverse mode is difficult to implement in a general way, but easy to do by
-hand. e.g. consider the function
+$$d = d_0 + v_1 \epsilon_1 + v_2 \epsilon_2$$
 
-$$f(x,y,z) = x \, y - \sin(z)$$
+where $d_0$ is the *primal* vector $[x_0,y_0]$ and the $v_i$ are the vectors
+for the *dual* directions. If you work out this algebra, then note that a
+single application of $f$ to a multidimensional dual number calculates:
 
-We decompose this into its tree with labelled nodes, corresponding to the
-following sequence of elementary operations:
+$$f(d) = f(d_0) + f'(d_0)v_1 \epsilon_1 + f'(d_0)v_2 \epsilon_2$$
 
-```julia
-ff(x, y, z) = x*y - 2*sin(x*z)
+i.e. it calculates the result of $f(x,y)$ and two separate directional derivatives.
+Note that because the information about $f(d_0)$ is shared between the calculations,
+this is more efficient than doing multiple applications of $f$. And of course,
+this is then generalized to $m$ many directional derivatives at once by:
 
-x, y, z = 1, 2, 3
+$$d = d_0 + v_1 \epsilon_1 + v_2 \epsilon_2 + \ldots + v_m \epsilon_m$$
 
-v₁ = x
-v₂ = y
-v₃ = z
-v₄ = v₁ * v₂
-v₅ = v₁ * v₃
-v₆ = sin(v₅)
-v₇ = v₄ - 2v₆  # f
-```
+## Jacobian
 
-```julia
-ff(x, y, z)
-```
+For a function $f: \mathbb{R}^n \to \mathbb{R}^m$, we reduce (conceptually,
+although not necessarily in code) to its component functions
+$f_i: \mathbb{R}^n \to \mathbb{R}$, where $f(x) = (f_1(x), f_2(x), \ldots, f_m(x))$.
 
-We have decomposed the **forward pass** into elementary operations. We now
-proceed to calculate the adjoints. The difficulty is to
-*find which variables depend on the current variable under question*.
+Then
 
-```julia
-v̄₇ = 1   # seed
-v̄₆ = -2 # ∂f/∂v₆ = ∂v₇/∂v₆
-v̄₅ = v̄₆ * cos(v₅)  # ∂v₇/∂v₆ * ∂v₆/∂v₅
-v̄₄ = 1   # ∂f/∂v₄ = ∂v₇/∂v₄
-v̄₃ = v̄₅ * v₁  # ∂f/∂v₃ = ∂f/∂v₅ . ∂v₅/∂v₃. # This gives ∂f/∂z
-v̄₂ = v̄₄ * v₁
-v̄₁ = v̄₅*v₃ + v̄₄*v₂   # two *different* paths
-```
+$$\begin{align}
+f(x + \epsilon v) &= (f_1(x + \epsilon v), \ldots, f_m(x + \epsilon v)) \\
+&= (f_1(x) + \epsilon[\nabla f_1(x) \cdot v], \dots, f_m(x) + \epsilon[\nabla f_m(x) \cdot v] \\
+&= f(x) + [f'(x) \cdot v] \epsilon,
+\end{align}$$
 
-When implementing reverse-mode, it is common to *accumulate* into the gradients
-when each path is traversed.
+To calculate the complete Jacobian, we calculate these directional derivatives
+in the $n$ different directions of the basis vectors, i.e. if
 
-Thus, in a single pass we have calculated the gradient $\nabla f(1, 2, 3)$:
+$d = d_0 + e_1 \epsilon_1 + \ldots + e_n \epsilon_n$
 
-```julia
-(v̄₁, v̄₂, v̄₃)
-```
+for $e_i$ the $i$th basis vector, then
 
-Let's check that it's correct:
+$f(d) = f(d_0) + Je_1 \epsilon_1 + \ldots + Je_n \epsilon_n$
 
-```julia
-ForwardDiff.gradient(x->ff(x...), [x,y,z])
-```
+computes all columns of the Jacobian simultaniously.
+
+## Array of Structs Representation
+
+Instead of thinking about a vector of dual numbers, thus we can instead think of
+dual numbers with vectors for the components. But if there are vectors for the
+components, then we can think of the grouping of dual components as a matrix.
+Thus define our multidimensional multi-partial dual number as:
+
+D0 = [d1,d2,d3,...,dn]
+Sigma = [d11 d21 d31
+         d12 ...
+         ...]
+epsilon = [epsilon_1,epsilon_2,...,epsilon_m]
+$$D = D_0 + \Sigma \epsilon$$
+
+where $D_0$ is a vector in $\mathbb{R}^n$, $\epsilon$ is a vector of
+dimensional signifiers and $\Sigma$ is a matrix in $\mathbb{R}^{n \times m}$
+where $m$ is the number of concurrent differentiation dimensions. Each row
+of this is a dual number, but now we can use this to easily define higher
+dimensional primitives.
+
+For example, let $f(x) = Ax$, matrix multiplication. Then, we can show with
+our dual number arithmetic that:
+
+$$f(D) = A*D_0 + A*\Sigma*\epsilon$$
+
+is how one would compute the value of $f(D_0)$ and the derivative $f'(D_0)$ in
+all directions signified by the columns of $\Sigma$ simultaniously. Using
+multidimensional Taylor series expansions and doing the manipulations like
+before indeed implies that the arithematic on this object should follow:
+
+$$f(D) = f(D_0) + f'(D_0)\Sigma \epsilon$$
+
+where $f'$ is the total derivative or the Jacobian of $f$. This then allows our
+system to be highly efficient by allowing the definition of multidimensional
+functions, like linear algebra, to be primitives of multi-directional
+derivatives.
+
+## Higher derivatives
+
+The above techniques can be extended to higher derivatives by
+*adding more terms to the Taylor polynomial*, e.g.
+
+$$f(a + \epsilon) = f(a) + \epsilon f'(a) + \frac{1}{2} \epsilon^2 f''(a) + o(\epsilon^2).$$
+
+We treat this as a degree-2 (or degree-$n$, in general) polynomial and do
+polynomial arithmetic to calculate the new polynomials. The coefficients of
+powers of $\epsilon$ then give the higher-order derivatives.
+
+For example, for a function $f: \mathbb{R}^n \to \mathbb{R}$ we have
+
+$$f(x + \epsilon v) = f(x) + \epsilon \left[ \sum_i (\partial_i f)(x) v_i \right] + \frac{1}{2}\epsilon^2 \left[ \sum_i \sum_j (\partial_{i,j} f) v_i v_j \right]$$
+
+using `Dual` numbers with a single $\epsilon$ component.
+In this way we can compute coefficients of the (symmetric) Hessian matrix.
 
 # Application: solving nonlinear equations using the Newton method
 
@@ -575,8 +699,25 @@ end
 
 ff(xx) = ( (x, y) = xx;  SVector(x^2 + y^2 - 1, x - y) )
 
-x0 = SVector(3.0, 3.0)
+x0 = SVector(3.0, 5.0)
 
 x = newton(ff, x0)
 
 ```
+
+# Conclusion
+
+To make derivative calculations efficient and correct, we can move to higher
+dimensional numbers. In multiple dimensions, these then allow for multiple
+directional derivatives to be computed simultaniously, giving a method for
+computing the Jacobian of a function $f$ on a single input. This is a direct
+application of using the compiler as part of a mathematical framework.
+
+## References
+- John L. Bell, *An Invitation to Smooth Infinitesimal Analysis*,
+  http://publish.uwo.ca/~jbell/invitation%20to%20SIA.pdf
+- Bell, John L. *A Primer of Infinitesimal Analysis*
+- Nocedal & Wright, *Numerical Optimization*, Chapter 8
+- Griewank & Walther, *Evaluating Derivatives*
+
+Many thanks to David Sanders for helping make these lecture notes.
