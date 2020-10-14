@@ -704,9 +704,9 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 
 
 <pre class="output">
-ϵ &#61; 2.7381878451875897e-11
-1 &#43; ϵ &#61; 1.0000000000273819
-3.90633581154023e-18
+ϵ &#61; 3.0701307339538196e-11
+1 &#43; ϵ &#61; 1.0000000000307012
+8.799497381705413e-17
 </pre>
 
 
@@ -832,7 +832,7 @@ f::Dual + g::Dual = Dual(f.val + g.val, f.der + g.der)
 
 </span><span class='hljl-cs'># Quotient Rule</span><span class='hljl-t'>
 </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:/</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-oB'>/</span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-oB'>*</span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-oB'>*</span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-p'>)</span><span class='hljl-oB'>/</span><span class='hljl-p'>(</span><span class='hljl-n'>g</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-p'>))</span><span class='hljl-t'>
-</span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:/</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-oB'>::</span><span class='hljl-n'>Number</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-oB'>/</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>/</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:/</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-oB'>::</span><span class='hljl-n'>Number</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-oB'>/</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-n'>α</span><span class='hljl-oB'>*</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>der</span><span class='hljl-oB'>/</span><span class='hljl-n'>f</span><span class='hljl-oB'>.</span><span class='hljl-n'>val</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:/</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-oB'>::</span><span class='hljl-n'>Number</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-nf'>inv</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-cs'># Dual(f.val/α, f.der * (1/α))</span><span class='hljl-t'>
 
 </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:^</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>n</span><span class='hljl-oB'>::</span><span class='hljl-n'>Integer</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.</span><span class='hljl-nf'>power_by_squaring</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># use repeated squaring for integer powers</span>
@@ -852,7 +852,7 @@ f::Dual + g::Dual = Dual(f.val + g.val, f.der + g.der)
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;8, 10&#41;
+Main.##WeaveSandBox#253.Dual&#123;Int64&#125;&#40;8, 10&#41;
 </pre>
 
 
@@ -863,7 +863,7 @@ Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;8, 10&#41;
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;15, 38&#41;
+Main.##WeaveSandBox#253.Dual&#123;Int64&#125;&#40;15, 38&#41;
 </pre>
 
 
@@ -874,7 +874,7 @@ Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;15, 38&#41;
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;30, 76&#41;
+Main.##WeaveSandBox#253.Dual&#123;Int64&#125;&#40;30, 76&#41;
 </pre>
 
 
@@ -903,7 +903,7 @@ add &#40;generic function with 1 method&#41;
 
 
 <pre class="output">
-1.599 ns &#40;0 allocations: 0 bytes&#41;
+1.399 ns &#40;0 allocations: 0 bytes&#41;
 &#40;4, 6&#41;
 </pre>
 
@@ -920,8 +920,8 @@ add &#40;generic function with 1 method&#41;
 
 
 <pre class="output">
-1.299 ns &#40;0 allocations: 0 bytes&#41;
-Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;4, 6&#41;
+1.399 ns &#40;0 allocations: 0 bytes&#41;
+Main.##WeaveSandBox#253.Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre>
 
 
@@ -994,7 +994,7 @@ Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;4, 6&#41;
 
 
 <pre class="output">
-exp &#40;generic function with 47 methods&#41;
+exp &#40;generic function with 33 methods&#41;
 </pre>
 
 
@@ -1005,7 +1005,7 @@ exp &#40;generic function with 47 methods&#41;
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;3, 4&#41;
+Main.##WeaveSandBox#253.Dual&#123;Int64&#125;&#40;3, 4&#41;
 </pre>
 
 
@@ -1016,7 +1016,7 @@ Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;3, 4&#41;
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Float64&#125;&#40;20.085536923187668, 80.34214769275067
+Main.##WeaveSandBox#253.Dual&#123;Float64&#125;&#40;20.085536923187668, 80.34214769275067
 &#41;
 </pre>
 
@@ -1033,7 +1033,7 @@ Main.##WeaveSandBox#784.Dual&#123;Float64&#125;&#40;20.085536923187668, 80.34214
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;3, 1&#41;
+Main.##WeaveSandBox#253.Dual&#123;Int64&#125;&#40;3, 1&#41;
 </pre>
 
 
@@ -1046,7 +1046,7 @@ Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;3, 1&#41;
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Int64&#125;&#40;11, 6&#41;
+Main.##WeaveSandBox#253.Dual&#123;Int64&#125;&#40;11, 6&#41;
 </pre>
 
 
@@ -1099,7 +1099,7 @@ derivative &#40;generic function with 1 method&#41;
 newtons&#40;2.0&#41; &#61; 1.414213562373095
 &#40;newtons&#40;2.0 &#43; sqrt&#40;eps&#40;&#41;&#41;&#41; - newtons&#40;2.0&#41;&#41; / sqrt&#40;eps&#40;&#41;&#41; &#61; 0.3535533994436
 264
-Main.##WeaveSandBox#784.Dual&#123;Float64&#125;&#40;1.414213562373095, 0.3535533905932737
+Main.##WeaveSandBox#253.Dual&#123;Float64&#125;&#40;1.414213562373095, 0.3535533905932737
 3&#41;
 </pre>
 
@@ -1155,7 +1155,7 @@ ff_1 &#40;generic function with 1 method&#41;
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.Dual&#123;Float64&#125;&#40;21.0, 10.0&#41;
+Main.##WeaveSandBox#253.Dual&#123;Float64&#125;&#40;21.0, 10.0&#41;
 </pre>
 
 
@@ -1216,7 +1216,7 @@ f(a + \epsilon) = f(a) + \nabla f(a) \cdot \epsilon + \mathcal{O}(\epsilon^2),
 
 
 <pre class="output">
-* &#40;generic function with 921 methods&#41;
+* &#40;generic function with 801 methods&#41;
 </pre>
 
 
@@ -1234,7 +1234,7 @@ f(a + \epsilon) = f(a) + \nabla f(a) \cdot \epsilon + \mathcal{O}(\epsilon^2),
 
 
 <pre class="output">
-Main.##WeaveSandBox#784.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#41;
+Main.##WeaveSandBox#253.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#41;
 </pre>
 
 
@@ -1249,10 +1249,10 @@ Main.##WeaveSandBox#784.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;5.0, 2.0&#9
 
 
 <pre class="output">
-2-element SArray&#123;Tuple&#123;2&#125;,Main.##WeaveSandBox#784.MultiDual&#123;2,Float64&#125;,1,2&#125;
- with indices SOneTo&#40;2&#41;:
- Main.##WeaveSandBox#784.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;2.0, 4.0&#93;&#41;
- Main.##WeaveSandBox#784.MultiDual&#123;2,Float64&#125;&#40;3.0, &#91;1.0, 1.0&#93;&#41;
+2-element StaticArrays.SArray&#123;Tuple&#123;2&#125;,Main.##WeaveSandBox#253.MultiDual&#123;2,
+Float64&#125;,1,2&#125; with indices SOneTo&#40;2&#41;:
+ Main.##WeaveSandBox#253.MultiDual&#123;2,Float64&#125;&#40;5.0, &#91;2.0, 4.0&#93;&#41;
+ Main.##WeaveSandBox#253.MultiDual&#123;2,Float64&#125;&#40;3.0, &#91;1.0, 1.0&#93;&#41;
 </pre>
 
 
@@ -1428,7 +1428,7 @@ x &#61; &#91;0.7071067811865475, 0.7071067811865475&#93;
 x &#61; &#91;0.7071067811865476, 0.7071067811865476&#93;
 x &#61; &#91;0.7071067811865475, 0.7071067811865475&#93;
 x &#61; &#91;0.7071067811865476, 0.7071067811865476&#93;
-2-element SArray&#123;Tuple&#123;2&#125;,Float64,1,2&#125; with indices SOneTo&#40;2&#41;:
+2-element StaticArrays.SArray&#123;Tuple&#123;2&#125;,Float64,1,2&#125; with indices SOneTo&#40;2&#41;:
  0.7071067811865476
  0.7071067811865476
 </pre>
@@ -1454,7 +1454,7 @@ x &#61; &#91;0.7071067811865476, 0.7071067811865476&#93;
         <div class="footer">
           <p>
             Published from <a href="automatic_differentiation.jmd">automatic_differentiation.jmd</a>
-            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.3 on 2020-10-08.
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.3 on 2020-10-12.
           </p>
         </div>
       </div>
