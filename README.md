@@ -229,7 +229,7 @@ Homework 3: Training neural ordinary differential equations (with GPUs)
 # Homeworks
 
 - [Homework 1: Parallelized Dynamics. Due October 1st](https://mitmath.github.io/18337/hw1/hw1)
-- [Homework 2: Parameter Estimation in Dynamical Systems and Bandwidth Maximization. Due November 5th](https://mitmath.github.io/18337/hw1/hw1)
+- [Homework 2: Parameter Estimation in Dynamical Systems and Bandwidth Maximization. Due November 5th](https://mitmath.github.io/18337/hw2/hw2)
 
 # Lecture Summaries and Handouts
 
