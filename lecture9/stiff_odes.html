@@ -631,7 +631,7 @@ kbd,
 pre,
 samp {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 13px;
+  font-size: 0.9em;
 }
 
 
@@ -646,22 +646,19 @@ img {max-width : 100%}
 div.title {text-align: center;}
 
   </style>
-
-
-
 </HEAD>
-  <BODY>
-    <div class ="container">
-      <div class = "row">
-        <div class = "col-md-12 twelve columns">
 
-          <div class="title">
-            <h1 class="title">Solving Stiff Ordinary Differential Equations</h1>
-            <h5>Chris Rackauckas</h5>
-            <h5>September 30th, 2019</h5>
-          </div>
+<BODY>
+  <div class ="container">
+    <div class = "row">
+      <div class = "col-md-12 twelve columns">
+        <div class="title">
+          <h1 class="title">Solving Stiff Ordinary Differential Equations</h1>
+          <h5>Chris Rackauckas</h5>
+          <h5>October 14th, 2020</h5>
+        </div>
 
-          <p>We have previously shown how to solve non-stiff ODEs via optimized Runge-Kutta methods, but we ended by showing that there is a fundamental limitation of these methods when attempting to solve stiff ordinary differential equations. However, we can get around these limitations by using different types of methods, like implicit Euler. Let&#39;s now go down the path of understanding how to efficiently implement stiff ordinary differential equation solvers, and its interaction with other domains like automatic differentiation.</p>
+        <p>We have previously shown how to solve non-stiff ODEs via optimized Runge-Kutta methods, but we ended by showing that there is a fundamental limitation of these methods when attempting to solve stiff ordinary differential equations. However, we can get around these limitations by using different types of methods, like implicit Euler. Let&#39;s now go down the path of understanding how to efficiently implement stiff ordinary differential equation solvers, and its interaction with other domains like automatic differentiation.</p>
 <p>When one is solving a large-scale scientific computing problem with MPI, this is almost always the piece of code where all of the time is spent, so let&#39;s understand how what it&#39;s doing.</p>
 <h2>Newton&#39;s Method and Jacobians</h2>
 <p>Recall that the implicit Euler method is the following:</p>
@@ -678,7 +675,7 @@ g(u_{n+1}) = 0
 \]</p>
 <p>This is the classic rootfinding problem <span class="math">$g(x)=0$</span>, find <span class="math">$x$</span>. The way that we solve the rootfinding problem is, once again, by replacing this problem about a continuous function <span class="math">$g$</span> with a discrete dynamical system whose steady state is the solution to the <span class="math">$g(x)=0$</span>. There are many methods for this, but some choices of the rootfinding method effect the stability of the ODE solver itself since we need to make sure that the steady state solution is a stable steady state of the iteration process, otherwise the rootfinding method will diverge &#40;will be explored in the homework&#41;.</p>
 <p>Thus for example, fixed point iteration is not appropriate for stiff differential equations. Methods which are used in the stiff case are either Anderson Acceleration or Newton&#39;s method. Newton&#39;s is by far the most common &#40;and generally performs the best&#41;, so we can go down this route.</p>
-<p>Let&#39;s use the syntax <span class="math">$g(x)=0$</span>. Here we need some starting value <span class="math">$x_0$</span> as our first guess for <span class="math">$u_{n+1}$</span>. The easiest guess is <span class="math">$u_{n+1}$</span>, though additional information about the equation can be used to compute a better starting value &#40;known as a <em>step predictor</em>&#41;. Once we have a starting value, we run the iteration:</p>
+<p>Let&#39;s use the syntax <span class="math">$g(x)=0$</span>. Here we need some starting value <span class="math">$x_0$</span> as our first guess for <span class="math">$u_{n+1}$</span>. The easiest guess is <span class="math">$u_{n}$</span>, though additional information about the equation can be used to compute a better starting value &#40;known as a <em>step predictor</em>&#41;. Once we have a starting value, we run the iteration:</p>
 <p class="math">\[
 x_{k+1} = x_k - J(x_k)^{-1}g(x_k)
 \]</p>
@@ -948,20 +945,18 @@ q = \frac{\text{E}}{\max(u_k,u_{k+1}) \tau_r + \tau_a}
 <li><p>At the ODE solver level, more efficient integrators and adaptive methods for stiff ODEs are used to reduce the cost by affecting the linear solves. Most of these calculations are dominated by the linear solve portion when it&#39;s in the regime of large stiff systems. Jacobian reuse techniques, partial factorizations, and IMEX methods come into play as ways to reduce the cost per factorization and reduce the total number of factorizations.</p>
 </li>
 </ul>
-<h2>Examples of Solving Stiff ODEs</h2>
 
 
-
-          <HR/>
-          <div class="footer"><p>
-          Published from <a href="stiff_odes.jmd">stiff_odes.jmd</a> using
-          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-10-03.
-          <p></div>
-
-
+        <HR/>
+        <div class="footer">
+          <p>
+            Published from <a href="stiff_odes.jmd">stiff_odes.jmd</a>
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-10-14.
+          </p>
         </div>
       </div>
     </div>
-  </BODY>
+  </div>
+</BODY>
+
 </HTML>

@@ -1,7 +1,7 @@
 ---
 title: Solving Stiff Ordinary Differential Equations
 author: Chris Rackauckas
-date: September 30th, 2019
+date: October 14th, 2020
 ---
 
 We have previously shown how to solve non-stiff ODEs via optimized Runge-Kutta
@@ -47,7 +47,7 @@ Anderson Acceleration or Newton's method. Newton's is by far the most common
 (and generally performs the best), so we can go down this route.
 
 Let's use the syntax $$g(x)=0$$. Here we need some starting value $x_0$ as our
-first guess for $u_{n+1}$. The easiest guess is $u_{n+1}$, though additional
+first guess for $u_{n+1}$. The easiest guess is $u_{n}$, though additional
 information about the equation can be used to compute a better starting value
 (known as a *step predictor*). Once we have a starting value, we run the
 iteration:

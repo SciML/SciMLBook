@@ -409,3 +409,29 @@ In this lecture we will describe ordinary differential equations, where they ari
 - [Forward-Mode Automatic Differentiation (AD) via High Dimensional Algebras (Notes)](https://mitmath.github.io/18337/lecture8/automatic_differentiation.html)
 
 As we will soon see, the ability to calculate derivatives underpins a lot of problems in both scientific computing and machine learning. We will specifically see it show up in later lectures on solving implicit equations f(x)=0 for stiff ordinary differential equation solvers, and in fitting neural networks. The common high performance way that this is done is called automatic differentiation. This lecture introduces the methods of forward and reverse mode automatic differentiation to setup future studies uses of the technique.
+
+## Lecture 9: Solving Stiff Ordinary Differential Equations
+
+#### Lecture Notes
+
+- [Solving Stiff Ordinary Differential Equations (Lecture)](https://youtu.be/bY2VCoxMuo8)
+- [Solving Stiff Ordinary Differential Equations (Notes)](https://mitmath.github.io/18337/lecture9/stiff_odes)
+
+#### Additional Readings on Convergence of Newton's Method
+
+- [Newton's Method](https://link.springer.com/chapter/10.1007%2F978-1-4612-0701-6_8)
+- [Relaxed Newton's Method](https://pdfs.semanticscholar.org/1844/34b366f337972aa94a601fabd251d0baf62f.pdf)
+- [Convergence of Pure and Relaxed Newton Methods](https://www.sciencedirect.com/science/article/pii/S00243795130067820)
+- [Smale's Alpha Theory for Newton Convergence](http://cswiercz.info/2016/01/20/narc-talk.html)
+- [alphaCertified: certifying solutions to polynomial systems](https://arxiv.org/abs/1011.1091)
+- [Improved convergence theorem for Newton](https://arxiv.org/ftp/arxiv/papers/1503/1503.03543.pdf)
+- [Generalizations of Newton's Method](https://www.math.uwaterloo.ca/~wgilbert/Research/GilbertFractals.pdf)
+
+Solving stiff ordinary differential equations, especially those which arise
+from partial differential equations, are the common bottleneck of scientific
+computing. The largest-scale scientific computing models are generally using
+heavy compute power in order to tackle some implicitly timestepped PDE solve!
+Thus we will take a deep dive into how the different methods which are combined
+to create a stiff ordinary differential equation solver, looking at different
+aspects of Jacobian computations and linear solving and the effects that they
+have.
