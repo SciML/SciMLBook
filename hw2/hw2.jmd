@@ -61,7 +61,7 @@ difference when going from serial to parallel computing.
 ## Part 1: Serial Bandwidth
 
 Recreate the bandwidth vs message size plot by doing the following. Create
-two processes on one node and communicate using MPI on the Supercloud. Have
+two processes on one node and communicate using MPI. Have
 both processes send an array of `2^n` `Int8` values. Compute the time `T(n)`
 of sending each message size and the bandwidth `B(n) = n/T(n)` for `n=1:25`.
 

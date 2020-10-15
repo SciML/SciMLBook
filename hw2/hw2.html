@@ -686,7 +686,7 @@ u' = f(u,p,t)
 <h1>Problem 2: Bandwidth Maximization</h1>
 <p>In this problem we will look at maximizing the bandwidth of a channel, and the difference when going from serial to parallel computing.</p>
 <h2>Part 1: Serial Bandwidth</h2>
-<p>Recreate the bandwidth vs message size plot by doing the following. Create two processes on one node and communicate using MPI on the Supercloud. Have both processes send an array of <code>2^n</code> <code>Int8</code> values. Compute the time <code>T&#40;n&#41;</code> of sending each message size and the bandwidth <code>B&#40;n&#41; &#61; n/T&#40;n&#41;</code> for <code>n&#61;1:25</code>.</p>
+<p>Recreate the bandwidth vs message size plot by doing the following. Create two processes on one node and communicate using MPI. Have both processes send an array of <code>2^n</code> <code>Int8</code> values. Compute the time <code>T&#40;n&#41;</code> of sending each message size and the bandwidth <code>B&#40;n&#41; &#61; n/T&#40;n&#41;</code> for <code>n&#61;1:25</code>.</p>
 <h2>Part 2: Interpretation</h2>
 <p>Given these plots, what is the minimal latency? What is the total bandwidth? What is the number of operations needed for small messages and large messages on each value in order for a calculation to be efficient enough to overcome the message passing cost?</p>
 <h2>Part 3: Parallel Bandwith &#40;Optional&#41;</h2>
@@ -712,7 +712,7 @@ mpirun julia mycode.jl</code></pre>
         <div class="footer">
           <p>
             Published from <a href="hw2.jmd">hw2.jmd</a>
-            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-10-14.
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-10-15.
           </p>
         </div>
       </div>
