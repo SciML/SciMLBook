@@ -435,3 +435,12 @@ Thus we will take a deep dive into how the different methods which are combined
 to create a stiff ordinary differential equation solver, looking at different
 aspects of Jacobian computations and linear solving and the effects that they
 have.
+
+https://youtu.be/XQAe4pEZ6L4
+
+## Lecture 10: Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems
+
+- [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems (Lecture)](https://youtu.be/XQAe4pEZ6L4)
+- [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems (Notes)](https://mitmath.github.io/18337/lecture10/estimation_identification)
+
+Now that we have models, how do you fit the models to data? This lecture goes through the basic shooting method for parameter estimation, showcases how it's equivalent to training neural networks, and gives an in-depth discussion of how reverse-mode automatic differentiation is utilized in the training process for the efficient calculation of gradients.

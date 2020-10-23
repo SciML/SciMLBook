@@ -631,7 +631,7 @@ kbd,
 pre,
 samp {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 13px;
+  font-size: 0.9em;
 }
 
 
@@ -646,29 +646,26 @@ img {max-width : 100%}
 div.title {text-align: center;}
 
   </style>
-
-
-
 </HEAD>
-  <BODY>
-    <div class ="container">
-      <div class = "row">
-        <div class = "col-md-12 twelve columns">
 
-          <div class="title">
-            <h1 class="title">Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems</h1>
-            <h5>Chris Rackauckas</h5>
-            <h5>October 9th, 2019</h5>
-          </div>
+<BODY>
+  <div class ="container">
+    <div class = "row">
+      <div class = "col-md-12 twelve columns">
+        <div class="title">
+          <h1 class="title">Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems</h1>
+          <h5>Chris Rackauckas</h5>
+          <h5>October 22th, 2020</h5>
+        </div>
 
-          <p>Have a model. Have data. Fit model to data.</p>
+        <p>Have a model. Have data. Fit model to data.</p>
 <p>This is a problem that goes under many different names: <em>parameter estimation</em>, <em>inverse problems</em>, <em>training</em>, etc. In this lecture we will go through the methods for how that&#39;s done, starting with the basics and bringing in the recent techniques from machine learning that can be used to improve the basic implementations.</p>
 <h2>The Shooting Method for Parameter Fitting</h2>
 <p>Assume that we have some model <span class="math">$u = f(p)$</span> where <span class="math">$p$</span> is our parameters, where we put in some parameters and receive our simulated data <span class="math">$u$</span>. How should you choose <span class="math">$p$</span> such that <span class="math">$u$</span> best fits that data? The <em>shooting method</em> directly uses this high level definition of the model by putting a cost function on the output <span class="math">$C(p)$</span>. This cost function is dependent on a user-choice and it&#39;s model-dependent. However, a common one is the L2-loss. If <span class="math">$y$</span> is our expected data, then the L2-loss function against the data is simply:</p>
 <p class="math">\[
 C(p) = \Vert f(p) - y \Vert
 \]</p>
-<p>where <span class="math">$C(p): \mathbb{R}^n \rightarrow R$</span> is a function that returns a scalar. The shooting method then directly optimizes this cost function by having the optimizer generate a data given new choices of <span class="math">$p$</span>.</p>
+<p>where <span class="math">$C(p): \mathbb{R}^n \rightarrow \mathbb{R}$</span> is a function that returns a scalar. The shooting method then directly optimizes this cost function by having the optimizer generate a data given new choices of <span class="math">$p$</span>.</p>
 <h3>Methods for Optimization</h3>
 <p>There are many different nonlinear optimization methods which can be used for this purpose, and for a full survey one should look at packages like <a href="https://github.com/JuliaOpt/JuMP.jl">JuMP</a>, <a href="https://github.com/JuliaNLSolvers/Optim.jl">Optim.jl</a>, and <a href="https://github.com/JuliaOpt/NLopt.jl">NLopt.jl</a>.</p>
 <p>There are generally two sets of methods: global and local optimization methods. Local optimization methods attempt to find the best nearby extrema by finding a point where the gradient <span class="math">$\frac{dC}{dp} = 0$</span>. Global optimization methods attempt to explore the whole space and find the best of the extrema. Global methods tend to employ a lot more heuristics and are extremely computationally difficult, and thus many studies focus on local optimization. We will focus strictly on local optimization, but one may want to look into global optimization for many applications of parameter estimation.</p>
@@ -1016,17 +1013,16 @@ p_{i+1} = p_i - H(p_i)^{-1} \frac{dC(p_i)}{dp}
 <p>We thank <a href="https://www.cs.toronto.edu/~rgrosse/courses/csc321_2018/slides/lec06.pdf">Roger Grosse&#39;s lecture notes</a> for the amazing tikz graphs.</p>
 
 
-
-          <HR/>
-          <div class="footer"><p>
-          Published from <a href="estimation_identification.jmd">estimation_identification.jmd</a> using
-          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-10-18.
-          <p></div>
-
-
+        <HR/>
+        <div class="footer">
+          <p>
+            Published from <a href="estimation_identification.jmd">estimation_identification.jmd</a>
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-10-22.
+          </p>
         </div>
       </div>
     </div>
-  </BODY>
+  </div>
+</BODY>
+
 </HTML>
