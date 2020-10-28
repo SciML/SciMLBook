@@ -444,3 +444,12 @@ https://youtu.be/XQAe4pEZ6L4
 - [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems (Notes)](https://mitmath.github.io/18337/lecture10/estimation_identification)
 
 Now that we have models, how do you fit the models to data? This lecture goes through the basic shooting method for parameter estimation, showcases how it's equivalent to training neural networks, and gives an in-depth discussion of how reverse-mode automatic differentiation is utilized in the training process for the efficient calculation of gradients.
+
+## Lecture 11: Coming Soon
+
+## Lecture 12: MPI for Distributed Computing
+
+- [Introduction to MPI.jl (Guest Lecture: Lauren E. Milechin)](https://www.youtube.com/watch?v=LCIJj0czofo)
+- [Introduction to MPI.jl (Notes: PDF)]()
+
+In this lecture we went over the basics of MPI (Message Passing Interface) for distributed computing and examples on how to use MPI.jl to write parallel programs that work efficiently over multiple computers (or "compute nodes"). The MPI programming model and the job scripts required for using MPI on the MIT Supercloud HPC were demonstrated.
