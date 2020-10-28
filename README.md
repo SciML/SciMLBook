@@ -450,6 +450,6 @@ Now that we have models, how do you fit the models to data? This lecture goes th
 ## Lecture 12: MPI for Distributed Computing
 
 - [Introduction to MPI.jl (Guest Lecture: Lauren E. Milechin)](https://www.youtube.com/watch?v=LCIJj0czofo)
-- [Introduction to MPI.jl (Notes: PDF)]()
+- [Introduction to MPI.jl (Notes: PDF)](https://github.com/mitmath/18337/blob/master/lecture12/MPI.jl.pdf)
 
 In this lecture we went over the basics of MPI (Message Passing Interface) for distributed computing and examples on how to use MPI.jl to write parallel programs that work efficiently over multiple computers (or "compute nodes"). The MPI programming model and the job scripts required for using MPI on the MIT Supercloud HPC were demonstrated.
