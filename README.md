@@ -447,9 +447,24 @@ Now that we have models, how do you fit the models to data? This lecture goes th
 
 ## Lecture 11: Coming Soon
 
-## Lecture 12: MPI for Distributed Computing
+## Lecture 12.1: MPI for Distributed Computing
 
-- [Introduction to MPI.jl (Guest Lecture: Lauren E. Milechin)](https://www.youtube.com/watch?v=LCIJj0czofo)
+Guest Lecturer: Lauren E. Milechin, MIT Lincoln Lab and the MIT Supercloud
+Guest Writer: Jeremy Kepner, MIT Lincoln Lab and the MIT Supercloud
+
+- [Introduction to MPI.jl (Lecture)](https://www.youtube.com/watch?v=LCIJj0czofo)
 - [Introduction to MPI.jl (Notes: PDF)](https://github.com/mitmath/18337/blob/master/lecture12/MPI.jl.pdf)
+- [Performance Metrics and Software Architecture (Book Chapter)](https://github.com/mitmath/18337/blob/master/lecture12/PerformanceMetricsSoftwareArchitecture.pdf)
+- [Optimizing Xeon Phi for Interactive Data Analysis (Paper)](https://github.com/mitmath/18337/blob/master/lecture12/OptimizingXeonPhi-PID6086383.pdf)
 
 In this lecture we went over the basics of MPI (Message Passing Interface) for distributed computing and examples on how to use MPI.jl to write parallel programs that work efficiently over multiple computers (or "compute nodes"). The MPI programming model and the job scripts required for using MPI on the MIT Supercloud HPC were demonstrated.
+
+## Lecture 12.2: Mathematics of Machine Learning and High Performance Computing
+
+Guest Lecturer: Jeremy Kepner, MIT Lincoln Lab and the MIT Supercloud
+
+- [Mathematics of Big Data and Machine Learning (Lecture)](https://youtu.be/0sKPkJME2Jw?t=26)
+- [Mathematical Foundations of the GraphBLAS and Big Data (Lecture)](https://youtu.be/gZSNp6XbOK8?t=17)
+- [AI Data Architecture (Lecture)](https://youtu.be/RpPlj2HnuWg?t=1412)
+
+In this lecture we went over the mathematics behind big data, machine learning, and high performance computing. Pieces like Amdahl's law for describing maximal parallel compute efficiency were described and demonstrated to showcase some hard ceiling on the capabilities of parallel computing, and these laws were described in the context of big data computations in order to assess the viability of distributed computing within that domain's context.
