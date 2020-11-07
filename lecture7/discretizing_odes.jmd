@@ -525,7 +525,7 @@ k_1 = f(u_n,p,t)\\
 k_2 = f(u_n + \frac{\Delta t}{2} k_1,p,t + \frac{\Delta t}{2})\\
 k_3 = f(u_n + \frac{\Delta t}{2} k_2,p,t + \frac{\Delta t}{2})\\
 k_4 = f(u_n + \Delta t k_3,p,t + \Delta t)\\
-u_{n+1} = u_n + \frac{1}{6}(k_1 + 2 k_2 + 2 k_3 + k_4)\\
+u_{n+1} = u_n + \frac{\Delta t}{6}(k_1 + 2 k_2 + 2 k_3 + k_4)\\
 ```
 
 While it's widely known and simple to remember, it's not necessarily good. The
