@@ -212,7 +212,7 @@ and thus we can invert the matrix to get the a's:
 
 $$a_{1}	=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}$$
 $$a_{2}	=\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}$$
-$$a_{3}	=u_{1} or g(x)=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}x^{2}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}x+u_{1}$$
+$$a_{3}	=u_{1}\text{ or }g(x)=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}x^{2}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}x+u_{1}$$
 
 Now we can get derivative approximations from this. Notice for example that
 
@@ -240,7 +240,7 @@ $$\Delta u = f(x,y)$$
 where $\Delta u = u_{xx} + u_{yy}$. Using the logic of the previous sections,
 we can approximate the two derivatives to have:
 
-$$\frac{u(x+\Delta x,y)-2u(x,y)+u(x-\Delta x,y)}{\Delta x^{2}} + \frac{u(x,y+\Delta y)-2u(x,y)+u(x-x,y-\Delta y)}{\Delta y^{2}}=u^{\prime\prime}(x)+\mathcal{O}\left(\Delta x^{2}\right).$$
+$$\frac{u(x+\Delta x,y)-2u(x,y)+u(x-\Delta x,y)}{\Delta x^{2}} + \frac{u(x,y+\Delta y)-2u(x,y)+u(x-x,y-\Delta y)}{\Delta y^{2}}=u^{\prime\prime}(x)+\mathcal{O}\left(\Delta x^{2}\right) + \mathcal{O}\left(\Delta y^{2}\right).$$
 
 Notice that this is the stencil operation:
 
@@ -333,7 +333,7 @@ receives the appropriate matrix. The Kronecker product effectively encodes
 this "N over" behavior. It also readily generalizes to $N$ dimensions. To see
 this for 3-dimensional Laplacians, $u_{xx} + u_{yy} + u_{zz}$, notice that
 
-$$A=I_z \otimes I_{y}\otimes A_{x} + I_z \otimes A_{y}\otimes I_{x} + A_z \otimes A_y \otimes I_x$$
+$$A=I_z \otimes I_{y}\otimes A_{x} + I_z \otimes A_{y}\otimes I_{x} + A_z \otimes I_y \otimes I_x$$
 
 using the same reasoning about "N" over and "N^2 over", and from this formulation
 it's clear how to generalize to arbitrary dimensions.
@@ -396,7 +396,7 @@ $$e_{i}^{n+1}=e_{i}^{n}+\mu\left(e_{i+1}^{n}-2e_{i}^{n}+e_{i-1}^{n}\right)+\Delt
 
 where
 
-$$\tau_{i}^{n}\sim\mathcal{O}(\Delta t)+\mathcal{O}(\Delta x^{2})$$.
+$$\tau_{i}^{n}\sim\mathcal{O}(\Delta t)+\mathcal{O}(\Delta x^{2}).$$
 
 Stability requires that the homogenous equation goes to zero. Another way of
 saying that is that the propogation of errors has errors decrease their
