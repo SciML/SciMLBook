@@ -30,7 +30,7 @@ example:
 - [Hybrid neural differential equations](http://docs.juliadiffeq.org/latest/features/callback_functions/) (neural DEs with event handling)
 
 For each of these equations, one can come up with an adjoint definition in order
-to define a backpropogation. However, there are limitatinos to this. In many
+to define a backpropogation. However, there are limitations to this. In many
 cases, such as with stochastic differential equations, the time complexity of
 the continuous adjoint method is actually worse than backpropogation through
 the solver itself. Secondly, every single one of these equations requires an
@@ -213,13 +213,13 @@ ineffecient!). To overcome this difficulty, they move towards a discrete-time
 model.
 
 For this discrete time model, they discretize the partial differential equation
-by a Runge-Kutta method. For example, we the simplest Runge-Kutta method is the
+by a Runge-Kutta method. For example, the simplest Runge-Kutta method is the
 Euler method, which we can write out as:
 
 $$u_{n+1} = u_n - \Delta t \mathcal{N}[u_n;\lambda]$$
 
 Now in this case, instead of making a neural network apply to $u(t,x)$ and try
-to approximate the full continuous function of time, the authors make a neural
+to approximate the full continuous function of time, the authors make $n$ neural
 networks
 
 $$N_n(x) = u_{n}(x)$$
@@ -322,7 +322,7 @@ Let $W_{t}$ be a Brownian motion and take $X_t$ to be the solution to the stocha
 
 $$dX_t = \mu(t,X_t) dt + \sigma (t,X_t) dW_t$$
 
-with initial condition $X(0)=\zeta$. Previous work has shown that the solution to satisfies the following BSDE:
+with initial condition $X(0)=\zeta$. Previous work has shown that the solution satisfies the following BSDE:
 
 $$\begin{align}
 u(t, &X_t) - u(0,\zeta) = \\
@@ -333,7 +333,7 @@ with terminating condition $g(X_T) = u(X_T,W_T)$.
 
 At this point, the authors approximate $\left[\nabla u(s,X_s) \right]^T \sigma (s,X_s)$
 and $u(0,\zeta)$ as neural networks. Using the Euler-Maruyama discretization of
-the stochstic differential equation system, one arrives at a recurrent neural
+the stochastic differential equation system, one arrives at a recurrent neural
 network:
 
 ![Deep BSDE](https://user-images.githubusercontent.com/1814174/69241180-357d5080-0b6c-11ea-926d-6e27d0a1b26b.PNG)
@@ -349,7 +349,7 @@ The examples considered below are part of the
 
 Now let's look at a few applications which have PDEs that are solved by this
 method. One set of problems that are solved, given our setup, are Black-Scholes
-types of equations. Unless a lot of previous literature, this works for a wide
+types of equations. Unlike a lot of previous literature, this works for a wide
 class of nonlinear extensions to Black-Scholes with large portfolios. Here, the
 dimension of the PDE for $V(t,x)$ is the dimension of $x$, where the dimension
 is the number of stocks in the portfolio that we want to consider. If we want
@@ -409,7 +409,7 @@ energy it took. So in the same sense as Black-Scholes, we can know the value at
 the end and try and propogate it backwards given the current state of the system
 $x$, to find out $u(0,\zeta)$, i.e. how should we control right now given the
 current system is in the state $x = \zeta$. It turns out that the solution of
-$u(t,x)$ where $u(T,x)=g(x)$ is given and we want to find $u(0,\zeta)$ is given
+$u(t,x)$ where $u(T,x)=g(x)$ and we want to find $u(0,\zeta)$ is given
 by a partial differential equation which is known as the Hamilton-Jacobi-Bellman
 equation, which is one of these terminal PDEs that is representable by the
 deep BSDE method.
@@ -430,7 +430,7 @@ $$\frac{\partial u}{\partial t}(t,x) + \Delta u(t,x) - \lambda \Vert \nabla u(t,
 
 has a solution $u(t,x)$ which at $t=0$ represents the optimal cost of starting from $x$.
 
-This PDE can be rewritten into the canonical form of \Cref{pdeform} by setting:
+This PDE can be rewritten into the canonical form of the deep BSDE method by setting:
 
 $$\begin{align}
     \mu &= 0, \\
@@ -451,7 +451,7 @@ ideas, but can still achieve interesting results. A full example is explained
 
 Say we have some function $g(p)$ which depends on a solution to a differential
 equation $u(t;p)$ and choices of parameters $p$. Computationally how we
-evaluate this  equation is we do the following:
+evaluate this function is we do the following:
 
 - Solve the differential equation with parameters $p$
 - Evaluate $g$ on the numerical solution for $u$
@@ -481,4 +481,4 @@ acceleration (after generating many points beforehand of course! In the paper,
 notice that it took 10 days to generate the training dataset). Additionally,
 there is this [deep learning trebuchet example](https://fluxml.ai/2019/03/05/dp-vs-rl.html)
 which showcased that inverse problems, i.e. control or finding parameters, can
-be completely encapsolated as a $g(p)$ and learned with sufficient data.
+be completely encapsulated as a $g(p)$ and learned with sufficient data.
