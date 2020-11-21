@@ -3,7 +3,7 @@
 <HEAD>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Homework 3</title>
+  <title>Neural Ordinary Differential Equation Adjoints</title>
   
 
   <script type="text/x-mathjax-config">
@@ -631,7 +631,7 @@ kbd,
 pre,
 samp {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 13px;
+  font-size: 0.9em;
 }
 
 
@@ -646,24 +646,21 @@ img {max-width : 100%}
 div.title {text-align: center;}
 
   </style>
-
-
-
 </HEAD>
-  <BODY>
-    <div class ="container">
-      <div class = "row">
-        <div class = "col-md-12 twelve columns">
 
-          <div class="title">
-            <h1 class="title">Homework 3</h1>
-            <h5>Chris Rackauckas</h5>
-            <h5>November 6th, 2019</h5>
-          </div>
+<BODY>
+  <div class ="container">
+    <div class = "row">
+      <div class = "col-md-12 twelve columns">
+        <div class="title">
+          <h1 class="title">Neural Ordinary Differential Equation Adjoints</h1>
+          <h5>Chris Rackauckas</h5>
+          <h5>November 20th, 2020</h5>
+        </div>
 
-          <p>In this homework, we will write an implementation of neural ordinary differential equations with GPU-accleration from scratch.</p>
-<p>Due December 4th, 2019 at 9:30AM.</p>
-<p>Please email the results to both crackauc@mit.edu and sungwooj.mit@gmail.com.</p>
+        <p>In this homework, we will write an implementation of neural ordinary differential equations from scratch. You may use the DifferentialEquations.jl ODE solver, but not the adjoint sensitivities functionality. Optionally, a second problem is to add GPU support to your implementation.</p>
+<p>Due December 9th, 2020 at midnight.</p>
+<p>Please email the results to 18337.mit.psets@gmail.com.</p>
 <h2>Problem 1: Neural ODE from Scratch</h2>
 <p>In this problem we will work through the development of a neural ODE.</p>
 <h3>Part 1: Gradients as vjps</h3>
@@ -709,17 +706,16 @@ u' = NN(u)
 <p>Change the inital condition of the ODE solves to a CuArray to make your neural ODE GPU-accelerated.</p>
 
 
-
-          <HR/>
-          <div class="footer"><p>
-          Published from <a href="hw3.jmd">hw3.jmd</a> using
-          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-12-03.
-          <p></div>
-
-
+        <HR/>
+        <div class="footer">
+          <p>
+            Published from <a href="hw3.jmd">hw3.jmd</a>
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-11-20.
+          </p>
         </div>
       </div>
     </div>
-  </BODY>
+  </div>
+</BODY>
+
 </HTML>
