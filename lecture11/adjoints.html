@@ -631,7 +631,7 @@ kbd,
 pre,
 samp {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 13px;
+  font-size: 0.9em;
 }
 
 
@@ -646,22 +646,19 @@ img {max-width : 100%}
 div.title {text-align: center;}
 
   </style>
-
-
-
 </HEAD>
-  <BODY>
-    <div class ="container">
-      <div class = "row">
-        <div class = "col-md-12 twelve columns">
 
-          <div class="title">
-            <h1 class="title">Differentiable Programming and Neural Differential Equations</h1>
-            <h5>Chris Rackauckas</h5>
-            <h5>October 15th, 2019</h5>
-          </div>
+<BODY>
+  <div class ="container">
+    <div class = "row">
+      <div class = "col-md-12 twelve columns">
+        <div class="title">
+          <h1 class="title">Differentiable Programming and Neural Differential Equations</h1>
+          <h5>Chris Rackauckas</h5>
+          <h5>November 20th, 2020</h5>
+        </div>
 
-          <p>Our last discussion focused on how, at a high mathematical level, one could in theory build programs which compute gradients in a fast manner by looking at the computational graph and performing reverse-mode automatic differentiation. Within the context of parameter identification, we saw many advantages to this approach because it did not scale multiplicatively in the number of parameters, and thus it is an efficient way to calculate Jacobians of objects where there are less rows than columns &#40;think of the gradient as 1 row&#41;.</p>
+        <p>Our last discussion focused on how, at a high mathematical level, one could in theory build programs which compute gradients in a fast manner by looking at the computational graph and performing reverse-mode automatic differentiation. Within the context of parameter identification, we saw many advantages to this approach because it did not scale multiplicatively in the number of parameters, and thus it is an efficient way to calculate Jacobians of objects where there are less rows than columns &#40;think of the gradient as 1 row&#41;.</p>
 <p>More precisely, this is seen to be more about sparsity patterns, with reverse-mode as being more efficient if there are &quot;enough&quot; less row seeds required than column partials &#40;with mixed mode approaches sometimes being much better&#41;. However, to make reverse-mode AD realistically usable inside of a programming language instead of a compute graph, we need to do three things:</p>
 <ol>
 <li><p>We need to have a way of implementing reverse-mode AD on a language.</p>
@@ -700,7 +697,6 @@ v^T J = (\ldots ((v^T J_L) J_{L-1}) \ldots ) J_1
 <p>Tracker.jl is a very simple implementation to inspect. The definition of its number and array types are as follows:</p>
 
 
-
 <pre class='hljl'>
 <span class='hljl-k'>struct</span><span class='hljl-t'> </span><span class='hljl-nf'>Call</span><span class='hljl-p'>{</span><span class='hljl-n'>F</span><span class='hljl-p'>,</span><span class='hljl-n'>As</span><span class='hljl-oB'>&lt;:</span><span class='hljl-n'>Tuple</span><span class='hljl-p'>}</span><span class='hljl-t'>
   </span><span class='hljl-n'>func</span><span class='hljl-oB'>::</span><span class='hljl-n'>F</span><span class='hljl-t'>
@@ -735,7 +731,6 @@ v^T J = (\ldots ((v^T J_L) J_{L-1}) \ldots ) J_1
 <p>As expected, it replaces every single number and array with a value that will store not just perform the operation, but also build up a list of operations along with the values at every stage. Then pullback rules are implemented for primitives via the <code>@grad</code> macro. For example, the pullback for the dot product is implemented as:</p>
 
 
-
 <pre class='hljl'>
 <span class='hljl-nd'>@grad</span><span class='hljl-t'> </span><span class='hljl-nf'>dot</span><span class='hljl-p'>(</span><span class='hljl-n'>xs</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>ys</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>dot</span><span class='hljl-p'>(</span><span class='hljl-nf'>data</span><span class='hljl-p'>(</span><span class='hljl-n'>xs</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>data</span><span class='hljl-p'>(</span><span class='hljl-n'>ys</span><span class='hljl-p'>)),</span><span class='hljl-t'> </span><span class='hljl-n'>Δ</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>Δ</span><span class='hljl-t'> </span><span class='hljl-oB'>.*</span><span class='hljl-t'> </span><span class='hljl-n'>ys</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Δ</span><span class='hljl-t'> </span><span class='hljl-oB'>.*</span><span class='hljl-t'> </span><span class='hljl-n'>xs</span><span class='hljl-p'>)</span>
 </pre>
@@ -743,7 +738,6 @@ v^T J = (\ldots ((v^T J_L) J_{L-1}) \ldots ) J_1
 
 <p>This is read as: the value going forward is computed by using the Julia <code>dot</code> function on the arrays, and the pullback embeds the backs of the forward pass and uses <code>Δ .* ys</code> as the derivative with respect to <code>x</code>, and <code>Δ .* xs</code> as the derivative with respect to <code>y</code>. This element-wise nature makes sense given the diagonal-ness of the Jacobian.</p>
 <p>Note that this also allows utilizing intermediates of the forward pass within the reverse pass. This is seen in the definition of the pullback of <code>meanpool</code>:</p>
-
 
 
 <pre class='hljl'>
@@ -882,17 +876,16 @@ C(p) = \sum_{i=1}^N \Vert\tilde{u}^{\prime}(t_i) - f(u(t_i),p,t)\Vert
 <p>where <span class="math">$\tilde{u}^{\prime}(t_i)$</span> is the estimated derivative at the time point <span class="math">$t_i$</span>. Then one can fit the parameters to ensure this holds. This method can be extremely fast since the ODE doesn&#39;t ever have to be solved&#33; However, note that this is not able to compensate for error accumulation, and thus early errors are not accounted for in the later parts of the data. This means that the integration won&#39;t necessarily match the data even if this fit is &quot;good&quot; if the data points are too far apart, a property that is not true with fitting. Thus, this is usually done as part of a <em>two-stage method</em>, where the starting stage uses collocation to get initial parameters which is then completed with a shooting method.</p>
 
 
-
-          <HR/>
-          <div class="footer"><p>
-          Published from <a href="adjoints.jmd">adjoints.jmd</a> using
-          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-11-13.
-          <p></div>
-
-
+        <HR/>
+        <div class="footer">
+          <p>
+            Published from <a href="adjoints.jmd">adjoints.jmd</a>
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-11-20.
+          </p>
         </div>
       </div>
     </div>
-  </BODY>
+  </div>
+</BODY>
+
 </HTML>
