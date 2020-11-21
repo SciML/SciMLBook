@@ -437,8 +437,6 @@ to create a stiff ordinary differential equation solver, looking at different
 aspects of Jacobian computations and linear solving and the effects that they
 have.
 
-https://youtu.be/XQAe4pEZ6L4
-
 ## Lecture 10: Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems
 
 - [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems (Lecture)](https://youtu.be/XQAe4pEZ6L4)
@@ -446,7 +444,17 @@ https://youtu.be/XQAe4pEZ6L4
 
 Now that we have models, how do you fit the models to data? This lecture goes through the basic shooting method for parameter estimation, showcases how it's equivalent to training neural networks, and gives an in-depth discussion of how reverse-mode automatic differentiation is utilized in the training process for the efficient calculation of gradients.
 
-## Lecture 11: Coming Soon
+## Lecture 11: Differentiable Programming and Neural Differential Equations
+
+- [Differentiable Programming and Neural Differential Equations (Notes)](https://mitmath.github.io/18337/lecture11/adjoints)
+
+Given the efficiency of reverse-mode automatic differentiation, we want to see
+how far we can push this idea. How could one implement reverse-mode AD without
+computational graphs, and include problems like nonlinear solving and ordinary
+differential equations? Are there methods other than shooting methods that can
+be utilized for parameter fitting? This lecture will explore where reverse-mode
+AD intersects with scientific modeling, and where machine learning begins to
+enter scientific computing.
 
 ## Lecture 12.1: MPI for Distributed Computing
 
