@@ -752,7 +752,8 @@ v^T J = (\ldots ((v^T J_L) J_{L-1}) \ldots ) J_1
 <p>Using this style, Tracker.jl moves forward, building up the value and closures for the backpass and then recursively pulls back the input <code>Δ</code> to receive the derivatve.</p>
 <h3>Source-to-Source AD</h3>
 <p>Given our previous discussions on performance, you should be horrified with how this approach handles scalar values. Each <code>TrackedReal</code> holds as <code>Tracked&#123;T&#125;</code> which holds a <code>Call</code>, not a <code>Call&#123;F,As&lt;:Tuple&#125;</code>, and thus it&#39;s not strictly typed. Because it&#39;s not strictly typed, this implies that every single operation is going to cause heap allocations. If you measure this in PyTorch, TensorFlow Eager, Tracker, etc. you get around 500ns-2ms of overhead. This means that a 2ns <code>&#43;</code> operation becomes... &gt;500ns&#33; Oh my&#33;</p>
-<p>This is not the only issue with tracing. Another issue is that the trace is value-dependent, meaning that every new value can build a new trace. Thus one cannot easily JIT compile a trace because it&#39;ll be different for every gradient calculation &#40;you can compile it, but you better make sure the compile times are short&#33;&#41;. Lastly, the Wengert list can be much larger than the code itself. For example, if you trace through a loop that is <code>for i in 1:100000</code>, then the trace will be huge, even if the function is relatively simple.</p>
+<p>This is not the only issue with tracing. Another issue is that the trace is value-dependent, meaning that every new value can build a new trace. Thus one cannot easily JIT compile a trace because it&#39;ll be different for every gradient calculation &#40;you can compile it, but you better make sure the compile times are short&#33;&#41;. Lastly, the Wengert list can be much larger than the code itself. For example, if you trace through a loop that is <code>for i in 1:100000</code>, then the trace will be huge, even if the function is relatively simple. This is directly demonstrated in the JAX &quot;how it works&quot; slide:</p>
+<p><img src="https://iaml.it/blog/jax-intro-english/images/lifecycle.png" alt="" /></p>
 <p>To avoid these issues, another version of reverse-mode automatic differentiation is <em>source-to-source</em> transformations. In order to do source code transformations, you need to know how to transform all language constructs via the reverse pass. This can be quite difficult &#40;what is the &quot;adjoint&quot; of <code>lock</code>?&#41;, but when worked out this has a few benefits. First of all, you do not have to track values, meaning stack-allocated values can stay on the stack. Additionally, you can JIT compile one backpass because you have a single function used for all backpasses. Lastly, you don&#39;t need to unroll your loops&#33; Instead, which each branch you&#39;d need to insert some data structure to recall the values used from the forward pass &#40;in order to invert in the right directions&#41;. However, that can be much more lightweight than a tracking pass.</p>
 <p>This can be a difficult problem to do on a general programming language. In general it needs a strong programmatic representation to use as a compute graph. Google&#39;s engineers did an analysis <a href="https://github.com/tensorflow/swift/blob/master/docs/WhySwiftForTensorFlow.md">when choosing Swift for TensorFlow</a> and narrowed it down to either Swift or Julia due to their internal graph structures. Thus, it should be no surprise that the modern source-to-source AD systems are Zygote.jl for Julia, and Swift for TensorFlow in Swift. Additionally, older AD systems, like Tampenade, ADIFOR, and TAF, all for Fortran, were source-to-source AD systems.</p>
 <h2>Derivation of Reverse Mode Rules: Adjoints and Implicit Function Theorem</h2>
@@ -809,19 +810,34 @@ I(p) = G(p) - \int_{t_0}^T \lambda^\ast (u^\prime - f(u,p,t))dt
 \]</p>
 <p>Since <span class="math">$u^\prime = f(u,p,t)$</span>, this is the mathematician&#39;s trick of adding zero, so then we have that</p>
 <p class="math">\[
-\frac{dG}{dp} = \frac{dI}{dp} = \int_{t_0}^T (g_p + g_u s)dt - \int_{t_0}^T \lambda^\ast (s^\prime f_u s - f_p)dt
+\frac{dG}{dp} = \frac{dI}{dp} = \int_{t_0}^T (g_p + g_u s)dt - \int_{t_0}^T \lambda^\ast (s^\prime - f_u s - f_p)dt
 \]</p>
-<p>for <span class="math">$s_i$</span> being the sensitivity of the ith variable. After applying integration by parts to <span class="math">$\lambda^\ast s^\prime$</span>, we require that</p>
+<p>for <span class="math">$s$</span> being the sensitivity, <span class="math">$s = \frac{du}{dp}$</span>. After applying integration by parts to <span class="math">$\lambda^\ast s^\prime$</span>, we get that:</p>
+<p class="math">\[
+\int_{t_{0}}^{T}\lambda^{\ast}\left(s^{\prime}-f_{u}s-f_{p}\right)dt	=\int_{t_{0}}^{T}\lambda^{\ast}s^{\prime}dt-\int_{t_{0}}^{T}\lambda^{\ast}\left(f_{u}s-f_{p}\right)dt
+\]</p>
+<p class="math">\[
+=|\lambda^{\ast}(t)s(t)|_{t_{0}}^{T}-\int_{t_{0}}^{T}\lambda^{\ast\prime}sdt-\int_{t_{0}}^{T}\lambda^{\ast}\left(f_{u}s-f_{p}\right)dt
+\]</p>
+<p>To see where we ended up, let&#39;s re-arrange the full expression now:</p>
+<p class="math">\[
+\frac{dG}{dp}	=\int_{t_{0}}^{T}(g_{p}+g_{u}s)dt+|\lambda^{\ast}(t)s(t)|_{t_{0}}^{T}-\int_{t_{0}}^{T}\lambda^{\ast\prime}sdt-\int_{t_{0}}^{T}\lambda^{\ast}\left(f_{u}s-f_{p}\right)dt
+\]</p>
+<p class="math">\[
+=\int_{t_{0}}^{T}(g_{p}+\lambda^{\ast}f_{p})dt+|\lambda^{\ast}(t)s(t)|_{t_{0}}^{T}-\int_{t_{0}}^{T}\left(\lambda^{\ast\prime}+f_{u}s-g_{u}\right)sdt
+\]</p>
+<p>That was just a re-arrangement. Now, let&#39;s require that</p>
 <p class="math">\[
 \lambda^\prime = -\frac{df}{du}^\ast \lambda - \left(\frac{dg}{du} \right)^\ast
 \]</p>
 <p class="math">\[
 \lambda(T) = 0
 \]</p>
-<p>to zero out a term get</p>
+<p>This means that the boundary term of the integration by parts is zero, and also one of those integral terms are perfectly zero. Thus, if <span class="math">$\lambda$</span> satisfies that equation, then we get:</p>
 <p class="math">\[
 \frac{dG}{dp} = \lambda^\ast(t_0)\frac{dG}{du}(t_0) + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt
 \]</p>
+<p>which gives us our adjoint derivative relation.</p>
 <p>If <span class="math">$G$</span> is discrete, then it can be represented via the Dirac delta:</p>
 <p class="math">\[
 G(u,p) = \int_{t_0}^T \sum_{i=1}^N \Vert d_i - u(t_i,p)\Vert^2 \delta(t_i - t)dt
@@ -880,7 +896,7 @@ C(p) = \sum_{i=1}^N \Vert\tilde{u}^{\prime}(t_i) - f(u(t_i),p,t)\Vert
         <div class="footer">
           <p>
             Published from <a href="adjoints.jmd">adjoints.jmd</a>
-            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-11-20.
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-11-23.
           </p>
         </div>
       </div>

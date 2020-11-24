@@ -446,6 +446,8 @@ Now that we have models, how do you fit the models to data? This lecture goes th
 
 ## Lecture 11: Differentiable Programming and Neural Differential Equations
 
+- [Differentiable Programming Part 1: Reverse-Mode AD Implementation (Lecture)](https://youtu.be/fXcekZZP-1A)
+- [Differentiable Programming Part 2: Adjoint Derivation for (Neural) ODEs and Nonlinear Solve (Lecture)](https://youtu.be/slDNZQHYCsY)
 - [Differentiable Programming and Neural Differential Equations (Notes)](https://mitmath.github.io/18337/lecture11/adjoints)
 
 Given the efficiency of reverse-mode automatic differentiation, we want to see

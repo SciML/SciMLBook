@@ -155,7 +155,10 @@ cannot easily JIT compile a trace because it'll be different for every gradient
 calculation (you can compile it, but you better make sure the compile times
 are short!). Lastly, the Wengert list can be much larger than the code itself.
 For example, if you trace through a loop that is `for i in 1:100000`, then the
-trace will be huge, even if the function is relatively simple.
+trace will be huge, even if the function is relatively simple. This is directly
+demonstrated in the JAX "how it works" slide:
+
+![](https://iaml.it/blog/jax-intro-english/images/lifecycle.png)
 
 To avoid these issues, another version of reverse-mode automatic differentiation
 is *source-to-source* transformations. In order to do source code transformations,
@@ -254,17 +257,30 @@ $$I(p) = G(p) - \int_{t_0}^T \lambda^\ast (u^\prime - f(u,p,t))dt$$
 Since $u^\prime = f(u,p,t)$, this is the mathematician's trick of adding zero,
 so then we have that
 
-$$\frac{dG}{dp} = \frac{dI}{dp} = \int_{t_0}^T (g_p + g_u s)dt - \int_{t_0}^T \lambda^\ast (s^\prime f_u s - f_p)dt$$
+$$\frac{dG}{dp} = \frac{dI}{dp} = \int_{t_0}^T (g_p + g_u s)dt - \int_{t_0}^T \lambda^\ast (s^\prime - f_u s - f_p)dt$$
 
-for $s_i$ being the sensitivity of the ith variable. After applying integration
-by parts to $\lambda^\ast s^\prime$, we require that
+for $s$ being the sensitivity, $s = \frac{du}{dp}$. After applying integration
+by parts to $\lambda^\ast s^\prime$, we get that:
+
+$$\int_{t_{0}}^{T}\lambda^{\ast}\left(s^{\prime}-f_{u}s-f_{p}\right)dt	=\int_{t_{0}}^{T}\lambda^{\ast}s^{\prime}dt-\int_{t_{0}}^{T}\lambda^{\ast}\left(f_{u}s-f_{p}\right)dt$$
+$$=|\lambda^{\ast}(t)s(t)|_{t_{0}}^{T}-\int_{t_{0}}^{T}\lambda^{\ast\prime}sdt-\int_{t_{0}}^{T}\lambda^{\ast}\left(f_{u}s-f_{p}\right)dt$$
+
+To see where we ended up, let's re-arrange the full expression now:
+
+$$\frac{dG}{dp}	=\int_{t_{0}}^{T}(g_{p}+g_{u}s)dt+|\lambda^{\ast}(t)s(t)|_{t_{0}}^{T}-\int_{t_{0}}^{T}\lambda^{\ast\prime}sdt-\int_{t_{0}}^{T}\lambda^{\ast}\left(f_{u}s-f_{p}\right)dt$$
+$$=\int_{t_{0}}^{T}(g_{p}+\lambda^{\ast}f_{p})dt+|\lambda^{\ast}(t)s(t)|_{t_{0}}^{T}-\int_{t_{0}}^{T}\left(\lambda^{\ast\prime}+f_{u}s-g_{u}\right)sdt$$
+
+That was just a re-arrangement. Now, let's require that
 
 $$\lambda^\prime = -\frac{df}{du}^\ast \lambda - \left(\frac{dg}{du} \right)^\ast$$
 $$\lambda(T) = 0$$
 
-to zero out a term get
+This means that the boundary term of the integration by parts is zero, and also one of those integral terms are perfectly zero.
+Thus, if $\lambda$ satisfies that equation, then we get:
 
 $$\frac{dG}{dp} = \lambda^\ast(t_0)\frac{dG}{du}(t_0) + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt$$
+
+which gives us our adjoint derivative relation.
 
 If $G$ is discrete, then it can be represented via the Dirac delta:
 
