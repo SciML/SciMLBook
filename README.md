@@ -450,6 +450,11 @@ Now that we have models, how do you fit the models to data? This lecture goes th
 - [Differentiable Programming Part 2: Adjoint Derivation for (Neural) ODEs and Nonlinear Solve (Lecture)](https://youtu.be/KCTfPyVIxpc)
 - [Differentiable Programming and Neural Differential Equations (Notes)](https://mitmath.github.io/18337/lecture11/adjoints)
 
+### Additional Readings on AD Implementations
+
+- [Non-local compiler transformations in the presence of dynamic dispatch (Diffractor.jl and higher order AD via Category Theory)](https://youtu.be/mQnSRfseu0c)
+- [JAX: accelerated machine learning research via composable function transformations in Python](https://youtu.be/BzuEGdGHKjc)
+
 Given the efficiency of reverse-mode automatic differentiation, we want to see
 how far we can push this idea. How could one implement reverse-mode AD without
 computational graphs, and include problems like nonlinear solving and ordinary
