@@ -631,7 +631,7 @@ kbd,
 pre,
 samp {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 13px;
+  font-size: 0.9em;
 }
 
 
@@ -646,22 +646,19 @@ img {max-width : 100%}
 div.title {text-align: center;}
 
   </style>
-
-
-
 </HEAD>
-  <BODY>
-    <div class ="container">
-      <div class = "row">
-        <div class = "col-md-12 twelve columns">
 
-          <div class="title">
-            <h1 class="title">PDEs, Convolutions, and the Mathematics of Locality</h1>
-            <h5>Chris Rackauckas</h5>
-            <h5>November 17th, 2019</h5>
-          </div>
+<BODY>
+  <div class ="container">
+    <div class = "row">
+      <div class = "col-md-12 twelve columns">
+        <div class="title">
+          <h1 class="title">PDEs, Convolutions, and the Mathematics of Locality</h1>
+          <h5>Chris Rackauckas</h5>
+          <h5>December 4th, 2020</h5>
+        </div>
 
-          <p>At this point we have identified how the worlds of machine learning and scientific computing collide by looking at the parameter estimation problem. Training neural networks is parameter estimation of a function <code>f</code> where <code>f</code> is a neural network. Backpropogation of a neural network is simply the adjoint problem for <code>f</code>, and it falls under the class of methods used in reverse-mode automatic differentiation. But this story also extends to structure. Recurrent neural networks are the Euler discretization of a continuous recurrent neural network, also known as a neural ordinary differential equation.</p>
+        <p>At this point we have identified how the worlds of machine learning and scientific computing collide by looking at the parameter estimation problem. Training neural networks is parameter estimation of a function <code>f</code> where <code>f</code> is a neural network. Backpropogation of a neural network is simply the adjoint problem for <code>f</code>, and it falls under the class of methods used in reverse-mode automatic differentiation. But this story also extends to structure. Recurrent neural networks are the Euler discretization of a continuous recurrent neural network, also known as a neural ordinary differential equation.</p>
 <p>Given all of these relations, our next focus will be on the other class of commonly used neural networks: the <em>convolutional neural network</em> &#40;CNN&#41;. It turns out that in this case there is also a clear analogue to convolutional neural networks in traditional scientific computing, and this is seen in discretizations of partial differential equations. To see this, we will first describe the convolution operation that is central to the CNN and see how this object naturally arises in numerical partial differential equations.</p>
 <h2>Convolutional Neural Networks</h2>
 <p>The purpose of a convolutional neural network is to be a network which makes use of the spatial structure of an image. An image is a 3-dimensional object: width, height, and 3 color channels. The convolutional operations keeps this structure intact and acts against this object is a 3-tensor. A convolutional layer is a function that applies a <em>stencil</em> to each point. This is illustrated by the following animation:</p>
@@ -680,7 +677,6 @@ div.title {text-align: center;}
 CNN(x) = dense(conv(maxpool(conv(x))))
 \]</p>
 <p>which can be expressed in Flux.jl syntax as:</p>
-
 
 
 <pre class='hljl'>
@@ -804,25 +800,25 @@ u_{3}
 \]</p>
 <p>and thus we can invert the matrix to get the a&#39;s:</p>
 <p class="math">\[
-a_{1}	=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}
+a_{1}	=\frac{u_{3}-2u_{2}+u_{1}}{2\Delta x^{2}}
 \]</p>
 <p class="math">\[
 a_{2}	=\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}
 \]</p>
 <p class="math">\[
-a_{3}	=u_{1} or g(x)=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}x^{2}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}x+u_{1}
+a_{3}	=u_{1}\text{ or }g(x)=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}x^{2}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}x+u_{1}
 \]</p>
 <p>Now we can get derivative approximations from this. Notice for example that</p>
 <p class="math">\[
-g^{\prime}(x)=\frac{u_{3}-2u_{2}-u_{1}}{\Delta x^{2}}x+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}
+g^{\prime}(x)=\frac{u_{3}-2u_{2}+u_{1}}{\Delta x^{2}}x+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}
 \]</p>
 <p>Now what&#39;s the derivative at the middle point?</p>
 <p class="math">\[
-g^{\prime}\left(\Delta x\right)=\frac{u_{3}-2u_{2}-u_{1}}{\Delta x}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}=\frac{u_{3}-u_{1}}{2\Delta x}.
+g^{\prime}\left(\Delta x\right)=\frac{u_{3}-2u_{2}+u_{1}}{\Delta x}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}=\frac{u_{3}-u_{1}}{2\Delta x}.
 \]</p>
 <p>And now check</p>
 <p class="math">\[
-g^{\prime\prime}(\Delta x)=\frac{u_{3}-2u_{2}-u_{1}}{\Delta x^{2}}
+g^{\prime\prime}(\Delta x)=\frac{u_{3}-2u_{2}+u_{1}}{\Delta x^{2}}
 \]</p>
 <p>which is the central derivative formula. This gives a systematic way of deriving higher order finite differencing formulas. In fact, this formulation allows one to derive finite difference formulae for non-evenly spaced grids as well&#33; The algorithm which automatically generates stencils from the interpolating polynomial forms is the Fornberg algorithm.</p>
 <h4>Multidimensional Finite Difference Operations</h4>
@@ -832,7 +828,7 @@ g^{\prime\prime}(\Delta x)=\frac{u_{3}-2u_{2}-u_{1}}{\Delta x^{2}}
 \]</p>
 <p>where <span class="math">$\Delta u = u_{xx} + u_{yy}$</span>. Using the logic of the previous sections, we can approximate the two derivatives to have:</p>
 <p class="math">\[
-\frac{u(x+\Delta x,y)-2u(x,y)+u(x-\Delta x,y)}{\Delta x^{2}} + \frac{u(x,y+\Delta y)-2u(x,y)+u(x-x,y-\Delta y)}{\Delta y^{2}}=u^{\prime\prime}(x)+\mathcal{O}\left(\Delta x^{2}\right).
+\frac{u(x+\Delta x,y)-2u(x,y)+u(x-\Delta x,y)}{\Delta x^{2}} + \frac{u(x,y+\Delta y)-2u(x,y)+u(x-x,y-\Delta y)}{\Delta y^{2}}=u^{\prime\prime}(x)+\mathcal{O}\left(\Delta x^{2}\right) + \mathcal{O}\left(\Delta y^{2}\right).
 \]</p>
 <p>Notice that this is the stencil operation:</p>
 <pre><code>0  1 0
@@ -896,7 +892,7 @@ I_{x} & -2I_{x} & I_{x}\\
 0  1 0</code></pre>
 <p>In this operation, at a point you still use the up and down neighbors, and thus this has a tridiagonal form since those are the immediate neighbors, but the next <span class="math">$y$</span> value is <span class="math">$N$</span> over, so this is where the block tridiagonal form comes for the stencil in the <span class="math">$y$</span> terms. When these are added together one receives the appropriate matrix. The Kronecker product effectively encodes this &quot;N over&quot; behavior. It also readily generalizes to <span class="math">$N$</span> dimensions. To see this for 3-dimensional Laplacians, <span class="math">$u_{xx} + u_{yy} + u_{zz}$</span>, notice that</p>
 <p class="math">\[
-A=I_z \otimes I_{y}\otimes A_{x} + I_z \otimes A_{y}\otimes I_{x} + A_z \otimes A_y \otimes I_x
+A=I_z \otimes I_{y}\otimes A_{x} + I_z \otimes A_{y}\otimes I_{x} + A_z \otimes I_y \otimes I_x
 \]</p>
 <p>using the same reasoning about &quot;N&quot; over and &quot;N^2 over&quot;, and from this formulation it&#39;s clear how to generalize to arbitrary dimensions.</p>
 <p>We note that there is an alternative representation as well for 2D forms. We can represent them with left and right matrix operations. When <span class="math">$u$</span> is represented as a matrix, notice that</p>
@@ -923,9 +919,8 @@ e_{i}^{n+1}=e_{i}^{n}+\mu\left(e_{i+1}^{n}-2e_{i}^{n}+e_{i-1}^{n}\right)+\Delta 
 \]</p>
 <p>where</p>
 <p class="math">\[
-\tau_{i}^{n}\sim\mathcal{O}(\Delta t)+\mathcal{O}(\Delta x^{2})
+\tau_{i}^{n}\sim\mathcal{O}(\Delta t)+\mathcal{O}(\Delta x^{2}).
 \]</p>
-<p>.</p>
 <p>Stability requires that the homogenous equation goes to zero. Another way of saying that is that the propogation of errors has errors decrease their influence over time. Thus we look at:</p>
 <p class="math">\[
 e_{i}^{n+1}	=e_{i}^{n}+\mu\left(e_{i+1}^{n}-2e_{i}^{n}+e_{i-1}^{n}\right) =\left(1-2\mu\right)e_{i}^{n}+\mu e_{i+1}^{n}+\mu e_{i-1}^{n}
@@ -1015,17 +1010,16 @@ S[u] = f
 <p>a stencil computation, predefined to match a known partial differential equation operator, and then <em>transfer learn</em> the stencil to better match data. This is an approach which is starting to move down the lines of <em>physics-informed machine learning</em> that will be further explored in future lectures.</p>
 
 
-
-          <HR/>
-          <div class="footer"><p>
-          Published from <a href="pdes_and_convolutions.jmd">pdes_and_convolutions.jmd</a> using
-          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-11-18.
-          <p></div>
-
-
+        <HR/>
+        <div class="footer">
+          <p>
+            Published from <a href="pdes_and_convolutions.jmd">pdes_and_convolutions.jmd</a>
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-12-04.
+          </p>
         </div>
       </div>
     </div>
-  </BODY>
+  </div>
+</BODY>
+
 </HTML>

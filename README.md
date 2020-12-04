@@ -484,3 +484,14 @@ Guest Lecturer: Jeremy Kepner, MIT Lincoln Lab and the MIT Supercloud
 - [Optimizing Xeon Phi for Interactive Data Analysis (Paper)](https://github.com/mitmath/18337/blob/master/lecture12/OptimizingXeonPhi-PID6086383.pdf)
 
 In this lecture we went over the mathematics behind big data, machine learning, and high performance computing. Pieces like Amdahl's law for describing maximal parallel compute efficiency were described and demonstrated to showcase some hard ceiling on the capabilities of parallel computing, and these laws were described in the context of big data computations in order to assess the viability of distributed computing within that domain's context.
+
+## Lecture 13: GPU Computing
+
+TBA
+
+## Lecture 14: Partial Differential Equations and Convolutional Neural Networks
+
+- [PDEs, Convolutions, and the Mathematics of Locality (Lecture)](https://youtu.be/apkyk8n0vBo)
+- [PDEs, Convolutions, and the Mathematics of Locality (Notes)](https://mitmath.github.io/18337/lecture14/pdes_and_convolutions)
+
+In this lecture we will continue to relate the methods of machine learning to those in scientific computing by looking at the relationship between convolutional neural networks and partial differential equations. It turns out they are more than just similar: the two are both stencil computations on spatial data!

@@ -664,7 +664,7 @@ div.title {text-align: center;}
 <h2>Problem 1: Neural ODE from Scratch</h2>
 <p>In this problem we will work through the development of a neural ODE.</p>
 <h3>Part 1: Gradients as vjps</h3>
-<p>Use the definition of the pullback as a vector-Jacobian product &#40;vjp&#41; to show that <span class="math">$B_f^x(1) = \left( \nabla f(x) \right)^{T}$</span>.</p>
+<p>Use the definition of the pullback as a vector-Jacobian product &#40;vjp&#41; to show that <span class="math">$B_f^x(1) = \left( \nabla f(x) \right)^{T}$</span> for a function <span class="math">$f: \mathbb{R}^n \rightarrow \mathbb{R}$</span>.</p>
 <p>&#40;Hint: if you put 1 into the pullback, what kind of function is it? What does the Jacobian look like?&#41;</p>
 <h3>Part 2: Backpropagation of a neural network</h3>
 <p>Implement a simple <span class="math">$NN: \mathbb{R}^2 \rightarrow \mathbb{R}^2$</span> neural network</p>
@@ -710,7 +710,7 @@ u' = NN(u)
         <div class="footer">
           <p>
             Published from <a href="hw3.jmd">hw3.jmd</a>
-            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-11-20.
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-12-04.
           </p>
         </div>
       </div>

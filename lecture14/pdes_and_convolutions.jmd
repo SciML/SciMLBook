@@ -1,7 +1,7 @@
 ---
 title: PDEs, Convolutions, and the Mathematics of Locality
 author: Chris Rackauckas
-date: November 17th, 2019
+date: December 4th, 2020
 ---
 
 At this point we have identified how the worlds of machine learning and scientific
@@ -210,21 +210,21 @@ u_{3}
 
 and thus we can invert the matrix to get the a's:
 
-$$a_{1}	=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}$$
+$$a_{1}	=\frac{u_{3}-2u_{2}+u_{1}}{2\Delta x^{2}}$$
 $$a_{2}	=\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}$$
 $$a_{3}	=u_{1}\text{ or }g(x)=\frac{u_{3}-2u_{2}-u_{1}}{2\Delta x^{2}}x^{2}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}x+u_{1}$$
 
 Now we can get derivative approximations from this. Notice for example that
 
-$$g^{\prime}(x)=\frac{u_{3}-2u_{2}-u_{1}}{\Delta x^{2}}x+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}$$
+$$g^{\prime}(x)=\frac{u_{3}-2u_{2}+u_{1}}{\Delta x^{2}}x+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}$$
 
 Now what's the derivative at the middle point?
 
-$$g^{\prime}\left(\Delta x\right)=\frac{u_{3}-2u_{2}-u_{1}}{\Delta x}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}=\frac{u_{3}-u_{1}}{2\Delta x}.$$
+$$g^{\prime}\left(\Delta x\right)=\frac{u_{3}-2u_{2}+u_{1}}{\Delta x}+\frac{-u_{3}+4u_{2}-3u_{1}}{2\Delta x}=\frac{u_{3}-u_{1}}{2\Delta x}.$$
 
 And now check
 
-$$g^{\prime\prime}(\Delta x)=\frac{u_{3}-2u_{2}-u_{1}}{\Delta x^{2}}$$ which is
+$$g^{\prime\prime}(\Delta x)=\frac{u_{3}-2u_{2}+u_{1}}{\Delta x^{2}}$$ which is
 the central derivative formula. This gives a systematic way of deriving higher
 order finite differencing formulas. In fact, this formulation allows one to
 derive finite difference formulae for non-evenly spaced grids as well! The
