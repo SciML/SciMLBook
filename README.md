@@ -487,11 +487,25 @@ In this lecture we went over the mathematics behind big data, machine learning, 
 
 ## Lecture 13: GPU Computing
 
-TBA
+Guest Lecturer: Valentin Churavy, MIT Julia Lab
+
+- [Parallel Computing: From SIMD to SIMT (Lecture)](https://youtu.be/KCYlEub_8xc)
+- [GPU Computing in Julia](https://youtu.be/v9bFRg4rUfk)
+- [Parallel Computing: From SIMD to SIMT (Notes)](https://docs.google.com/presentation/d/1C1dt8zeNW7spgswr2CmLrE0G-ayj0ItvoEWHdX_0kYc/edit#slide=id.g76b4384d33_0_5)
+- [GPU Computing in Julia (Notes)](https://docs.google.com/presentation/d/1QvHE_xVDKnPA3-nowzpZY1lUdXr7B8rLCu2usOz8KT8/edit#slide=id.gb00e54ec3a_0_477)
+
+In this lecture we take a deeper dive into the architectural differences of GPUs
+and how that changes the parallel computing mindset that's required to arrive
+at efficient code. Valentin walks through the compilation process and how the
+resulting behaviors are due to core trade-offs in GPU-based programming and direct
+compilation for such hardware.
 
 ## Lecture 14: Partial Differential Equations and Convolutional Neural Networks
 
 - [PDEs, Convolutions, and the Mathematics of Locality (Lecture)](https://youtu.be/apkyk8n0vBo)
 - [PDEs, Convolutions, and the Mathematics of Locality (Notes)](https://mitmath.github.io/18337/lecture14/pdes_and_convolutions)
 
-In this lecture we will continue to relate the methods of machine learning to those in scientific computing by looking at the relationship between convolutional neural networks and partial differential equations. It turns out they are more than just similar: the two are both stencil computations on spatial data!
+In this lecture we will continue to relate the methods of machine learning to
+those in scientific computing by looking at the relationship between convolutional
+neural networks and partial differential equations. It turns out they are more 
+than just similar: the two are both stencil computations on spatial data!
