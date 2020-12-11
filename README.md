@@ -82,7 +82,7 @@ Much of the reading will come in the form of primary literature from journal
 articles posted here.
 
 **Grading**: 50% problem sets, 10% for the final project proposal (due October 30th),
-and 40% for the **final project** (due December 18th). Problem sets and final
+and 40% for the **final project** (due December 14th). Problem sets and final
 projects will be submitted electronically.
 
 **Collaboration policy**: Make an effort to solve the problem on your own before
@@ -507,5 +507,5 @@ compilation for such hardware.
 
 In this lecture we will continue to relate the methods of machine learning to
 those in scientific computing by looking at the relationship between convolutional
-neural networks and partial differential equations. It turns out they are more 
+neural networks and partial differential equations. It turns out they are more
 than just similar: the two are both stencil computations on spatial data!
