@@ -509,3 +509,13 @@ In this lecture we will continue to relate the methods of machine learning to
 those in scientific computing by looking at the relationship between convolutional
 neural networks and partial differential equations. It turns out they are more
 than just similar: the two are both stencil computations on spatial data!
+
+## Lecture 18: Code Profiling and Optimization
+
+- [Code Profiling and Optimization (Lecture)](https://youtu.be/h-xVBD2Pk9o)
+- [Code Profiling and Optimization (Notes)](https://mitmath.github.io/18337/lecture18/code_profiling)
+
+How do you put everything together in this course? Let's take a look at a PDE
+solver code given in a method of lines form. In this lecture I walk through the
+code and demonstrate how to serial optimize it, and showcase the interaction
+between variable caching and automatic differentiation.
