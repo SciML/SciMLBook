@@ -1,7 +1,7 @@
 ---
 title: Global Sensitivity Analysis
 author: Chris Rackauckas
-date: December 1st, 2019
+date: December 12st, 2020
 ---
 
 Sensitivity analysis is the measure of how sensitive a model is to changes in
@@ -13,6 +13,8 @@ how does the output of a model generally change with a change in the input?
 This kind of question requires an understanding of *global sensitivty* of a
 model. While there isn't a single definition of the concept, there are a few
 methods that individuals have employed to estimate the global sensitivity.
+
+Reference implementations of these methods can be found in [GlobalSensitivity.jl](https://github.com/SciML/GlobalSensitivity.jl)
 
 ## Setup for Global Sensitivity
 
@@ -235,6 +237,9 @@ using LatinHypercubeSampling
 p = LHCoptim(120,2,1000)
 scatter(p[1][:,1],p[1][:,2])
 ```
+
+For a reference library with many different quasi-Monte Carlo samplers, check
+out [QuasiMonteCarlo.jl](https://github.com/SciML/QuasiMonteCarlo.jl).
 
 ## Fourier Amplitude Sensitivity Sampling (FAST) and eFAST
 

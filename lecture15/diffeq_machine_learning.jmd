@@ -1,248 +1,155 @@
 ---
 title: Mixing Differential Equations and Neural Networks for Physics-Informed Learning
 author: Chris Rackauckas
-date: November 19th, 2019
+date: December 11th, 2020
 ---
 
 Given this background in both neural network and differential equation modeling,
-let's take a moment to survey some methods which integrate the two ideas. Neural
-differential equations are of course one possible method, but there are methods
-which utilize the composition of these ideas. Some are good, some are not.
+let's take a moment to survey some methods which integrate the two ideas. In this
+course we have fully described how Physics-Informed Neural Networks (PINNs) and
+neural ordinary differential equations are both trained and used. There are many
+other methods which utilize the composition of these ideas.
 
 Julia codes for these methods are being developed, optimized, and tested in
-the [NeuralNetDiffEq.jl package](https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl).
-A generalized neural differential equation solver can be found at
-[DiffEqFlux.jl](https://github.com/JuliaDiffEq/DiffEqFlux.jl).
-Note that as a standard and maintained Julia package, these methods are available
-today for solving these kinds of problems with these neural-enhanced methods.
+the [SciML](sciml.ai) organization. Some packages to note are
 
-## Generalized Neural Differential Equations
+- [NeuralPDE.jl](https://github.com/SciML/NeuralPDE.jl)
+- [DiffEqFlux.jl](https://github.com/SciML/DiffEqFlux.jl)
+- [DataDrivenDiffEq.jl](https://github.com/SciML/DataDrivenDiffEq.jl)
+- [Surrogates.jl](https://github.com/SciML/Surrogates.jl)
+- [ReservoirComputing.jl](https://github.com/SciML/ReservoirComputing.jl)
+
+and many more collaborations with scientists around the world (too many to note).
+And there are some scattered packages in other languages to note too, such as:
+
+- [deepxde](https://github.com/lululxvi/deepxde)
+- [pysindy](https://github.com/dynamicslab/pysindy)
+- [ADCME.jl](https://github.com/kailaix/ADCME.jl)
+
+and many more. This lecture is a quick servey on different directions that
+people have taken so far in this field. It is by no means comprehensive.
+
+### The Augmented Neural Ordinary Differential Equation
+
+Note that not every function can be represented by an ordinary differential
+equation. Specifically, $u(t)$ is an $\mathbb{R} \rightarrow \mathbb{R}^n$ function
+which cannot loop over itself except when the solution is cyclic. The reason is
+because the flow of the ODE's solution is unique from every time point, and
+for it to have "two directions" at a point $u_i$ in phase space would have two
+solutions to the problem
+
+$$u' = f(u,p,t)$$
+
+where $u(0)=u_i$, and thus this cannot happen (with $f$ sufficiently nice).
+However, if we have another degree of freedom we can ensure that the ODE does not
+overlap with itself. This is the
+[augmented neural ordinary differential equation](https://arxiv.org/abs/1904.01681).
+
+We only need one degree of freedom in order to not collide, so we can do the
+following. We can add a fake state to the ODE which is zero at every single
+data point. This then allows this extra dimension to "bump around" as neccessary
+to let the function be a universal approximator. In code this looks like:
+
+```julia;eval=false
+dudt = Chain(...) # Flux neural network
+p,re = Flux.destructure(dudt)
+dudt_(u,p,t) = re(p)(u)
+prob = ODEProblem(dudt_,[u0,0f0],tspan,p)
+augmented_data = vcat(ode_data,zeros(1,size(ode_data,2)))
+```
+
+## Extensions to other Differential Equations
 
 While our previous lectures focused on ordinary differential equations, the
 larger classes of differential equations can also have neural networks, for
 example:
 
-- Stiff neural ordinary differential equations (neural ODEs)
-- Neural [stochastic differential equations](https://en.wikipedia.org/wiki/Stochastic_differential_equation) (neural SDEs)
-- Neural [delay differential equations](https://en.wikipedia.org/wiki/Delay_differential_equation) (neural DDEs)
-- Neural [partial differential equations](https://en.wikipedia.org/wiki/Partial_differential_equation) (neural PDEs)
-- Neural [jump stochastic differential equations](https://en.wikipedia.org/wiki/Jump_diffusion) (neural jump diffusions)
-- [Hybrid neural differential equations](http://docs.juliadiffeq.org/latest/features/callback_functions/) (neural DEs with event handling)
+- [stochastic differential equations](https://en.wikipedia.org/wiki/Stochastic_differential_equation)
+- [delay differential equations](https://en.wikipedia.org/wiki/Delay_differential_equation)
+- [partial differential equations](https://en.wikipedia.org/wiki/Partial_differential_equation)
+- [jump stochastic differential equations](https://en.wikipedia.org/wiki/Jump_diffusion)
+- [Hybrid differential equations](http://diffeq.sciml.ai/latest/features/callback_functions/) (DEs with event handling)
 
 For each of these equations, one can come up with an adjoint definition in order
-to define a backpropogation. However, there are limitations to this. In many
-cases, such as with stochastic differential equations, the time complexity of
-the continuous adjoint method is actually worse than backpropogation through
-the solver itself. Secondly, every single one of these equations requires an
-adjoint method, and some of them need different adjoint methods in different
-contexts (state-dependent delay differential equations vs constant-time delay
-differential equations).
+to define a backpropogation, or perform direct automatic differentiation of the
+solver code. One such paper in this area includes
+[neural stochastic differential equations](https://arxiv.org/abs/1905.09883)
+
+### The Universal Ordinary Differential Equation
+
+This formulation of the nueral differential equation in terms of a "knowledge-embedded"
+structure is leading. If we already knew something about the differential equation,
+could we use that information in the differential equation definition itself?
+This leads us to the idea of the [universal differential equation](https://arxiv.org/abs/2001.04385),
+which is a differential equation that embeds universal approximators in its
+definition to allow for learning arbitrary functions as pieces of the
+differential equation.
+
+The best way to describe this object is to code up an example. As our example,
+let's say that we have a two-state system and know that the second state is defined
+by a linear ODE. This mean we want to write:
+
+$$x' = NN(x,y)$$
+$$y' = p_1 x + p_2 y$$
+
+We can code this up as follows:
+
+```julia
+u0 = Float32[0.8; 0.8]
+tspan = (0.0f0,25.0f0)
+
+ann = Chain(Dense(2,10,tanh), Dense(10,1))
+
+p1,re = Flux.destructure(ann)
+p2 = Float32[-2.0,1.1]
+p3 = [p1;p2]
+ps = Flux.params(p3)
+
+function dudt_(du,u,p,t)
+    x, y = u
+    du[1] = re(p[1:41])(u)[1]
+    du[2] = p[end-1]*y + p[end]*x
+end
+prob = ODEProblem(dudt_,u0,tspan,p3)
+concrete_solve(prob,Tsit5(),u0,p3,abstol=1e-8,reltol=1e-6)
+```
+
+and we can train the system to be stable at 1 as follows:
+
+```julia
+function predict_adjoint()
+  Array(concrete_solve(prob,Tsit5(),u0,p3,saveat=0.0:0.1:25.0))
+end
+loss_adjoint() = sum(abs2,x-1 for x in predict_adjoint())
+loss_adjoint()
+
+data = Iterators.repeated((), 300)
+opt = ADAM(0.01)
+iter = 0
+cb = function ()
+  global iter += 1
+  if iter % 50 == 0
+    display(loss_adjoint())
+    display(plot(solve(remake(prob,p=p3,u0=u0),Tsit5(),saveat=0.1),ylim=(0,6)))
+  end
+end
+
+# Display the ODE with the current parameter values.
+cb()
+
+Flux.train!(loss_adjoint, ps, data, opt, cb = cb)
+```
 
 DiffEqFlux.jl is the first library to support the wide gambit of possible
-differential equations. It does so by using Julia's language-wide AD tooling,
-such as Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations
-available whenever adjoint methods are known (and the choice between the two
-is given to the user).
+universal differential equations with combinations of stiffness, delays, stochasticity,
+etc. It does so by using Julia's language-wide AD tooling, such as ReverseDiff.jl,
+Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations available
+whenever adjoint methods are known (and the choice between the two is given to
+the user).
 
-For example, a neural stochastic differential equation can be trained
-[using the following example](https://github.com/JuliaDiffEq/DiffEqFlux.jl/tree/967ae0e74bbf772c78f81859c2f205066d08f184#neural-sde-example),
-and [known differential equations can be mixed with unknown portions](https://github.com/JuliaDiffEq/DiffEqFlux.jl/tree/967ae0e74bbf772c78f81859c2f205066d08f184#mixed-neural-des).
-Additionally, [this blog post](https://www.stochasticlifestyle.com/neural-jump-sdes-jump-diffusions-and-neural-pdes/)
-showcases the mixing of event handling with neural stochastic differential equations
-and using stiff solvers for ODEs to train neural partial differential equations.
-
-Many of the methods below can be encapsolated as a choice of a neural differential
+Many of the methods below can be encapsolated as a choice of a universal differential
 equation and trained with higher order, adaptive, and more efficient methods with
-DiffEqFlux.jl. A paper detailing this is to come out in the next few weeks.
-
-## Artificial neural networks for solving ordinary and partial differential equations
-
-### Solving Ordinary Differential Equations
-
-[This is a result due to Lagaris et. al from 1998](https://arxiv.org/pdf/physics/9705023.pdf).
-The idea is to solve differential equations using neural networks by
-representing the solution by a neural network and training the resulting
-network to satisfy the conditions required by the differential equation.
-
-Let's say we want to solve a system of ordinary differential equations
-
-$$u' = f(u,t)$$
-
-with $t \in [0,1]$ and a known initial condition $u(0)=u_0$. To solve this, we
-approximate the solution by a neural network:
-
-$$N(t) \approx u(t)$$
-
-If $N(t)$ was the true solution, then it would hold that $N'(t) = f(N(t),t)$ for
-all $t$. Thus we turn this condition into our loss function. This motivates the
-loss function:
-
-$$L(p) = \sum_i \left(\frac{dN(t_i)}{dt} - f(N(t_i),t_i) \right)^2$$
-
-The choice of $t_i$ could be done in many ways: it can be random, it can be a
-grid, etc. Anyways, when this loss function is minimized (gradients computed
-with standard reverse-mode automatic differentiation), then we have that
-$\frac{dN(t_i)}{dt} \approx f(N(t_i),t_i)$ and thus $N(t)$ approximately solves
-the differential equation.
-
-#### Quick Question for Understanding: What is an effective way to compute dN/dt?
-
-If you thought reverse-mode automatic differentiation, go back and think about
-why that is incorrect! Hint: what is the dimensionality of the input and the
-output?
-
-Note that we still have to handle the initial condition. One simple way to do
-this is to add an initial condition term to the cost function. While that would
-work, it can be more efficient to encode the initial condition into the
-function itself so that it's trivially satisfied for any possible set of
-parameters. For example, instead of directly using a neural network, we can
-use:
-
-$$T(t) = u_0 + tN(t)$$
-
-as our solution. Notice that this will always satisfy the initial condition,
-so if we train this to satisfy the derivative function then it will automatically
-be a solution to the derivative function.
-
-### Solving Partial Differential Equations
-
-This same idea can be employed to solve partial differential equations. For
-example, take the Poisson equation:
-
-$$\Delta u = f(x,y)$$
-
-for the 2-dimensional Poisson equation with $x \in [0,1]$ and $y \in [0,1]$.
-Assume that the boundary conditions are
-Dirichlet, i.e. $u(0,y) = u_{0x}(y)$, $u(1,y) = u_{1x}(y)$, $u(x,0) = u_{0y}(x)$,
-and $u(x,1)=u_{1y}(y)$ are all given. If this is the case, we can have
-
-$$T(x,y) = A(x,y) + x(1-x)y(1-y)N(x,y)$$
-
-where $A(x,y)$ is a function that is made so $T(x,y)$ satisfies the boundary conditions.
-Then we have the loss function:
-
-$$L(p) = \sum_i \left(\Delta T(x_i,y_i) - f(x_i,y_i) \right)^2$$
-
-### Julia Implementation
-
-A Julia implementation for solving ODEs via neural networks through this method
-[exists in NeuralNetDiffEq.jl](https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/src/ode_solve.jl).
-Take a look at the code and make sure you understand it. It should be easily
-understandable given this description of the method!
-
-### Analysis of the Method and Dimensionality
-
-While the method "will work" with large enough neural networks due to the
-universal approximation theorem, this method is highly inefficient since no
-information about differential equations are embedded into the problem. There
-is no convergence rate guarantee, and there are no strict bounds like one would
-expect from numerical analysis. All implementations of the method that I have
-found (including my own) show that this method is very very inefficient. For
-example, it can be hard to train a solver on the Lotka-Volterra equation using
-a few GPU hours, while a Runge-Kutta method will solve it in nanoseconds...
-
-That said, the method itself is an interesting starting point. While other ODE
-and PDE solvers need to approximate an equation at specific points, i.e. on a
-mesh, this method is *mesh-free* in the sense that there is no mesh and just
-a direct representation of the continuous solution itself. This algorithm
-was
-[reinvented in 2018 as the Deep Galerkin Method (DGM)](https://arxiv.org/pdf/1708.07469.pdf)
-and exploited the mesh-free behavior to see this as a method for high dimensional
-partial differential equations. While a finite difference method would require
-$N^d$ many points, a neural network just needs to have its parameters in memory,
-and thus it can scale well to high dimensional partial differential equation
-problems.
-
-## Physics-Informed Deep Learning
-
-The results on this are found across three papers,
-[the main being this article from the Journal of Computational Physics](https://www.sciencedirect.com/science/article/pii/S0021999118307125).
-with this [JMLR paper having a similar flavor](http://www.jmlr.org/papers/volume19/18-046/18-046.pdf)
-and all stemming from [this arxiv paper](https://arxiv.org/abs/1711.10561).
-The authors are M.Raissi, P.Perdikaris, and G.E.Karniadakis, two at Brown university
-and Perdikaris at UPenn.
-
-The main idea behind the Physics-Informed Neural Network (PINN) is to use known
-physical information as a form of prior information in the structure of the
-neural network architecture in order to build a more data-efficient form of
-machine learning for scientific computing applications. This setup starts by
-assuming that the underlying data follows some nonlinear partial differential
-equation
-
-$$u_t + \mathcal{N}[u;\lambda] = 0$$
-
-for some $\lambda$ parameterized PDE operator over some space $x \in \Omega$
-and $t \in [0,T]$. From here, we proceed by approximating $u(t,x)$ by a neural
-network $N(t,x)$. Let
-
-$$f(t,x) = N_t + \mathcal{N}[N;\lambda]$$
-
-The loss function that is used is:
-
-$$MSE = MSE_u + MSE_f$$
-
-where
-
-$$MSE_u = \frac{1}{N_u} \sum_i |N(t_i^u,x_i^u) - u_i |^2$$
-
-is the difference between the neural network and the data $u$, while
-
-$$MSE_f = \frac{1}{N_f} \sum_i |f(t_i^f,x_i^f)|^2$$.
-
-is the loss on the PDE function itself. Notice that, if $f=0$ then the PDE is
-satisfied, and thus the second term indeed looks like a regularization to push
-towards the solution of the PDE.
-
-Thus in some sense one can understand this as an extension to the previous
-deep learning methods for solving partial differential equations, where here
-the $MSE_f$ term is enforcing that the neural network solves the PDE, just like
-before, but it is mixed with a loss function that drives $N(t,x)$ towards the
-known data $u_i(t_i,x_i)$. In this sense, this is a method not for solving a
-partial differential equation with a neural network, but by using the structure
-of a neural network PDE solver as a component within a data-driven deep
-learning approach to relax the solution towards an underlying known physical
-structure.
-
-Once this is established, the authors present two separate ways of training
-the physics-informed neural network $f$. One way to do this is to directly
-evaluate the loss function $MSE_f$ at chosen or random points in time using
-automatic differentiation. However, the number of points needed for this method
-to work is seen as a computational bottleneck (indeed, as noted before, the
-continuous mesh-free algorithm for partial differential equations is highly
-ineffecient!). To overcome this difficulty, they move towards a discrete-time
-model.
-
-For this discrete time model, they discretize the partial differential equation
-by a Runge-Kutta method. For example, the simplest Runge-Kutta method is the
-Euler method, which we can write out as:
-
-$$u_{n+1} = u_n - \Delta t \mathcal{N}[u_n;\lambda]$$
-
-Now in this case, instead of making a neural network apply to $u(t,x)$ and try
-to approximate the full continuous function of time, the authors make $n$ neural
-networks
-
-$$N_n(x) = u_{n}(x)$$
-
-In this form, the previous loss function can be reinterpreted to be on this
-discretized set of neural networks. Specifically,
-
-$$SSE = SSE_n + SSE_f + SSE_b$$
-
-where
-
-$$SSE_n = \sum_i |N_i(x_i) - u_i|^2$$
-
-and $SSE_b$ is a loss function of each $u_i$ against the boundary conditions.
-Here $SSE_f$ is simply the loss on the equation of the discretization:
-
-$$SSE_f = \sum_i N_{n+1}(x_i) - N_n(x_i) + \Delta t \mathcal{N}[N_n;\lambda]$$
-
-to relax towards the solution of the PDE.
-
-Using this style, the authors show that this method is a data-efficient form
-of learning because it can use the known physics as a form of heavy prior
-information.
+DiffEqFlux.jl.
 
 ## Deep BSDE Methods for High Dimensional Partial Differential Equations
 
@@ -341,9 +248,9 @@ network:
 ### Julia Implementation
 
 A Julia implementation for the deep BSDE method can be found at
-[NeuralNetDiffEq.jl](https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/master/src/pde_solve.jl).
+[NeuralPDE.jl](https://github.com/SciML/NeuralPDE.jl).
 The examples considered below are part of the
-[standard test suite](https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/master/test/NNPDEHan_tests.jl).
+[standard test suite](https://github.com/SciML/NeuralPDE.jl/blob/master/test/NNPDEHan_tests.jl).
 
 ### Financial Applications of Deep BSDEs: Nonlinear Black-Scholes
 
@@ -441,6 +348,18 @@ $$\begin{align}
 where $\overline{\sigma} = \sqrt{2}$, T = 1 and $X_0 = (0,. . . , 0) \in R^{100}$.
 
 The Julia code for solving this exact problem in 100 dimensions [can be found here](https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/test/NNPDEHan_tests.jl#L166-L211)
+
+## Connections of Reservoir Computing to Scientific Machine Learning
+
+
+
+
+ADD STUFF!
+
+
+
+
+## Automated Equation Discovery: Outputting LaTeX for Dynamical Systems from Data
 
 ## Surrogate Acceleration Methods
 
