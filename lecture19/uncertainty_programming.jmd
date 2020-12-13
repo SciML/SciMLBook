@@ -1,7 +1,7 @@
 ---
 title: Uncertainty Programming, Generalized Uncertainty Quantification
 author: Chris Rackauckas
-date: December 1st, 2019
+date: December 12th, 2020
 ---
 
 In this lecture we will mix two separate topics: uncertainty quantification
@@ -66,8 +66,8 @@ arthmetic on normally distributed random variables. If we interpret $x \sim N(a,
 i.e. a normally distributed random variable with mean $a$ and standard deviation
 $b$, then the distributions follow that:
 
-$$\alpha + a ~ N(\alpha + a,b)$$
-$$\alpha a ~ N(\alpha a,|\alpha|b)$$
+$$\alpha + a \sim N(\alpha + a,b)$$
+$$\alpha a \sim N(\alpha a,|\alpha|b)$$
 
 From here we can begin to expand to multiple variables. If $f = Ax$ where
 $x ~ N(\mu,\Sigma)$ is a multidimensional random variable, then
@@ -304,7 +304,7 @@ had a second row as well, with the first being $\mathcal{O}(n^5)$ and the second
 being $\mathcal{O}(n^4)$. Thus these Runge-Kutta methods naturally have error
 estimators. In standard usage, they are compared to the tolerances, like:
 
-$$q = \frac{E}{\text{reltol}\max{z_n,z_{n+1}} + \text{abstol}}$$
+$$q = \frac{E}{\text{reltol}\max(z_n,z_{n+1}) + \text{abstol}}$$
 
 and when $q<1$, the $\Delta t$ gives an error larger than the tolerances and so
 the step is rejected, decreased, and tried again. In many cases, one may control
@@ -356,3 +356,55 @@ Notice that while an interval estimate would have grown to allow all extremes
 together, this form keeps the trajectories alive, allowing them to fall back to
 the mode, which decreases the true uncertainty. This is thus a good explanation
 as to why general methods will overestimate uncertainty.
+
+## Adjoints of Uncertainty and the Koopman Operator
+
+Everything that we've demonstrated here so far can be thought of as "forward mode
+uncertainty quantification". For every example we have constructed a method such
+that, for a known probability distribution in `x`, we build the probability
+distribution of the output of the program, and then compute quantites from that.
+On a dynamical system this pushforward of a measure is denoted by the
+Frobenius-Perron operator. With a pushforward operator $P$ and an initial
+uncertainty density $f$, we can reprsent calculating the expected value of some
+cost function on the solution via:
+
+$$\mathbb{E}[g(x)|X \sim Pf] = \int_{S(A)} P f(x) g(x) dx$$
+
+where $S$ is the program, i.e. $S(A)$ is the total set of points by pushing every
+value of $A$ through our program, and  $P f(x)$ is the pushforward operator
+applied to the probability distribution. What this means is that, to calculate
+the expectation on the output of our program, like to calculate the mean value
+of the ODE's solution given uncertainty in the parameters, we can pushforward
+the probability distribution to construct $Pf$ and on this probability
+distribution calculate the expected value of some $g$ cost function on the
+solution.
+
+The problem, as seen earlier, is that pushing forward entire probability distributions
+is a fairly expensive process. We can instead think about doing the adjoint to
+this cost function, i.e. pulling back the cost function and computing it on the
+initial density. In terms of inner product notation, this would be doing:
+
+$$\langle Pf,g \rangle = \langle f, Ug \rangle$$
+
+meaning $U$ is the adjoint operator to the pushforward $P$. This operator is
+known as the Koopman operator. There are many properties one can use about the
+Koopman operator, one special property being it's a linear operator on the space
+of observables, but it also gives a nice expression for computing uncertainty
+expectations. Using the Koopman operator, we can rewrite the expectation as:
+
+$$\mathbb{E}[g(x)|X \sim Pf] = \mathbb{E}[Ug(x)|X \sim f]$$
+
+or perform the integral on the pullback of the cost function, i.e.
+
+$$\mathbb{E}[g(x)|X \sim f] = \int_A Ug(x) f(x) dx$$
+
+In images it looks like:
+
+![Koopman vs FP](https://user-images.githubusercontent.com/1814174/102001466-a7b55b80-3cc0-11eb-9208-0f751fdca590.PNG)
+
+This expression gives us a fast way to compute expectations on the program output
+without having to compute the full uncertainty distribution on the output. This
+can thus be used for *optimization under uncertainty*, i.e. the optimization of
+loss functions with respect to expectations of the program's output under the
+assumption of given input uncertainty distributions. For more information, see
+[The Koopman Expectation: An Operator Theoretic Method for Efficient Analysis and Optimization of Uncertain Hybrid Dynamical Systems](https://arxiv.org/abs/2008.08737).

@@ -519,10 +519,29 @@ than just similar: the two are both stencil computations on spatial data!
 - [From Optimization to Probabilistic Programming (Lecture)](https://youtu.be/32rAwtTAGdU)
 - [From Optimization to Probabilistic Programming (Notes)](https://mitmath.github.io/18337/lecture16/probabilistic_programming)
 
-All of our previous discussions lived in a deterministic world. Not this one. Here we turn to a probabilistic view and allow programs to have random variables. Forward simulation of a random program is seen to be simple through Monte Carlo sampling. However, parameter estimation is now much more involved, since in this case we need to estimate not just values but probability distributions. It turns out that Bayes' rule gives a framework for performing such estimations. We see that classical parameter estimation falls out as a maximization of probability with the "simplest" form of distributions, and thus this gives a nice generalization even to standard parameter estimation and justifies the use of L2 loss functions and regularization (as a perturbation by a prior). Next, we turn to estimating the distributions, which we see is possible for small problems using Metropolis Hastings, but for larger problems we develop Hamiltonian Monte Carlo. It turns out that Hamiltonian Monte Carlo has strong ties to both ODEs and differentiable programming: it is defined as solving ODEs which arise from a Hamiltonian, and derivatives of the likelihood are required, which is essentially the same idea as derivatives of cost functions! We then describe an alternative approach: Automatic Differentiation Variational Inference (ADVI), which once again is using the tools of differentiable programming to estimate distributions of probabilistic programs.
+All of our previous discussions lived in a deterministic world. Not this one.
+Here we turn to a probabilistic view and allow programs to have random variables.
+Forward simulation of a random program is seen to be simple through Monte Carlo
+sampling. However, parameter estimation is now much more involved, since in this
+case we need to estimate not just values but probability distributions. It turns
+out that Bayes' rule gives a framework for performing such estimations. We see
+that classical parameter estimation falls out as a maximization of probability
+with the "simplest" form of distributions, and thus this gives a nice
+generalization even to standard parameter estimation and justifies the use of
+L2 loss functions and regularization (as a perturbation by a prior). Next, we
+turn to estimating the distributions, which we see is possible for small
+problems using Metropolis Hastings, but for larger problems we develop
+Hamiltonian Monte Carlo. It turns out that Hamiltonian Monte Carlo has strong
+ties to both ODEs and differentiable programming: it is defined as solving ODEs
+which arise from a Hamiltonian, and derivatives of the likelihood are required,
+which is essentially the same idea as derivatives of cost functions! We then
+describe an alternative approach: Automatic Differentiation Variational
+Inference (ADVI), which once again is using the tools of differentiable
+programming to estimate distributions of probabilistic programs.
 
 ## Lecture 17: Global Sensitivity Analysis
 
+- [Global Sensitivity Analysis (Lecture)](https://youtu.be/wzTpoINJyBQ)
 - [Global Sensitivity Analysis (Notes)](https://mitmath.github.io/18337/lecture17/global_sensitivity)
 
 Our previous analysis of sensitivities was all local. What does it mean to example the sensitivities of a model globally? It turns out the probabilistic programming viewpoint gives us a solid way of describing how we expect values to be changing over larger sets of parameters via the random variables that describe the program's inputs. This means we can decompose the output variance into indices which can be calculated via various quadrature approximations which then give a tractable measurement to "variable x has no effect on the mean solution".
@@ -536,3 +555,25 @@ How do you put everything together in this course? Let's take a look at a PDE
 solver code given in a method of lines form. In this lecture I walk through the
 code and demonstrate how to serial optimize it, and showcase the interaction
 between variable caching and automatic differentiation.
+
+## Lecture 19: Uncertainty Programming and Generalized Uncertainty Quantification
+
+- [Uncertainty Programming (Lecture)](https://youtu.be/MRTXK2Vc0YE)
+- [Uncertainty Programming (Notes)](https://mitmath.github.io/18337/lecture19/uncertainty_programming)
+
+We end the course by taking a look at another mathematical topic to see whether
+it can be addressed in a similar manner: uncertainty quantification (UQ). There
+are ways which it can be handled similar to automatic differentiation.
+Measurements.jl gives a forward-propagation approach, somewhat like
+ForwardDiff's dual numbers, through a number type which is representative of
+normal distributions and pushes these values through a program. This has many
+advantages, since it allows for uncertainty quantification without sampling,
+but turns the number types into a value that is heap allocated. Other
+approaches are investigated, like interval arithmetic which is rigorous but
+limited in scope. But on the entirely other end, a non-general method for ODEs
+is shown which utilizes the trajectory structure of the differential equation
+solution and doesn't give the blow up that the other methods see. This
+showcases that uses higher level information can be helpful in UQ, and less
+local approaches may be necessary. We end by showcasing the Koopman operator
+as the adjoint of the pushforward of the uncertainty measure, and as an adjoint
+method it can give accelerated computations of uncertainty against cost functions.
