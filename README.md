@@ -514,7 +514,7 @@ those in scientific computing by looking at the relationship between convolution
 neural networks and partial differential equations. It turns out they are more
 than just similar: the two are both stencil computations on spatial data!
 
-## Lecture 15:
+## Lecture 15: More Algorithms which Connect Differential Equations and Machine Learning
 
 - [Mixing Differential Equations and Neural Networks for Physics-Informed Learning (Lecture)](https://youtu.be/VHtugbwyNKg)
 - [Mixing Differential Equations and Neural Networks for Physics-Informed Learning (Notes)](https://mitmath.github.io/18337/lecture15/diffeq_machine_learning)
