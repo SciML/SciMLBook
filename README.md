@@ -358,7 +358,7 @@ and static arrays will be used to get fast codes for dynamical system simulation
 These simulations will then be used to reveal some intriguing properties of
 dynamical systems which will be further explored through the rest of the course.
 
-## Lecture 5:
+## Lecture 5: Array-Based Parallelism, Embarrassingly Parallel Problems, and Data-Parallelism: The Basics of Single Node Parallel Computing
 
 - [The Basics of Single Node Parallel Computing (Lecture)](https://youtu.be/eca6kcFntiE)
 - [The Basics of Single Node Parallel Computing (Notes)](https://mitmath.github.io/18337/lecture5/parallelism_overview.html)
