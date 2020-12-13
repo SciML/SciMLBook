@@ -1,7 +1,7 @@
 ---
 title: Mixing Differential Equations and Neural Networks for Physics-Informed Learning
 author: Chris Rackauckas
-date: December 11th, 2020
+date: December 13th, 2020
 ---
 
 Given this background in both neural network and differential equation modeling,
@@ -94,7 +94,7 @@ $$y' = p_1 x + p_2 y$$
 
 We can code this up as follows:
 
-```julia
+```julia;eval=false
 u0 = Float32[0.8; 0.8]
 tspan = (0.0f0,25.0f0)
 
@@ -116,7 +116,7 @@ concrete_solve(prob,Tsit5(),u0,p3,abstol=1e-8,reltol=1e-6)
 
 and we can train the system to be stable at 1 as follows:
 
-```julia
+```julia;eval=false
 function predict_adjoint()
   Array(concrete_solve(prob,Tsit5(),u0,p3,saveat=0.0:0.1:25.0))
 end
@@ -140,8 +140,8 @@ cb()
 Flux.train!(loss_adjoint, ps, data, opt, cb = cb)
 ```
 
-DiffEqFlux.jl is the first library to support the wide gambit of possible
-universal differential equations with combinations of stiffness, delays, stochasticity,
+DiffEqFlux.jl supports the wide gambit of possible universal differential
+equations with combinations of stiffness, delays, stochasticity,
 etc. It does so by using Julia's language-wide AD tooling, such as ReverseDiff.jl,
 Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations available
 whenever adjoint methods are known (and the choice between the two is given to
@@ -351,15 +351,150 @@ The Julia code for solving this exact problem in 100 dimensions [can be found he
 
 ## Connections of Reservoir Computing to Scientific Machine Learning
 
+Reservoir computing techniques are an alternative to the "full" neural network
+techniques we have previously discussed. However, the process of training
+neural networks has a few caveats which can cause difficulties in real systems:
 
+1. The tangent space diverges exponentially fast when the system is chaotic,
+   meaning that results of both forward and reverse automatic differentiation
+   techniques (and the related adjoints) are divergent on these kinds of systems.
+2. It is hard for neural networks to represent stiff systems. There are many
+   reasons for this, one being that neural networks [tend to drop high frequency behavior](https://arxiv.org/abs/1806.08734)
 
+There are ways being investigated to alleviate these issues. For example,
+[shadow adjoints](https://www.sciencedirect.com/science/article/pii/S0021999117304783)
+can give a non-divergent average sense of a derivative on ergodic chaotic systems,
+but is significantly more expensive than the traditional adjoint.
 
-ADD STUFF!
+To get around these caveats, some research teams have investigated alternatives
+which do not require gradient-based optimization. The clear frontrunner in this
+field is a type of architecture called [echo state networks](http://www.scholarpedia.org/article/Echo_state_network).
+A simplified formulation of an echo state network essentially fixes a neural
+network that defines a reservoir, i.e.
 
+$$x_{n+1} = \sigma(W x_n + W_{fb} y_n)$$
+$$y_n = g(W_{out} x_n)$$
 
+where $W$ and $W_{fb}$ are fixed random matrices that are chosen before the
+training process, $x_n$ is called the reservoir state, and $y_n$ is the output
+state for the observables. The idea is to find a projection $W_{out}$ from the
+high dimensional random reservoir $x$ to model the timeseries by $y$. If the
+reservoir is a big enough and nonlinear enough random system, there should in
+theory exist a projection from that random system that matches any potential
+timeseries. Indeed, one can prove that echo state networks are universal adaptive
+filters under certain conditions.
 
+If $g$ is invertible (and in many cases $g$ is taken to be the identity), then
+one can directly apply the inversion of $g$ to the data. This turns the training
+of $W_{out}$, the only non-fixed portion, into a standard least squares regression
+between the reservoir and the observation series. This is then solved by classical
+means like SVD factorizations which can be stable in ill-conditioned cases.
+
+Echo state networks have been shown to [accurately reproduce chaotic attractors](https://arxiv.org/pdf/1906.08829.pdf)
+which are shown to be hard to train RNNs against. A demonstration via
+[ReservoirComputing.jl](https://github.com/SciML/ReservoirComputing.jl) clearly
+highlights this prediction ability:
+
+![](https://user-images.githubusercontent.com/10376688/81470264-42f5c800-91ea-11ea-98a2-a8a8d7d96155.png)
+![](https://user-images.githubusercontent.com/10376688/81470281-5a34b580-91ea-11ea-9eea-d2b266da19f4.png)
+
+However, this methodology still is not tailored to the continuous nature of
+dynamical systems found in scientific computing. Recent work has extended
+this methodolgy to allow for a continuous reservoir, i.e. a
+[continuous-time echo state network](https://arxiv.org/abs/2010.04004). It is
+shown that using the adaptive points of a stiff ODE integrator gives a non-uniform
+sampling in time that makes it easier to learn stiff equations from less training
+points, and demonstrates the ability to learn equations where standard physics-informed
+neural network (PINN) training techniques fail.
+
+![](https://user-images.githubusercontent.com/1814174/102009514-dc97d180-3d05-11eb-9542-bcd8d0f8b3a4.PNG)
+
+This area of research is still far less developed than PINNs and neural differential
+equations but shows promise to more easily learn highly stiff and chaotic systems
+which are seemingly out of reach for these other methods.
 
 ## Automated Equation Discovery: Outputting LaTeX for Dynamical Systems from Data
+
+[The SINDy algorithm](https://www.pnas.org/content/116/45/22445) enables
+data-driven discovery of governing equations from data. It leverages the fact
+that most physical systems have only a few relevant terms that define the
+dynamics, making the governing equations sparse in a high-dimensional nonlinear
+function space. Given a set of observations
+
+$$\begin{array}{c}
+\mathbf{X}=\left[\begin{array}{c}
+\mathbf{x}^{T}\left(t_{1}\right) \\
+\mathbf{x}^{T}\left(t_{2}\right) \\
+\vdots \\
+\mathbf{x}^{T}\left(t_{m}\right)
+\end{array}\right]=\left[\begin{array}{cccc}
+x_{1}\left(t_{1}\right) & x_{2}\left(t_{1}\right) & \cdots & x_{n}\left(t_{1}\right) \\
+x_{1}\left(t_{2}\right) & x_{2}\left(t_{2}\right) & \cdots & x_{n}\left(t_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{1}\left(t_{m}\right) & x_{2}\left(t_{m}\right) & \cdots & x_{n}\left(t_{m}\right)
+\end{array}\right] \\
+\end{array}$$
+
+and a set of derivative observations
+
+$$\begin{array}{c}
+\dot{\mathbf{X}}=\left[\begin{array}{c}
+\mathbf{x}^{T}\left(t_{1}\right) \\
+\dot{\mathbf{x}}^{T}\left(t_{2}\right) \\
+\vdots \\
+\mathbf{x}^{T}\left(t_{m}\right)
+\end{array}\right]=\left[\begin{array}{cccc}
+\dot{x}_{1}\left(t_{1}\right) & \dot{x}_{2}\left(t_{1}\right) & \cdots & \dot{x}_{n}\left(t_{1}\right) \\
+\dot{x}_{1}\left(t_{2}\right) & \dot{x}_{2}\left(t_{2}\right) & \cdots & \dot{x}_{n}\left(t_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots \\
+\dot{x}_{1}\left(t_{m}\right) & \dot{x}_{2}\left(t_{m}\right) & \cdots & \dot{x}_{n}\left(t_{m}\right)
+\end{array}\right]
+\end{array}$$
+
+we can evaluate the observations in a basis $\Theta(X)$:
+
+$$\Theta(\mathbf{X})=\left[\begin{array}{llllllll}
+1 & \mathbf{X} & \mathbf{X}^{P_{2}} & \mathbf{X}^{P_{3}} & \cdots & \sin (\mathbf{X}) & \cos (\mathbf{X}) & \cdots
+\end{array}\right]$$
+
+where $X^{P_i}$ stands for all $P_i$th order polynomial terms. For example,
+
+$$\mathbf{X}^{P_{2}}=\left[\begin{array}{cccccc}
+x_{1}^{2}\left(t_{1}\right) & x_{1}\left(t_{1}\right) x_{2}\left(t_{1}\right) & \cdots & x_{2}^{2}\left(t_{1}\right) & \cdots & x_{n}^{2}\left(t_{1}\right) \\
+x_{1}^{2}\left(t_{2}\right) & x_{1}\left(t_{2}\right) x_{2}\left(t_{2}\right) & \cdots & x_{2}^{2}\left(t_{2}\right) & \cdots & x_{n}^{2}\left(t_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots & \ddots & \vdots \\
+x_{1}^{2}\left(t_{m}\right) & x_{1}\left(t_{m}\right) x_{2}\left(t_{m}\right) & \cdots & x_{2}^{2}\left(t_{m}\right) & \cdots & x_{n}^{2}\left(t_{m}\right)
+\end{array}\right]$$
+
+Using these matrices, SINDy finds this sparse basis $\mathbf{\Xi}$ over a
+given candidate library $\mathbf{\Theta}$ by solving the sparse regression
+problem $\dot{X} =\mathbf{\Theta}\mathbf{\Xi}$ with $L_1$ regularization, i.e.
+minimizing the objective function
+$\left\Vert \mathbf{\dot{X}} - \mathbf{\Theta}\mathbf{\Xi} \right\Vert_2 + \lambda \left\Vert \mathbf{\Xi}\right\Vert_1$.
+This method and other variants of SInDy, along with specialized optimizers for
+the LASSO $L_1$ optimization problem, have been implemented in packages like
+[DataDrivenDiffEq.jl](https://github.com/SciML/DataDrivenDiffEq.jl) and
+[pysindy](https://github.com/dynamicslab/pysindy). The result of these methods
+is LaTeX for the missing dynamical system.
+
+Notice that to use this method, derivative data $\dot{X}$ is required. While in
+most publications on the subject this information is assumed. To find this,
+$\dot{X}$ is calculated directly from the time series $X$ by fitting a cubic
+spline and taking the approximated derivatives at the observation points. However,
+for this estimation to be stable one needs a fairly dense timeseries for the
+interpolation. To alleviate this issue, the
+[universal differential equations work](https://arxiv.org/abs/2001.04385)
+estimates terms of partially described models and then uses the neural network
+as an oracle for the derivative values to learn from subsets of the dynamical
+system. This allows for the neural network's training to smooth out the derivative
+estimate between points while incorporating extra scientific information.
+
+Other ways are being investigated for incorporating deep learning into the model
+discovery process. For example, extensions have been investigated where
+[elements are defined by neural networks reprsenting a basis of the Koopman operator](https://www.nature.com/articles/s41467-018-07210-0).
+Additionally, much work is going on in improving the efficiency of the symbolic
+regression methods themselves, and making the methods
+[implicit and parallel](https://royalsocietypublishing.org/doi/full/10.1098/rspa.2020.0279).
 
 ## Surrogate Acceleration Methods
 

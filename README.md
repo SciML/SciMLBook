@@ -514,6 +514,31 @@ those in scientific computing by looking at the relationship between convolution
 neural networks and partial differential equations. It turns out they are more
 than just similar: the two are both stencil computations on spatial data!
 
+## Lecture 15:
+
+- [Mixing Differential Equations and Neural Networks for Physics-Informed Learning (Lecture)](https://youtu.be/VHtugbwyNKg)
+- [Mixing Differential Equations and Neural Networks for Physics-Informed Learning (Notes)](https://mitmath.github.io/18337/lecture15/diffeq_machine_learning)
+
+Neural ordinary differential equations and physics-informed neural networks are
+only the tip of the iceberg. In this lecture we will look into other algorithms
+which are utilizing the connection between neural networks and machine learning.
+We will generalize to augmented neural ordinary differential equations and
+universal differential equations with DiffEqFlux.jl, which now allows for stiff
+equations, stochasticity, delays, constraint equations, event handling, etc. to
+all take place in a neural differential equation format. Then we will dig into
+the methods for solving high dimensional partial differential equations through
+transformations to backwards stochastic differential equations (BSDEs), and the
+applications to mathematical finance through Black-Scholes along with stochastic
+optimal control through Hamilton-Jacobi-Bellman equations. We then look into
+alternative training techniques using reservoir computing, such as continuous-time
+echo state networks, which alleviate some of the gradient issues associated with
+training neural networks on stiff and chaotic dynamical systems. We showcase a
+few of the methods which are being used to automatically discover equations in
+their symbolic form such as SINDy. To end it, we look into methods for
+accelerating differential equation solving through neural surrogate models, and
+uncover the true idea of what's going on, along with understanding when these
+applications can be used effectively.
+
 ## Lecture 16: Probabilistic Programming
 
 - [From Optimization to Probabilistic Programming (Lecture)](https://youtu.be/32rAwtTAGdU)

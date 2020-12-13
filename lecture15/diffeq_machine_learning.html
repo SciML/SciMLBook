@@ -631,7 +631,7 @@ kbd,
 pre,
 samp {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 13px;
+  font-size: 0.9em;
 }
 
 
@@ -646,132 +646,138 @@ img {max-width : 100%}
 div.title {text-align: center;}
 
   </style>
-
-
-
 </HEAD>
-  <BODY>
-    <div class ="container">
-      <div class = "row">
-        <div class = "col-md-12 twelve columns">
 
-          <div class="title">
-            <h1 class="title">Mixing Differential Equations and Neural Networks for Physics-Informed Learning</h1>
-            <h5>Chris Rackauckas</h5>
-            <h5>November 19th, 2019</h5>
-          </div>
+<BODY>
+  <div class ="container">
+    <div class = "row">
+      <div class = "col-md-12 twelve columns">
+        <div class="title">
+          <h1 class="title">Mixing Differential Equations and Neural Networks for Physics-Informed Learning</h1>
+          <h5>Chris Rackauckas</h5>
+          <h5>December 13th, 2020</h5>
+        </div>
 
-          <p>Given this background in both neural network and differential equation modeling, let&#39;s take a moment to survey some methods which integrate the two ideas. Neural differential equations are of course one possible method, but there are methods which utilize the composition of these ideas. Some are good, some are not.</p>
-<p>Julia codes for these methods are being developed, optimized, and tested in the <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl">NeuralNetDiffEq.jl package</a>. A generalized neural differential equation solver can be found at <a href="https://github.com/JuliaDiffEq/DiffEqFlux.jl">DiffEqFlux.jl</a>. Note that as a standard and maintained Julia package, these methods are available today for solving these kinds of problems with these neural-enhanced methods.</p>
-<h2>Generalized Neural Differential Equations</h2>
-<p>While our previous lectures focused on ordinary differential equations, the larger classes of differential equations can also have neural networks, for example:</p>
+        <p>Given this background in both neural network and differential equation modeling, let&#39;s take a moment to survey some methods which integrate the two ideas. In this course we have fully described how Physics-Informed Neural Networks &#40;PINNs&#41; and neural ordinary differential equations are both trained and used. There are many other methods which utilize the composition of these ideas.</p>
+<p>Julia codes for these methods are being developed, optimized, and tested in the <a href="sciml.ai">SciML</a> organization. Some packages to note are</p>
 <ul>
-<li><p>Stiff neural ordinary differential equations &#40;neural ODEs&#41;</p>
+<li><p><a href="https://github.com/SciML/NeuralPDE.jl">NeuralPDE.jl</a></p>
 </li>
-<li><p>Neural <a href="https://en.wikipedia.org/wiki/Stochastic_differential_equation">stochastic differential equations</a> &#40;neural SDEs&#41;</p>
+<li><p><a href="https://github.com/SciML/DiffEqFlux.jl">DiffEqFlux.jl</a></p>
 </li>
-<li><p>Neural <a href="https://en.wikipedia.org/wiki/Delay_differential_equation">delay differential equations</a> &#40;neural DDEs&#41;</p>
+<li><p><a href="https://github.com/SciML/DataDrivenDiffEq.jl">DataDrivenDiffEq.jl</a></p>
 </li>
-<li><p>Neural <a href="https://en.wikipedia.org/wiki/Partial_differential_equation">partial differential equations</a> &#40;neural PDEs&#41;</p>
+<li><p><a href="https://github.com/SciML/Surrogates.jl">Surrogates.jl</a></p>
 </li>
-<li><p>Neural <a href="https://en.wikipedia.org/wiki/Jump_diffusion">jump stochastic differential equations</a> &#40;neural jump diffusions&#41;</p>
-</li>
-<li><p><a href="http://docs.juliadiffeq.org/latest/features/callback_functions/">Hybrid neural differential equations</a> &#40;neural DEs with event handling&#41;</p>
+<li><p><a href="https://github.com/SciML/ReservoirComputing.jl">ReservoirComputing.jl</a></p>
 </li>
 </ul>
-<p>For each of these equations, one can come up with an adjoint definition in order to define a backpropogation. However, there are limitatinos to this. In many cases, such as with stochastic differential equations, the time complexity of the continuous adjoint method is actually worse than backpropogation through the solver itself. Secondly, every single one of these equations requires an adjoint method, and some of them need different adjoint methods in different contexts &#40;state-dependent delay differential equations vs constant-time delay differential equations&#41;.</p>
-<p>DiffEqFlux.jl is the first library to support the wide gambit of possible differential equations. It does so by using Julia&#39;s language-wide AD tooling, such as Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations available whenever adjoint methods are known &#40;and the choice between the two is given to the user&#41;.</p>
-<p>For example, a neural stochastic differential equation can be trained <a href="https://github.com/JuliaDiffEq/DiffEqFlux.jl/tree/967ae0e74bbf772c78f81859c2f205066d08f184#neural-sde-example">using the following example</a>, and <a href="https://github.com/JuliaDiffEq/DiffEqFlux.jl/tree/967ae0e74bbf772c78f81859c2f205066d08f184#mixed-neural-des">known differential equations can be mixed with unknown portions</a>. Additionally, <a href="https://www.stochasticlifestyle.com/neural-jump-sdes-jump-diffusions-and-neural-pdes/">this blog post</a> showcases the mixing of event handling with neural stochastic differential equations and using stiff solvers for ODEs to train neural partial differential equations.</p>
-<p>Many of the methods below can be encapsolated as a choice of a neural differential equation and trained with higher order, adaptive, and more efficient methods with DiffEqFlux.jl. A paper detailing this is to come out in the next few weeks.</p>
-<h2>Artificial neural networks for solving ordinary and partial differential equations</h2>
-<h3>Solving Ordinary Differential Equations</h3>
-<p><a href="https://arxiv.org/pdf/physics/9705023.pdf">This is a result due to Lagaris et. al from 1998</a>. The idea is to solve differential equations using neural networks by representing the solution by a neural network and training the resulting network to satisfy the conditions required by the differential equation.</p>
-<p>Let&#39;s say we want to solve a system of ordinary differential equations</p>
+<p>and many more collaborations with scientists around the world &#40;too many to note&#41;. And there are some scattered packages in other languages to note too, such as:</p>
+<ul>
+<li><p><a href="https://github.com/lululxvi/deepxde">deepxde</a></p>
+</li>
+<li><p><a href="https://github.com/dynamicslab/pysindy">pysindy</a></p>
+</li>
+<li><p><a href="https://github.com/kailaix/ADCME.jl">ADCME.jl</a></p>
+</li>
+</ul>
+<p>and many more. This lecture is a quick servey on different directions that people have taken so far in this field. It is by no means comprehensive.</p>
+<h3>The Augmented Neural Ordinary Differential Equation</h3>
+<p>Note that not every function can be represented by an ordinary differential equation. Specifically, <span class="math">$u(t)$</span> is an <span class="math">$\mathbb{R} \rightarrow \mathbb{R}^n$</span> function which cannot loop over itself except when the solution is cyclic. The reason is because the flow of the ODE&#39;s solution is unique from every time point, and for it to have &quot;two directions&quot; at a point <span class="math">$u_i$</span> in phase space would have two solutions to the problem</p>
 <p class="math">\[
-u' = f(u,t)
+u' = f(u,p,t)
 \]</p>
-<p>with <span class="math">$t \in [0,1]$</span> and a known initial condition <span class="math">$u(0)=u_0$</span>. To solve this, we approximate the solution by a neural network:</p>
+<p>where <span class="math">$u(0)=u_i$</span>, and thus this cannot happen &#40;with <span class="math">$f$</span> sufficiently nice&#41;. However, if we have another degree of freedom we can ensure that the ODE does not overlap with itself. This is the <a href="https://arxiv.org/abs/1904.01681">augmented neural ordinary differential equation</a>.</p>
+<p>We only need one degree of freedom in order to not collide, so we can do the following. We can add a fake state to the ODE which is zero at every single data point. This then allows this extra dimension to &quot;bump around&quot; as neccessary to let the function be a universal approximator. In code this looks like:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>dudt</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Chain</span><span class='hljl-p'>(</span><span class='hljl-oB'>...</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-cs'># Flux neural network</span><span class='hljl-t'>
+</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>re</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Flux</span><span class='hljl-oB'>.</span><span class='hljl-nf'>destructure</span><span class='hljl-p'>(</span><span class='hljl-n'>dudt</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>dudt_</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>t</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>re</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-p'>)(</span><span class='hljl-n'>u</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>prob</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ODEProblem</span><span class='hljl-p'>(</span><span class='hljl-n'>dudt_</span><span class='hljl-p'>,[</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0f0</span><span class='hljl-p'>],</span><span class='hljl-n'>tspan</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>augmented_data</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>vcat</span><span class='hljl-p'>(</span><span class='hljl-n'>ode_data</span><span class='hljl-p'>,</span><span class='hljl-nf'>zeros</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-nf'>size</span><span class='hljl-p'>(</span><span class='hljl-n'>ode_data</span><span class='hljl-p'>,</span><span class='hljl-ni'>2</span><span class='hljl-p'>)))</span>
+</pre>
+
+
+<h2>Extensions to other Differential Equations</h2>
+<p>While our previous lectures focused on ordinary differential equations, the larger classes of differential equations can also have neural networks, for example:</p>
+<ul>
+<li><p><a href="https://en.wikipedia.org/wiki/Stochastic_differential_equation">stochastic differential equations</a></p>
+</li>
+<li><p><a href="https://en.wikipedia.org/wiki/Delay_differential_equation">delay differential equations</a></p>
+</li>
+<li><p><a href="https://en.wikipedia.org/wiki/Partial_differential_equation">partial differential equations</a></p>
+</li>
+<li><p><a href="https://en.wikipedia.org/wiki/Jump_diffusion">jump stochastic differential equations</a></p>
+</li>
+<li><p><a href="http://diffeq.sciml.ai/latest/features/callback_functions/">Hybrid differential equations</a> &#40;DEs with event handling&#41;</p>
+</li>
+</ul>
+<p>For each of these equations, one can come up with an adjoint definition in order to define a backpropogation, or perform direct automatic differentiation of the solver code. One such paper in this area includes <a href="https://arxiv.org/abs/1905.09883">neural stochastic differential equations</a></p>
+<h3>The Universal Ordinary Differential Equation</h3>
+<p>This formulation of the nueral differential equation in terms of a &quot;knowledge-embedded&quot; structure is leading. If we already knew something about the differential equation, could we use that information in the differential equation definition itself? This leads us to the idea of the <a href="https://arxiv.org/abs/2001.04385">universal differential equation</a>, which is a differential equation that embeds universal approximators in its definition to allow for learning arbitrary functions as pieces of the differential equation.</p>
+<p>The best way to describe this object is to code up an example. As our example, let&#39;s say that we have a two-state system and know that the second state is defined by a linear ODE. This mean we want to write:</p>
 <p class="math">\[
-N(t) \approx u(t)
+x' = NN(x,y)
 \]</p>
-<p>If <span class="math">$N(t)$</span> was the true solution, then it would hold that <span class="math">$N'(t) = f(N(t),t)$</span> for all <span class="math">$t$</span>. Thus we turn this condition into our loss function. This motivates the loss function:</p>
 <p class="math">\[
-L(p) = \sum_i \left(\frac{dN(t_i)}{dt} - f(N(t_i),t_i) \right)^2
+y' = p_1 x + p_2 y
 \]</p>
-<p>The choice of <span class="math">$t_i$</span> could be done in many ways: it can be random, it can be a grid, etc. Anyways, when this loss function is minimized &#40;gradients computed with standard reverse-mode automatic differentiation&#41;, then we have that <span class="math">$\frac{dN(t_i)}{dt} \approx f(N(t_i),t_i)$</span> and thus <span class="math">$N(t)$</span> approximately solves the differential equation.</p>
-<h4>Quick Question for Understanding: What is an effective way to compute dN/dt?</h4>
-<p>If you thought reverse-mode automatic differentiation, go back and think about why that is incorrect&#33; Hint: what is the dimensionality of the input and the output?</p>
-<p>Note that we still have to handle the initial condition. One simple way to do this is to add an initial condition term to the cost function. While that would work, it can be more efficient to encode the initial condition into the function itself so that it&#39;s trivially satisfied for any possible set of parameters. For example, instead of directly using a neural network, we can use:</p>
-<p class="math">\[
-T(t) = u_0 + tN(t)
-\]</p>
-<p>as our solution. Notice that this will always satisfy the initial condition, so if we train this to satisfy the derivative function then it will automatically be a solution to the derivative function.</p>
-<h3>Solving Partial Differential Equations</h3>
-<p>This same idea can be employed to solve partial differential equations. For example, take the Poisson equation:</p>
-<p class="math">\[
-\Delta u = f(x,y)
-\]</p>
-<p>for the 2-dimensional Poisson equation with <span class="math">$x \in [0,1]$</span> and <span class="math">$y \in [0,1]$</span>. Assume that the boundary conditions are Dirichlet, i.e. <span class="math">$u(0,y) = u_{0x}(y)$</span>, <span class="math">$u(1,y) = u_{1x}(y)$</span>, <span class="math">$u(x,0) = u_{0y}(x)$</span>, and <span class="math">$u(x,1)=u_{1y}(y)$</span> are all given. If this is the case, we can have</p>
-<p class="math">\[
-T(x,y) = A(x,y) + x(1-x)y(1-y)N(x,y)
-\]</p>
-<p>where <span class="math">$A(x,y)$</span> is a function that is made so <span class="math">$T(x,y)$</span> satisfies the boundary conditions. Then we have the loss function:</p>
-<p class="math">\[
-L(p) = \sum_i \left(\Delta T(x_i,y_i) - f(x_i,y_i) \right)^2
-\]</p>
-<h3>Julia Implementation</h3>
-<p>A Julia implementation for solving ODEs via neural networks through this method <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/src/ode_solve.jl">exists in NeuralNetDiffEq.jl</a>. Take a look at the code and make sure you understand it. It should be easily understandable given this description of the method&#33;</p>
-<h3>Analysis of the Method and Dimensionality</h3>
-<p>While the method &quot;will work&quot; with large enough neural networks due to the universal approximation theorem, this method is highly inefficient since no information about differential equations are embedded into the problem. There is no convergence rate guarantee, and there are no strict bounds like one would expect from numerical analysis. All implementations of the method that I have found &#40;including my own&#41; show that this method is very very inefficient. For example, it can be hard to train a solver on the Lotka-Volterra equation using a few GPU hours, while a Runge-Kutta method will solve it in nanoseconds...</p>
-<p>That said, the method itself is an interesting starting point. While other ODE and PDE solvers need to approximate an equation at specific points, i.e. on a mesh, this method is <em>mesh-free</em> in the sense that there is no mesh and just a direct representation of the continuous solution itself. This algorithm was <a href="https://arxiv.org/pdf/1708.07469.pdf">reinvented in 2018 as the Deep Galerkin Method &#40;DGM&#41;</a> and exploited the mesh-free behavior to see this as a method for high dimensional partial differential equations. While a finite difference method would require <span class="math">$N^d$</span> many points, a neural network just needs to have its parameters in memory, and thus it can scale well to high dimensional partial differential equation problems.</p>
-<h2>Physics-Informed Deep Learning</h2>
-<p>The results on this are found across three papers, <a href="https://www.sciencedirect.com/science/article/pii/S0021999118307125">the main being this article from the Journal of Computational Physics</a>. with this <a href="http://www.jmlr.org/papers/volume19/18-046/18-046.pdf">JMLR paper having a similar flavor</a> and all stemming from <a href="https://arxiv.org/abs/1711.10561">this arxiv paper</a>. The authors are M.Raissi, P.Perdikaris, and G.E.Karniadakis, two at Brown university and Perdikaris at UPenn.</p>
-<p>The main idea behind the Physics-Informed Neural Network &#40;PINN&#41; is to use known physical information as a form of prior information in the structure of the neural network architecture in order to build a more data-efficient form of machine learning for scientific computing applications. This setup starts by assuming that the underlying data follows some nonlinear partial differential equation</p>
-<p class="math">\[
-u_t + \mathcal{N}[u;\lambda] = 0
-\]</p>
-<p>for some <span class="math">$\lambda$</span> parameterized PDE operator over some space <span class="math">$x \in \Omega$</span> and <span class="math">$t \in [0,T]$</span>. From here, we proceed by approximating <span class="math">$u(t,x)$</span> by a neural network <span class="math">$N(t,x)$</span>. Let</p>
-<p class="math">\[
-f(t,x) = N_t + \mathcal{N}[N;\lambda]
-\]</p>
-<p>The loss function that is used is:</p>
-<p class="math">\[
-MSE = MSE_u + MSE_f
-\]</p>
-<p>where</p>
-<p class="math">\[
-MSE_u = \frac{1}{N_u} \sum_i |N(t_i^u,x_i^u) - u_i |^2
-\]</p>
-<p>is the difference between the neural network and the data <span class="math">$u$</span>, while</p>
-<p class="math">\[
-MSE_f = \frac{1}{N_f} \sum_i |f(t_i^f,x_i^f)|^2
-\]</p>
-<p>.</p>
-<p>is the loss on the PDE function itself. Notice that, if <span class="math">$f=0$</span> then the PDE is satisfied, and thus the second term indeed looks like a regularization to push towards the solution of the PDE.</p>
-<p>Thus in some sense one can understand this as an extension to the previous deep learning methods for solving partial differential equations, where here the <span class="math">$MSE_f$</span> term is enforcing that the neural network solves the PDE, just like before, but it is mixed with a loss function that drives <span class="math">$N(t,x)$</span> towards the known data <span class="math">$u_i(t_i,x_i)$</span>. In this sense, this is a method not for solving a partial differential equation with a neural network, but by using the structure of a neural network PDE solver as a component within a data-driven deep learning approach to relax the solution towards an underlying known physical structure.</p>
-<p>Once this is established, the authors present two separate ways of training the physics-informed neural network <span class="math">$f$</span>. One way to do this is to directly evaluate the loss function <span class="math">$MSE_f$</span> at chosen or random points in time using automatic differentiation. However, the number of points needed for this method to work is seen as a computational bottleneck &#40;indeed, as noted before, the continuous mesh-free algorithm for partial differential equations is highly ineffecient&#33;&#41;. To overcome this difficulty, they move towards a discrete-time model.</p>
-<p>For this discrete time model, they discretize the partial differential equation by a Runge-Kutta method. For example, we the simplest Runge-Kutta method is the Euler method, which we can write out as:</p>
-<p class="math">\[
-u_{n+1} = u_n - \Delta t \mathcal{N}[u_n;\lambda]
-\]</p>
-<p>Now in this case, instead of making a neural network apply to <span class="math">$u(t,x)$</span> and try to approximate the full continuous function of time, the authors make a neural networks</p>
-<p class="math">\[
-N_n(x) = u_{n}(x)
-\]</p>
-<p>In this form, the previous loss function can be reinterpreted to be on this discretized set of neural networks. Specifically,</p>
-<p class="math">\[
-SSE = SSE_n + SSE_f + SSE_b
-\]</p>
-<p>where</p>
-<p class="math">\[
-SSE_n = \sum_i |N_i(x_i) - u_i|^2
-\]</p>
-<p>and <span class="math">$SSE_b$</span> is a loss function of each <span class="math">$u_i$</span> against the boundary conditions. Here <span class="math">$SSE_f$</span> is simply the loss on the equation of the discretization:</p>
-<p class="math">\[
-SSE_f = \sum_i N_{n+1}(x_i) - N_n(x_i) + \Delta t \mathcal{N}[N_n;\lambda]
-\]</p>
-<p>to relax towards the solution of the PDE.</p>
-<p>Using this style, the authors show that this method is a data-efficient form of learning because it can use the known physics as a form of heavy prior information.</p>
+<p>We can code this up as follows:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>u0</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Float32</span><span class='hljl-p'>[</span><span class='hljl-nfB'>0.8</span><span class='hljl-p'>;</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.8</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-n'>tspan</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.0f0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>25.0f0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>ann</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Chain</span><span class='hljl-p'>(</span><span class='hljl-nf'>Dense</span><span class='hljl-p'>(</span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-ni'>10</span><span class='hljl-p'>,</span><span class='hljl-n'>tanh</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>Dense</span><span class='hljl-p'>(</span><span class='hljl-ni'>10</span><span class='hljl-p'>,</span><span class='hljl-ni'>1</span><span class='hljl-p'>))</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>p1</span><span class='hljl-p'>,</span><span class='hljl-n'>re</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Flux</span><span class='hljl-oB'>.</span><span class='hljl-nf'>destructure</span><span class='hljl-p'>(</span><span class='hljl-n'>ann</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>p2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Float32</span><span class='hljl-p'>[</span><span class='hljl-oB'>-</span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.1</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-n'>p3</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>p1</span><span class='hljl-p'>;</span><span class='hljl-n'>p2</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-n'>ps</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Flux</span><span class='hljl-oB'>.</span><span class='hljl-nf'>params</span><span class='hljl-p'>(</span><span class='hljl-n'>p3</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>dudt_</span><span class='hljl-p'>(</span><span class='hljl-n'>du</span><span class='hljl-p'>,</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-n'>t</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-t'>
+    </span><span class='hljl-n'>du</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>re</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>41</span><span class='hljl-p'>])(</span><span class='hljl-n'>u</span><span class='hljl-p'>)[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'>
+    </span><span class='hljl-n'>du</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-p'>[</span><span class='hljl-k'>end</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-p'>[</span><span class='hljl-k'>end</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>x</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>prob</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ODEProblem</span><span class='hljl-p'>(</span><span class='hljl-n'>dudt_</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>tspan</span><span class='hljl-p'>,</span><span class='hljl-n'>p3</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>concrete_solve</span><span class='hljl-p'>(</span><span class='hljl-n'>prob</span><span class='hljl-p'>,</span><span class='hljl-nf'>Tsit5</span><span class='hljl-p'>(),</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p3</span><span class='hljl-p'>,</span><span class='hljl-n'>abstol</span><span class='hljl-oB'>=</span><span class='hljl-nfB'>1e-8</span><span class='hljl-p'>,</span><span class='hljl-n'>reltol</span><span class='hljl-oB'>=</span><span class='hljl-nfB'>1e-6</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<p>and we can train the system to be stable at 1 as follows:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>predict_adjoint</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-nf'>Array</span><span class='hljl-p'>(</span><span class='hljl-nf'>concrete_solve</span><span class='hljl-p'>(</span><span class='hljl-n'>prob</span><span class='hljl-p'>,</span><span class='hljl-nf'>Tsit5</span><span class='hljl-p'>(),</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p3</span><span class='hljl-p'>,</span><span class='hljl-n'>saveat</span><span class='hljl-oB'>=</span><span class='hljl-nfB'>0.0</span><span class='hljl-oB'>:</span><span class='hljl-nfB'>0.1</span><span class='hljl-oB'>:</span><span class='hljl-nfB'>25.0</span><span class='hljl-p'>))</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>loss_adjoint</span><span class='hljl-p'>()</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>sum</span><span class='hljl-p'>(</span><span class='hljl-n'>abs2</span><span class='hljl-p'>,</span><span class='hljl-n'>x</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-nf'>predict_adjoint</span><span class='hljl-p'>())</span><span class='hljl-t'>
+</span><span class='hljl-nf'>loss_adjoint</span><span class='hljl-p'>()</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>data</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Iterators</span><span class='hljl-oB'>.</span><span class='hljl-nf'>repeated</span><span class='hljl-p'>((),</span><span class='hljl-t'> </span><span class='hljl-ni'>300</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>opt</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ADAM</span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.01</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>iter</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-t'>
+</span><span class='hljl-n'>cb</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>iter</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-n'>iter</span><span class='hljl-t'> </span><span class='hljl-oB'>%</span><span class='hljl-t'> </span><span class='hljl-ni'>50</span><span class='hljl-t'> </span><span class='hljl-oB'>==</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>display</span><span class='hljl-p'>(</span><span class='hljl-nf'>loss_adjoint</span><span class='hljl-p'>())</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>display</span><span class='hljl-p'>(</span><span class='hljl-nf'>plot</span><span class='hljl-p'>(</span><span class='hljl-nf'>solve</span><span class='hljl-p'>(</span><span class='hljl-nf'>remake</span><span class='hljl-p'>(</span><span class='hljl-n'>prob</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-oB'>=</span><span class='hljl-n'>p3</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-oB'>=</span><span class='hljl-n'>u0</span><span class='hljl-p'>),</span><span class='hljl-nf'>Tsit5</span><span class='hljl-p'>(),</span><span class='hljl-n'>saveat</span><span class='hljl-oB'>=</span><span class='hljl-nfB'>0.1</span><span class='hljl-p'>),</span><span class='hljl-n'>ylim</span><span class='hljl-oB'>=</span><span class='hljl-p'>(</span><span class='hljl-ni'>0</span><span class='hljl-p'>,</span><span class='hljl-ni'>6</span><span class='hljl-p'>)))</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># Display the ODE with the current parameter values.</span><span class='hljl-t'>
+</span><span class='hljl-nf'>cb</span><span class='hljl-p'>()</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>Flux</span><span class='hljl-oB'>.</span><span class='hljl-nf'>train!</span><span class='hljl-p'>(</span><span class='hljl-n'>loss_adjoint</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>ps</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>data</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>opt</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>cb</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>cb</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<p>DiffEqFlux.jl supports the wide gambit of possible universal differential equations with combinations of stiffness, delays, stochasticity, etc. It does so by using Julia&#39;s language-wide AD tooling, such as ReverseDiff.jl, Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations available whenever adjoint methods are known &#40;and the choice between the two is given to the user&#41;.</p>
+<p>Many of the methods below can be encapsolated as a choice of a universal differential equation and trained with higher order, adaptive, and more efficient methods with DiffEqFlux.jl.</p>
 <h2>Deep BSDE Methods for High Dimensional Partial Differential Equations</h2>
 <p>The key paper on deep BSDE methods is <a href="https://www.pnas.org/content/115/34/8505">this article from PNAS</a> by Jiequn Han, Arnulf Jentzen, and Weinan E. Follow up papers have <a href="https://arxiv.org/pdf/1804.07010.pdf">like this one</a> have identified a larger context in the sense of forward-backwards SDEs for a large class of partial differential equations.</p>
 <h3>Understanding the Setup for Terminal PDEs</h3>
@@ -794,7 +800,7 @@ dX_t = r X_t dt + \sigma X_t dW_t.
 <p class="math">\[
 dX_t = \mu(t,X_t) dt + \sigma (t,X_t) dW_t
 \]</p>
-<p>with initial condition <span class="math">$X(0)=\zeta$</span>. Previous work has shown that the solution to satisfies the following BSDE:</p>
+<p>with initial condition <span class="math">$X(0)=\zeta$</span>. Previous work has shown that the solution satisfies the following BSDE:</p>
 <p class="math">\[
 \begin{align}
 u(t, &X_t) - u(0,\zeta) = \\
@@ -802,12 +808,12 @@ u(t, &X_t) - u(0,\zeta) = \\
 & + \int_0^t \left[\nabla u(s,X_s) \right]^T \sigma (s,X_s) dW_s,\end{align}
 \]</p>
 <p>with terminating condition <span class="math">$g(X_T) = u(X_T,W_T)$</span>.</p>
-<p>At this point, the authors approximate <span class="math">$\left[\nabla u(s,X_s) \right]^T \sigma (s,X_s)$</span> and <span class="math">$u(0,\zeta)$</span> as neural networks. Using the Euler-Maruyama discretization of the stochstic differential equation system, one arrives at a recurrent neural network:</p>
+<p>At this point, the authors approximate <span class="math">$\left[\nabla u(s,X_s) \right]^T \sigma (s,X_s)$</span> and <span class="math">$u(0,\zeta)$</span> as neural networks. Using the Euler-Maruyama discretization of the stochastic differential equation system, one arrives at a recurrent neural network:</p>
 <p><img src="https://user-images.githubusercontent.com/1814174/69241180-357d5080-0b6c-11ea-926d-6e27d0a1b26b.PNG" alt="Deep BSDE" /></p>
 <h3>Julia Implementation</h3>
-<p>A Julia implementation for the deep BSDE method can be found at <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/master/src/pde_solve.jl">NeuralNetDiffEq.jl</a>. The examples considered below are part of the <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/master/test/NNPDEHan_tests.jl">standard test suite</a>.</p>
+<p>A Julia implementation for the deep BSDE method can be found at <a href="https://github.com/SciML/NeuralPDE.jl">NeuralPDE.jl</a>. The examples considered below are part of the <a href="https://github.com/SciML/NeuralPDE.jl/blob/master/test/NNPDEHan_tests.jl">standard test suite</a>.</p>
 <h3>Financial Applications of Deep BSDEs: Nonlinear Black-Scholes</h3>
-<p>Now let&#39;s look at a few applications which have PDEs that are solved by this method. One set of problems that are solved, given our setup, are Black-Scholes types of equations. Unless a lot of previous literature, this works for a wide class of nonlinear extensions to Black-Scholes with large portfolios. Here, the dimension of the PDE for <span class="math">$V(t,x)$</span> is the dimension of <span class="math">$x$</span>, where the dimension is the number of stocks in the portfolio that we want to consider. If we want to track 1000 stocks, this means our PDE is 1000 dimensional&#33; Traditional PDE solvers would need around <span class="math">$N^{1000}$</span> points evolving over time in order to arrive at the solution, which is completely impractical.</p>
+<p>Now let&#39;s look at a few applications which have PDEs that are solved by this method. One set of problems that are solved, given our setup, are Black-Scholes types of equations. Unlike a lot of previous literature, this works for a wide class of nonlinear extensions to Black-Scholes with large portfolios. Here, the dimension of the PDE for <span class="math">$V(t,x)$</span> is the dimension of <span class="math">$x$</span>, where the dimension is the number of stocks in the portfolio that we want to consider. If we want to track 1000 stocks, this means our PDE is 1000 dimensional&#33; Traditional PDE solvers would need around <span class="math">$N^{1000}$</span> points evolving over time in order to arrive at the solution, which is completely impractical.</p>
 <p>One example of a nonlinear Black-Scholes equation in this form is the Black-Scholes equation with default risk. Here we are adding to the standard model the idea that the companies that we are buying stocks for can default, and thus our valuation has to take into account this default probability as the option will thus become value-less. The PDE that is arrived at is:</p>
 <p class="math">\[
 \frac{\partial u}{\partial t}(t,x) + \bar{\mu}\cdot \nabla u(t, x) + \frac{\bar{\sigma}^{2}}{2} \sum_{i=1}^{d} \left |x_{i}  \right |^{2} \frac{\partial^2 u}{\partial {x_{i}}^2}(t,x) \\ - (1 -\delta )Q(u(t,x))u(t,x) - Ru(t,x) = 0
@@ -833,7 +839,7 @@ Q(y) &= \mathbb{1}_{(-\infty,\upsilon^{h})}(y)\gamma ^{h}
 <p>The Julia code for this exact problem in 100 dimensions can be found <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/test/NNPDEHan_tests.jl#L213-L270">here</a></p>
 <h3>Stochastic Optimal Control as a Deep BSDE Application</h3>
 <p>Another type of problem that fits into this terminal PDE form is the <em>stochastic optimal control problem</em>. The problem is a generalized context to what motivated us before. In this case, there are a set of agents which undergo some known stochastic model. What we want to do is apply some control &#40;push them in some direction&#41; at every single timepoint towards some goal. For example, we have the physics for the dynamics of drone flight, but there&#39;s randomness in the wind condition, and so we want to control the engine speeds to move in a certain direction. However, there is a cost associated with controling, and thus the question is how to best balance the use of controls with the natural stochastic evolution.</p>
-<p>It turns out this is in the same form as the Black-Scholes problem. There is a model evolving forwards, and when we get to the end we know how much everything &quot;cost&quot; because we know if the drone got to the right location and how much energy it took. So in the same sense as Black-Scholes, we can know the value at the end and try and propogate it backwards given the current state of the system <span class="math">$x$</span>, to find out <span class="math">$u(0,\zeta)$</span>, i.e. how should we control right now given the current system is in the state <span class="math">$x = \zeta$</span>. It turns out that the solution of <span class="math">$u(t,x)$</span> where <span class="math">$u(T,x)=g(x)$</span> is given and we want to find <span class="math">$u(0,\zeta)$</span> is given by a partial differential equation which is known as the Hamilton-Jacobi-Bellman equation, which is one of these terminal PDEs that is representable by the deep BSDE method.</p>
+<p>It turns out this is in the same form as the Black-Scholes problem. There is a model evolving forwards, and when we get to the end we know how much everything &quot;cost&quot; because we know if the drone got to the right location and how much energy it took. So in the same sense as Black-Scholes, we can know the value at the end and try and propogate it backwards given the current state of the system <span class="math">$x$</span>, to find out <span class="math">$u(0,\zeta)$</span>, i.e. how should we control right now given the current system is in the state <span class="math">$x = \zeta$</span>. It turns out that the solution of <span class="math">$u(t,x)$</span> where <span class="math">$u(T,x)=g(x)$</span> and we want to find <span class="math">$u(0,\zeta)$</span> is given by a partial differential equation which is known as the Hamilton-Jacobi-Bellman equation, which is one of these terminal PDEs that is representable by the deep BSDE method.</p>
 <p>Take the classical linear-quadratic Gaussian &#40;LQG&#41; control problem in 100 dimensions</p>
 <p class="math">\[
 dX_t = 2\sqrt{\lambda} c_t dt + \sqrt{2} dW_t
@@ -847,7 +853,7 @@ C(c_t) = \mathbb{E}\left[\int_0^T \Vert c_t \Vert^2 dt + g(X_t) \right]
 \frac{\partial u}{\partial t}(t,x) + \Delta u(t,x) - \lambda \Vert \nabla u(t,x) \Vert^2 = 0
 \]</p>
 <p>has a solution <span class="math">$u(t,x)$</span> which at <span class="math">$t=0$</span> represents the optimal cost of starting from <span class="math">$x$</span>.</p>
-<p>This PDE can be rewritten into the canonical form of \Cref&#123;pdeform&#125; by setting:</p>
+<p>This PDE can be rewritten into the canonical form of the deep BSDE method by setting:</p>
 <p class="math">\[
 \begin{align}
     \mu &= 0, \\
@@ -857,9 +863,83 @@ C(c_t) = \mathbb{E}\left[\int_0^T \Vert c_t \Vert^2 dt + g(X_t) \right]
 \]</p>
 <p>where <span class="math">$\overline{\sigma} = \sqrt{2}$</span>, T &#61; 1 and <span class="math">$X_0 = (0,. . . , 0) \in R^{100}$</span>.</p>
 <p>The Julia code for solving this exact problem in 100 dimensions <a href="https://github.com/JuliaDiffEq/NeuralNetDiffEq.jl/blob/79225699412bee6590af0a365d6ae2393a1c1af8/test/NNPDEHan_tests.jl#L166-L211">can be found here</a></p>
+<h2>Connections of Reservoir Computing to Scientific Machine Learning</h2>
+<p>Reservoir computing techniques are an alternative to the &quot;full&quot; neural network techniques we have previously discussed. However, the process of training neural networks has a few caveats which can cause difficulties in real systems:</p>
+<ol>
+<li><p>The tangent space diverges exponentially fast when the system is chaotic, meaning that results of both forward and reverse automatic differentiation techniques &#40;and the related adjoints&#41; are divergent on these kinds of systems.</p>
+</li>
+<li><p>It is hard for neural networks to represent stiff systems. There are many reasons for this, one being that neural networks <a href="https://arxiv.org/abs/1806.08734">tend to drop high frequency behavior</a></p>
+</li>
+</ol>
+<p>There are ways being investigated to alleviate these issues. For example, <a href="https://www.sciencedirect.com/science/article/pii/S0021999117304783">shadow adjoints</a> can give a non-divergent average sense of a derivative on ergodic chaotic systems, but is significantly more expensive than the traditional adjoint.</p>
+<p>To get around these caveats, some research teams have investigated alternatives which do not require gradient-based optimization. The clear frontrunner in this field is a type of architecture called <a href="http://www.scholarpedia.org/article/Echo_state_network">echo state networks</a>. A simplified formulation of an echo state network essentially fixes a neural network that defines a reservoir, i.e.</p>
+<p class="math">\[
+x_{n+1} = \sigma(W x_n + W_{fb} y_n)
+\]</p>
+<p class="math">\[
+y_n = g(W_{out} x_n)
+\]</p>
+<p>where <span class="math">$W$</span> and <span class="math">$W_{fb}$</span> are fixed random matrices that are chosen before the training process, <span class="math">$x_n$</span> is called the reservoir state, and <span class="math">$y_n$</span> is the output state for the observables. The idea is to find a projection <span class="math">$W_{out}$</span> from the high dimensional random reservoir <span class="math">$x$</span> to model the timeseries by <span class="math">$y$</span>. If the reservoir is a big enough and nonlinear enough random system, there should in theory exist a projection from that random system that matches any potential timeseries. Indeed, one can prove that echo state networks are universal adaptive filters under certain conditions.</p>
+<p>If <span class="math">$g$</span> is invertible &#40;and in many cases <span class="math">$g$</span> is taken to be the identity&#41;, then one can directly apply the inversion of <span class="math">$g$</span> to the data. This turns the training of <span class="math">$W_{out}$</span>, the only non-fixed portion, into a standard least squares regression between the reservoir and the observation series. This is then solved by classical means like SVD factorizations which can be stable in ill-conditioned cases.</p>
+<p>Echo state networks have been shown to <a href="https://arxiv.org/pdf/1906.08829.pdf">accurately reproduce chaotic attractors</a> which are shown to be hard to train RNNs against. A demonstration via <a href="https://github.com/SciML/ReservoirComputing.jl">ReservoirComputing.jl</a> clearly highlights this prediction ability:</p>
+<p><img src="https://user-images.githubusercontent.com/10376688/81470264-42f5c800-91ea-11ea-98a2-a8a8d7d96155.png" alt="" /> <img src="https://user-images.githubusercontent.com/10376688/81470281-5a34b580-91ea-11ea-9eea-d2b266da19f4.png" alt="" /></p>
+<p>However, this methodology still is not tailored to the continuous nature of dynamical systems found in scientific computing. Recent work has extended this methodolgy to allow for a continuous reservoir, i.e. a <a href="https://arxiv.org/abs/2010.04004">continuous-time echo state network</a>. It is shown that using the adaptive points of a stiff ODE integrator gives a non-uniform sampling in time that makes it easier to learn stiff equations from less training points, and demonstrates the ability to learn equations where standard physics-informed neural network &#40;PINN&#41; training techniques fail.</p>
+<p><img src="https://user-images.githubusercontent.com/1814174/102009514-dc97d180-3d05-11eb-9542-bcd8d0f8b3a4.PNG" alt="" /></p>
+<p>This area of research is still far less developed than PINNs and neural differential equations but shows promise to more easily learn highly stiff and chaotic systems which are seemingly out of reach for these other methods.</p>
+<h2>Automated Equation Discovery: Outputting LaTeX for Dynamical Systems from Data</h2>
+<p><a href="https://www.pnas.org/content/116/45/22445">The SINDy algorithm</a> enables data-driven discovery of governing equations from data. It leverages the fact that most physical systems have only a few relevant terms that define the dynamics, making the governing equations sparse in a high-dimensional nonlinear function space. Given a set of observations</p>
+<p class="math">\[
+\begin{array}{c}
+\mathbf{X}=\left[\begin{array}{c}
+\mathbf{x}^{T}\left(t_{1}\right) \\
+\mathbf{x}^{T}\left(t_{2}\right) \\
+\vdots \\
+\mathbf{x}^{T}\left(t_{m}\right)
+\end{array}\right]=\left[\begin{array}{cccc}
+x_{1}\left(t_{1}\right) & x_{2}\left(t_{1}\right) & \cdots & x_{n}\left(t_{1}\right) \\
+x_{1}\left(t_{2}\right) & x_{2}\left(t_{2}\right) & \cdots & x_{n}\left(t_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{1}\left(t_{m}\right) & x_{2}\left(t_{m}\right) & \cdots & x_{n}\left(t_{m}\right)
+\end{array}\right] \\
+\end{array}
+\]</p>
+<p>and a set of derivative observations</p>
+<p class="math">\[
+\begin{array}{c}
+\dot{\mathbf{X}}=\left[\begin{array}{c}
+\mathbf{x}^{T}\left(t_{1}\right) \\
+\dot{\mathbf{x}}^{T}\left(t_{2}\right) \\
+\vdots \\
+\mathbf{x}^{T}\left(t_{m}\right)
+\end{array}\right]=\left[\begin{array}{cccc}
+\dot{x}_{1}\left(t_{1}\right) & \dot{x}_{2}\left(t_{1}\right) & \cdots & \dot{x}_{n}\left(t_{1}\right) \\
+\dot{x}_{1}\left(t_{2}\right) & \dot{x}_{2}\left(t_{2}\right) & \cdots & \dot{x}_{n}\left(t_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots \\
+\dot{x}_{1}\left(t_{m}\right) & \dot{x}_{2}\left(t_{m}\right) & \cdots & \dot{x}_{n}\left(t_{m}\right)
+\end{array}\right]
+\end{array}
+\]</p>
+<p>we can evaluate the observations in a basis <span class="math">$\Theta(X)$</span>:</p>
+<p class="math">\[
+\Theta(\mathbf{X})=\left[\begin{array}{llllllll}
+1 & \mathbf{X} & \mathbf{X}^{P_{2}} & \mathbf{X}^{P_{3}} & \cdots & \sin (\mathbf{X}) & \cos (\mathbf{X}) & \cdots
+\end{array}\right]
+\]</p>
+<p>where <span class="math">$X^{P_i}$</span> stands for all <span class="math">$P_i$</span>th order polynomial terms. For example,</p>
+<p class="math">\[
+\mathbf{X}^{P_{2}}=\left[\begin{array}{cccccc}
+x_{1}^{2}\left(t_{1}\right) & x_{1}\left(t_{1}\right) x_{2}\left(t_{1}\right) & \cdots & x_{2}^{2}\left(t_{1}\right) & \cdots & x_{n}^{2}\left(t_{1}\right) \\
+x_{1}^{2}\left(t_{2}\right) & x_{1}\left(t_{2}\right) x_{2}\left(t_{2}\right) & \cdots & x_{2}^{2}\left(t_{2}\right) & \cdots & x_{n}^{2}\left(t_{2}\right) \\
+\vdots & \vdots & \ddots & \vdots & \ddots & \vdots \\
+x_{1}^{2}\left(t_{m}\right) & x_{1}\left(t_{m}\right) x_{2}\left(t_{m}\right) & \cdots & x_{2}^{2}\left(t_{m}\right) & \cdots & x_{n}^{2}\left(t_{m}\right)
+\end{array}\right]
+\]</p>
+<p>Using these matrices, SINDy finds this sparse basis <span class="math">$\mathbf{\Xi}$</span> over a given candidate library <span class="math">$\mathbf{\Theta}$</span> by solving the sparse regression problem <span class="math">$\dot{X} =\mathbf{\Theta}\mathbf{\Xi}$</span> with <span class="math">$L_1$</span> regularization, i.e. minimizing the objective function <span class="math">$\left\Vert \mathbf{\dot{X}} - \mathbf{\Theta}\mathbf{\Xi} \right\Vert_2 + \lambda \left\Vert \mathbf{\Xi}\right\Vert_1$</span>. This method and other variants of SInDy, along with specialized optimizers for the LASSO <span class="math">$L_1$</span> optimization problem, have been implemented in packages like <a href="https://github.com/SciML/DataDrivenDiffEq.jl">DataDrivenDiffEq.jl</a> and <a href="https://github.com/dynamicslab/pysindy">pysindy</a>. The result of these methods is LaTeX for the missing dynamical system.</p>
+<p>Notice that to use this method, derivative data <span class="math">$\dot{X}$</span> is required. While in most publications on the subject this information is assumed. To find this, <span class="math">$\dot{X}$</span> is calculated directly from the time series <span class="math">$X$</span> by fitting a cubic spline and taking the approximated derivatives at the observation points. However, for this estimation to be stable one needs a fairly dense timeseries for the interpolation. To alleviate this issue, the <a href="https://arxiv.org/abs/2001.04385">universal differential equations work</a> estimates terms of partially described models and then uses the neural network as an oracle for the derivative values to learn from subsets of the dynamical system. This allows for the neural network&#39;s training to smooth out the derivative estimate between points while incorporating extra scientific information.</p>
+<p>Other ways are being investigated for incorporating deep learning into the model discovery process. For example, extensions have been investigated where <a href="https://www.nature.com/articles/s41467-018-07210-0">elements are defined by neural networks reprsenting a basis of the Koopman operator</a>. Additionally, much work is going on in improving the efficiency of the symbolic regression methods themselves, and making the methods <a href="https://royalsocietypublishing.org/doi/full/10.1098/rspa.2020.0279">implicit and parallel</a>.</p>
 <h2>Surrogate Acceleration Methods</h2>
 <p>Another approach for mixing neural networks with differential equations is as a surrogate method. These methods are more mathematically trivial than the previous ideas, but can still achieve interesting results. A full example is explained <a href="https://youtu.be/FGfx8CQHdQA?t&#61;925">in this video</a>.</p>
-<p>Say we have some function <span class="math">$g(p)$</span> which depends on a solution to a differential equation <span class="math">$u(t;p)$</span> and choices of parameters <span class="math">$p$</span>. Computationally how we evaluate this  equation is we do the following:</p>
+<p>Say we have some function <span class="math">$g(p)$</span> which depends on a solution to a differential equation <span class="math">$u(t;p)$</span> and choices of parameters <span class="math">$p$</span>. Computationally how we evaluate this function is we do the following:</p>
 <ul>
 <li><p>Solve the differential equation with parameters <span class="math">$p$</span></p>
 </li>
@@ -868,20 +948,19 @@ C(c_t) = \mathbb{E}\left[\int_0^T \Vert c_t \Vert^2 dt + g(X_t) \right]
 </ul>
 <p>However, this process is computationally expensive since it requires the numerical solution of <span class="math">$u$</span> for every evaluation. Thus, one can look at this setup and see <span class="math">$g(p)$</span> itself is a nonlinear function. The idea is to train a neural network to be the function <span class="math">$g(p)$</span>, i.e. directly put in <span class="math">$p$</span> and return the appropriate value without ever solving the differential equation.</p>
 <p>The video highlights an important fact about this method: it can be computationally expensive to train this kind of surrogate since many data points <span class="math">$(p,g(p))$</span> are required. In fact, many more data points than you might use. However, after training, the surrogate network for <span class="math">$g(p)$</span> can be a lot faster than the original simulation-based approach. This means that this is a method for accelerating real-time solutions by doing upfront computations. The total compute time will always be more, but in some sense the cost is amortized or shifted to be done before hand, so that the model does not need to be simulated on the fly. This can allow for things like computationally expensive models of drone flight to be used in a real-time controller.</p>
-<p>This technique goes a long way back, but some recent examples of this have been shown. For example, there&#39;s <a href="https://arxiv.org/abs/1910.07291">this paper which &quot;accelerated&quot; the solution of the 3-body problem</a> using a neural network surrogate trained over a few days to get a 1 million times acceleration &#40;after generating many points beforehand of course&#33; In the paper, notice that it took 10 days to generate the training dataset&#41;. Additionally, there is this <a href="https://fluxml.ai/2019/03/05/dp-vs-rl.html">deep learning trebuchet example</a> which showcased that inverse problems, i.e. control or finding parameters, can be completely encapsolated as a <span class="math">$g(p)$</span> and learned with sufficient data.</p>
+<p>This technique goes a long way back, but some recent examples of this have been shown. For example, there&#39;s <a href="https://arxiv.org/abs/1910.07291">this paper which &quot;accelerated&quot; the solution of the 3-body problem</a> using a neural network surrogate trained over a few days to get a 1 million times acceleration &#40;after generating many points beforehand of course&#33; In the paper, notice that it took 10 days to generate the training dataset&#41;. Additionally, there is this <a href="https://fluxml.ai/2019/03/05/dp-vs-rl.html">deep learning trebuchet example</a> which showcased that inverse problems, i.e. control or finding parameters, can be completely encapsulated as a <span class="math">$g(p)$</span> and learned with sufficient data.</p>
 
 
-
-          <HR/>
-          <div class="footer"><p>
-          Published from <a href="diffeq_machine_learning.jmd">diffeq_machine_learning.jmd</a> using
-          <a href="http://github.com/mpastell/Weave.jl">Weave.jl</a>
-           on 2019-11-20.
-          <p></div>
-
-
+        <HR/>
+        <div class="footer">
+          <p>
+            Published from <a href="diffeq_machine_learning.jmd">diffeq_machine_learning.jmd</a>
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-12-13.
+          </p>
         </div>
       </div>
     </div>
-  </BODY>
+  </div>
+</BODY>
+
 </HTML>
