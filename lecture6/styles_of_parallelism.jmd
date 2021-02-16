@@ -9,7 +9,7 @@ level overview of the differences between different modes of parallelism.
 
 ## Lowest Level: SIMD
 
-Recall SIMD, the idea that processors can run multiple commands simulataniously
+Recall SIMD, the idea that processors can run multiple commands simultaneously
 on specially structured data. "Single Instruction Multiple Data". SIMD is
 parallelism within a single core.
 
@@ -38,7 +38,7 @@ statements like:
 %47 = fadd <4 x double> %wide.load, %wide.load24
 ```
 
-which means that 4 additions are happening simultaniously. The amount of
+which means that 4 additions are happening simultaneously. The amount of
 vectorization is heavily dependent on your architecture. The ancient form of
 SIMD, the SSE(2) instructions, required that your data was aligned. Now there's
 a bit more leeway, but generally it holds that making your the data you're
@@ -126,8 +126,8 @@ actively bad for performance.**
 
 Last time we briefly went over multithreading and described how every process
 has multiple threads which share a single heap, and when multiple threads are
-executed simultaniously we have multithreaded parallelism. Note that you can
-have multiple threads which aren't executed simultaniously, like in the case of
+executed simultaneously we have multithreaded parallelism. Note that you can
+have multiple threads which aren't executed simultaneously, like in the case of
 I/O operations, and this is an example of concurrency without parallelism and
 is commonly referred to as green threads.
 
@@ -153,7 +153,7 @@ local caches, and thus one has to be aware that this is setup in a NUMA
 
 ![](https://software.intel.com/sites/default/files/m/2/d/c/b/2/39353-figure-2.jpg)
 
-where there is a cache that is closer to the prcessor and a cache that is further
+where there is a cache that is closer to the processor and a cache that is further
 away. Care should be taken in this to localize the computation per thread,
 otherwise a cost associated with the memory sharing will be hit (but all sharing
 will still be automatic).
@@ -238,7 +238,7 @@ end
 @btime f1()
 ```
 
-`SpinLock` is non-reentrent, i.e. it will block itself if a
+`SpinLock` is non-reentrant, i.e. it will block itself if a
 thread that calls a `lock` does another `lock`. Therefore it has to be used
 with caution (every `lock` goes with one `unlock`), but it's fast. `ReentrantLock`
 alleviates those concerns, but trades off a bit of performance:
