@@ -378,7 +378,7 @@ p = params(NN)
 ```
 
 That's a helper function on `Chain` which recursively gathers all of the defining
-parameters. Let's not find the optimal values `p` which cause the neural network
+parameters. Let's now find the optimal values `p` which cause the neural network
 to be the constant `1` function:
 
 ```julia
@@ -410,7 +410,7 @@ non-mathematical language means that, for any ϵ of accuracy, if your neural
 network is large enough (has enough layers, the weight matrices are large enough),
 then it can approximate **any** (nice) function `f` within that ϵ. Therefore,
 we can reduce the problem of finding missing functions, the problem of machine
-learning, to a problem of finding a finding the weights of neural networks,
+learning, to a problem of finding the weights of neural networks,
 which is a well-defined mathematical optimization problem.
 
 Why neural networks specifically? That's a fairly good question, since there
@@ -552,7 +552,7 @@ use:
 $$g(t) = u_0 + tNN(t)$$
 
 as our solution. Notice that ``g(t)`` is thus a universal approximator for all
-continuous functions such that ``g(0)=0`` (this is a property one should prove!).
+continuous functions such that ``g(0)=u_0`` (this is a property one should prove!).
 Since ``g(t)`` will always satisfy the initial condition, we can train ``g(t)``
 to satisfy the derivative function then it will automatically be a solution to
 the derivative function. In this sense, we can use the loss function:
