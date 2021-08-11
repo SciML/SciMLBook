@@ -291,6 +291,7 @@ interested. More details TBA.
 - [You're doing it wrong (B-heaps vs Binary Heaps and Big O)](http://phk.freebsd.dk/B-Heap/queue.html)
 - [Bjarne Stroustrup: Why you should avoid Linked Lists](https://www.youtube.com/watch?v=YQs6IC-vgmo)
 - [What scientists must know about hardware to write fast code](https://biojulia.net/post/hardware/)
+- [When FFI Function Calls Beat Native C (How JIT compilation allows C-calls to be faster than C)](https://nullprogram.com/blog/2018/05/27/)
 
 Before we start to parallelize code, build huge models, and automatically learn
 physics, we need to make sure our code is "good". How do you know you're writing
