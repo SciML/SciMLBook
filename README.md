@@ -53,7 +53,7 @@ analysis about their work.
 
 ## Syllabus
 
-**Pre-recorded online lectures are available to compliment the lecture notes**
+**Pre-recorded online lectures are available to complement the lecture notes**
 
 **Prerequisites**: While this course will be mixing ideas from high performance
 computing, numerical analysis, and machine learning, no one in the course is
