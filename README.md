@@ -1,5 +1,6 @@
 # 18.337J/6.338J: Parallel Computing and Scientific Machine Learning (Spring 2022)
 ## Professor Alan Edelman (and Philip the Corgi)
+## MW 3 to 4:30
 ## TA (to be announced)
 
 
