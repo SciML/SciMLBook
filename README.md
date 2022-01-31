@@ -8,6 +8,7 @@
 ## Announcement: 
 Undergrad Julia introduction by Prof. Steven Johnson
 will take place wednesday 5pm by zoom. Details to be announced.
+(See https://github.com/mitmath/julia-mit)
 
 ### Material copied from last year for now:
 
