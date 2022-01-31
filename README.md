@@ -1,4 +1,11 @@
-# 18.337J/6.338J: Parallel Computing and Scientific Machine Learning
+# Parallel Computing and Scientific Machine Learning (SciML): Methods and Applications
+
+**This book is a compilation of lecture notes from the MIT Course 18.337J/6.338J: Parallel Computing and Scientific Machine Learning**
+This repository is meant to be a live document, updating to continuously add the latest details
+on methods from the field of scientific machine learning and the latest techniques for
+high-performance computing.
+
+# Introduction to Parallel Computing and Scientific Machine Learning
 
 There are two main branches of technical computing: machine learning and
 scientific computing. Machine learning has received a lot of hype over the
@@ -42,28 +49,9 @@ For the final project, students will team up to solve a new problem in the field
 scientific machine learning, and receive helping writing up a publication-quality
 analysis about their work.
 
-## Note About COVID-19
-
-During the Fall of 2020, the special circumstances call for special approaches
-to teaching. In order to accommodate the lack of in-person treatment, the course
-will be very project-based, helping students grow as researchers in the area of
-parallel computing and scientific machine learning. The goal of this approach
-will be to help train students to become successful in the modern international
-online open research environment. As such, lectures will be done by pre-recorded
-videos. A Slack will be created for asynchronous communication (all students
-registered for the course will receive an email invitation. Students who wish
-to follow along with the course should email to receive an invite). Drop in online
-office hours will be available to discuss the topic with the instructor and
-other students over a video chat (time TBD depending on the current environment
-of the students).
-
-Half of the assessment will be based on homework assignments. These will be timed
-to ensure that the students are keeping up-to-date with the course material. The
-other half of the grade will be from a final project.
-
 ## Syllabus
 
-**Lectures**: Pre-recorded online **Office Hours:** TBD.
+**Pre-recorded online lectures are available to compliment the lecture notes**
 
 **Prerequisites**: While this course will be mixing ideas from high performance
 computing, numerical analysis, and machine learning, no one in the course is
@@ -81,81 +69,7 @@ and [Gilbert Strang's Computational Science and Engineering](https://www.amazon.
 Much of the reading will come in the form of primary literature from journal
 articles posted here.
 
-**Grading**: 50% problem sets, 10% for the final project proposal (due October 30th),
-and 40% for the **final project** (due December 14th). Problem sets and final
-projects will be submitted electronically.
-
-**Collaboration policy**: Make an effort to solve the problem on your own before
-discussing with any classmates. When collaborating, write up the solution on
-your own and acknowledge your collaborators.
-
-## Final Project
-
-The final project is a 10-20 page paper using the style
-template from the [_SIAM Journal on Numerical Analysis_](http://www.siam.org/journals/auth-info.php)
-(or similar). The final project must include code for a high performance
-(or parallelized) implementation of the algorithm in a form that is usable by others.
-A thorough performance analysis is expected. Model your paper on academic
-review articles (e.g. read _SIAM Review_ and similar journals for examples).
-
-One possibility is to review an interesting algorithm not covered in the course
-and develop a high performance implementation. Some examples include:
-
-- High performance PDE solvers for specific PDEs like Navier-Stokes
-- Common high performance algorithms (Ex: Jacobian-Free Newton Krylov for PDEs)
-- Recreation of a parameter sensitivity study in a field like biology,
-  pharmacology, or climate science
-- [Augmented Neural Ordinary Differential Equations](https://arxiv.org/abs/1904.01681)
-- [Neural Jump Stochastic Differential Equations](https://arxiv.org/pdf/1905.10403.pdf)
-- Parallelized stencil calculations
-- Distributed linear algebra kernels
-- Parallel implementations of statistical libraries, such as survival statistics
-  or linear models for big data. Here's [one example parallel library)](https://github.com/harrelfe/rms)
-  and a [second example](https://bioconductor.org/packages/release/data/experiment/html/RegParallel.html).
-- Parallelization of data analysis methods
-- Type-generic implementations of sparse linear algebra methods
-- A fast regex library
-- Math library primitives (exp, log, etc.)
-
-Another possibility is to work on state-of-the-art performance engineering.
-This would be implementing a new auto-parallelization or performance enhancement.
-For these types of projects, implementing an application for benchmarking is not
-required, and one can instead benchmark the effects on already existing code to
-find cases where it is beneficial (or leads to performance regressions).
-Possible examples are:
-
-- [Create a system for automatic multithreaded parallelism of array operations](https://github.com/JuliaLang/julia/issues/19777) and see what kinds of packages end up more efficient
-- [Setup BLAS with a PARTR backend](https://github.com/JuliaLang/julia/issues/32786)
-  and investigate the downstream effects on multithreaded code like an existing
-  PDE solver
-- [Investigate the effects of work-stealing in multithreaded loops](https://github.com/JuliaLang/julia/issues/21017)
-- Fast parallelized type-generic FFT. Starter code by Steven Johnson (creator of FFTW)
-  and Yingbo Ma [can be found here](https://github.com/YingboMa/DFT.jl)
-- Type-generic BLAS. [Starter code can be found here](https://github.com/JuliaBLAS/JuliaBLAS.jl)
-- Implementation of parallelized map-reduce methods. For example, `pmapreduce`
-  [extension to `pmap`](https://docs.julialang.org/en/v1/manual/parallel-computing/index.html)
-  that adds a paralellized reduction, or a fast GPU-based map-reduce.
-- Investigating auto-compilation of full package codes to GPUs using tools like
-  [CUDAnative](https://github.com/JuliaGPU/CUDAnative.jl) and/or
-  [GPUifyLoops](https://github.com/vchuravy/GPUifyLoops.jl).
-- Investigating alternative implementations of databases and dataframes.
-  [NamedTuple backends of DataFrames](https://github.com/JuliaData/DataFrames.jl/issues/1335), alternative [type-stable DataFrames](https://github.com/FugroRoames/TypedTables.jl), defaults for CSV reading and other large-table formats
-  like [JuliaDB](https://github.com/JuliaComputing/JuliaDB.jl).
-
-Additionally, Scientific Machine Learning is a wide open field with lots of
-low hanging fruit. Instead of a review, a suitable research project can be
-used for chosen for the final project. Possibilities include:
-
-- Acceleration methods for adjoints of differential equations
-- Improved methods for Physics-Informed Neural Networks
-- New applications of neural differential equations
-- Parallelized implicit ODE solvers for large ODE systems
-- GPU-parallelized ODE/SDE solvers for small systems
-
-Final project topics must be declared by October 30th with a 1 page extended
-abstract.
-
-## Schedule of Topics
+### Schedule of Topics
 
 Each topic is a group of three pieces: a numerical method, a performance-engineering
 technique, and a scientific application. These three together form a complete
@@ -603,3 +517,69 @@ showcases that uses higher level information can be helpful in UQ, and less
 local approaches may be necessary. We end by showcasing the Koopman operator
 as the adjoint of the pushforward of the uncertainty measure, and as an adjoint
 method it can give accelerated computations of uncertainty against cost functions.
+
+## Final Project
+
+The final project is a 10-20 page paper using the style
+template from the [_SIAM Journal on Numerical Analysis_](http://www.siam.org/journals/auth-info.php)
+(or similar). The final project must include code for a high performance
+(or parallelized) implementation of the algorithm in a form that is usable by others.
+A thorough performance analysis is expected. Model your paper on academic
+review articles (e.g. read _SIAM Review_ and similar journals for examples).
+
+One possibility is to review an interesting algorithm not covered in the course
+and develop a high performance implementation. Some examples include:
+
+- High performance PDE solvers for specific PDEs like Navier-Stokes
+- Common high performance algorithms (Ex: Jacobian-Free Newton Krylov for PDEs)
+- Recreation of a parameter sensitivity study in a field like biology,
+  pharmacology, or climate science
+- [Augmented Neural Ordinary Differential Equations](https://arxiv.org/abs/1904.01681)
+- [Neural Jump Stochastic Differential Equations](https://arxiv.org/pdf/1905.10403.pdf)
+- Parallelized stencil calculations
+- Distributed linear algebra kernels
+- Parallel implementations of statistical libraries, such as survival statistics
+  or linear models for big data. Here's [one example parallel library)](https://github.com/harrelfe/rms)
+  and a [second example](https://bioconductor.org/packages/release/data/experiment/html/RegParallel.html).
+- Parallelization of data analysis methods
+- Type-generic implementations of sparse linear algebra methods
+- A fast regex library
+- Math library primitives (exp, log, etc.)
+
+Another possibility is to work on state-of-the-art performance engineering.
+This would be implementing a new auto-parallelization or performance enhancement.
+For these types of projects, implementing an application for benchmarking is not
+required, and one can instead benchmark the effects on already existing code to
+find cases where it is beneficial (or leads to performance regressions).
+Possible examples are:
+
+- [Create a system for automatic multithreaded parallelism of array operations](https://github.com/JuliaLang/julia/issues/19777) and see what kinds of packages end up more efficient
+- [Setup BLAS with a PARTR backend](https://github.com/JuliaLang/julia/issues/32786)
+  and investigate the downstream effects on multithreaded code like an existing
+  PDE solver
+- [Investigate the effects of work-stealing in multithreaded loops](https://github.com/JuliaLang/julia/issues/21017)
+- Fast parallelized type-generic FFT. Starter code by Steven Johnson (creator of FFTW)
+  and Yingbo Ma [can be found here](https://github.com/YingboMa/DFT.jl)
+- Type-generic BLAS. [Starter code can be found here](https://github.com/JuliaBLAS/JuliaBLAS.jl)
+- Implementation of parallelized map-reduce methods. For example, `pmapreduce`
+  [extension to `pmap`](https://docs.julialang.org/en/v1/manual/parallel-computing/index.html)
+  that adds a paralellized reduction, or a fast GPU-based map-reduce.
+- Investigating auto-compilation of full package codes to GPUs using tools like
+  [CUDAnative](https://github.com/JuliaGPU/CUDAnative.jl) and/or
+  [GPUifyLoops](https://github.com/vchuravy/GPUifyLoops.jl).
+- Investigating alternative implementations of databases and dataframes.
+  [NamedTuple backends of DataFrames](https://github.com/JuliaData/DataFrames.jl/issues/1335), alternative [type-stable DataFrames](https://github.com/FugroRoames/TypedTables.jl), defaults for CSV reading and other large-table formats
+  like [JuliaDB](https://github.com/JuliaComputing/JuliaDB.jl).
+
+Additionally, Scientific Machine Learning is a wide open field with lots of
+low hanging fruit. Instead of a review, a suitable research project can be
+used for chosen for the final project. Possibilities include:
+
+- Acceleration methods for adjoints of differential equations
+- Improved methods for Physics-Informed Neural Networks
+- New applications of neural differential equations
+- Parallelized implicit ODE solvers for large ODE systems
+- GPU-parallelized ODE/SDE solvers for small systems
+
+Final project topics must be declared by October 30th with a 1 page extended
+abstract.
