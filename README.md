@@ -5,8 +5,9 @@
 
 ## [Spring 2021 Github Branch](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 
-## Announcement: Undergrad Julia introduction by Prof. Steven Johnson
-will take place 
+## Announcement: 
+Undergrad Julia introduction by Prof. Steven Johnson
+will take place wednesday 5pm by zoom. Details to be announced.
 
 ### Material copied from last year for now:
 
