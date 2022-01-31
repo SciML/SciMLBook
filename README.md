@@ -3,7 +3,7 @@
 ## MW 3 to 4:30
 ## TA (to be announced)
 
-## [Spring 2021 Github Branch](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
+## [SciML by Chris Rackauckas](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 
 ## Announcement: 
 Undergrad Julia introduction by Prof. Steven Johnson
