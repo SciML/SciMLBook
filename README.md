@@ -1,4 +1,8 @@
-# 18.337J/6.338J: Parallel Computing and Scientific Machine Learning
+# 18.337J/6.338J: Parallel Computing and Scientific Machine Learning (Spring 2022)
+## Professor Alan Edelman (and Philip the Corgi)
+
+
+### Material copied from last year for now:
 
 There are two main branches of technical computing: machine learning and
 scientific computing. Machine learning has received a lot of hype over the
