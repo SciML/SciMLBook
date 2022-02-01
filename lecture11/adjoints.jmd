@@ -336,7 +336,7 @@ stores values in a compressed form.
 
 It is here that we can note that, if $f$ is a function defined by a neural
 network, we arrive at the *neural ordinary differential equation*. This adjoint
-method is thus the backpropogation method for the neural ODE. However, the
+method is thus the backpropagation method for the neural ODE. However, the
 backpass
 
 $$\lambda^\prime = -\frac{df}{du}^\ast \lambda - \left(\frac{dg}{du} \right)^\ast$$
@@ -345,7 +345,7 @@ $$\lambda(T) = 0$$
 can be improved by noticing $\frac{df}{du}^\ast \lambda$ is a vjp, and thus it
 can be calculated using $\mathcal{B}_f^{u(t)}(\lambda^\ast)$, i.e. reverse-mode
 AD on the function $f$. If $f$ is a neural network, this means that the reverse
-ODE is defined through successive backpropogation passes of that neural network.
+ODE is defined through successive backpropagation passes of that neural network.
 The result is a derivative with respect to the cost function of the parameters
 defining $f$ (either a model or a neural network), which can then be used to
 fit the data ("train").
