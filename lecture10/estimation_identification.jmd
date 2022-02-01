@@ -238,7 +238,7 @@ Can we do better?
 ### The Adjoint Technique and Reverse Accumulation
 
 The fast method for computing gradients goes under many times. The *adjoint
-technique*, *backpropogation*, and *reverse-mode automatic differentiation*
+technique*, *backpropagation*, and *reverse-mode automatic differentiation*
 are in some sense all equivalent phrases given to this method from different
 disciplines. To understand the adjoint technique, we will look at the
 multivariate chain rule on a *computation graph*. Recall that for $f(x(t),y(t))$
@@ -360,9 +360,9 @@ to the forward pass:
 Note that the reverse-pass has the values of the forward pass, like $x$ and $t$,
 embedded within it.
 
-### Backpropogation of a Neural Network
+### Backpropagation of a Neural Network
 
-Now let's look at backpropgation of a deep neural network. Before getting to it
+Now let's look at backpropagation of a deep neural network. Before getting to it
 in the linear algebraic sense, let's write everything in terms of scalars. This
 means we can write a simple neural network as:
 
@@ -441,7 +441,7 @@ $$\begin{align}
 
 ### Reverse-Mode Automatic Differentiation and vjps
 
-Backpropogation of a neural network is thus a different way of accumulating
+Backpropagation of a neural network is thus a different way of accumulating
 derivatives. If $f$ is a composition of $L$ functions:
 
 $$f = f^L \circ f^{L-1} \circ \ldots \circ f^1$$
@@ -466,7 +466,7 @@ expression graph:
 
 ![](https://user-images.githubusercontent.com/1814174/66471491-650f4800-ea59-11e9-9b42-4b32d0d0d76f.PNG)
 
-In backpropogation, we just showed that when doing reverse accumulation, the
+In backpropagation, we just showed that when doing reverse accumulation, the
 rule is that multiplication forwards is multiplication by the transpose backwards.
 So if the forward way to compute the Jacobian in reverse is to replace the
 matrix by its transpose:
@@ -526,8 +526,8 @@ is to multiply the vector transpose by $A$.
 
 Likewise, for element-wise operations, the Jacobian is diagonal, and thus the
 vjp is multiplying once again by a diagonal matrix against the derivative,
-deriving the same pullback as we had for backpropogation in a neural network.
-This then is a quicker encoding and derivation of backpropogation.
+deriving the same pullback as we had for backpropagation in a neural network.
+This then is a quicker encoding and derivation of backpropagation.
 
 ### Multivariate Derivatives from Reverse Mode
 
@@ -592,7 +592,7 @@ AD has a high overhead with respect to forward mode, and thus if the values
 are relatively equal (or $n$ and $m$ are small), forward mode is more efficient.
 
 However, since optimization needs gradients, reverse-mode definitely has a
-place in the standard toolchain which is why backproogation is so central to
+place in the standard toolchain which is why backpropagation is so central to
 machine learning.
 
 ### Side Note on Mixed Mode
