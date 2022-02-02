@@ -63,6 +63,8 @@ Automatic differentiation is perhaps more about programming language and compile
 ## Lecture 2: Optimizing Code
 [Lecture 2 from SciML, Optimizing Code](https://book.sciml.ai/lecture2/optimizing)
 
+** HW1 will be announced today.  Probably the same as last year's with updated due dates, and submission to canvas.
+
 ### Material copied from last year for now:
 
 There are two main branches of technical computing: machine learning and
