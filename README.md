@@ -60,6 +60,9 @@ speed, but one can learn a great deal doing so.
 * [Autodiff](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb ):
 Automatic differentiation is perhaps more about programming language and compiler technology than the mathematics.
 
+## Lecture 2: Optimizing Code
+[Lecture 2 from SciML, Optimizing Code](https://book.sciml.ai/lecture2/optimizing)
+
 ### Material copied from last year for now:
 
 There are two main branches of technical computing: machine learning and
