@@ -10,6 +10,55 @@ Undergrad Julia introduction by Prof. Steven Johnson
 will take place wednesday 5pm by zoom. Details to be announced.
 (See https://github.com/mitmath/julia-mit)
 
+
+# Lecture Summaries and Handouts
+
+Note that lectures are broken down by topic, not by day. Some lectures are more
+than 1 class day, others are less.
+
+## Lecture 1: Introduction and Syllabus
+
+### Lecture and Notes
+
+- [Introduction and Syllabus (Lecture)](https://youtu.be/3IoqyXmAAkU)
+
+This is to make sure we're all on the same page. It goes over the syllabus and
+what will be expected of you throughout the course. 
+
+## Lecture 1.1: Getting Started with Julia
+
+### Lecture and Notes
+
+- [Getting Started with Julia for Experienced Programmers (Lecture)](https://youtu.be/-lJK92bEKow)
+- [Julia for Numerical Computation in MIT Courses](https://github.com/mitmath/julia-mit)
+- [Steven Johnson: MIT Julia Tutorial](https://mit.zoom.us/rec/play/E4zN_2MXQmCjX12admWsmsbG6hIlWJztnMmFjlfDEBnlAj8V2qisRn-CLI_WVnUGJFZ4bV6JGM-41m-u.LeAWxiLriV5HwqBK?startTime=1599594382000)
+
+### Optional Extra Resources
+
+If you are not comfortable with Julia yet, here's a few resources as sort of a
+"crash course" to get you up an running:
+
+- [The Julia Manual](https://docs.julialang.org/en/v1/)
+- [Developing Julia Packages](https://youtu.be/QVmU29rCjaA)
+- [Julia Tutorial (Youtube Video by Jane Herriman)](https://www.youtube.com/watch?v=8h8rQyEpiZA)
+
+Some deeper materials:
+
+- [ThinkJulia](https://benlauwens.github.io/ThinkJulia.jl/latest/book.html)
+- [Julia Wikibook](https://en.wikibooks.org/wiki/Introducing_Julia)
+- [Intro To Julia for Data Science and Scientific Computing (With Problems and Answers)](http://ucidatascienceinitiative.github.io/IntroToJulia/)
+- [QuantEcon Cheatsheet](https://cheatsheets.quantecon.org/)
+- [Julia Noteworthy Differences from Other Languages](https://docs.julialang.org/en/v1/manual/noteworthy-differences/)
+
+Steven Johnson will be running a Julia workshop on 9/8/2020 for people who are
+interested. More details TBA.
+
+## Lecture 1.2. Two of my favorite notebooks:
+* [Julia is fast](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb):  It is unusual for people to compare languages for
+speed, but one can learn a great deal doing so.  
+* [Autodiff](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb ):
+Automatic differentiation is about programming technology more than the mathematics.
+
 ### Material copied from last year for now:
 
 There are two main branches of technical computing: machine learning and
