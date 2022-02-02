@@ -1,7 +1,8 @@
 # 18.337J/6.338J: Parallel Computing and Scientific Machine Learning (Spring 2022)
 ## Professor Alan Edelman (and Philip the Corgi)
 ## MW 3 to 4:30
-## TA (to be announced)
+## TA  Ranjan Anantharamin, Shashi Gowda (to be confirmed)
+## [Piazza Link](piazza.com/mit/spring2022/18337/home)
 
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 
