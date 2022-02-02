@@ -57,7 +57,7 @@ interested. More details TBA.
 * [Julia is fast](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb):  It is unusual for people to compare languages for
 speed, but one can learn a great deal doing so.  
 * [Autodiff](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb ):
-Automatic differentiation is about programming technology more than the mathematics.
+Automatic differentiation is perhaps more about programming language and compiler technology than the mathematics.
 
 ### Material copied from last year for now:
 
