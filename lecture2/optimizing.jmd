@@ -117,7 +117,7 @@ end
 @btime inner_noalloc!(C,A,B)
 ```
 
-Why does the array here get heap-allocated? It isn't able to prove/guerentee
+Why does the array here get heap-allocated? It isn't able to prove/guarentee
 at compile-time that the array's size will always be a given value, and thus
 it allocates it to the heap. `@btime` tells us this allocation occured and
 shows us the total heap memory that was taken. Meanwhile, the size of a Float64
