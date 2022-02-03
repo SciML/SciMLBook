@@ -7,11 +7,10 @@
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 
 ## Announcement:
-Undergrad Julia introduction by Prof. Steven Johnson
-will take place wednesday 5pm by zoom. Details to be announced.
-(See https://github.com/mitmath/julia-mit)
+[HW1](https://rawcdn.githack.com/mitmath/18337/90ace4bfbee6ffa4415b38384d7dccd5865ea85d/hw1/hw1.html) is out, though we haven't covered  the material yet.  It will be due
+in two weeks in case you want a head start.
 
-
+https://rawcdn.githack.com/mitmath/18337/90ace4bfbee6ffa4415b38384d7dccd5865ea85d/hw1/hw1.html
 # Lecture Summaries and Handouts
 
 Note that lectures are broken down by topic, not by day. Some lectures are more
