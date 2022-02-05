@@ -48,7 +48,7 @@ The final part of the course will be a unique project which pulls together these
 techniques. As a new field, the students will be exposed to the "low hanging
 fruit" and will be directed towards an area which they can make a quick impact.
 For the final project, students will team up to solve a new problem in the field of
-scientific machine learning, and receive helping writing up a publication-quality
+scientific machine learning, and receive help writing up a publication-quality
 analysis about their work.
 
 ## Syllabus
@@ -77,21 +77,21 @@ Each topic is a group of three pieces: a numerical method, a performance-enginee
 technique, and a scientific application. These three together form a complete
 usable program that is demonstrated.
 
-- The basics of scientific simulators (Week 1-2)
-  - What is Scientific Machine Learning?
-  - Optimization of serial code.
-  - Introduction to discrete and continuous dynamical systems.
+- The Basics of Scientific Simulators (Week 1-2)
+  - What is scientific machine learning?
+  - Optimization of serial code
+  - Introduction to discrete and continuous dynamical systems
 - Introduction to Parallel Computing (Week 2-3)
   - Forms of parallelism and applications
   - Parallelizing differential equation solvers
   - Optimal local parallelism via multithreading
-  - Linear Algebra libraries you should know
+  - Linear algebra libraries you should know
 
 Homework 1: Parallelized dynamical system simulations and ODE integrators
 
 - Continuous Dynamics (Week 4)
   - Ordinary differential equations as the language for ecology, Newtonian mechanics,
-    and beyond.
+    and beyond
   - Numerical methods for non-stiff ordinary differential equations
   - Definition of stiffness
   - Efficiently solving stiff ordinary differential equations
@@ -103,7 +103,7 @@ Homework 1: Parallelized dynamical system simulations and ODE integrators
 
 Homework 2: Parameter estimation in dynamical systems and overhead of parallelism
 
-- Inverse problems and Differentiable Programming (Week 6)
+- Inverse Problems and Differentiable Programming (Week 6)
   - Definition of inverse problems with applications to clinical pharmacology
     and smartgrid optimization
   - Adjoint methods for fast gradients
@@ -111,11 +111,11 @@ Homework 2: Parameter estimation in dynamical systems and overhead of parallelis
   - Adjoints of differential equations
   - Using neural ordinary differential equations as a memory-efficient RNN for
     deep learning
-- Neural networks, and array-based parallelism (Week 8)
+- Neural Networks, and Array-Based Parallelism (Week 8)
   - Cache optimization in numerical linear algebra
   - Parallelism through array operations
   - How to optimize algorithms for GPUs
-- Distributed parallel computing (Jeremy Kepner: Weeks 7-8)
+- Distributed Parallel Computing (Jeremy Kepner: Weeks 7-8)
   - Forms of parallelism
   - Using distributed computing vs multithreading
   - Message passing and deadlock
@@ -136,7 +136,7 @@ Homework 3: Training neural ordinary differential equations (with GPUs)
   - Introduction to Markov-Chain Monte Carlo methods
   - Hamiltonian Monte Carlo is just a symplectic ODE solver
   - Uncertainty quantification of parameter estimates through posteriors
-- Globalizing the understanding of models (Week 11-12)
+- Globalizing the Understanding of Models (Week 11-12)
   - Global sensitivity analysis
   - Global optimization
   - Surrogate Modeling
@@ -174,7 +174,7 @@ please use the link from the introduction email (or email me if you need the lin
 ### Optional Extra Resources
 
 If you are not comfortable with Julia yet, here's a few resources as sort of a
-"crash course" to get you up an running:
+"crash course" to get you up and running:
 
 - [The Julia Manual](https://docs.julialang.org/en/v1/)
 - [Developing Julia Packages](https://youtu.be/QVmU29rCjaA)
