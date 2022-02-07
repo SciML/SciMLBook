@@ -7,9 +7,8 @@
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 
 ## Announcement:
-Undergrad Julia introduction by Prof. Steven Johnson
-will take place wednesday 5pm by zoom. Details to be announced.
-(See https://github.com/mitmath/julia-mit)
+[HW1](https://rawcdn.githack.com/mitmath/18337/90ace4bfbee6ffa4415b38384d7dccd5865ea85d/hw1/hw1.html) is out, though we haven't covered  the material yet.  It will be due
+in two weeks in case you want a head start.
 
 
 # Lecture Summaries and Handouts
@@ -61,6 +60,9 @@ speed, but one can learn a great deal doing so.
 Automatic differentiation is perhaps more about programming language and compiler technology than the mathematics.
 
 ## Lecture 2: Optimizing Code
+
+[A feel for the parallel computing dream](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf)
+
 [Lecture 2 from SciML, Optimizing Code](https://book.sciml.ai/lecture2/optimizing)
 
 ** HW1 will be announced today.  Probably the same as last year's with updated due dates, and submission to canvas.  [Last year's](https://book.sciml.ai/hw1/hw1)
