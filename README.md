@@ -15,8 +15,8 @@ in two weeks in case you want a head start.
 |#|Day| Date |  Topic |  |  |
 |-|-|------|------|-----|--|
 |1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. |
-|2|W|2/2| A Feel for the dream. Optimizing Code. |
-|3|M|2/7| Optimizing Code. Dynamical Systems |
+|2|W|2/2| A Feel for the dream. Optimizing Serial Code. |
+|3|M|2/7| Optimizing Serial Code. Dynamical Systems |
 |4|W|2/9| Physics informed Neural Networks |
 
 
