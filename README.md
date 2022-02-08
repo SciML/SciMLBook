@@ -6,6 +6,7 @@
 ## [Canvas](https://canvas.mit.edu/courses/13026) will only be used for homework submission and nothing else.
 
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
+## Classes are not taped, but we will follow closely Chris Rackauckas' videos.  See [link](https://github.com/SciML/SciMLBook).
 
 ## Announcement:
 [HW1](https://rawcdn.githack.com/mitmath/18337/90ace4bfbee6ffa4415b38384d7dccd5865ea85d/hw1/hw1.html) is out, though we haven't covered  the material yet.  It will be due
