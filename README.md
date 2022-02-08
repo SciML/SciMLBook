@@ -3,7 +3,7 @@
 ## MW 3 to 4:30
 ## TA  Ranjan Anantharamin, Shashi Gowda (to be confirmed)
 ## [Piazza Link](http://piazza.com/mit/spring2022/18337/home)
-## Canvas will only be used for homework submission and nothing else.
+## [Canvas](https://canvas.mit.edu/courses/13026) will only be used for homework submission and nothing else.
 
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 
