@@ -10,6 +10,13 @@
 [HW1](https://rawcdn.githack.com/mitmath/18337/90ace4bfbee6ffa4415b38384d7dccd5865ea85d/hw1/hw1.html) is out, though we haven't covered  the material yet.  It will be due
 in two weeks in case you want a head start.
 
+# Lectures at a Glance
+|#|Day| Date |  Topic | Reading| HW |
+|-|-|------|------|-----|--|
+|1|M|1/31|
+|2|W|2/2|
+|3|M|2/7|
+
 
 # Lecture Summaries and Handouts
 
