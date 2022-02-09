@@ -15,9 +15,9 @@ in two weeks in case you want a head start.
 # Lectures at a Glance
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
 |-|-|------|------|-----|--|
-|1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. |
-|2|W|2/2| A Feel for the dream. Optimizing Serial Code. |
-|3|M|2/7| Optimizing Serial Code. Dynamical Systems |
+|1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. | 1+extra |
+|2|W|2/2| A Feel for the dream. Optimizing Serial Code. |extra+2 |
+|3|M|2/7| Optimizing Serial Code. Dynamical Systems |2 + 4|
 |4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | 3| [[lecture notes]](https://book.sciml.ai/lecture3/sciml.html)  [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) |
 
 
