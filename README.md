@@ -78,6 +78,13 @@ Automatic differentiation is perhaps more about programming language and compile
 
 ** HW1 will be announced today.  Probably the same as last year's with updated due dates, and submission to canvas.  [Last year's](https://book.sciml.ai/hw1/hw1)
 
+
+## Lecture 3: Loops as Dynamics
+[Lecture 4 from SciML, Discrete Dynamical Systems](https://book.sciml.ai/lecture4/dynamical_systems.html)[[SciML Video]](https://www.youtube.com/watch?v=GhBARuHEydM)
+
+## Lecture 4:
+[Lecture 3 from SciML, Scientific Machine Learning as Function Approximation](https://book.sciml.ai/lecture3/sciml.html)
+
 ### Material copied from last year for now:
 
 There are two main branches of technical computing: machine learning and
