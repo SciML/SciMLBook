@@ -13,7 +13,7 @@
 in two weeks in case you want a head start.
 
 # Lectures at a Glance
-|#|Day| Date |  Topic | SciML lecture |  |
+|#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
 |-|-|------|------|-----|--|
 |1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. |
 |2|W|2/2| A Feel for the dream. Optimizing Serial Code. |
