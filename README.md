@@ -66,7 +66,7 @@ interested. More details TBA.
 ## Lecture 1.2. Two of my favorite notebooks:
 * [Julia is fast](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb):  It is unusual for people to compare languages for
 speed, but one can learn a great deal doing so.  
-* [Autodiff](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb ):
+* [Autodiff](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb )[[Autodiff Video]](https://www.youtube.com/watch?v=vAp6nUMrKYg):
 Automatic differentiation is perhaps more about programming language and compiler technology than the mathematics.
 
 ## Lecture 2: Optimizing Code
