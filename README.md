@@ -74,7 +74,7 @@ Automatic differentiation is perhaps more about programming language and compile
 [A feel for the parallel computing dream](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf)
 
 [Lecture 2 from SciML, Optimizing Code](https://book.sciml.ai/lecture2/optimizing)
-[SciML Video](https://youtu.be/M2i7sSRcSIw)
+[[SciML Video]](https://youtu.be/M2i7sSRcSIw)
 
 ** HW1 will be announced today.  Probably the same as last year's with updated due dates, and submission to canvas.  [Last year's](https://book.sciml.ai/hw1/hw1)
 
