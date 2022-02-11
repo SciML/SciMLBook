@@ -11,7 +11,7 @@ for understanding the use of neural networks and other methods**
 * Part 1: Should be straightforward. Think about x converging to the fixed point.
 * Part 2: Write your answer in terms of J_n the Jacobian of g at x_n and J_0 the Jacobian of g at x_0 and the Identity.
 
-  **Hint:** What is the Jacobian of the function `x->x-J0⁻¹g(x)` at x=x_n? That is the matrix you need to write down.
+  **Hint:** What is the Jacobian of the function `x->x-J_0⁻¹g(x)` at x=x_n? That is the matrix you need to write down.
 
   **Hint:** You may use the fact that if `x_0 - x*` is small, then `J_0 ≈ J_n ≈ J_*`. More precisely, assume that `J_x⁻¹ J_y = I + O(|x - y|)`
   
@@ -23,6 +23,8 @@ for understanding the use of neural networks and other methods**
 * Part 1: If you do part 1 as a Julia program (rather than as text), then Part 1 and Part 2 are the same.  There really is no part 1.
 
 * Part 2: The prompt to make use of multiple dispatch might be a little bit misleading. You don't need to define multiple methods for `my_quantile` itself, but ideally you should take advantage of how Distributions.jl uses multiple dispatch. Distributions.jl defines methods for the functions `mean`, `pdf` and `cdf` for all `Distribution` objects, so if you implement `my_quantile` right, it should just work for any distribution.
+
+  For those of you that are new to Julia, you can find a quick explanation of what multiple dispatch is [here](https://stackoverflow.com/questions/58700879/what-is-multiple-dispatch-and-how-does-one-use-it-in-julia). If you are more curious, you can also check out [this blog post explaining it in more detail](https://opensourc.es/blog/basics-multiple-dispatch/#what_is_dispatch) or [this video](https://www.youtube.com/watch?v=kc9HwsxE1OY) by Stefan explaining why this is actually so useful.
 
   **Hint:** You can get the CDF and PDF of a `Distribution` object `d` at point `x` with `cdf(d, x)` or `pdf(d, x)` respectively. You don't have to derive the PDF yourself.
   
