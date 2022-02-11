@@ -9,7 +9,7 @@
 
   **Hint:** What is the Jacobian of the function `x->x-inv(J0)\*g(x)` at x=x_n? That is the matrix you need to write down.
 
-  **Hint:** You may use the fact that if `x_0 - x*` is small, then `J_0 ≈ J_n ≈ J_*`. More precisely, assume that `J_x⁻¹ J_y = I + O(|x - y|)²`
+  **Hint:** You may use the fact that if `x_0 - x*` is small, then `J_0 ≈ J_n ≈ J_*`. More precisely, assume that `J_x⁻¹ J_y = I + O(|x - y|)`
 
 * Part 4: Remember that the eigenvalues of `α * M` are α times the eigenvalues of M, and the problem says the eigenvalues are positive.
 
