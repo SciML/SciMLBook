@@ -5,6 +5,7 @@
 **Note: g is a function from Rⁿ to Rⁿ**  
 **Note: Understand that the goal of the problem is to understand the stability of these basic iterations as they will become critical
 for understanding the use of neural networks and other methods**
+**Reminder: Stability of x(n) = g(x(n-1)) is proved by taking the jacobian of g and showing its eigenvalues have absolute value < 1.**
 
 * Part 1: Should be straightforward. Think about x converging to the fixed point.
 * Part 2: Write your answer in terms of J_n the Jacobian of g at x_n and J_0 the Jacobian of g at x_0 and the Identity.
