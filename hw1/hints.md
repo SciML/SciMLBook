@@ -46,7 +46,7 @@ for understanding the use of neural networks and other methods**
   ```
   If you want you can generalize this to arbitrary systems given by some recurrence relation `f`, but this is not required.
   
-  **Hint** You Julia, can get uninitialized arrays with the constructor `Array{Float64}(undef, dim1, dim2, ...)`, which will be slightly more efficient than `zeros` if you are overwriting each entry anyways.
+  **Hint** In Julia, you can get uninitialized arrays with the constructor `Array{Float64}(undef, dim1, dim2, ...)`, which will be slightly more efficient than `zeros` if you are overwriting each entry anyways.
   
   **Hint** For Parts 2-5, the function `eachcol` might be useful, which iterates over each column of a matrix as views.
   
