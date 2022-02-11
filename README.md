@@ -9,7 +9,7 @@
 ## Classes are not taped, but we will follow closely Chris Rackauckas' videos.  See [link](https://github.com/SciML/SciMLBook).
 
 ## Announcement:
-[HW1](https://rawcdn.githack.com/mitmath/18337/f6ded42513499741ca0906b9978f1562a402dc21/hw1/hw1.html) is out.
+[HW1](https://rawcdn.githack.com/mitmath/18337/f6ded42513499741ca0906b9978f1562a402dc21/hw1/hw1.html) is out. Please also see the [Hints and Tricks](hw1/hints.md).
 
 # Lectures at a Glance
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
