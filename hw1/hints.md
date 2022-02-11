@@ -25,3 +25,20 @@
       # the actual implementation
   end
   ```
+
+## Problem 3:
+
+* Part 1: Some were a bit confused by the signature given for `calc_attractor!`. It's probably easiest if you write your function something like this:
+  ```julia
+  function calc_attractor!(out, r, x₀; warmup=400)
+      num_attract = length(out)
+      # first do warmup then write each step to `out`
+  end
+  ```
+  If you want you can generalize this to arbitrary systems given by some recurrence relation `f`, but this is not required.
+  
+  **Hint** You Julia, can get uninitialized arrays with the constructor `Array{Float64}(undef, dim1, dim2, ...)`, which will be slightly more efficient than `zeros` if you are overwriting each entry anyways.
+  
+  **Hint** For Parts 2-5, the function `eachcol` might be useful, which iterates over each column of a matrix as views.
+  
+  Multithreading and distributed computing in general and in Julia specifically will be further discussed in class.
