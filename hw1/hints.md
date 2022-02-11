@@ -20,6 +20,7 @@ for understanding the use of neural networks and other methods**
 * Part 4: Remember that the eigenvalues of `α * M` are α times the eigenvalues of M, and the problem says the eigenvalues are positive.
 
 ## Problem 2:
+* Part 1: If you do part 1 as a Julia program (rather than as text), then Part 1 and Part 2 are the same.  There really is no part 1.
 
 * Part 2: The prompt to make use of multiple dispatch might be a little bit misleading. You don't need to define multiple methods for `my_quantile` itself, but ideally you should take advantage of how Distributions.jl uses multiple dispatch. Distributions.jl defines methods for the functions `mean`, `pdf` and `cdf` for all `Distribution` objects, so if you implement `my_quantile` right, it should just work for any distribution.
 
