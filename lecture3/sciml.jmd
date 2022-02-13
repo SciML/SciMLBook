@@ -349,7 +349,7 @@ chain of events.)
 Now let's get into training neural networks. "Training" a neural network is
 simply the process of finding weights that minimize a loss function. For example,
 let's say we wanted to make our neural network be the constant function `1` for
-any input ``x \in [0,1]^10``. We can then write the loss function:
+any input ``x \in [0,1]^{10}``. We can then write the loss function:
 
 ```julia
 NN = Chain(Dense(10,32,tanh),
