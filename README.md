@@ -3,12 +3,21 @@
 ## MW 3 to 4:30
 ## TA  Ranjan Anantharamin, Shashi Gowda (to be confirmed)
 ## [Piazza Link](http://piazza.com/mit/spring2022/18337/home)
+## [Canvas](https://canvas.mit.edu/courses/13026) will only be used for homework submission and nothing else.
 
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
+## Classes are not taped, but we will follow closely Chris Rackauckas' videos.  See [link](https://github.com/SciML/SciMLBook).
 
 ## Announcement:
-[HW1](https://rawcdn.githack.com/mitmath/18337/90ace4bfbee6ffa4415b38384d7dccd5865ea85d/hw1/hw1.html) is out, though we haven't covered  the material yet.  It will be due
-in two weeks in case you want a head start.
+[HW1](https://rawcdn.githack.com/mitmath/18337/f6ded42513499741ca0906b9978f1562a402dc21/hw1/hw1.html) is out. Please also see the [Hints and Tricks](hw1/hints.md).
+
+# Lectures at a Glance
+|#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
+|-|-|------|------|-----|--|
+|1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. | 1+extra |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
+|2|W|2/2| A Feel for the dream. Optimizing Serial Code. |extra+2 | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[lecture notes]](https://book.sciml.ai/lecture2/optimizing),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
+|3|M|2/7| Optimizing Serial Code. Dynamical Systems |2 + 4| [[lecture notes]](https://book.sciml.ai/lecture4/dynamical_systems.html), [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
+|4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | 3| [[lecture notes]](https://book.sciml.ai/lecture3/sciml.html)  [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) |
 
 
 # Lecture Summaries and Handouts
@@ -56,7 +65,7 @@ interested. More details TBA.
 ## Lecture 1.2. Two of my favorite notebooks:
 * [Julia is fast](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb):  It is unusual for people to compare languages for
 speed, but one can learn a great deal doing so.  
-* [Autodiff](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb ):
+* [Autodiff](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb )[[Autodiff Video]](https://www.youtube.com/watch?v=vAp6nUMrKYg):
 Automatic differentiation is perhaps more about programming language and compiler technology than the mathematics.
 
 ## Lecture 2: Optimizing Code
@@ -64,8 +73,16 @@ Automatic differentiation is perhaps more about programming language and compile
 [A feel for the parallel computing dream](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf)
 
 [Lecture 2 from SciML, Optimizing Code](https://book.sciml.ai/lecture2/optimizing)
+[[SciML Video]](https://youtu.be/M2i7sSRcSIw)
 
 ** HW1 will be announced today.  Probably the same as last year's with updated due dates, and submission to canvas.  [Last year's](https://book.sciml.ai/hw1/hw1)
+
+
+## Lecture 3: Loops as Dynamics
+[Lecture 4 from SciML, Discrete Dynamical Systems](https://book.sciml.ai/lecture4/dynamical_systems.html)[[SciML Video]](https://www.youtube.com/watch?v=GhBARuHEydM)
+
+## Lecture 4:
+[Lecture 3 from SciML, Scientific Machine Learning as Function Approximation](https://book.sciml.ai/lecture3/sciml.html)
 
 ### Material copied from last year for now:
 
