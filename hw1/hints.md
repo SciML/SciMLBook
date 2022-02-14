@@ -1,4 +1,5 @@
 # Hints and Tricks for HW1. More will be added.
+# Note: any format submission (e.g. pdf, notebooks, zip) is fine
 
 ## Problem 1:
 
