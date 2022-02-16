@@ -18,7 +18,8 @@
 |2|W|2/2| A Feel for the dream. Optimizing Serial Code. |extra+2 | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[lecture notes]](https://book.sciml.ai/lecture2/optimizing),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
 |3|M|2/7| Optimizing Serial Code. Dynamical Systems |2 + 4| [[lecture notes]](https://book.sciml.ai/lecture4/dynamical_systems.html), [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
 |4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | 3| [[lecture notes]](https://book.sciml.ai/lecture3/sciml.html)  [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) |
-
+|5|M|2/14| Multithreading, Static and Dynamic Scheduling |
+|6|W|2/16| Models of Parallelism |
 
 # Lecture Summaries and Handouts
 
