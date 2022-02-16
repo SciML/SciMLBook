@@ -1,8 +1,8 @@
-using BenchmarkTools, LinearAlgebra, Random
+using BenchmarkTools, LinearAlgebra
 Threads.nthreads()
 BLAS.set_num_threads(1)
 
-
+# BASIC LOOP
 n= 2000
 stuff = [rand(n,n) for i=1:10]
 function busywork(stuff)
@@ -11,10 +11,12 @@ function busywork(stuff)
     end
 end
 
+# Time the Basic Loop
 busywork(stuff)
 print(" 1  thread: ")
 @time busywork(stuff)
 
+# WITH THREADS
 function busywork_with_threads(stuff)
     Threads.@threads for i = 1:length(stuff)
         stuff[i] = inv(stuff[i])
@@ -26,6 +28,7 @@ busywork_with_threads(stuff)
 print("$(Threads.nthreads()) threads: ")
 @time busywork_with_threads(stuff)
 
+# DYNAMIC SCHEDULING
 function busywork_with_threads_dynamic_scheduling(stuff)
  @sync for  i=1:length(stuff)
     Threads.@spawn stuff[i] = inv(stuff[i])
