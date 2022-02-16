@@ -52,3 +52,8 @@ for understanding the use of neural networks and other methods**
   **Hint** For Parts 2-5, the function `eachcol` might be useful, which iterates over each column of a matrix as views.
   
   Multithreading and distributed computing in general and in Julia specifically will be further discussed in class.
+
+## Problem 4:
+
+*  Part 1
+Better wording: create a new dynamical system that converges to a value x_e such that g(x_e) = 0.
