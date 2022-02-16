@@ -2,6 +2,7 @@ using BenchmarkTools, LinearAlgebra, Random
 Threads.nthreads()
 BLAS.set_num_threads(1)
 
+
 n= 2000
 stuff = [rand(n,n) for i=1:10]
 function busywork(stuff)
@@ -28,7 +29,6 @@ print("$(Threads.nthreads()) threads: ")
 function busywork_with_threads_dynamic_scheduling(stuff)
  @sync for  i=1:length(stuff)
     Threads.@spawn stuff[i] = inv(stuff[i])
-    #Threads.@spawn stuff[i] = [sum(stuff[i]) ;;]
  end
 end
 
