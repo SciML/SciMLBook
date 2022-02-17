@@ -21,7 +21,9 @@ HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
 |3|M|2/7| Optimizing Serial Code. Dynamical Systems |2 + 4| [[lecture notes]](https://book.sciml.ai/lecture4/dynamical_systems.html), [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
 |4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | 3| [[lecture notes]](https://book.sciml.ai/lecture3/sciml.html)  [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
 |5|M|2/14| Multithreading, Static and Dynamic Scheduling |  5| [[lecture notes]](https://book.sciml.ai/lecture5/parallelism_overview.html), [[video]]((https://www.youtube.com/watch?v=eca6kcFntiE))|
-|6|W|2/16| Models of Parallelism |6| [[lecture notes]](https://book.sciml.ai/lecture6/styles_of_parallelism.html), [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
+|6|W|2/16| Models of Parallelism |[6][6]| [[lecture notes]](https://book.sciml.ai/lecture6/styles_of_parallelism.html), [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
+
+[6]:https://github.com/SciML/SciMLBook#lecture-6-styles-of-parallelism
 
 # Lecture Summaries and Handouts
 
