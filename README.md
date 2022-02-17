@@ -11,6 +11,8 @@
 ## Announcement:
 [HW1](https://rawcdn.githack.com/mitmath/18337/f6ded42513499741ca0906b9978f1562a402dc21/hw1/hw1.html) is out. Please also see the [Hints and Tricks](hw1/hints.md).
 
+HW2 = The remaining parts of HW1, due this Tuesday.
+
 # Lectures at a Glance
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
 |-|-|------|------|-----|--|
@@ -19,7 +21,7 @@
 |3|M|2/7| Optimizing Serial Code. Dynamical Systems |2 + 4| [[lecture notes]](https://book.sciml.ai/lecture4/dynamical_systems.html), [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
 |4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | 3| [[lecture notes]](https://book.sciml.ai/lecture3/sciml.html)  [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
 |5|M|2/14| Multithreading, Static and Dynamic Scheduling |  5| [[lecture notes]](https://book.sciml.ai/lecture5/parallelism_overview.html), [[video]]((https://www.youtube.com/watch?v=eca6kcFntiE))|
-|6|W|2/16| Models of Parallelism |6|
+|6|W|2/16| Models of Parallelism |6| [[lecture notes]](https://book.sciml.ai/lecture6/styles_of_parallelism.html), [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
 
 # Lecture Summaries and Handouts
 
