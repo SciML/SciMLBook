@@ -16,13 +16,19 @@ HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
 # Lectures at a Glance
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
 |-|-|------|------|-----|--|
-|1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. | 1+extra |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
-|2|W|2/2| A Feel for the dream. Optimizing Serial Code. |extra+2 | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[lecture notes]](https://book.sciml.ai/lecture2/optimizing),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
-|3|M|2/7| Optimizing Serial Code. Dynamical Systems |2 + 4| [[lecture notes]](https://book.sciml.ai/lecture4/dynamical_systems.html), [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
-|4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | 3| [[lecture notes]](https://book.sciml.ai/lecture3/sciml.html)  [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
-|5|M|2/14| Multithreading, Static and Dynamic Scheduling |  5| [[lecture notes]](https://book.sciml.ai/lecture5/parallelism_overview.html), [[video]]((https://www.youtube.com/watch?v=eca6kcFntiE))|
+|1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. | [1][1]+extra |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
+|2|W|2/2| A Feel for the dream. Optimizing Serial Code. |extra+[2][2] | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[lecture notes]](https://book.sciml.ai/lecture2/optimizing),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
+|3|M|2/7| Optimizing Serial Code. Dynamical Systems |[2][2] + [4][4]| [[lecture notes]](https://book.sciml.ai/lecture4/dynamical_systems.html), [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
+|4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | [3][3]| [[lecture notes]](https://book.sciml.ai/lecture3/sciml.html)  [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
+|5|M|2/14| Multithreading, Static and Dynamic Scheduling |[5][5]| [[lecture notes]](https://book.sciml.ai/lecture5/parallelism_overview.html), [[video]]((https://www.youtube.com/watch?v=eca6kcFntiE))|
 |6|W|2/16| Models of Parallelism |[6][6]| [[lecture notes]](https://book.sciml.ai/lecture6/styles_of_parallelism.html), [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
 
+
+[1]:https://github.com/SciML/SciMLBook#lecture-1-introduction-and-syllabus
+[2]:https://github.com/SciML/SciMLBook#lecture-2-optimizing-serial-code
+[3]:https://github.com/SciML/SciMLBook#lecture-3-introduction-to-scientific-machine-learning-through-physics-informed-neural-networks
+[4]:https://github.com/SciML/SciMLBook#lecture-4-introduction-to-discrete-dynamical-systems
+[5]:https://github.com/SciML/SciMLBook#lecture-5-array-based-parallelism-embarrassingly-parallel-problems-and-data-parallelism-the-basics-of-single-node-parallel-computing
 [6]:https://github.com/SciML/SciMLBook#lecture-6-styles-of-parallelism
 
 # Lecture Summaries and Handouts
