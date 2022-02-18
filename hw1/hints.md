@@ -20,6 +20,9 @@ for understanding the use of neural networks and other methods**
 
 * Part 4: Remember that the eigenvalues of `α * M` are α times the eigenvalues of M, and the problem says the eigenvalues are positive.
 
+*  Part 4
+Better wording: create a new dynamical system that converges to a value x_e such that g(x_e) = 0.
+
 ## Problem 2:
 * Part 1: If you do part 1 as a Julia program (rather than as text), then Part 1 and Part 2 are the same.  There really is no part 1.
 
@@ -47,13 +50,41 @@ for understanding the use of neural networks and other methods**
   ```
   If you want you can generalize this to arbitrary systems given by some recurrence relation `f`, but this is not required.
   
-  **Hint** In Julia, you can get uninitialized arrays with the constructor `Array{Float64}(undef, dim1, dim2, ...)`, which will be slightly more efficient than `zeros` if you are overwriting each entry anyways.
+  **Optional Optimization** In Julia, you can get uninitialized arrays with the constructor `Array{Float64}(undef, dim1, dim2, ...)`, which will be slightly more efficient than `zeros` if you are overwriting each entry anyways.
   
-  **Hint** For Parts 2-5, the function `eachcol` might be useful, which iterates over each column of a matrix as views.
-  
-  Multithreading and distributed computing in general and in Julia specifically will be further discussed in class.
+  **Optional Julia Syntax** For Parts 2-5, the function `eachindex` or `eachcol` might be useful, which iterates over each index of an array or each column of a matrix as views.
 
-## Problem 4:
+  If a vector is 1-based there is no difference between `for i = 1:length(vector)`
+  and `for i = eachindex(vector)`.  
 
-*  Part 1
-Better wording: create a new dynamical system that converges to a value x_e such that g(x_e) = 0.
+  * Part 3: (Use `@threads`) to parallelize an embarassingly parallel for loop.
+
+  * Part 4: We didn't get a chance to talk about `@distributed` in class, but here is  an example.  (This works on distributed memory computers but you can also run it on your shared memory laptop.  By contrast `@threads` asummes shared memory.)
+
+    One can use `@distributed` in the same way as `@threads` (to parallelize a loop)  but it also has the nice property of allowing reductions.  In the following example, we will use an `hcat` which is a horizontal concatenation, meaning package everything up in an array.
+
+
+    ```julia
+  using Distributed
+  println(workers())
+
+  if nworkers()==1
+    addprocs(5)
+    println(workers())
+  end
+
+  @everywhere function f(i)
+      return rand(10)*i
+  end
+
+  r = 1:10000
+  @distributed hcat for i in r
+        f(i)
+  end 
+
+  for i=1:10 display(rand(105,5)) end
+    ```
+
+
+ 
+

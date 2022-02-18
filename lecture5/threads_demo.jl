@@ -3,7 +3,7 @@ Threads.nthreads()
 BLAS.set_num_threads(1)
 
 # BASIC LOOP
-n= 2000
+n= 200
 stuff = [rand(n,n) for i=1:10]
 function busywork(stuff)
     for i=1:10
@@ -16,21 +16,20 @@ busywork(stuff)
 print(" 1  thread: ")
 @time busywork(stuff)
 
-# WITH THREADS
-function busywork_with_threads(stuff)
-    Threads.@threads for i = 1:length(stuff)
-        stuff[i] = inv(stuff[i])
-       # stuff[i] = [sum(stuff[i]);;]
-    end
-end
+# WITH THREADS  -- really a PARFOR
+# in 1.8 this will always be dynamic by default,
+4
 
 busywork_with_threads(stuff)
 print("$(Threads.nthreads()) threads: ")
 @time busywork_with_threads(stuff)
 
-# DYNAMIC SCHEDULING
+# DYNAMIC SCHEDULING -- # feels like there is a computational graph in your mind
+# In 1.8 this is no longer a good example for non-uniform work loads
+# but even now is a great example for traversing binary trees etc.
+# (PARFOR @threads could have been implemented from @spawn's but is more specialized for performance)
 function busywork_with_threads_dynamic_scheduling(stuff)
- @sync for  i=1:length(stuff)
+ @sync for  i=1:length(stuff)  # @sync is for the timing  #also a parfor
     Threads.@spawn stuff[i] = inv(stuff[i])
  end
 end

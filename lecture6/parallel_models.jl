@@ -53,7 +53,9 @@ end
 # the output is i64
 
   Threads.nthreads()
-using Base.Threads
+
+
+#using Base.Threads   # lets you leave out the Threads.xyz
 
 #here none of this will happen
 # but the answer doesn't seem right
