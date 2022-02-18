@@ -10,6 +10,12 @@ end
     return rand(10)*i
 end
 
+
+
+@distributed (+) for i in r
+          f(i)
+    end
+
 r = 1:10000
 @distributed hcat for i in r
       f(i)

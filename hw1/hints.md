@@ -59,9 +59,12 @@ Better wording: create a new dynamical system that converges to a value x_e such
 
   * Part 3: (Use `@threads`) to parallelize an embarassingly parallel for loop.
 
+  Note you can not change the number of threads inside of a Julia session so you must start Julia with something like `julia -t 4` or use the vscode setting like you saw in class.  (Code-->Preferences-->Settings-->threads) on a mac it's (Command-Comma)
+
   * Part 4: We didn't get a chance to talk about `@distributed` in class, but here is  an example.  (This works on distributed memory computers but you can also run it on your shared memory laptop.  By contrast `@threads` asummes shared memory.)
 
-    One can use `@distributed` in the same way as `@threads` (to parallelize a loop)  but it also has the nice property of allowing reductions.  In the following example, we will use an `hcat` which is a horizontal concatenation, meaning package everything up in an array.
+    One can use `@distributed` in the same way as `@threads` (to parallelize a loop)  but it also has the nice property of allowing reductions.  In the following example, we will use `(+)` and `hcat` which are summation and  a horizontal concatenation, meaning package everything up in an array. (Note `sum` is wrong, the reduction should
+    be a binary operation.)
 
 
     ```julia
@@ -69,20 +72,27 @@ Better wording: create a new dynamical system that converges to a value x_e such
     println(workers())
 
     if nworkers()==1
-      addprocs(5)
+      addprocs(5)  # Unlike threads you can addprocs in the middle of a julia session
       println(workers())
     end
 
     @everywhere function f(i)
         return rand(10)*i
+    end   
+    
+    r = 1:10000
+
+    @distributed (+) for i in r
+          f(i)
     end
 
-    r = 1:10000
     @distributed hcat for i in r
           f(i)
     end 
 
-    for i=1:10 display(rand(105,5)) end
+
+
+    
     ```
 
 
