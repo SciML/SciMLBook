@@ -1,0 +1,622 @@
+---
+title: The Basics of Single Node Parallel Computing
+author: Chris Rackauckas
+date: September 21st, 2020
+weave_options:
+    doctype: md2html
+    highlight: pygments
+    template: ../../scimlbook.tpl
+---
+
+Moore's law was the idea that computers double in efficiency at fixed time points,
+leading to exponentially more computing power over time. This was true for a very
+long time.
+
+![](https://assets.weforum.org/editor/large_SOupdi6_TD1Lyud4kWEHmsB5rcslL0q2BB6UCRCEZKE.png)
+
+However, sometime in the last decade, computer cores have stopped getting faster.
+
+>The technology that promises to keep Moore’s Law going after 2013 is known as extreme ultraviolet (EUV) lithography. It uses light to write a pattern into a chemical layer on top of a silicon wafer, which is then chemically etched into the silicon to make chip components. EUV lithography uses very high energy ultraviolet light rays that are closer to X-rays than visible light. That’s attractive because EUV light has a short wavelength—around 13 nanometers—which allows for making smaller details than the 193-nanometer ultraviolet light used in lithography today. But EUV has proved surprisingly difficult to perfect.
+
+-MIT Technology Review
+
+The answer to the “end of Moore's Law” is Parallel Computing. However, programs need
+to be specifically designed in order to adequately use parallelism. This lecture
+will describe at a very high level the forms of parallelism and when they are
+appropriate. We will then proceed to use shared-memory multithreading to
+parallelize the simulation of the discrete dynamical system.
+
+## Managing Threads
+
+### Concurrency vs Parallelism and Green Threads
+
+There is a difference between concurrency and parallelism. In a nutshell:
+
+- Concurrency: Interruptability
+- Parallelism: Independentability
+
+![](http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-1.png)
+![](http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-2.png)
+
+To start thinking about concurrency, we need to distinguish between a process
+and a thread. A process is discrete running instance of a computer program.
+It has allocated memory for the program's code, its data, a heap, etc.
+Each process can have many compute threads. These threads are the unit of
+execution that needs to be done. On each task is its own stack and a virtual
+CPU (virtual CPU since it's not the true CPU, since that would require that the
+task is ON the CPU, which it might not be because the task can be temporarily
+haulted). The kernel of the operating systems then *schedules* tasks, which
+runs them. In order to keep the computer running smooth, *context switching*,
+i.e. changing the task that is actually running, happens all the time. This is
+independent of whether tasks are actually scheduled in parallel or not.
+
+![](https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png)
+
+![](https://dave.cheney.net/wp-content/uploads/2015/08/process.png)
+
+![](https://dave.cheney.net/wp-content/uploads/2015/08/guard-page.png)
+
+Each thread has its own stack associated with it.
+
+![](https://dave.cheney.net/wp-content/uploads/2015/08/threads.png)
+
+![](https://dave.cheney.net/wp-content/uploads/2015/08/stack-growth.png)
+
+This is an important distinction because many tasks may need to be ran concurrently
+but without parallelism. Examples of this are input/output (I/O). For example,
+in a game you may want to be updating the graphics, but the moment a user clicks
+you want to handle that event. You do not necessarily need to have these running
+in parallel, but you need the event handling task to be running concurrently to
+the processing of the game.
+
+![](https://assets.weforum.org/editor/large_MbM-fLOQDkOW_Gvmj_X5ZO9ys6dDF4EMrtiVQG-Fy4Y.png)
+
+Data handling is the key area of scientific computing where green threads
+(concurrent non-parallel threads) show up. For data handling, one may need to
+send a signal that causes a message to start being passed. Alternative hardware
+take over at that point. this alternative hardware is a processor specific
+for an I/O bus, like the controller for the SSD, modem, GPU, or Infiniband. It will
+be polled, then it will execute the command, and give the result. There are two
+variants:
+
+- Non-Blocking vs Blocking: Whether the thread will periodically poll for whether that task is complete, or whether it should wait for the task to complete before doing anything else
+- Synchronous vs Asynchronus: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.
+
+I/O operations cause a *privileged context switch*, allowing the task which is
+handling the I/O to directly be switched to in order to continue actions.
+
+#### The Main Event Loop
+
+Julia, along with other languages with a runtime (Javascript, Go, etc.) at its
+core is a single process running an event loop. This event loop has is the
+main thread, and "Julia program" or "script" that one is running is actually
+ran in a green thread that is controlled by the main event loop. The event
+loop takes over to look for other work whenever the program hits a *yield point*.
+More yield points allows for more aggressive task switching, while it also
+means more switches to the event loop which *suspends* the numerical task, i.e.
+making it slower. Thus yielding shouldn't interrupt the main loop!
+
+This is one area where languages can wildly differ in implementation. Languages
+structured for lots of I/O and input handling, like Javascript, have yield
+points at every line (it's an interpreted language and therefore the interpreter
+can always take control). In Julia, the yield points are minimized. The common
+yield points are allocations and I/O (`println`). This means that a tight
+non-allocating inner loop will not have any yield points and will be a thread
+that is not interruptable. While this is great for numerical performance, it is
+something to be aware of.
+
+Side effect: if you run a long tight loop and wish to exit it, you may try
+`Ctrl + C` and see that it doesn't work. This is because interrupts are handled
+by the event loop. The event loop is never re-entered until after your tight
+numerical loop, and therefore you have the waiting occur. If you hit `Ctrl + C`
+multiple times, you will escalate the interruption until the OS takes over and
+then this is handled by the signal handling of the OS's event loop, which sends
+a higher level interrupt which Julia handles the moment the safety locks says
+it's okay (these locks occur during memory allocations to ensure that memory
+is not corrupted).
+
+#### Asynchronus Calling Example
+
+This example will become more clear when we get to distributed computing, but
+for think of `remotecall_fetch` as a way to run a command on a different computer.
+What we want to do is start all of the commands at once, and then wait for all
+the results before finishing the loop. We will use `@async` to make the call
+to `remotecall_fetch` be non-blocking, i.e. it'll start the job and only poll
+infrequently to find out when the other machine has completed the job and
+returned the result. We then add `@sync` to the loop, which will only continue
+the loop after all of the green threads have fetched the result. Otherwise,
+it's possible that `a[idx]` may not be filled yet, since the thread may not
+have fetched the result!
+
+```julia;eval=false
+@time begin
+    a = Vector{Any}(undef,nworkers())
+    @sync for (idx, pid) in enumerate(workers())
+        @async a[idx] = remotecall_fetch(sleep, pid, 2)
+    end
+end
+```
+
+The same can be done for writing to the disk. `@async` is a quick shorthand
+for spawning a green thread which will handle that I/O operation, and the
+main event loop will keep switching between them until they are all handled.
+`@sync` encodes that the program will not continue until all green threads
+are handled. This could be done more manually with `Task` and `Channel`s,
+which will be something we touch on in the future.
+
+### Examples of the Differences
+
+Synchronous = Thread will complete an action
+Blocking = Thread will wait until action is completed
+
+- Asynchronous + Non-Blocking: I/O
+- Asynchronous + Blocking: Threaded atomics (demonstrated next lecture)
+- Synchronous + Blocking: Standard computing, `@sync`
+- Synchronous + Non-Blocking: Webservers where an I/O operation can be performed,
+  but one never checks if the operation is completed.
+
+### Multithreading
+
+If your threads are independent, then it may make sense to run them in parallel.
+This is the form of parallelism known as multithreading. To understand the
+data that is available in a multithreaded setup, let's look at the picture of
+threads again:
+
+![](https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png)
+
+Each thread has its own call stack, but it's the process that holds the heap.
+This means that dynamically-sized heap allocated objects are shared between
+threads with no cost, a setup known as shared-memory computing.
+
+#### Loop-Based Multithreading with @threads
+
+Let's look back at our Lorenz dynamical system from before:
+
+```julia
+using StaticArrays, BenchmarkTools
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  @inbounds begin
+    du1 = u[1] + α*(σ*(u[2]-u[1]))
+    du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+    du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  end
+  @SVector [du1,du2,du3]
+end
+function solve_system_save!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+p = (0.02,10.0,28.0,8/3)
+u = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+@btime solve_system_save!(u,lorenz,@SVector([1.0,0.0,0.0]),p,1000)
+```
+
+In order to use multithreading on this code, we need to take a look at the dependency
+graph and see what items can be calculated independently of each other. Notice that
+
+```
+σ*(u[2]-u[1])
+ρ-u[3]
+u[1]*u[2]
+β*u[3]
+```
+
+are all independent operations, so in theory we could split those off to different
+threads, move up, etc.
+
+Or we can have three threads:
+
+```
+u[1] + α*(σ*(u[2]-u[1]))
+u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+u[3] + α*(u[1]*u[2] - β*u[3])
+```
+
+all don't depend on the output of each other, so these tasks can be run in
+parallel. We can do this by using Julia's `Threads.@threads` macro which puts
+each of the computations of a loop in a different thread. The threaded loops
+do not allow you to return a value, so how do you build up the values for the
+`@SVector`?
+
+...?
+
+...?
+
+...?
+
+It's not possible! To understand why, let's look at the picture again:
+
+![](https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png)
+
+There is a shared heap, but the stacks are thread local. This means that a value
+cannot be stack allocated in one thread and magically appear when re-entering
+the main thread: it needs to go on the heap somewhere. But if it needs to go onto
+the heap, then it makes sense for us to have preallocated its location. But if
+we want to preallocate `du[1]`, `du[2]`, and `du[3]`, then it makes sense to use
+the fully non-allocating update form:
+
+```julia
+function lorenz!(du,u,p)
+  α,σ,ρ,β = p
+  @inbounds begin
+    du[1] = u[1] + α*(σ*(u[2]-u[1]))
+    du[2] = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+    du[3] = u[3] + α*(u[1]*u[2] - β*u[3])
+  end
+end
+function solve_system_save_iip!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    f(u[i+1],u[i],p)
+  end
+  u
+end
+p = (0.02,10.0,28.0,8/3)
+u = [Vector{Float64}(undef,3) for i in 1:1000]
+@btime solve_system_save_iip!(u,lorenz!,[1.0,0.0,0.0],p,1000)
+```
+
+and now we multithread:
+
+```julia
+using Base.Threads
+function lorenz_mt!(du,u,p)
+  α,σ,ρ,β = p
+  let du=du, u=u, p=p
+    Threads.@threads for i in 1:3
+      @inbounds begin
+        if i == 1
+          du[1] = u[1] + α*(σ*(u[2]-u[1]))
+        elseif i == 2
+          du[2] = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+        else
+          du[3] = u[3] + α*(u[1]*u[2] - β*u[3])
+        end
+        nothing
+      end
+    end
+  end
+  nothing
+end
+function solve_system_save_iip!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    f(u[i+1],u[i],p)
+  end
+  u
+end
+p = (0.02,10.0,28.0,8/3)
+u = [Vector{Float64}(undef,3) for i in 1:1000]
+@btime solve_system_save_iip!(u,lorenz_mt!,[1.0,0.0,0.0],p,1000);
+```
+
+**Parallelism doesn't always make things faster**. There are two costs associated
+with this code. For one, we had to go to the slower heap+mutation version, so
+its implementation starting point is slower. But secondly, and more importantly,
+the cost of spinning a new thread is non-negligable. In fact, here we can see
+that it even needs to make a small allocation for the new context. The total
+cost is on the order of It's on the order of 50ns: not huge, but something
+to take note of. So what we've done is taken almost free calculations and made
+them ~50ns by making each in a different thread, instead of just having it be
+one thread with one call stack.
+
+The moral of the story is that you need to make sure that there's enough work
+per thread in order to effectively accelerate a program with parallelism.
+
+### Data-Parallel Problems
+
+So not every setup is amenable to parallelism. Dynamical systems are natorious
+for being quite difficult to parallelize because the dependency of the future
+time step on the previous time step is clear, meaning that one cannot easily
+"parallelize through time" (though it is possible, which we will study later).
+
+However, one common way that these systems are generally parallelized is in
+their inputs. The following questions allow for independent simulations:
+
+- What steady state does an input `u0` go to for some list/region of initial
+  conditions?
+- How does the solution very when I use a different `p`?
+
+The problem has a few descriptions. For one, it's called an *embaressingly parallel*
+problem since the problem can remain largely intact to solve the parallelism
+problem. To solve this, we can use the exact same `solve_system_save_iip!`,
+and just change how we are calling it. Secondly, this is called a *data parallel*
+problem, since it parallelized by splitting up the input data (here, the possible
+`u0` or `p`s) and acting on them independently.
+
+#### Multithreaded Parameter Searches
+
+Now let's multithread our parameter search. Let's say we wanted to compute the
+mean of the values in the trajectory. For a single input pair, we can compute
+that like:
+
+```julia
+using Statistics
+function compute_trajectory_mean(u0,p)
+  u = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+  solve_system_save!(u,lorenz,u0,p,1000);
+  mean(u)
+end
+@btime compute_trajectory_mean(@SVector([1.0,0.0,0.0]),p)
+```
+
+We can make this faster by preallocating the *cache* vector `u`. For example, we
+can globalize it:
+
+```julia
+u = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+function compute_trajectory_mean2(u0,p)
+  # u is automatically captured
+  solve_system_save!(u,lorenz,u0,p,1000);
+  mean(u)
+end
+@btime compute_trajectory_mean2(@SVector([1.0,0.0,0.0]),p)
+```
+
+But this is still allocating? The issue with this code is that `u` is a global,
+and captured globals cannot be inferred because their type can change at any
+time. Thus what we can do instead is capture a constant:
+
+```julia
+const _u_cache = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+function compute_trajectory_mean3(u0,p)
+  # u is automatically captured
+  solve_system_save!(_u_cache,lorenz,u0,p,1000);
+  mean(_u_cache)
+end
+@btime compute_trajectory_mean3(@SVector([1.0,0.0,0.0]),p)
+```
+
+Now it's just allocating the output. The other way to do this is to use a
+*closure* which encapsolates the cache data:
+
+```julia
+function _compute_trajectory_mean4(u,u0,p)
+  solve_system_save!(u,lorenz,u0,p,1000);
+  mean(u)
+end
+compute_trajectory_mean4(u0,p) = _compute_trajectory_mean4(_u_cache,u0,p)
+@btime compute_trajectory_mean4(@SVector([1.0,0.0,0.0]),p)
+```
+
+This is the same, but a bit more explicit. Now let's create our parameter
+search function. Let's take a sample of parameters:
+
+```julia
+ps = [(0.02,10.0,28.0,8/3) .* (1.0,rand(3)...) for i in 1:1000]
+```
+
+And let's get the mean of the trajectory for each of the parameters.
+
+```julia
+serial_out = map(p -> compute_trajectory_mean4(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+Now let's do this with multithreading:
+
+```julia
+function tmap(f,ps)
+  out = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+  Threads.@threads for i in 1:1000
+    # each loop part is using a different part of the data
+    out[i] = f(ps[i])
+  end
+  out
+end
+threaded_out = tmap(p -> compute_trajectory_mean4(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+Let's check the output:
+
+```julia
+serial_out - threaded_out
+```
+
+Oh no, we don't get the same answer! What happened?
+
+The answer is the caching. Every single thread is using `_u_cache` as the
+cache, and so while one is writing into it the other is reading out of it, and
+thus is getting the value written to it from the wrong cache!
+
+To fix this, what we need is a different heap per thread:
+
+```julia
+const _u_cache_threads = [Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000) for i in 1:Threads.nthreads()]
+function compute_trajectory_mean5(u0,p)
+  # u is automatically captured
+  solve_system_save!(_u_cache_threads[Threads.threadid()],lorenz,u0,p,1000);
+  mean(_u_cache)
+end
+@btime compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p)
+```
+
+```julia
+serial_out = map(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+threaded_out = tmap(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+serial_out - threaded_out
+```
+
+```julia
+@btime serial_out = map(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+```julia
+@btime threaded_out = tmap(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+### Hierarchical Task-Based Multithreading and Dynamic Scheduling
+
+The major change in Julia v1.3 is that Julia's `Task`s, which are traditionally
+its green threads interface, are now the basis of its multithreading infrustructure.
+This means that all independent threads are parallelized, and a new interface for
+multithreading will exist that works by spawning threads.
+
+This implementation follows Go's goroutines and the classic multithreading
+interface of Cilk. There is a Julia-level scheduler that handles the multithreading
+to put different tasks on different vCPU threads. A benefit from this is
+hierarchical multithreading. Since Julia's tasks can spawn tasks, what can
+happen is a task can create tasks which create tasks which etc. In Julia (/Go/Cilk),
+this is then seen as a single pool of tasks which it can schedule, and thus
+it will still make sure only `N` are running at a time (as opposed to the naive
+implementation where the total number of running threads is equal then multiplied).
+This is essential for numerical performance because running multiple compute
+threads on a single CPU thread requires constant context switching between
+the threads, which will slow down the computations.
+
+To directly use the task-based interface, simply use `Threads.@spawn` to spawn
+new tasks. For example:
+
+```julia
+function tmap2(f,ps)
+  tasks = [Threads.@spawn f(ps[i]) for i in 1:1000]
+  out = [fetch(t) for t in tasks]
+end
+threaded_out = tmap2(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+However, if we check the timing we see:
+
+```julia
+@btime tmap2(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
+```
+
+`Threads.@threads` is built on the same multithreading infrustructure, so why
+is this so much slower? The reason is because `Threads.@threads` employs
+**static scheduling** while `Threads.@spawn` is using **dynamic scheduling**.
+Dynamic scheduling is the model of allowing the runtime to determine the ordering
+and scheduling of processes, i.e. what tasks will run run where and when. Julia's
+task-based multithreading system has a thread scheduler which will automatically
+do this for you in the background, but because this is done at runtime it will
+have overhead. Static scheduling is the model of pre-determining where and when
+tasks will run, instead of allowing this to be determined at runtime. `Threads.@threads`
+is "quasi-static" in the sense that it cuts the loop so that it spawns only as
+many tasks as there are threads, essentially assigning one thread for even
+chunks of the input data.
+
+Does this lack of runtime overhead mean that static scheduling is "better"? No,
+it simply has trade-offs. Static scheduling assumes that the runtime of each
+block is the same. For this specific case where there are fixed number of loop
+iterations for the dynamical systems, we know that every `compute_trajectory_mean5`
+costs exactly the same, and thus this will be more efficient. However, There are
+many cases where this might not be efficient. For example:
+
+```julia
+function sleepmap_static()
+  out = Vector{Int}(undef,24)
+  Threads.@threads for i in 1:24
+    sleep(i/10)
+    out[i] = i
+  end
+  out
+end
+isleep(i) = (sleep(i/10);i)
+function sleepmap_spawn()
+  tasks = [Threads.@spawn(isleep(i)) for i in 1:24]
+  out = [fetch(t) for t in tasks]
+end
+
+@btime sleepmap_static()
+@btime sleepmap_spawn()
+```
+
+The reason why this occurs is because of how the static scheduling had chunked
+my calculation. On my computer:
+
+```julia
+Threads.nthreads()
+```
+
+This means that there are 6 tasks that are created by `Threads.@threads`. The
+first takes:
+
+```julia
+sum(i/10 for i in 1:4)
+```
+
+1 second, while the next group takes longer, then the next, etc. while the last takes:
+
+```julia
+sum(i/10 for i in 21:24)
+```
+
+9 seconds (which is precisely the result!). Thus by unevenly distributing the
+runtime, we run as fast as the slowest thread. However, dynamic scheduling allows
+new tasks to immediately run when another is finished, meaning that the in that
+case the shorter tasks tend to be piled together, causing a faster execution.
+Thus whether dynamic or static scheduling is beneficial is dependent on the problem
+and the implementation of the static schedule.
+
+#### Possible Project
+
+Note that this can extend to external library calls as well.
+[FFTW.jl recently gained support for this](https://github.com/JuliaMath/FFTW.jl/pull/105).
+A possible final project would be to do a similar change
+[to OpenBLAS](https://github.com/JuliaLang/julia/issues/32786).
+
+## A Teaser for Alternative Parallelism Models
+
+### Simplest Parallel Code
+
+```julia
+A = rand(10000,10000)
+B = rand(10000,10000)
+A*B
+```
+
+If you are using a computer that has N cores, then this will use N cores. Try
+it and look at your resource usage!
+
+### Array-Based Parallelism
+
+The simplest form of parallelism is array-based parallelism. The idea is that
+you use some construction of an array whose operations are already designed
+to be parallel under the hood. In Julia, some examples of this are:
+
+- DistributedArrays (Distributed Computing)
+- Elemental
+- MPIArrays
+- CuArrays (GPUs)
+
+This is not a Julia specific idea either
+
+### BLAS and Standard Libraries
+
+The basic linear algebra calls are all handled by a set of libraries which follow
+the same interface known as BLAS (Basic Linear Algebra Subroutines). It's
+divided into 3 portions:
+
+- BLAS1: Element-wise operations (O(n))
+- BLAS2: Matrix-vector operations (O(n^2))
+- BLAS3: Matrix-matrix operations (O(n^3))
+
+BLAS implementations are highly optimized, like OpenBLAS and Intel MKL, so
+every numerical language and library essentially uses similar underlying
+BLAS implementations. Extensions to these, known as LAPACK, include operations
+like factorizations, and are included in these standard libraries. These are
+all multithreaded. The reason why this is a location to target is because the
+operation count is high enough that parallelism can be made efficient even
+when only targetting this level: a matrix multiplication can take on the order
+of seconds, minutes, hours, or even days, and these are all highly parallel
+operations. This means you can get away with a bunch just by parallelizing at
+this level, which happens to be a bottleneck for a lot scientific computing
+codes.
+
+This is also commonly the level at which GPU computing occurs in machine learning
+libraries for reasons which we will explain later.
+
+### MPI
+
+Well, this is a big topic and we'll address this one later!
+
+## Conclusion
+
+The easiest forms of parallelism are:
+
+- Embarrassingly parallel
+- Array-level parallelism (built into linear algebra)
+
+Exploit these when possible.
