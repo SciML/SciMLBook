@@ -22,7 +22,7 @@ HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
 |4|W|2/9| Deep Learning as Function Approximation. Physics informed Neural Networks | [3][3]|   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
 |5|M|2/14| Multithreading, Static and Dynamic Scheduling |[5][5]|  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
 |6|W|2/16| Models of Parallelism |[6][6]|  [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
-|7|T|2/22| Siam PP 2022 Lecture| | [Lecture Slides]
+|7|T|2/22| Siam PP 2022 Lecture| | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
 |8|W|2/23| ODEs |[7][7]|
 |9|M|2/28| Automatic Differentiation | [8][8]| 
 
