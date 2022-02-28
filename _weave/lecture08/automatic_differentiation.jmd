@@ -8,6 +8,8 @@ weave_options:
     template: ../../scimlbook.tpl
 ---
 
+## [Youtube Video Link](https://youtu.be/zHPXGBiTM5A)
+
 ## Machine Epsilon and Roundoff Error
 
 Floating point arithmetic is relatively scaled, which means that the precision
@@ -100,20 +102,20 @@ just happens to also be complex analytic when extended to the complex plane.
 Thus it has a Taylor series, and let's see what happens when we expand out this
 Taylor series purely in the complex direction:
 
-$$f(x+ih) = f(x) + f'(x)ih + \mathcal{O}(h^2)$$
+$$f(x+ih) = f(x) + f'(x)ih + \frac{1}{2}f''(x)h^2 + \mathcal{O}(h^3)$$
 
 which we can re-arrange as:
 
-$$if'(x) = \frac{f(x+ih) - f(x)}{h} + \mathcal{O}(h)$$
+$$if'(x) = \frac{f(x+ih) - f(x)}{h} + \frac{1}{2}f''(x)h + \mathcal{O}(h^2)$$
 
 Since $x$ is real and $f$ is real-valued on the reals, $if'$ is purely imaginary.
 So let's take the imaginary parts of both sides:
 
-$$f'(x) = \frac{Im(f(x+ih))}{h} + \mathcal{O}(h)$$
+$$f'(x) = \frac{Im(f(x+ih))}{h} + \mathcal{O}(h^2)$$
 
-since $Im(f(x)) = 0$ (since it's real valued!). Thus with a sufficiently small
-choice of $h$, this is the *complex step differentiation* formula for calculating
-the derivative.
+since $Im(f(x)) = 0$ (since it's real valued, the next order term cancels for
+the same reason). Thus with a sufficiently small choice of $h$, this is the
+*complex step differentiation* formula for calculating the derivative.
 
 But to understand the computational advantage, recal that $x$ is pure real, and
 thus $x+ih$ is an imaginary number where **the $h$ never directly interacts with
