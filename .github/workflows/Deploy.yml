@@ -38,8 +38,8 @@ jobs:
             using NodeJS; run(`$(npm_cmd()) install highlight.js`);
             include("utils.jl");
             weaveall();
-            using Franklin;
-            optimize()'
+            import Franklin;
+            Franklin.optimize()'
     - name: Build and Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
