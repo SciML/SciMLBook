@@ -12,7 +12,7 @@ function weaveall()
         for file in files
             if endswith(file, "jmd")
                 @info "Weaving Document: $(joinpath(root, file))"
-                weave(joinpath(root, file); out_path=:doc)
+                weave(joinpath(root, file); out_path=:doc, mod = Main)
             end
         end
     end
