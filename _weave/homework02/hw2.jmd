@@ -1,0 +1,102 @@
+---
+title: Homework 2
+author: Chris Rackauckas
+date: October 8th, 2020
+weave_options:
+    doctype: md2html
+    highlight: pygments
+    template: ../../scimlbook.tpl
+---
+
+Due November 5th, 2020 at midnight.
+
+Please email the results to `18337.mit.psets@gmail.com`.
+
+## Problem 1: Parameter Estimation in Dynamical Systems
+
+In this problem you will work through the development of a parameter estimation
+method for the Lotka-Volterra equations. This is intended to be "from scratch",
+meaning you should not use pre-built differential equation solvers for these
+problems!
+
+### Part 1: Simulator
+
+Implement a fixed timestep version of the
+[Dormand-Prince method](https://en.wikipedia.org/wiki/Dormand%E2%80%93Prince_method)
+to solve the Lotka-Volterra equations:
+
+$$\begin{align}
+\frac{dx}{dt} &= \alpha x - \beta x y\\
+\frac{dy}{dt} &= - \gamma y + \delta x y\\
+\end{align}$$
+
+with $u(0) = [x(0),y(0)] = [1,1]$, $dt=\frac{1}{4}$ on $t \in (0,10)$ with parameters $\alpha = 1.5$,
+$\beta = 1.0$, $\gamma = 3.0$, and $\delta = 1.0$.
+
+### Part 2: Forward Sensitivity Equations
+
+The forward sensitivity equations are derived directly by the chain rule. The
+forward sensitivity equations are equivalent to the result of forward-mode
+automatic differentiation on the ODE solver. In this part we will implement
+the sensitivity equations by hand. Given an ODE:
+
+$$u' = f(u,p,t)$$
+
+The forward sensitivity equations are given by:
+
+$$\frac{d}{dt}\left(\frac{du}{dp}\right) = \frac{df}{du}\frac{du}{dp} + \frac{df}{dp}$$
+
+Use this definition to simultaniously solve for the solution to the ODE along
+with its derivative with respect to parameters.
+
+### Part 3: Parameter Estimation
+
+Generate data using the parameters from Part 1. Then perturb the parameters to
+start at $\alpha = 1.2$, $\beta = 0.8$, $\gamma = 2.8$, and $\delta = 0.8$. Use
+the L2 loss against the data as a cost function, and use the forward sensitivity
+equations to implement gradient descent and optimize the cost function to
+retreive the true parameters
+
+## Problem 2: Bandwidth Maximization
+
+In this problem we will look at maximizing the bandwidth of a channel, and the
+difference when going from serial to parallel computing.
+
+### Part 1: Serial Bandwidth
+
+Recreate the bandwidth vs message size plot by doing the following. Create
+two processes on one node and communicate using MPI. Have
+both processes send an array of `2^n` `Int8` values. Compute the time `T(n)`
+of sending each message size and the bandwidth `B(n) = n/T(n)` for `n=1:25`.
+
+### Part 2: Interpretation
+
+Given these plots, what is the minimal latency? What is the total bandwidth?
+What is the number of operations needed for small messages and large messages
+on each value in order for a calculation to be efficient enough to overcome
+the message passing cost?
+
+### Part 3: Parallel Bandwith (Optional)
+
+Use the following batch script on some cluster (like MIT Supercloud):
+
+```bash;eval=false
+#!/bin/sh
+
+#SBATCH -o mylog.out-%j
+#SBATCH -n 2
+#SBATCH -N 2
+
+# Initialize Modules
+source /etc/profile
+
+# Load Julia and MPI Modules
+module load julia-latest
+module load mpi/mpich-x86_64
+
+mpirun julia mycode.jl
+```
+
+to receive two cores on two nodes. Recreate the bandwidth vs message plots
+and the interpretation. Does the fact that the nodes are physically disconnected
+cause a substantial difference?
