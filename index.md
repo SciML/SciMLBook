@@ -1,13 +1,11 @@
 +++
-title = "SciML Book"
-descr = "This repository is meant to be a live document, updating to continuously add the latest details on methods from the field of scientific machine learning and the latest techniques for high-performance computing."
-rss = "This repository is meant to be a live document, updating to continuously add the latest details on methods from the field of scientific machine learning and the latest techniques for high-performance computing."
+title = "Parallel Computing and Scientific Machine Learning (SciML): Methods and Applications"
+descr = "Parallel Computing and Scientific Machine Learning (SciML): Methods and Applications, MIT Course 18.337J/6.338J. Includes physics-informed learning, scientific machine learning, science-guided AI, neural differential equations, and more."
+rss = "Parallel Computing and Scientific Machine Learning (SciML): Methods and Applications, MIT Course 18.337J/6.338J. Includes physics-informed learning, scientific machine learning, science-guided AI, neural differential equations, and more."
 weave = false
 +++
 
-# SciML Book
-
-## Parallel Computing and Scientific Machine Learning (SciML): Methods and Applications
+# Parallel Computing and Scientific Machine Learning (SciML): Methods and Applications
 
 **This book is a compilation of lecture notes from the MIT Course 18.337J/6.338J: Parallel Computing and Scientific Machine Learning.
 Links to the old notes https://mitmath.github.io/18337 will redirect here**
