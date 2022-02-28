@@ -23,8 +23,8 @@ HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
 |5|M|2/14| Multithreading, Static and Dynamic Scheduling |[5][5]|  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
 |6|W|2/16| Models of Parallelism |[6][6]|  [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
 |7|T|2/22| Siam PP 2022 Lecture| | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
-|8|W|2/23| ODEs |[7][7]|
-|9|M|2/28| Automatic Differentiation | [8][8]| 
+|8|W|2/23| ODEs |[7][7]| [[video 1]](https://www.youtube.com/watch?v=riAbPZy9gFc),[[video2]](https://www.youtube.com/watch?v=HMmOk9GIhsw)
+|9|M|2/28| Automatic Differentiation | [8][8]| [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A)
 
 [1]:https://book.sciml.ai/notes/01/
 [2]:https://book.sciml.ai/notes/02/
