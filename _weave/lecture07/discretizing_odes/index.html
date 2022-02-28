@@ -5,7 +5,7 @@
  </span><span class='hljl-n'>du</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-p'>[</span><span class='hljl-ni'>3</span><span class='hljl-p'>]</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span>
 </pre> <pre class=output >
-lorenz &#40;generic function with 1 method&#41;
+lorenz &#40;generic function with 3 methods&#41;
 </pre> <p><strong>Question: How could I maybe speed this up a little?</strong></p> <p>Next we give an <em>initial condition</em>. Here, this is a vector of equations, so our initial condition has to be a vector. Let&#39;s choose the following initial condition:</p> <pre class='hljl'>
 <span class='hljl-n'>u0</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]</span>
 </pre> <pre class=output >
@@ -252,7 +252,7 @@ u0: 28-element Vector&#123;Float64&#125;:
  </span><span class='hljl-n'>dy</span><span class='hljl-p'>[</span><span class='hljl-ni'>20</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-n'>r25</span><span class='hljl-oB'>+</span><span class='hljl-n'>r24</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span>
 </pre> <pre class=output >
-f &#40;generic function with 1 method&#41;
+f &#40;generic function with 2 methods&#41;
 </pre> <pre class='hljl'>
 <span class='hljl-n'>u0</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>zeros</span><span class='hljl-p'>(</span><span class='hljl-ni'>20</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-n'>u0</span><span class='hljl-p'>[</span><span class='hljl-ni'>2</span><span class='hljl-p'>]</span><span class='hljl-t'>  </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.2</span><span class='hljl-t'>

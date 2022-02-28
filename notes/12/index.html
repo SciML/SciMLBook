@@ -17,13 +17,12 @@ for N steps. Returns the solution at step `n` with parameters `p`.
   </span><span class='hljl-n'>u</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span>
 </pre> <pre class=output >
-Main.##WeaveSandBox#647.solve_system
+solve_system
 </pre> <p>Notice the <code>&quot;&quot;&quot;</code> before the function: this is a docstring. When the Julia REPL is queried with <code>?solve_system</code> this will be the description that is displayed.</p> <p>Now, is this function going to be efficient? Recall from the earlier discussion that:</p> <ul> <li><p>Type-stability is necessary for inference to carry forward type information.</p> <li><p>Julia auto-specializes on input types.</p> <li><p>Inlining can occur automatically for sufficiently small functions.</p> </ul> <p>From this information, we know that in order for this to be efficient, we require that the type of <code>f&#40;u&#41;</code> is inferred. But if <code>f</code> is a variable, how can that be inferred? In order for that to occur, we would have to know what <code>f</code> is, since not all functions will give the same output type. Additionally, in order to inline the function, we will have to know what the function is at compile-time. So, is it possible to make this implementation efficient?</p> <p>It turns out that this does optimize due to one fact: every function is given by its own type. We can verify this by defining a function and checking its type:</p> <pre class='hljl'>
 <span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>u</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>p</span><span class='hljl-oB'>*</span><span class='hljl-n'>u</span><span class='hljl-t'>
 </span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-typeof&#40;Main.##WeaveSandBox#647.f&#41; &#40;singleton type of function f, subtype of
- Function&#41;
+typeof&#40;f&#41; &#40;singleton type of function f, subtype of Function&#41;
 </pre> <p>It displays <code>typeof&#40;f&#41;</code> to indicate that the function <code>f</code> is its own type, and thus at automatic specialization time the compiler knows all of the information about the function and thus inlines and performs inference correctly.</p> <p>Note that this does mean that the function will need to recompile for every new <code>f</code>. This is similar to statically compiling a function for use in a C/Fortran library. What is the equivalent to using a function like a shared library or a shared object? This is given by FunctionWrappers.jl. This directly stores the function pointer in an object that can have shared type information in order to keep every function as the same type. However, the wrapped function has more information about the pointer... what&#39;s necessary?</p> <p>The answer is that FunctionWrappers.jl allows for specifying the input and output types, in order for the wrapper to do the right assertions for inference to carry forward type stability, since in this case inference is not able to step through the function pointer.</p> <h4>Quick Check</h4> <p>What will approximately be the value of this dynamical system after 1000 steps if you start at <code>1.0</code> with parameter <code>p&#61;0.25</code>? Can you guess without solving the system? Think about steady states and stabiltiy.</p> <pre class='hljl'>
 <span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.25</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
@@ -114,7 +113,7 @@ NaN
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-0.000073 seconds &#40;1.00 k allocations: 86.062 KiB&#41;
+0.000061 seconds &#40;1.00 k allocations: 86.062 KiB&#41;
 1000-element Vector&#123;Vector&#123;Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -139,7 +138,7 @@ NaN
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_push</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-0.021693 seconds &#40;25.18 k allocations: 1.442 MiB, 99.45&#37; compilation time
+0.020510 seconds &#40;25.17 k allocations: 1.442 MiB, 99.54&#37; compilation time
 &#41;
 1000-element Vector&#123;Vector&#123;Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
@@ -165,7 +164,7 @@ NaN
 </pre> <p>The first time Julia compiles the function, and the second is a straight call.</p> <pre class='hljl'>
 <span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_push</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-0.000086 seconds &#40;1.01 k allocations: 99.984 KiB&#41;
+0.000098 seconds &#40;1.01 k allocations: 99.984 KiB&#41;
 1000-element Vector&#123;Vector&#123;Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -191,7 +190,7 @@ NaN
 <span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>BenchmarkTools</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-43.603 μs &#40;1001 allocations: 86.06 KiB&#41;
+41.104 μs &#40;1001 allocations: 86.06 KiB&#41;
 1000-element Vector&#123;Vector&#123;Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -216,7 +215,7 @@ NaN
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_push</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-53.703 μs &#40;1006 allocations: 99.98 KiB&#41;
+44.004 μs &#40;1006 allocations: 99.98 KiB&#41;
 1000-element Vector&#123;Vector&#123;Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -249,7 +248,7 @@ NaN
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-90.505 μs &#40;2001 allocations: 179.66 KiB&#41;
+84.308 μs &#40;2001 allocations: 179.66 KiB&#41;
 3×1000 Matrix&#123;Float64&#125;:
  1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744
  0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
@@ -266,7 +265,7 @@ NaN
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix_view</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-52.103 μs &#40;1002 allocations: 101.61 KiB&#41;
+47.905 μs &#40;1002 allocations: 101.61 KiB&#41;
 3×1000 Matrix&#123;Float64&#125;:
  1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744
  0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
@@ -283,7 +282,7 @@ NaN
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_matrix_resize</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-2.618 ms &#40;2318 allocations: 11.65 MiB&#41;
+2.612 ms &#40;2318 allocations: 11.65 MiB&#41;
 3×1000 Matrix&#123;Float64&#125;:
  1.0  0.8   0.752    0.80096   0.920338   …   1.98201    1.67886    1.4744
  0.0  0.56  0.9968   1.39785   1.81805        0.466287   0.656559   0.85300
@@ -389,7 +388,7 @@ NaN
 </pre> <p>which would compute <code>f</code> and then take the values of <code>du</code> and update <code>u</code> with them, but that&#39;s 3 extra operations than required, whereas <code>u,du &#61; du,u</code> will change <code>u</code> to be a pointer to the updated memory and now <code>du</code> is an &quot;empty&quot; cache array that we can refill &#40;this decreases the computational cost by ~33&#37;&#41;. Let&#39;s see what the cost is with this newest version:</p> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-40.402 μs &#40;1000 allocations: 78.12 KiB&#41;
+33.703 μs &#40;1000 allocations: 78.12 KiB&#41;
 3-element Vector&#123;Float64&#125;:
   1.4744010677851374
   0.8530017039412324
@@ -397,7 +396,7 @@ NaN
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_mutate</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-9.500 μs &#40;3 allocations: 240 bytes&#41;
+7.700 μs &#40;3 allocations: 240 bytes&#41;
 3-element Vector&#123;Float64&#125;:
   1.4744010677851374
   0.8530017039412324
@@ -422,7 +421,7 @@ NaN
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -446,8 +445,8 @@ NaN
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.867 μs &#40;2 allocations: 23.48 KiB&#41;
-1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+6.551 μs &#40;2 allocations: 23.48 KiB&#41;
+1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -488,7 +487,7 @@ NaN
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -512,8 +511,8 @@ NaN
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.925 μs &#40;2 allocations: 23.48 KiB&#41;
-1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+7.576 μs &#40;2 allocations: 23.48 KiB&#41;
+1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -537,8 +536,8 @@ NaN
 </pre> <p>And we can get down to non-allocating for the loop:</p> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system</span><span class='hljl-p'>(</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-8.834 μs &#40;1 allocation: 32 bytes&#41;
-3-element StaticArrays.SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
+8.175 μs &#40;1 allocation: 32 bytes&#41;
+3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
   1.4744010677851374
   0.8530017039412324
  20.62004063423844
@@ -553,8 +552,8 @@ NaN
 </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]))}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save!</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.440 μs &#40;0 allocations: 0 bytes&#41;
-1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+6.901 μs &#40;0 allocations: 0 bytes&#41;
+1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;

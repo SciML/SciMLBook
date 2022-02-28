@@ -9,13 +9,12 @@
 </span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>InteractiveUtils</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@code_warntype</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-MethodInstance for Main.##WeaveSandBox#1801.f&#40;::Main.##WeaveSandBox#1801.My
-Struct&#41;
-  from f&#40;x&#41; in Main.##WeaveSandBox#1801 at /home/runner/work/SciMLBook/SciM
-LBook/_weave/lecture18/code_profiling.jmd:6
+MethodInstance for f&#40;::MyStruct&#41;
+  from f&#40;x&#41; in Main at /home/runner/work/SciMLBook/SciMLBook/_weave/lecture
+18/code_profiling.jmd:6
 Arguments
-  #self#::Core.Const&#40;Main.##WeaveSandBox#1801.f&#41;
-  x::Main.##WeaveSandBox#1801.MyStruct
+  #self#::Core.Const&#40;f&#41;
+  x::MyStruct
 Body::ANY
 1 ─ &#37;1 &#61; Base.getproperty&#40;x, :a&#41;::ABSTRACTARRAY
 │   &#37;2 &#61; Base.getindex&#40;&#37;1, 1&#41;::ANY
@@ -27,13 +26,12 @@ Body::ANY
 </span><span class='hljl-n'>x2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyStruct2</span><span class='hljl-p'>([</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-ni'>3</span><span class='hljl-p'>])</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@code_warntype</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>x2</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-MethodInstance for Main.##WeaveSandBox#1801.f&#40;::Main.##WeaveSandBox#1801.My
-Struct2&#123;Vector&#123;Int64&#125;&#125;&#41;
-  from f&#40;x&#41; in Main.##WeaveSandBox#1801 at /home/runner/work/SciMLBook/SciM
-LBook/_weave/lecture18/code_profiling.jmd:6
+MethodInstance for f&#40;::MyStruct2&#123;Vector&#123;Int64&#125;&#125;&#41;
+  from f&#40;x&#41; in Main at /home/runner/work/SciMLBook/SciMLBook/_weave/lecture
+18/code_profiling.jmd:6
 Arguments
-  #self#::Core.Const&#40;Main.##WeaveSandBox#1801.f&#41;
-  x::Main.##WeaveSandBox#1801.MyStruct2&#123;Vector&#123;Int64&#125;&#125;
+  #self#::Core.Const&#40;f&#41;
+  x::MyStruct2&#123;Vector&#123;Int64&#125;&#125;
 Body::Int64
 1 ─ &#37;1 &#61; Base.getproperty&#40;x, :a&#41;::Vector&#123;Int64&#125;
 │   &#37;2 &#61; Base.getindex&#40;&#37;1, 1&#41;::Int64
