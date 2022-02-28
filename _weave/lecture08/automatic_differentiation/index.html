@@ -18,9 +18,9 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 </span><span class='hljl-n'>ϵ2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>+</span><span class='hljl-n'>ϵ</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
 </span><span class='hljl-p'>(</span><span class='hljl-n'>ϵ</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>ϵ2</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-ϵ &#61; 9.693455336396095e-11
-1 &#43; ϵ &#61; 1.0000000000969345
-9.290551883142266e-17
+ϵ &#61; 7.149668984412675e-11
+1 &#43; ϵ &#61; 1.0000000000714966
+1.0341510606434741e-16
 </pre> <p>See how <span class=math >$\epsilon$</span> is only rebuilt at accuracy around <span class=math >$10^{-16}$</span> and thus we only keep around 6 digits of accuracy when it&#39;s generated at the size of around <span class=math >$10^{-10}$</span>&#33;</p> <h3>Finite Differencing and Numerical Stability</h3> <p>To start understanding how to compute derivatives on a computer, we start with <em>finite differencing</em>. For finite differencing, recall that the definition of the derivative is:</p> <p class=math >\[ f'(x) = \lim_{\epsilon \rightarrow 0} \frac{f(x+\epsilon)-f(x)}{\epsilon} \]</p> <p>Finite differencing directly follows from this definition by choosing a small <span class=math >$\epsilon$</span>. However, choosing a good <span class=math >$\epsilon$</span> is very difficult. If <span class=math >$\epsilon$</span> is too large than there is error since this definition is asymtopic. However, if <span class=math >$\epsilon$</span> is too small, you receive roundoff error. To understand why you would get roundoff error, recall that floating point error is relative, and can essentially store 16 digits of accuracy. So let&#39;s say we choose <span class=math >$\epsilon = 10^{-6}$</span>. Then <span class=math >$f(x+\epsilon) - f(x)$</span> is roughly the same in the first 6 digits, meaning that after the subtraction there is only 10 digits of accuracy, and then dividing by <span class=math >$10^{-6}$</span> simply brings those 10 digits back up to the correct relative size.</p> <p><img src="https://www.researchgate.net/profile/Jongrae_Kim/publication/267216155/figure/fig1/AS:651888458493955@1532433728729/Finite-Difference-Error-Versus-Step-Size.png" alt="" /></p> <p>This means that we want to choose <span class=math >$\epsilon$</span> small enough that the <span class=math >$\mathcal{O}(\epsilon^2)$</span> error of the truncation is balanced by the <span class=math >$O(1/\epsilon)$</span> roundoff error. Under some minor assumptions, one can argue that the average best point is <span class=math >$\sqrt(E)$</span>, where E is machine epsilon</p> <pre class='hljl'>
 <span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>sqrt</span><span class='hljl-p'>(</span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>))</span>
@@ -73,7 +73,7 @@ ERROR: MethodError: no method matching *&#40;::typeof&#40;f&#41;, ::typeof&#40;g
 Closest candidates are:
   *&#40;::Any, ::Any, &#33;Matched::Any, &#33;Matched::Any...&#41; at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/base/operators.jl:655
   *&#40;&#33;Matched::Union&#123;InitialValues.NonspecificInitialValue, InitialValues.SpecificInitialValue&#123;typeof&#40;*&#41;&#125;&#125;, ::Any&#41; at ~/.julia/packages/InitialValues/OWP8V/src/InitialValues.jl:154
-  *&#40;&#33;Matched::VectorizationBase.CartesianVIndex, ::Any&#41; at ~/.julia/packages/VectorizationBase/yDGcX/src/cartesianvindex.jl:58
+  *&#40;&#33;Matched::KrylovKit.InnerProductVec, ::Any&#41; at ~/.julia/packages/KrylovKit/YPiz7/src/innerproductvec.jl:11
   ...
 </pre> <pre class='hljl'>
 <span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>g</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-p'>)</span>
@@ -82,7 +82,7 @@ ERROR: MethodError: no method matching &#43;&#40;::typeof&#40;g&#41;, ::typeof&#
 Closest candidates are:
   &#43;&#40;::Any, ::Any, &#33;Matched::Any, &#33;Matched::Any...&#41; at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/base/operators.jl:655
   &#43;&#40;&#33;Matched::Union&#123;InitialValues.NonspecificInitialValue, InitialValues.SpecificInitialValue&#123;typeof&#40;&#43;&#41;&#125;&#125;, ::Any&#41; at ~/.julia/packages/InitialValues/OWP8V/src/InitialValues.jl:154
-  &#43;&#40;&#33;Matched::VectorizationBase.CartesianVIndex, ::Any&#41; at ~/.julia/packages/VectorizationBase/yDGcX/src/cartesianvindex.jl:58
+  &#43;&#40;&#33;Matched::ChainRulesCore.Tangent&#123;P&#125;, ::P&#41; where P at ~/.julia/packages/ChainRulesCore/IzITE/src/tangent_arithmetic.jl:146
   ...
 </pre> <h3>Performance</h3> <p>It seems like we may have introduced significant computational overhead by creating a new data structure, and associated methods. Let&#39;s see how the performance is:</p> <pre class='hljl'>
 <span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b2</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>a1</span><span class='hljl-oB'>+</span><span class='hljl-n'>b1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-oB'>+</span><span class='hljl-n'>b2</span><span class='hljl-p'>)</span>
@@ -95,7 +95,7 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>c</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>c</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>d</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-1.800 ns &#40;0 allocations: 0 bytes&#41;
+2.000 ns &#40;0 allocations: 0 bytes&#41;
 &#40;4, 6&#41;
 </pre> <pre class='hljl'>
 <span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -105,7 +105,7 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-1.800 ns &#40;0 allocations: 0 bytes&#41;
+1.500 ns &#40;0 allocations: 0 bytes&#41;
 Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre> <p>It seems like we have lost <em>no</em> performance.</p> <pre class='hljl'>
 <span class='hljl-nd'>@code_native</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span>
@@ -127,10 +127,10 @@ Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre> <pre class=output >
 .text
 ; ┌ @ automatic_differentiation.jmd:5 within &#96;add&#96;
+	movq	&#37;rdi, &#37;rax
 ; │┌ @ automatic_differentiation.jmd:2 within &#96;&#43;&#96; @ int.jl:87
 	vmovdqu	&#40;&#37;rdx&#41;, &#37;xmm0
 	vpaddq	&#40;&#37;rsi&#41;, &#37;xmm0, &#37;xmm0
-	movq	&#37;rdi, &#37;rax
 ; │└
 	vmovdqu	&#37;xmm0, &#40;&#37;rdi&#41;
 	retq
