@@ -96,5 +96,13 @@ Better wording: create a new dynamical system that converges to a value x_e such
     ```
 
 
- 
+@Simeon,  we need an example of `pmap` in a similar way
+
+@simeon: pmap has a head node which sends the data to the other processors.....
+with load balancing???
+distributed has each node setting the computation 
+
+@simeon: for computations where there is a ton of data to send around
+pmap can be very inefficient, but for this computation i hardly expect
+much difference, perhaps slightly different overheads.
 
