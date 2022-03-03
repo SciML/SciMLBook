@@ -12,6 +12,7 @@
 [HW1](https://rawcdn.githack.com/mitmath/18337/f6ded42513499741ca0906b9978f1562a402dc21/hw1/hw1.html) is out. Please also see the [Hints and Tricks](hw1/hints.md).
 
 HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
+
 HW3 = Problem 1 of [Chris R's HW2](https://book.sciml.ai/homework/02/) due March 14th on canvas. [Hints and Tricks](hw2/hints.md)
 
 # Lectures at a Glance
