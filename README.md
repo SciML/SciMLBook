@@ -13,7 +13,7 @@
 
 HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
 
-HW3 = Problem 1 of [Chris R's HW2](https://book.sciml.ai/homework/02/) due March 14th on canvas. [Hints and Tricks](hw2/hints.md)
+HW3 = Problem 1 of [Chris R's HW2](https://book.sciml.ai/homework/02/) due March 14th on canvas. [Hints and Tricks](hw2/hints2.md)
 
 # Lectures at a Glance
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
