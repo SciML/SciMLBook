@@ -35,6 +35,7 @@ const c = @SVector[0, 1/5, 3/10, 4/5, 8/9, 1, 1]
 For Part 2 of Problem 1 see [[pdf file]](https://github.com/mitmath/18337/blob/master/hw2/hw2_hint.pdf)
 I believe setting the initial conditions to 0 for the 8 new parameters should work just fine.
 
+Part 3: use the data from all the timesteps
 
 
 
