@@ -230,18 +230,18 @@ Base.:^(f::Dual, n::Integer) = Base.power_by_squaring(f, n)  # use repeated squa
 We can now define `Dual`s and manipulate them:
 
 ```julia
-f = Dual(3, 4)
-g = Dual(5, 6)
+fd = Dual(3, 4)
+gd = Dual(5, 6)
 
-f + g
+fd + gd
 ```
 
 ```julia
-f * g
+fd * gd
 ```
 
 ```julia
-f * (g + g)
+fd * (gd + gd)
 ```
 
 ### Performance
@@ -301,11 +301,11 @@ exp(f::Dual) = Dual(exp(f.val), exp(f.val) * f.der)
 ```
 
 ```julia
-f
+fd
 ```
 
 ```julia
-exp(f)
+exp(fd)
 ```
 
 ## Differentiating arbitrary functions
@@ -321,7 +321,7 @@ To to differentiate an arbitrary function, we define a generic function and then
 change the algebra.
 
 ```julia
-h(x) = x^2 + 2
+hf(x) = x^2 + 2
 a = 3
 xx = Dual(a, 1)
 ```
@@ -329,7 +329,7 @@ xx = Dual(a, 1)
 Now we simply evaluate the function `h` at the `Dual` number `xx`:
 
 ```julia
-h(xx)
+hf(xx)
 ```
 
 The first component of the resulting `Dual` is the value $h(a)$, and the
@@ -372,7 +372,7 @@ How can we extend this to higher dimensional functions? For example, we wish
 to differentiate the following function $f: \mathbb{R}^2 \to \mathbb{R}$:
 
 ```julia
-ff(x, y) = x^2 + x*y
+fquad(x, y) = x^2 + x*y
 ```
 
 Recall that the **partial derivative** $\partial f/\partial x$ is defined by
@@ -382,27 +382,27 @@ fixing $y$ and differentiating the resulting function of $x$:
 ```julia
 a, b = 3.0, 4.0
 
-ff_1(x) = ff(x, b)  # single-variable function
+fquad_1(x) = fquad(x, b)  # single-variable function
 ```
 
 Since we now have a single-variable function, we can differentiate it:
 
 ```julia
-derivative(ff_1, a)
+derivative(fquad_1, a)
 ```
 
 Under the hood this is doing
 
 ```julia
-ff(Dual(a, one(a)), b)
+fquad(Dual(a, one(a)), b)
 ```
 
 Similarly, we can differentiate with respect to $y$ by doing
 
 ```julia
-ff_2(y) = ff(a, y)  # single-variable function
+fquad_2(y) = fquad(a, y)  # single-variable function
 
-derivative(ff_2, b)
+derivative(fquad_2, b)
 ```
 
 Note that we must do **two separate calculations** to get the two partial
@@ -456,14 +456,14 @@ end
 ```
 
 ```julia
-gg(x, y) = x*x*y + x + y
+gcubic(x, y) = x*x*y + x + y
 
 (a, b) = (1.0, 2.0)
 
 xx = MultiDual(a, SVector(1.0, 0.0))
 yy = MultiDual(b, SVector(0.0, 1.0))
 
-gg(xx, yy)
+gcubic(xx, yy)
 
 ```
 
@@ -471,9 +471,9 @@ We can calculate the Jacobian of a function $\mathbb{R}^n \to \mathbb{R}^m$
 by applying this to each component function:
 
 ```julia
-ff(x, y) = SVector(x*x + y*y , x + y)
+fsvec(x, y) = SVector(x*x + y*y , x + y)
 
-ff(xx, yy)
+fsvec(xx, yy)
 ```
 
 It would be possible (and better for performance in many cases) to
@@ -706,11 +706,11 @@ function newton(f, x0)
     return x
 end
 
-ff(xx) = ( (x, y) = xx;  SVector(x^2 + y^2 - 1, x - y) )
+fsvec2(xx) = ( (x, y) = xx;  SVector(x^2 + y^2 - 1, x - y) )
 
 x0 = SVector(3.0, 5.0)
 
-x = newton(ff, x0)
+x = newton(fsvec2, x0)
 
 ```
 

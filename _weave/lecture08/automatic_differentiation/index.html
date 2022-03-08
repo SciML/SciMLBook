@@ -18,9 +18,9 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 </span><span class='hljl-n'>ϵ2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>+</span><span class='hljl-n'>ϵ</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
 </span><span class='hljl-p'>(</span><span class='hljl-n'>ϵ</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>ϵ2</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-ϵ &#61; 4.700464228165181e-11
-1 &#43; ϵ &#61; 1.0000000000470046
-1.9865071932075137e-17
+ϵ &#61; 9.923821744714743e-11
+1 &#43; ϵ &#61; 1.0000000000992382
+4.421260811274446e-17
 </pre> <p>See how <span class=math >$\epsilon$</span> is only rebuilt at accuracy around <span class=math >$10^{-16}$</span> and thus we only keep around 6 digits of accuracy when it&#39;s generated at the size of around <span class=math >$10^{-10}$</span>&#33;</p> <h3>Finite Differencing and Numerical Stability</h3> <p>To start understanding how to compute derivatives on a computer, we start with <em>finite differencing</em>. For finite differencing, recall that the definition of the derivative is:</p> <p class=math >\[ f'(x) = \lim_{\epsilon \rightarrow 0} \frac{f(x+\epsilon)-f(x)}{\epsilon} \]</p> <p>Finite differencing directly follows from this definition by choosing a small <span class=math >$\epsilon$</span>. However, choosing a good <span class=math >$\epsilon$</span> is very difficult. If <span class=math >$\epsilon$</span> is too large than there is error since this definition is asymtopic. However, if <span class=math >$\epsilon$</span> is too small, you receive roundoff error. To understand why you would get roundoff error, recall that floating point error is relative, and can essentially store 16 digits of accuracy. So let&#39;s say we choose <span class=math >$\epsilon = 10^{-6}$</span>. Then <span class=math >$f(x+\epsilon) - f(x)$</span> is roughly the same in the first 6 digits, meaning that after the subtraction there is only 10 digits of accuracy, and then dividing by <span class=math >$10^{-6}$</span> simply brings those 10 digits back up to the correct relative size.</p> <p><img src="https://www.researchgate.net/profile/Jongrae_Kim/publication/267216155/figure/fig1/AS:651888458493955@1532433728729/Finite-Difference-Error-Versus-Step-Size.png" alt="" /></p> <p>This means that we want to choose <span class=math >$\epsilon$</span> small enough that the <span class=math >$\mathcal{O}(\epsilon^2)$</span> error of the truncation is balanced by the <span class=math >$O(1/\epsilon)$</span> roundoff error. Under some minor assumptions, one can argue that the average best point is <span class=math >$\sqrt(E)$</span>, where E is machine epsilon</p> <pre class='hljl'>
 <span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>sqrt</span><span class='hljl-p'>(</span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>))</span>
@@ -60,30 +60,20 @@ f::Dual + g::Dual = Dual(f.val + g.val, f.der + g.der)
 
 </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:^</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-oB'>::</span><span class='hljl-n'>Dual</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>n</span><span class='hljl-oB'>::</span><span class='hljl-n'>Integer</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.</span><span class='hljl-nf'>power_by_squaring</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>n</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># use repeated squaring for integer powers</span>
 </pre> <p>We can now define <code>Dual</code>s and manipulate them:</p> <pre class='hljl'>
-<span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span><span class='hljl-t'>
-</span><span class='hljl-n'>g</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>5</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>6</span><span class='hljl-p'>)</span><span class='hljl-t'>
+<span class='hljl-n'>fd</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>gd</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>5</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>6</span><span class='hljl-p'>)</span><span class='hljl-t'>
 
-</span><span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span>
-</pre> <pre class=julia-error >
-ERROR: invalid redefinition of constant f
+</span><span class='hljl-n'>fd</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>gd</span>
+</pre> <pre class=output >
+Dual&#123;Int64&#125;&#40;8, 10&#41;
 </pre> <pre class='hljl'>
-<span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>g</span>
-</pre> <pre class=julia-error >
-ERROR: MethodError: no method matching *&#40;::typeof&#40;f&#41;, ::typeof&#40;g&#41;&#41;
-Closest candidates are:
-  *&#40;::Any, ::Any, &#33;Matched::Any, &#33;Matched::Any...&#41; at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/base/operators.jl:655
-  *&#40;&#33;Matched::Union&#123;InitialValues.NonspecificInitialValue, InitialValues.SpecificInitialValue&#123;typeof&#40;*&#41;&#125;&#125;, ::Any&#41; at ~/.julia/packages/InitialValues/OWP8V/src/InitialValues.jl:154
-  *&#40;&#33;Matched::SpecialFunctions.SimplePoly, ::Any&#41; at ~/.julia/packages/SpecialFunctions/ZpCCa/src/expint.jl:8
-  ...
+<span class='hljl-n'>fd</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>gd</span>
+</pre> <pre class=output >
+Dual&#123;Int64&#125;&#40;15, 38&#41;
 </pre> <pre class='hljl'>
-<span class='hljl-n'>f</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>g</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>g</span><span class='hljl-p'>)</span>
-</pre> <pre class=julia-error >
-ERROR: MethodError: no method matching &#43;&#40;::typeof&#40;g&#41;, ::typeof&#40;g&#41;&#41;
-Closest candidates are:
-  &#43;&#40;::Any, ::Any, &#33;Matched::Any, &#33;Matched::Any...&#41; at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/base/operators.jl:655
-  &#43;&#40;&#33;Matched::Union&#123;InitialValues.NonspecificInitialValue, InitialValues.SpecificInitialValue&#123;typeof&#40;&#43;&#41;&#125;&#125;, ::Any&#41; at ~/.julia/packages/InitialValues/OWP8V/src/InitialValues.jl:154
-  &#43;&#40;&#33;Matched::ChainRulesCore.Tangent&#123;P&#125;, ::P&#41; where P at ~/.julia/packages/ChainRulesCore/IzITE/src/tangent_arithmetic.jl:146
-  ...
+<span class='hljl-n'>fd</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>gd</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>gd</span><span class='hljl-p'>)</span>
+</pre> <pre class=output >
+Dual&#123;Int64&#125;&#40;30, 76&#41;
 </pre> <h3>Performance</h3> <p>It seems like we may have introduced significant computational overhead by creating a new data structure, and associated methods. Let&#39;s see how the performance is:</p> <pre class='hljl'>
 <span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b2</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>a1</span><span class='hljl-oB'>+</span><span class='hljl-n'>b1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-oB'>+</span><span class='hljl-n'>b2</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
@@ -95,7 +85,7 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>c</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>c</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>d</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-2.000 ns &#40;0 allocations: 0 bytes&#41;
+1.700 ns &#40;0 allocations: 0 bytes&#41;
 &#40;4, 6&#41;
 </pre> <pre class='hljl'>
 <span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -105,7 +95,7 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-2.000 ns &#40;0 allocations: 0 bytes&#41;
+1.600 ns &#40;0 allocations: 0 bytes&#41;
 Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre> <p>It seems like we have lost <em>no</em> performance.</p> <pre class='hljl'>
 <span class='hljl-nd'>@code_native</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span>
@@ -127,10 +117,10 @@ Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre> <pre class=output >
 .text
 ; ┌ @ automatic_differentiation.jmd:5 within &#96;add&#96;
-	movq	&#37;rdi, &#37;rax
 ; │┌ @ automatic_differentiation.jmd:2 within &#96;&#43;&#96; @ int.jl:87
 	vmovdqu	&#40;&#37;rdx&#41;, &#37;xmm0
 	vpaddq	&#40;&#37;rsi&#41;, &#37;xmm0, &#37;xmm0
+	movq	&#37;rdi, &#37;rax
 ; │└
 	vmovdqu	&#37;xmm0, &#40;&#37;rdi&#41;
 	retq
@@ -142,26 +132,21 @@ Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre> <pre class=output >
 exp &#40;generic function with 35 methods&#41;
 </pre> <pre class='hljl'>
-<span class='hljl-n'>f</span>
+<span class='hljl-n'>fd</span>
 </pre> <pre class=output >
-f &#40;generic function with 2 methods&#41;
+Dual&#123;Int64&#125;&#40;3, 4&#41;
 </pre> <pre class='hljl'>
-<span class='hljl-nf'>exp</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>)</span>
-</pre> <pre class=julia-error >
-ERROR: MethodError: no method matching exp&#40;::typeof&#40;f&#41;&#41;
-Closest candidates are:
-  exp&#40;&#33;Matched::Union&#123;Float16, Float32, Float64&#125;&#41; at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/base/special/exp.jl:296
-  exp&#40;&#33;Matched::StridedMatrix&#123;var&quot;#s859&quot;&#125; where var&quot;#s859&quot;&lt;:Union&#123;Float32, Float64, ComplexF32, ComplexF64&#125;&#41; at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/LinearAlgebra/src/dense.jl:560
-  exp&#40;&#33;Matched::StridedMatrix&#123;var&quot;#s859&quot;&#125; where var&quot;#s859&quot;&lt;:Union&#123;Integer, Complex&#123;&lt;:Integer&#125;&#125;&#41; at /opt/hostedtoolcache/julia/1.7.2/x64/share/julia/stdlib/v1.7/LinearAlgebra/src/dense.jl:561
-  ...
+<span class='hljl-nf'>exp</span><span class='hljl-p'>(</span><span class='hljl-n'>fd</span><span class='hljl-p'>)</span>
+</pre> <pre class=output >
+Dual&#123;Float64&#125;&#40;20.085536923187668, 80.34214769275067&#41;
 </pre> <h2>Differentiating arbitrary functions</h2> <p>For functions where we don&#39;t have a rule, we can recursively do dual number arithmetic within the function until we hit primitives where we know the derivative, and then use the chain rule to propagate the information back up. Under this algebra, we can represent <span class=math >$a + \epsilon$</span> as <code>Dual&#40;a, 1&#41;</code>. Thus, applying <code>f</code> to <code>Dual&#40;a, 1&#41;</code> should give <code>Dual&#40;f&#40;a&#41;, f&#39;&#40;a&#41;&#41;</code>. This is thus a 2-dimensional number for calculating the derivative without floating point error, <strong>using the compiler to transform our equations into dual number arithmetic</strong>. To to differentiate an arbitrary function, we define a generic function and then change the algebra.</p> <pre class='hljl'>
-<span class='hljl-nf'>h</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-t'>
+<span class='hljl-nf'>hf</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-t'>
 </span><span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-t'>
 </span><span class='hljl-n'>xx</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 Dual&#123;Int64&#125;&#40;3, 1&#41;
 </pre> <p>Now we simply evaluate the function <code>h</code> at the <code>Dual</code> number <code>xx</code>:</p> <pre class='hljl'>
-<span class='hljl-nf'>h</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>hf</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 Dual&#123;Int64&#125;&#40;11, 6&#41;
 </pre> <p>The first component of the resulting <code>Dual</code> is the value <span class=math >$h(a)$</span>, and the second component is the derivative, <span class=math >$h'(a)$</span>&#33;</p> <p>We can codify this into a function as follows:</p> <pre class='hljl'>
@@ -189,27 +174,27 @@ newtons&#40;2.0&#41; &#61; 1.414213562373095
 264
 Dual&#123;Float64&#125;&#40;1.414213562373095, 0.35355339059327373&#41;
 </pre> <h3>Higher dimensions</h3> <p>How can we extend this to higher dimensional functions? For example, we wish to differentiate the following function <span class=math >$f: \mathbb{R}^2 \to \mathbb{R}$</span>:</p> <pre class='hljl'>
-<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span>
+<span class='hljl-nf'>fquad</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span>
 </pre> <pre class=output >
-ff &#40;generic function with 6 methods&#41;
+fquad &#40;generic function with 1 method&#41;
 </pre> <p>Recall that the <strong>partial derivative</strong> <span class=math >$\partial f/\partial x$</span> is defined by fixing <span class=math >$y$</span> and differentiating the resulting function of <span class=math >$x$</span>:</p> <pre class='hljl'>
 <span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nfB'>3.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>4.0</span><span class='hljl-t'>
 
-</span><span class='hljl-nf'>ff_1</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># single-variable function</span>
+</span><span class='hljl-nf'>fquad_1</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>fquad</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># single-variable function</span>
 </pre> <pre class=output >
-ff_1 &#40;generic function with 1 method&#41;
+fquad_1 &#40;generic function with 1 method&#41;
 </pre> <p>Since we now have a single-variable function, we can differentiate it:</p> <pre class='hljl'>
-<span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>ff_1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>fquad_1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>a</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 10.0
 </pre> <p>Under the hood this is doing</p> <pre class='hljl'>
-<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>one</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>)),</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
+<span class='hljl-nf'>fquad</span><span class='hljl-p'>(</span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>one</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>)),</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 Dual&#123;Float64&#125;&#40;21.0, 10.0&#41;
 </pre> <p>Similarly, we can differentiate with respect to <span class=math >$y$</span> by doing</p> <pre class='hljl'>
-<span class='hljl-nf'>ff_2</span><span class='hljl-p'>(</span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># single-variable function</span><span class='hljl-t'>
+<span class='hljl-nf'>fquad_2</span><span class='hljl-p'>(</span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>fquad</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># single-variable function</span><span class='hljl-t'>
 
-</span><span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>ff_2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
+</span><span class='hljl-nf'>derivative</span><span class='hljl-p'>(</span><span class='hljl-n'>fquad_2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 3.0
 </pre> <p>Note that we must do <strong>two separate calculations</strong> to get the two partial derivatives; in general, calculating the gradient <span class=math >$\nabla$</span> of a function <span class=math >$f:\mathbb{R}^n \to \mathbb{R}$</span> requires <span class=math >$n$</span> separate calculations.</p> <h3>Implementation of higher-dimensional forward-mode AD</h3> <p>We can implement derivatives of functions <span class=math >$f: \mathbb{R}^n \to \mathbb{R}$</span> by adding several independent partial derivative components to our dual numbers.</p> <p>We can think of these as <span class=math >$\epsilon$</span> perturbations in different directions, which satisfy <span class=math >$\epsilon_i^2 = \epsilon_i \epsilon_j = 0$</span>, and we will call <span class=math >$\epsilon$</span> the vector of all perturbations. Then we have</p> <p class=math >\[ f(a + \epsilon) = f(a) + \nabla f(a) \cdot \epsilon + \mathcal{O}(\epsilon^2), \]</p> <p>where <span class=math >$a \in \mathbb{R}^n$</span> and <span class=math >$\nabla f(a)$</span> is the <strong>gradient</strong> of <span class=math >$f$</span> at <span class=math >$a$</span>, i.e. the vector of partial derivatives in each direction. <span class=math >$\nabla f(a) \cdot \epsilon$</span> is the <strong>directional derivative</strong> of <span class=math >$f$</span> in the direction <span class=math >$\epsilon$</span>.</p> <p>We now proceed similarly to the univariate case:</p> <p class=math >\[ (f + g)(a + \epsilon) = [f(a) + g(a)] + [\nabla f(a) + \nabla g(a)] \cdot \epsilon \]</p> <p class=math >\[ \begin{align} (f \cdot g)(a + \epsilon) &= [f(a) + \nabla f(a) \cdot \epsilon ] \, [g(a) + \nabla g(a) \cdot \epsilon ] \\ &= f(a) g(a) + [f(a) \nabla g(a) + g(a) \nabla f(a)] \cdot \epsilon. \end{align} \]</p> <p>We will use the <code>StaticArrays.jl</code> package for efficient small vectors:</p> <pre class='hljl'>
@@ -232,20 +217,20 @@ Dual&#123;Float64&#125;&#40;21.0, 10.0&#41;
 </pre> <pre class=output >
 * &#40;generic function with 1075 methods&#41;
 </pre> <pre class='hljl'>
-<span class='hljl-nf'>gg</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-t'>
+<span class='hljl-nf'>gcubic</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-t'>
 
 </span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>)</span><span class='hljl-t'>
 
 </span><span class='hljl-n'>xx</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>))</span><span class='hljl-t'>
 </span><span class='hljl-n'>yy</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MultiDual</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>))</span><span class='hljl-t'>
 
-</span><span class='hljl-nf'>gg</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>yy</span><span class='hljl-p'>)</span>
+</span><span class='hljl-nf'>gcubic</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>yy</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 MultiDual&#123;2, Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#41;
 </pre> <p>We can calculate the Jacobian of a function <span class=math >$\mathbb{R}^n \to \mathbb{R}^m$</span> by applying this to each component function:</p> <pre class='hljl'>
-<span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>
+<span class='hljl-nf'>fsvec</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>*</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-oB'>*</span><span class='hljl-n'>y</span><span class='hljl-t'> </span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>
 
-</span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>yy</span><span class='hljl-p'>)</span>
+</span><span class='hljl-nf'>fsvec</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>yy</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 2-element SVector&#123;2, MultiDual&#123;2, Float64&#125;&#125; with indices SOneTo&#40;2&#41;:
  MultiDual&#123;2, Float64&#125;&#40;5.0, &#91;2.0, 4.0&#93;&#41;
@@ -279,11 +264,11 @@ MultiDual&#123;2, Float64&#125;&#40;5.0, &#91;5.0, 2.0&#93;&#41;
     </span><span class='hljl-k'>return</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 
-</span><span class='hljl-nf'>ff</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>xx</span><span class='hljl-p'>;</span><span class='hljl-t'>  </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>fsvec2</span><span class='hljl-p'>(</span><span class='hljl-n'>xx</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>xx</span><span class='hljl-p'>;</span><span class='hljl-t'>  </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-p'>)</span><span class='hljl-t'>
 
 </span><span class='hljl-n'>x0</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SVector</span><span class='hljl-p'>(</span><span class='hljl-nfB'>3.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>5.0</span><span class='hljl-p'>)</span><span class='hljl-t'>
 
-</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>newton</span><span class='hljl-p'>(</span><span class='hljl-n'>ff</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-p'>)</span>
+</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>newton</span><span class='hljl-p'>(</span><span class='hljl-n'>fsvec2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x0</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 x &#61; &#91;2.1875, 2.1875&#93;
 x &#61; &#91;1.2080357142857143, 1.2080357142857143&#93;
@@ -298,4 +283,4 @@ x &#61; &#91;0.7071067811865476, 0.7071067811865476&#93;
 2-element SVector&#123;2, Float64&#125; with indices SOneTo&#40;2&#41;:
  0.7071067811865476
  0.7071067811865476
-</pre> <h2>Conclusion</h2> <p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaniously, giving a method for computing the Jacobian of a function <span class=math >$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p> <h3>References</h3> <ul> <li><p>John L. Bell, <em>An Invitation to Smooth Infinitesimal Analysis</em>, http://publish.uwo.ca/~jbell/invitation&#37;20to&#37;20SIA.pdf</p> <li><p>Bell, John L. <em>A Primer of Infinitesimal Analysis</em></p> <li><p>Nocedal &amp; Wright, <em>Numerical Optimization</em>, Chapter 8</p> <li><p>Griewank &amp; Walther, <em>Evaluating Derivatives</em></p> </ul> <p>Many thanks to David Sanders for helping make these lecture notes.</p> <div class=footer > <p> Published from <a href=automatic_differentiation.jmd >automatic_differentiation.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-02-28. </p> </div>
+</pre> <h2>Conclusion</h2> <p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaniously, giving a method for computing the Jacobian of a function <span class=math >$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p> <h3>References</h3> <ul> <li><p>John L. Bell, <em>An Invitation to Smooth Infinitesimal Analysis</em>, http://publish.uwo.ca/~jbell/invitation&#37;20to&#37;20SIA.pdf</p> <li><p>Bell, John L. <em>A Primer of Infinitesimal Analysis</em></p> <li><p>Nocedal &amp; Wright, <em>Numerical Optimization</em>, Chapter 8</p> <li><p>Griewank &amp; Walther, <em>Evaluating Derivatives</em></p> </ul> <p>Many thanks to David Sanders for helping make these lecture notes.</p> <div class=footer > <p> Published from <a href=automatic_differentiation.jmd >automatic_differentiation.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-03-08. </p> </div>
