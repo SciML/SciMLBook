@@ -11,7 +11,18 @@
 ## Announcement:
 [HW1](https://rawcdn.githack.com/mitmath/18337/f6ded42513499741ca0906b9978f1562a402dc21/hw1/hw1.html) is out. Please also see the [Hints and Tricks](hw1/hints.md).
 
-HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
+ HW: The remaining parts of HW1 (Problem 3 parts 3-5), due  Tuesday 2/22.
+
+ HW: Problem 1 of [Chris R's HW2](https://book.sciml.ai/homework/02/) due March 14th on canvas. [Hints and Tricks](hw2/hints2.md)
+
+ Project Proposal due March 30
+ 
+ HW: April 4th 2nd half of [Chris R's HW2](https://book.sciml.ai/homework/02/)
+
+ HW: April 11th first half of Chris R's HW3
+
+Final Projects due: May 9
+
 
 # Lectures at a Glance
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture |  |
@@ -25,7 +36,8 @@ HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
 |7|T|2/22| Siam PP 2022 Lecture| | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
 |8|W|2/23| ODEs |[7][7]| [[video 1]](https://www.youtube.com/watch?v=riAbPZy9gFc),[[video2]](https://www.youtube.com/watch?v=HMmOk9GIhsw)
 |9|M|2/28| Automatic Differentiation | [8][8]| [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A), [[Eig&SVD derivatives notebooks]](https://github.com/mitmath/18337/tree/master/lecture9), [[2022 IAP Class Matrix Calculus]](https://github.com/mitmath/matrixcalc)
-|10|W|3/2| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo)
+|10|W|3/2| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo),[[Performance Metrics]](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf) see p317,15.6
+|11|M|3/7| Stiff Systems | [9][9]| 
 
 [1]:https://book.sciml.ai/notes/01/
 [2]:https://book.sciml.ai/notes/02/
@@ -35,7 +47,7 @@ HW2 = The remaining parts of HW1 (Problem 3 parts 3-5), due this Tuesday.
 [6]:https://book.sciml.ai/notes/06/
 [7]:https://book.sciml.ai/notes/07/
 [8]:https://book.sciml.ai/notes/08/
-
+[9]:https://book.sciml.ai/notes/09/
 
 # Lecture Summaries and Handouts
 

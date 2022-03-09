@@ -20,8 +20,8 @@ towards the bottom of the page.
 
 For the data, you can just copy and paste (and maybe use Static Vectors):
 ```julia
-s = 7
-a = @SVector[
+const s = 7
+const a = @SVector[
     1/5,
     3/40, 9/40,
     44/45, −56/15, 32/9,
@@ -29,9 +29,13 @@ a = @SVector[
     9017/3168, −355/33, 46732/5247, 49/176, −5103/18656,
     35/384, 0, 500/1113, 125/192, −2187/6784, 11/84,
 ]
-b = @SVector[35/384, 0, 500/1113, 125/192, −2187/6784, 11/84, 0]
-c = @SVector[0, 1/5, 3/10, 4/5, 8/9, 1, 1]
+const b = @SVector[35/384, 0, 500/1113, 125/192, −2187/6784, 11/84, 0]
+const c = @SVector[0, 1/5, 3/10, 4/5, 8/9, 1, 1]
 ```
+For Part 2 of Problem 1 see [[pdf file]](https://github.com/mitmath/18337/blob/master/hw2/hw2_hint.pdf)
+I believe setting the initial conditions to 0 for the 8 new parameters should work just fine.
+
+Part 3: use the data from all the timesteps
 
 
 
