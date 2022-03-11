@@ -42,7 +42,7 @@ end
 
 # ╔═╡ ac097299-0a31-474c-ab26-a4fb24bb9046
 function Base.:^(x::Tracked, n::Int)
-	Tracked(x.val^n, :^, @λ(Δ -> (Δ * n * x.val^(n-1),)), Tracked[x,])
+	Tracked(x.val^n, Symbol("^$n"), @λ(Δ -> (Δ * n * x.val^(n-1),)), Tracked[x,])
 end
 
 # ╔═╡ 2141849b-675e-406c-8df4-34b2706507af
@@ -57,14 +57,14 @@ begin
 	# All this is just for nicer printing
 	function Base.show(io::IO, x::Tracked)
 		if x.df === nothing
-			print(io, Base.isgensym(x.name) ? x.val : x.name)
+			print(io, Base.isgensym(x.name) ? x.val : "$(x.name)=$(x.val)")
 		else
 			print(io, "Tracked(")
 			show(io, x.val)
 			print(io, ", ")
 			print(io, x.name)
-			print(io, ", ")
-			show(io, x.df)
+			#print(io, ", ")
+			#show(io, x.df)
 			print(io, ")")
 		end
 	end
@@ -72,17 +72,23 @@ begin
 end
 
 # ╔═╡ 0b5e6560-81fd-4182-bba5-aca702fb3048
-x = Tracked{Int}(3, :x)
+begin
+   x = Tracked{Int}(3, :x)
+   y  = Tracked{Int}(5,:y)
+end
 
-# ╔═╡ 63720313-9fb2-4bad-be02-d19aca43be17
-y = 2x + (x-1)^2
+# ╔═╡ 2cc054d3-470d-421c-8628-c5c2b0e5e402
+
 
 # ╔═╡ 81eb8a2d-a3a9-45af-a5a5-b96aefd48712
 y.val # The regular result of `2x + (x-1)^2`
 
 # ╔═╡ e52aa672-69a9-419b-a992-e7a3d1364fb6
 # PreOrderDFS traverses this tree from the top down
-Text.(collect(PreOrderDFS(y)))
+Text.(collect(PreOrderDFS(y*x+x^2)))
+
+# ╔═╡ f0814e23-6f75-4db8-b277-d21d4926f876
+y*x+x^2
 
 # ╔═╡ 99a3507b-ca03-429f-acde-e2d1ebb32054
 # produces a dict with all the intermediate gradient
@@ -107,7 +113,19 @@ grad(f::Tracked, x::Tracked) = grad(f)[x]
 grad(y)
 
 # ╔═╡ fc8aeed7-2806-438a-85f7-c155b0b222e6
-grad(y, x)
+#grad(y, x)
+
+# ╔═╡ a34a0941-6e7e-4a40-affa-7941c54a10b9
+y
+
+# ╔═╡ 18b1c55d-a6b5-44f6-b0b3-50bdb0aa9d96
+w = x*y + x
+
+# ╔═╡ 506d408e-dc2b-4e12-b917-286e3f4079a2
+grad(w)
+
+# ╔═╡ e8b19887-d7b6-40e4-b099-a08ddc776e74
+cumsum(1:5)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -172,12 +190,17 @@ uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 # ╠═ac097299-0a31-474c-ab26-a4fb24bb9046
 # ╠═7429ffcb-dcee-4090-972e-ffde8393a37a
 # ╠═0b5e6560-81fd-4182-bba5-aca702fb3048
-# ╠═63720313-9fb2-4bad-be02-d19aca43be17
+# ╠═2cc054d3-470d-421c-8628-c5c2b0e5e402
 # ╠═81eb8a2d-a3a9-45af-a5a5-b96aefd48712
 # ╠═e52aa672-69a9-419b-a992-e7a3d1364fb6
+# ╠═f0814e23-6f75-4db8-b277-d21d4926f876
 # ╠═99a3507b-ca03-429f-acde-e2d1ebb32054
 # ╠═d4e9b202-242e-4420-986b-12d2ab57af93
 # ╠═dc62ff81-dbb8-4416-8fc7-8878e16bdf85
 # ╠═fc8aeed7-2806-438a-85f7-c155b0b222e6
+# ╠═a34a0941-6e7e-4a40-affa-7941c54a10b9
+# ╠═18b1c55d-a6b5-44f6-b0b3-50bdb0aa9d96
+# ╠═506d408e-dc2b-4e12-b917-286e3f4079a2
+# ╠═e8b19887-d7b6-40e4-b099-a08ddc776e74
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
