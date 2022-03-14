@@ -719,3 +719,9 @@ showcases that uses higher level information can be helpful in UQ, and less
 local approaches may be necessary. We end by showcasing the Koopman operator
 as the adjoint of the pushforward of the uncertainty measure, and as an adjoint
 method it can give accelerated computations of uncertainty against cost functions.
+
+
+
+1+1
+
+
