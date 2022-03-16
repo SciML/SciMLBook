@@ -18,6 +18,10 @@
  Project Proposal due March 30
  
  HW: April 4th 2nd half of [Chris R's HW2](https://book.sciml.ai/homework/02/)
+ where the plot that he refers to is on page 318, Fig 15-10 of [ High Performance Embedded Computing Handbook chapter 15](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf), perhaps
+ also see Eq. (15.6) on the page before, and see if that works out on your computer.
+ You may try to do this on your own machine (windows users should probably
+ install the [windows  subsystem for linux](https://docs.microsoft.com/en-us/windows/wsl/about).  Others might try using [juliahub](https://juliahub.com/lp/) (see signup on piazza) or you might try [supercloud](https://supercloud.mit.edu/).
 
  HW: April 11th first half of Chris R's HW3
 
