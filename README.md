@@ -42,7 +42,9 @@ Final Projects due: May 9
 |9|M|2/28| Automatic Differentiation | [8][8]| [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A), [[Eig&SVD derivatives notebooks]](https://github.com/mitmath/18337/tree/master/lecture9), [[2022 IAP Class Matrix Calculus]](https://github.com/mitmath/matrixcalc)
 |10|W|3/2| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo),[[Performance Metrics]](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf) see p317,15.6
 |11|M|3/7| Stiff Systems | [9][9]| 
-|12|W|3/9| Forward Mode AD with matrices, Reverse Mode AD Intro |
+|12|W|3/9| [10][10] | Forward Mode AD with matrices, Reverse Mode AD Intro |
+|13|W|3/14| [11][11] |  Reverse Mode AD |
+|14|W|3/16| [13][13] | GPU Computing |
 
 [1]:https://book.sciml.ai/notes/01/
 [2]:https://book.sciml.ai/notes/02/
