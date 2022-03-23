@@ -46,7 +46,7 @@ to this when talking about performance of linear algebra.)
 
 Many algorithms in numerical
 linear algebra are designed to minimize cache misses. Because of this chain,
-many Cache misses are quite expensive the further out it goesmodern CPUs try to guess what you will want next in your cache. When
+many modern CPUs try to guess what you will want next in your cache. When
 dealing with arrays, it will speculate ahead and grab what is known as a *cache
 line*: the next chunk in the array. Thus, your algorithms will be faster if
 you iterate along the values that it is grabbing.
