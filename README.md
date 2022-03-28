@@ -45,6 +45,7 @@ Final Projects due: May 9
 |12|W|3/9|   Forward Mode AD with matrices, Reverse Mode AD Intro |[10][10] |
 |13|W|3/14|  Reverse Mode AD |[11][11] | 
 |14|W|3/16|  GPU Computing |[13][13] |
+|15|M|3/28|  More GPU Computing |
 
 [1]:https://book.sciml.ai/notes/01/
 [2]:https://book.sciml.ai/notes/02/
@@ -55,6 +56,9 @@ Final Projects due: May 9
 [7]:https://book.sciml.ai/notes/07/
 [8]:https://book.sciml.ai/notes/08/
 [9]:https://book.sciml.ai/notes/09/
+[10]:https://book.sciml.ai/notes/10/
+[11]:https://book.sciml.ai/notes/11/
+[13]:https://book.sciml.ai/notes/13/
 
 # Lecture Summaries and Handouts
 
