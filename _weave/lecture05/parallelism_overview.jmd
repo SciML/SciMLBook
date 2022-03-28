@@ -76,7 +76,7 @@ the processing of the game.
 Data handling is the key area of scientific computing where green threads
 (concurrent non-parallel threads) show up. For data handling, one may need to
 send a signal that causes a message to start being passed. Alternative hardware
-take over at that point. this alternative hardware is a processor specific
+take over at that point. This alternative hardware is a processor specific
 for an I/O bus, like the controller for the SSD, modem, GPU, or Infiniband. It will
 be polled, then it will execute the command, and give the result. There are two
 variants:
@@ -149,6 +149,7 @@ which will be something we touch on in the future.
 ### Examples of the Differences
 
 Synchronous = Thread will complete an action
+
 Blocking = Thread will wait until action is completed
 
 - Asynchronous + Non-Blocking: I/O
@@ -311,7 +312,7 @@ per thread in order to effectively accelerate a program with parallelism.
 
 ### Data-Parallel Problems
 
-So not every setup is amenable to parallelism. Dynamical systems are natorious
+So not every setup is amenable to parallelism. Dynamical systems are notorious
 for being quite difficult to parallelize because the dependency of the future
 time step on the previous time step is clear, meaning that one cannot easily
 "parallelize through time" (though it is possible, which we will study later).
@@ -374,7 +375,7 @@ end
 ```
 
 Now it's just allocating the output. The other way to do this is to use a
-*closure* which encapsolates the cache data:
+*closure* which encapsulates the cache data:
 
 ```julia
 function _compute_trajectory_mean4(u,u0,p)
@@ -583,7 +584,7 @@ to be parallel under the hood. In Julia, some examples of this are:
 - MPIArrays
 - CuArrays (GPUs)
 
-This is not a Julia specific idea either
+This is not a Julia specific idea either.
 
 ### BLAS and Standard Libraries
 
