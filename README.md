@@ -18,6 +18,10 @@
  Project Proposal due March 30
  
  HW: April 4th 2nd half of [Chris R's HW2](https://book.sciml.ai/homework/02/)
+ where the plot that he refers to is on page 318, Fig 15-10 of [ High Performance Embedded Computing Handbook chapter 15](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf), perhaps
+ also see Eq. (15.6) on the page before, and see if that works out on your computer.
+ You may try to do this on your own machine (windows users should probably
+ install the [windows  subsystem for linux](https://docs.microsoft.com/en-us/windows/wsl/about).  Others might try using [juliahub](https://juliahub.com/lp/) (see signup on piazza) or you might try [supercloud](https://supercloud.mit.edu/).
 
  HW: April 11th first half of Chris R's HW3
 
@@ -38,7 +42,10 @@ Final Projects due: May 9
 |9|M|2/28| Automatic Differentiation | [8][8]| [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A), [[Eig&SVD derivatives notebooks]](https://github.com/mitmath/18337/tree/master/lecture9), [[2022 IAP Class Matrix Calculus]](https://github.com/mitmath/matrixcalc)
 |10|W|3/2| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo),[[Performance Metrics]](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf) see p317,15.6
 |11|M|3/7| Stiff Systems | [9][9]| 
-|12|W|3/9| Forward Mode AD with matrices, Reverse Mode AD Intro |
+|12|W|3/9|   Forward Mode AD with matrices, Reverse Mode AD Intro |[10][10] |
+|13|W|3/14|  Reverse Mode AD |[11][11] | 
+|14|W|3/16|  GPU Computing |[13][13] |
+|15|M|3/28|  More GPU Computing |
 
 [1]:https://book.sciml.ai/notes/01/
 [2]:https://book.sciml.ai/notes/02/
@@ -49,6 +56,9 @@ Final Projects due: May 9
 [7]:https://book.sciml.ai/notes/07/
 [8]:https://book.sciml.ai/notes/08/
 [9]:https://book.sciml.ai/notes/09/
+[10]:https://book.sciml.ai/notes/10/
+[11]:https://book.sciml.ai/notes/11/
+[13]:https://book.sciml.ai/notes/13/
 
 # Lecture Summaries and Handouts
 
