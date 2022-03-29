@@ -317,7 +317,7 @@ Under this algebra, we can represent $a + \epsilon$ as `Dual(a, 1)`.
 Thus, applying `f` to `Dual(a, 1)` should give `Dual(f(a), f'(a))`. This is thus
 a 2-dimensional number for calculating the derivative without floating point
 error, **using the compiler to transform our equations into dual number arithmetic**.
-To to differentiate an arbitrary function, we define a generic function and then
+To differentiate an arbitrary function, we define a generic function and then
 change the algebra.
 
 ```julia
