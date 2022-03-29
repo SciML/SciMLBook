@@ -527,8 +527,8 @@ in the first place!
 
 To help speed up the convergence, a common technique is known as *preconditioning*.
 Preconditioning is the process of using a semi-inverse to the matrix in order to
-split the matrix so that the iterative problem that is being solved is one that
-is has a smaller condition number. Mathematically, it involves decomposing
+split the matrix so that the iterative problem that is being solved is one that 
+has a smaller condition number. Mathematically, it involves decomposing
 $J = P_l A P_r$ where $P_l$ and $P_r$ are the left and right preconditioners
 which have simple inverses, and thus instead of solving $Jx=v$, we would solve:
 
@@ -564,7 +564,7 @@ In simple cases, like partial differential equation discretizations of physical
 problems, the resulting ODEs are not too stiff and thus Newton's iteration
 generally works. However, in cases like stiff biological models, Newton's
 iteration can itself not always be stable enough to allow convergence. In fact,
-with many of the stiff biological models commonly used in benchmarks, not method
+with many of the stiff biological models commonly used in benchmarks, no method
 is stable enough to pass without using adaptive timestepping! Thus
 one may need to adapt the timestep in order to improve the ability for the
 Newton method to converge (smaller timesteps increase the stabiltiy of the
@@ -618,7 +618,7 @@ optimized codes tend to use a PI-control mechanism.
 Here's a quick summary of the methodologies in a hierarchical sense:
 
 - At the lowest level is the linear solve, either done by JFNK or (sparse)
-  factorization. For large enough systems, this is brunt of the work. This is
+  factorization. For large enough systems, this is the brunt of the work. This is
   thus the piece to computationally optimize as much as possible, and parallelize.
   For sparse factorizations, this can be done with a distributed sparse library
   implementation. For JFNK, the efficiency is simply due to the efficiency of
