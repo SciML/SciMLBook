@@ -32,7 +32,7 @@ And there are some scattered packages in other languages to note too, such as:
 - [pysindy](https://github.com/dynamicslab/pysindy)
 - [ADCME.jl](https://github.com/kailaix/ADCME.jl)
 
-and many more. This lecture is a quick servey on different directions that
+and many more. This lecture is a quick survey on different directions that
 people have taken so far in this field. It is by no means comprehensive.
 
 ## The Augmented Neural Ordinary Differential Equation
@@ -83,7 +83,7 @@ solver code. One such paper in this area includes
 
 ### The Universal Ordinary Differential Equation
 
-This formulation of the nueral differential equation in terms of a "knowledge-embedded"
+This formulation of the neural differential equation in terms of a "knowledge-embedded"
 structure is leading. If we already knew something about the differential equation,
 could we use that information in the differential equation definition itself?
 This leads us to the idea of the [universal differential equation](https://arxiv.org/abs/2001.04385),
@@ -93,7 +93,7 @@ differential equation.
 
 The best way to describe this object is to code up an example. As our example,
 let's say that we have a two-state system and know that the second state is defined
-by a linear ODE. This mean we want to write:
+by a linear ODE. This means we want to write:
 
 $$x' = NN(x,y)$$
 $$y' = p_1 x + p_2 y$$
@@ -161,7 +161,7 @@ DiffEqFlux.jl.
 
 The key paper on deep BSDE methods is
 [this article from PNAS](https://www.pnas.org/content/115/34/8505) by
-Jiequn Han, Arnulf Jentzen, and Weinan E. Follow up papers have
+Jiequn Han, Arnulf Jentzen, and Weinan E. Follow up papers
 [like this one](https://arxiv.org/pdf/1804.07010.pdf) have identified a larger
 context in the sense of forward-backwards SDEs for a large class of partial
 differential equations.
@@ -365,7 +365,7 @@ neural networks has a few caveats which can cause difficulties in real systems:
    meaning that results of both forward and reverse automatic differentiation
    techniques (and the related adjoints) are divergent on these kinds of systems.
 2. It is hard for neural networks to represent stiff systems. There are many
-   reasons for this, one being that neural networks [tend to drop high frequency behavior](https://arxiv.org/abs/1806.08734)
+   reasons for this, one being that neural networks [tend to drop high frequency behavior](https://arxiv.org/abs/1806.08734).
 
 There are ways being investigated to alleviate these issues. For example,
 [shadow adjoints](https://www.sciencedirect.com/science/article/pii/S0021999117304783)
@@ -497,7 +497,7 @@ estimate between points while incorporating extra scientific information.
 
 Other ways are being investigated for incorporating deep learning into the model
 discovery process. For example, extensions have been investigated where
-[elements are defined by neural networks reprsenting a basis of the Koopman operator](https://www.nature.com/articles/s41467-018-07210-0).
+[elements are defined by neural networks representing a basis of the Koopman operator](https://www.nature.com/articles/s41467-018-07210-0).
 Additionally, much work is going on in improving the efficiency of the symbolic
 regression methods themselves, and making the methods
 [implicit and parallel](https://royalsocietypublishing.org/doi/full/10.1098/rspa.2020.0279).
