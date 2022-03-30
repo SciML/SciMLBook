@@ -211,7 +211,7 @@ $$S_i = \frac{V_i}{Var[y]}$$
 
 and similary for the second, third, etc. indices.
 
-Additionally, if there are too many variables, once can compute the contribution
+Additionally, if there are too many variables, one can compute the contribution
 of $x_i$ including all of its interactions as:
 
 $$S_{T_i} = \frac{E_{X_{\sim i}}[Var[y|X_{\sim i}]]}{Var[y]} = 1 - \frac{Var_{X_{\sim i}}[E_{X_i}[y|x_{\sim i}]]}{Var[y]}$$
@@ -222,7 +222,7 @@ Notice that every single expectation has an integral in it, so the variance is
 defined as integrals of integrals, making this a very challenging calculation.
 Thus instead of directly calculating the integrals, in many cases Monte Carlo
 estimators are used. Instead of a pure Monte Carlo method, one generally uses
-a low-discrepency sequence (a form of quasi-Monte Carlo) to effectively sample
+a low-discrepancy sequence (a form of quasi-Monte Carlo) to effectively sample
 the search space.
 
 The following generates for example a *Sobol sequence*:
