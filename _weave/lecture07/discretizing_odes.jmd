@@ -478,7 +478,7 @@ u_{n+1} = u_n + \Delta t k_2
 which we can also write as:
 
 ```math
-u_{n+1} = u_n + \Delta t f(t + \frac{\Delta t}{2},u_n + \frac{\Delta t}{2} f_n)
+u_{n+1} = u_n + \Delta t f(u_n + \frac{\Delta t}{2} f_n,p,t + \frac{\Delta t}{2})
 ```
 
 where $f_n = f(u_n,p,t)$. If we do the two-dimensional Taylor expansion we get:
@@ -513,7 +513,7 @@ k_3 = f(u_n + \Delta t (a_{31} k_1 + a_{32} k_2),p,t + \Delta t c_3)\\
 u_{n+1} = u_n + \Delta t (b_1 k_1 + \ldots + b_s k_s)
 ```
 
-where $s$ is the number of stages. These tableaus can be expressed as a tableau:
+where $s$ is the number of stages. These can be expressed as a tableau:
 
 ![](https://en.wikipedia.org/wiki/List_of_Runge%E2%80%93Kutta_methods)
 
@@ -600,7 +600,7 @@ Specifically, a large part of this can be attributed to inlining of the higher o
 functions, i.e. ODEs are defined by a user function and then have to be called
 from the solver. If the solver code is compiled as a shared library ahead of
 time, like is commonly done in C++ or Fortran, then there can be a function
-call overhead that is eliminted by JIT compilation optimizing across the
+call overhead that is eliminated by JIT compilation optimizing across the
 function call barriers (known as interprocedural optimization). This is one way
 which a JIT system can outperform an AOT (ahead of time) compiled system in
 real-world code (for completeness, two other ways are by doing full function
@@ -613,9 +613,8 @@ using the runtime information of the JIT compiler to outperform C!](https://gith
 The other performance difference being shown here is due to optimization of the
 method. While a slightly different order, we can see a clear difference in the
 performance of RK4 vs the coefficient optimized methods. It's about the same
-order of magnitude as "highly optimized code differences", showing that what's
-different about a both the Runge-Kutta coefficients and the code implementation
-can both have a significant impact on performance.
+order of magnitude as "highly optimized code differences", showing that both the Runge-Kutta coefficients and the code implementation
+can have a significant impact on performance.
 
 Taking a look at what happens when interpreted languages get involved highlights
 some of the code challenges in this domain. Let's take a look at for example the
@@ -624,7 +623,7 @@ results when simulating 3 ODE systems with the various RK methods:
 ![](https://user-images.githubusercontent.com/1814174/95131785-b1549d00-072c-11eb-8d2a-490f69a4b99f.PNG)
 
 We see that using interpreted languages introduces around a 50x-100x performance
-penalty. If the you recall in your previous lecture, the discrete dynamical
+penalty. If you recall in your previous lecture, the discrete dynamical
 system that was being simulated was the 3-dimensional Lorenz equation discretized
 by Euler's method, meaning that the performance of that implementation is a good
 proxy for understanding the performance differences in this graph. Recall that
@@ -735,14 +734,14 @@ is still able to be use reasonably large stepsizes and can thus be efficient.
 
 From this we see that there is a maximal stepsize whenever the eigenvalues
 of the Jacobian are sufficiently large. It turns out that's not an issue if
-the phonomena we fast to see is fast, since then the total integration time
-tends to be small. However, is we have some equations with both fast modes
+the phenomena we see are fast, since then the total integration time
+tends to be small. However, if we have some equations with both fast modes
 and slow modes, like the Robertson equation, then it is very difficult because
 in order to resolve the slow dynamics over a long timespan, one needs to ensure
 that the fast dynamics do not diverge. This is a property known as stiffness.
 Stiffness can thus be approximated in some sense by the condition number of
 the Jacobian. The condition number of a matrix is its maximal eigenvalue divided
-by its minimal eigenvalue and gives an rough measure of the local timescale
+by its minimal eigenvalue and gives a rough measure of the local timescale
 separations. If this value is large and one wants to resolve the slow dynamics,
 then explict integrators, like the explicit Runge-Kutta methods described before,
 have issues with stability. In this case implicit integrators (or other forms
