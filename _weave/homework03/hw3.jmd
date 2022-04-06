@@ -62,7 +62,7 @@ problem, we will use the L2 loss function.
 Note that $\mu(T) = 0$ and $\lambda(T) = \frac{\partial C}{\partial u(T)}$. This
 is written in the form where the only data point is at time $T$. If that is not the
 case, the reverse solve needs to add the jump $\frac{\partial C}{\partial u(t_i)}$
-to $\lambda$ at each data point $u(t_i)$. [Use this example](https://docs.juliadiffeq.org/latest/features/callback_functions/#Example-1:-Interventions-at-Preset-Times-1)
+to $\lambda$ at each data point $u(t_i)$. [Use this example](https://diffeq.sciml.ai/stable/features/callback_functions/#Example-1:-Interventions-at-Preset-Times)
 for how to add these jumps to the equation.
 
 Using this formulation of the adjoint, it holds that
