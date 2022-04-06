@@ -23,7 +23,7 @@
  You may try to do this on your own machine (windows users should probably
  install the [windows  subsystem for linux](https://docs.microsoft.com/en-us/windows/wsl/about).  Others might try using [juliahub](https://juliahub.com/lp/) (see signup on piazza) or you might try [supercloud](https://supercloud.mit.edu/).
 
- HW: April 11th first half of Chris R's HW3
+ HW: April 11th first half of [Chris R's HW3](https://book.sciml.ai/homework/03/). Please see the [Hints and Tricks](hw4/hints.md)
 
 Final Projects due: May 9
 
