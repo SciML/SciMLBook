@@ -309,20 +309,20 @@ $\mathcal{L}_{reg}$ from a desired output, which is done by computing derivative
 Let's calculate the derivatives with respect to each quantity in reverse order.
 If our program is $f(x) = \mathcal{L}_{reg}$, then we have that
 
-$$\frac{df}{\mathcal{L}_{reg}} = 1$$
+$$\frac{df}{d\mathcal{L}_{reg}} = 1$$
 
 as the derivatives of the last layer. To computerize our notation, let's write
 
-$$\overline{\mathcal{L}_{reg}} = \frac{df}{\mathcal{L}_{reg}}$$
+$$\overline{\mathcal{L}_{reg}} = \frac{df}{d\mathcal{L}_{reg}}$$
 
 for our computed values. For the derivatives of the second to last layer, we have that:
 
 $$\begin{align}
-  \overline{\mathcal{R}} &= \frac{df}{\mathcal{L}_{reg}} \frac{d\mathcal{L}_{reg}}{\mathcal{R}}\\
+  \overline{\mathcal{R}} &= \frac{df}{d\mathcal{L}_{reg}} \frac{d\mathcal{L}_{reg}}{d\mathcal{R}}\\
                          &= \overline{\mathcal{L}_{reg}} \lambda \end{align}$$
 
 $$\begin{align}
- \overline{\mathcal{L}} &= \frac{df}{\mathcal{L}_{reg}} \frac{d\mathcal{L}_{reg}}{\mathcal{L}}\\
+ \overline{\mathcal{L}} &= \frac{df}{d\mathcal{L}_{reg}} \frac{d\mathcal{L}_{reg}}{d\mathcal{L}}\\
                         &= \overline{\mathcal{L}_{reg}} \end{align}$$
 
 This was our observation from before that the derivative of the second layer is
