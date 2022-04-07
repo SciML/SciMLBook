@@ -314,11 +314,11 @@ exp(x+\epsilon) = exp(x) + exp(x)\epsilon
 \]</p>
 <p>allows the program to skip autodifferentiating through the code for <code>exp</code>. This was simple with forward-mode since we could represent the operation on a Dual number. What&#39;s the equivalent for reverse-mode AD? The answer is the <em>pullback</em> function. If <span class="math">$y = [y_1,y_2,\ldots] = f(x_1,x_2, \ldots)$</span>, then <span class="math">$[\overline{x_1},\overline{x_2},\ldots]=\mathcal{B}_f^x(\overline{y})$</span> is the pullback of <span class="math">$f$</span> at the point <span class="math">$x$</span>, defined for a scalar loss function <span class="math">$L(y)$</span> as:</p>
 <p class="math">\[
-\overline{x_i} = \frac{\partial L}{\partial x} = \sum_i \frac{\partial L}{\partial y_i} \frac{\partial y_i}{\partial x_i}
+\overline{x_i} = \frac{\partial L}{\partial x_i} = \sum_j \frac{\partial L}{\partial y_j} \frac{\partial y_j}{\partial x_i}
 \]</p>
 <p>Using the notation from earlier, <span class="math">$\overline{y} = \frac{\partial L}{\partial y}$</span> is the derivative of the some intermediate w.r.t. the cost function, and thus</p>
 <p class="math">\[
-\overline{x_i} = \sum_i \overline{y_i} \frac{\partial y_i}{\partial x_i} = \mathcal{B}_f^x(\overline{y})
+\overline{x_i} = \sum_j \overline{y_j} \frac{\partial y_j}{\partial x_i} = \mathcal{B}_f^x(\overline{y})
 \]</p>
 <p>Note that <span class="math">$\mathcal{B}_f^x(\overline{y})$</span> is a function of <span class="math">$x$</span> because the reverse pass that is use embeds values from the forward pass, and the values from the forward pass to use are those calculated during the evaluation of <span class="math">$f(x)$</span>.</p>
 <p>By the chain rule, if we don&#39;t have a primitive defined for <span class="math">$y_i(x)$</span>, we can compute that by <span class="math">$\mathcal{B}_{y_i}(\overline{y})$</span>, and recursively apply this process until we hit rules that we know. The rules to start with are the scalar derivative rules with follow quite simply, and the multivariate rules which we derived above. For example, if <span class="math">$y=f(x)=Ax$</span>, then</p>
