@@ -507,12 +507,12 @@ function. If $y = [y_1,y_2,\ldots] = f(x_1,x_2, \ldots)$, then
 $[\overline{x_1},\overline{x_2},\ldots]=\mathcal{B}_f^x(\overline{y})$ is the
 pullback of $f$ at the point $x$, defined for a scalar loss function $L(y)$ as:
 
-$$\overline{x_i} = \frac{\partial L}{\partial x} = \sum_i \frac{\partial L}{\partial y_i} \frac{\partial y_i}{\partial x_i}$$
+$$\overline{x_i} = \frac{\partial L}{\partial x_i} = \sum_j \frac{\partial L}{\partial y_j} \frac{\partial y_j}{\partial x_i}$$
 
 Using the notation from earlier, $\overline{y} = \frac{\partial L}{\partial y}$ is the derivative
 of the some intermediate w.r.t. the cost function, and thus
 
-$$\overline{x_i} = \sum_i \overline{y_i} \frac{\partial y_i}{\partial x_i} = \mathcal{B}_f^x(\overline{y})$$
+$$\overline{x_i} = \sum_j \overline{y_j} \frac{\partial y_j}{\partial x_i} = \mathcal{B}_f^x(\overline{y})_i$$
 
 Note that $\mathcal{B}_f^x(\overline{y})$ is a function of $x$ because the
 reverse pass that is use embeds values from the forward pass, and the values
