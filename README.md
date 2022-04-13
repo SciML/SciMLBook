@@ -23,7 +23,7 @@
  You may try to do this on your own machine (windows users should probably
  install the [windows  subsystem for linux](https://docs.microsoft.com/en-us/windows/wsl/about).  Others might try using [juliahub](https://juliahub.com/lp/) (see signup on piazza) or you might try [supercloud](https://supercloud.mit.edu/).
 
- HW: April 11th first half of Chris R's HW3
+ HW: ~~April 11th~~ Wednesday, April 20th first half of [Chris R's HW3](https://book.sciml.ai/homework/03/). Please see the [Hints and Tricks](hw4/hints.md)
 
 Final Projects due: May 9
 
@@ -45,7 +45,14 @@ Final Projects due: May 9
 |12|W|3/9|   Forward Mode AD with matrices, Reverse Mode AD Intro |[10][10] |
 |13|W|3/14|  Reverse Mode AD |[11][11] | 
 |14|W|3/16|  GPU Computing |[13][13] |
-|15|M|3/28|  More GPU Computing |
+|15|M|3/28|  More GPU Computing | | [GPU Slides](https://docs.google.com/presentation/d/1npryMMe7JyLLCLdeAM3xSjLe5Q54eq0QQrZg5cxw-ds/edit?usp=sharing) [Prefix Materials](https://github.com/mitmath/18337/tree/master/lecture%2013)
+|16|W|3/30|  Convolutions and PDEs | [14][14] |
+|17|M|4/4|   Chris R on ode adjoints, PRAM Model |[11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
+|18|W|4/6|  Linear and Nonlinear System Adjoints | [11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
+|19|M|4/11|  Lagrange Multipliers, Spectral Partitioning ||  [Partitioning Slides](https://github.com/alanedelman/18.337_2018/blob/master/Lectures/Lecture13_1022_SpectralPartitioning/Partitioning.ppt)|       |
+|20|W|4/13| |[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA),[notes on adjoint](https://github.com/mitmath/18337/blob/master/lecture20/adjointpde.pdf)|
+| |M|4/18| Patriots Day Holiday, No class
+
 
 [1]:https://book.sciml.ai/notes/01/
 [2]:https://book.sciml.ai/notes/02/
@@ -59,6 +66,8 @@ Final Projects due: May 9
 [10]:https://book.sciml.ai/notes/10/
 [11]:https://book.sciml.ai/notes/11/
 [13]:https://book.sciml.ai/notes/13/
+[14]:https://book.sciml.ai/notes/14/
+[15]:https://book.sciml.ai/notes/15/
 
 # Lecture Summaries and Handouts
 
