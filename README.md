@@ -47,8 +47,12 @@ Final Projects due: May 9
 |14|W|3/16|  GPU Computing |[13][13] |
 |15|M|3/28|  More GPU Computing | | [GPU Slides](https://docs.google.com/presentation/d/1npryMMe7JyLLCLdeAM3xSjLe5Q54eq0QQrZg5cxw-ds/edit?usp=sharing) [Prefix Materials](https://github.com/mitmath/18337/tree/master/lecture%2013)
 |16|W|3/30|  Convolutions and PDEs | [14][14] |
-|17|M|4/4|   Chris R on ode adjoints |[11][11] | 
-|18|W|4/11|  Linear and Nonlinear System Adjoints | [11][11] | 
+|17|M|4/4|   Chris R on ode adjoints, PRAM Model |[11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
+|18|W|4/6|  Linear and Nonlinear System Adjoints | [11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
+|19|M|4/11|
+|20|W|4/13|
+| |M|4/18| Patriots Day Holiday, No class
+
 
 [1]:https://book.sciml.ai/notes/01/
 [2]:https://book.sciml.ai/notes/02/
