@@ -50,7 +50,7 @@ Final Projects due: May 9
 |17|M|4/4|   Chris R on ode adjoints, PRAM Model |[11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
 |18|W|4/6|  Linear and Nonlinear System Adjoints | [11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
 |19|M|4/11|  Lagrange Multipliers, Spectral Partitioning ||  [Partitioning Slides](https://github.com/alanedelman/18.337_2018/blob/master/Lectures/Lecture13_1022_SpectralPartitioning/Partitioning.ppt)|       |
-|20|W|4/13|
+|20|W|4/13| |[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA)|
 | |M|4/18| Patriots Day Holiday, No class
 
 
@@ -67,6 +67,7 @@ Final Projects due: May 9
 [11]:https://book.sciml.ai/notes/11/
 [13]:https://book.sciml.ai/notes/13/
 [14]:https://book.sciml.ai/notes/14/
+[15]:https://book.sciml.ai/notes/15/
 
 # Lecture Summaries and Handouts
 
