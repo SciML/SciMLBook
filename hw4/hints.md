@@ -43,6 +43,8 @@ Hint: `u` just appears as matrix times vector, so perhaps looking at equation (3
 Part 3 consists first of a forward pass to obtain u(t). We might recommend just saving the solution, but you can also just save u(T) and then (re)compute u in reverse with the  λ and μ.  The second requirement of Part 3 is
  a backward pass with the primary goal 
 to obtain the final value of μ(0) which is the flattened version of the gradient that we seek.
+Notice that μ would be expressed on a blackboard as a simple integral, but as a memory saving trick
+(we don't need to store the λ's, we can use them on the fly) we express this as a differential equation.
 
 Following our convention, we might recommend (you can do it either way) thinking of λ as a column vector.
 So you are solving λ' = fᵤᵀλ + (jumps when appropriate) and μ' = f_pᵀλ .  
