@@ -38,7 +38,8 @@ You can do `[vec.(B_NN(y))...]` to flatten and for unflattening, use slicing and
 Notice that equations (36) to (41) give expressions for `W̄₁, W̄₂, b̄₁, b̄₂` but while `x` serves as the `u` , in those equations it is not considered a parameter and so you will have to figure out the right expression for `ū`.
 Hint: `u` just appears as matrix times vector, so perhaps looking at equation (38) might help you see the right answer.
 
-* Part 3: Use https://diffeq.sciml.ai/stable/features/callback_library/#PresetTimeCallback for adding the jumps for $\lambda$
+* Part 3: Use https://diffeq.sciml.ai/stable/features/callback_library/#PresetTimeCallback for adding the jumps for $\lambda$.  A nice example of difeqs with jumps and how to run the software
+may be found here: https://diffeq.sciml.ai/stable/features/callback_functions/#PresetTimeCallback .
 
 Part 3 consists first of a forward pass to obtain u(t). We might recommend just saving the solution, but you can also just save u(T) and then (re)compute u in reverse with the  λ and μ.  The second requirement of Part 3 is
  a backward pass with the primary goal 
