@@ -22,6 +22,8 @@ The resulting vjp then is a vector of size m.    (Note Julia's vectors are not r
 * For part 2 see https://book.sciml.ai/notes/10/, specifically equations 36-41 will be relevant to part 2
 
 Note the input of the pullback here is a 2-vector and the output has the same shape  of the five objects, u,W1,W2,b1,b2.
+We'd recommend returning a tuple made up of `ū, W̄₁, W̄₂, b̄₁, b̄₂` from the pullback. For the ODE, you'll then need to flatten those into a vector.
+You can do `[vec.(B_NN(y))...]` to flatten them and then use slicing and perhaps reshaping (e.g. `reshape(µ[1:10], 2, 5)`) for the final µ to use in the gradient descent step to optimize the weights.
 
 
 * Part 3: Use https://diffeq.sciml.ai/stable/features/callback_library/#PresetTimeCallback for adding the jumps for $\lambda$
