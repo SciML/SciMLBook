@@ -18,9 +18,13 @@ The resulting vjp then is a vector of size m.  It could be treated as a row vect
 
 * For part 2 see https://book.sciml.ai/notes/10/, specifically equations 36-41 will be relevant to part 2
 
+Note the input of the pullback here is a 2-vector and the output has the same shape (or perhaps the transpose) of the five objects, u,W1,W2,b1,b2.
 
 
 * Part 3: Use https://diffeq.sciml.ai/stable/features/callback_library/#PresetTimeCallback for adding the jumps for $\lambda$
+
+When going forward just use t going from 0 to 1.  No need to think about the .1's just yet.
+u(0) is an arbitrary 2-vector for now, but in part 4 it will be [2,0].
 
 As a finale, compare the theoretical value of the known solution with the trained solution.
 
