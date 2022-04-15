@@ -46,7 +46,8 @@ to obtain the final value of μ(0) which is the flattened version of the gradien
 
 Following our convention, we might recommend (you can do it either way) thinking of λ as a column vector.
 So you are solving λ' = fᵤᵀλ + (jumps when appropriate) and μ' = f_pᵀλ .  
-(We won't take jumps for μ because our loss function will not depend explicitly on the parameters.)
+(We won't take jumps for μ because our loss function will not depend explicitly on the parameters, i.e., g_p=0
+.)
 
 Notice that you will not compute fᵤᵀλ but rather you will use the ū result of the pullback function that you wrote in Part 2 calling for example,    `pullback(λ,u, W₁, W, b₁, b₂)`. Don't worry the
  `W̄₁, W̄₂, b̄₁, b̄₂`   parts will not go to waste as you need them for the f_pᵀλ.
