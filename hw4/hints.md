@@ -54,7 +54,10 @@ So you are solving λ' = fᵤᵀλ + (jumps when appropriate) and μ' = f_pᵀλ
 Notice that you will not compute fᵤᵀλ but rather you will use the ū result of the pullback function that you wrote in Part 2 calling for example,    `pullback(λ,u, W₁, W, b₁, b₂)`. Don't worry the
  `W̄₁, W̄₂, b̄₁, b̄₂`   parts will not go to waste as you need them for the f_pᵀλ.
 
+
 To solve for λ you will need Cᵤ for the initial condition at T=1 and Cᵤ at 0:.1:.9 for the jumps.
+The only time you will use Cᵤ for λ is T=1, for all other λ(t) you will be solving the differential
+equation λ' = fᵤᵀλ + (jumps when appropriate), where the jumps which will also be Cᵤ.
 Anticipating part 4, we can use the explicit values Cᵤ = 2(u(t)-û(t)), where u(t) is at the forward pass and û(t) is the known theoretical solution. (Those of you who are following will note that Cᵤ plays
 the role of gᵤᵀ hence it is a column vector so λ' = fᵤᵀλ +gᵤᵀ  at the jumps.)
 
