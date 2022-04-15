@@ -12,7 +12,10 @@ A gradient (∇) of a scalar function of a column vector is traditionally a colu
 The Jacobian of the same scalar function is the corresponding row vector.  More generally
 the gradient of a scalar function of any combination of shapes has the same shapes as the input.
 
-vjp refers to vector jacobian product. (Not a great name.)  Computationally one does not often form Jacobians these days as they are too expensive, but rather vjp's.
+vjp refers to vector jacobian product. (Not a great name.
+In part because it's not clear, and in part because we are going
+to more consistently compute "Jacobian transpose"*vector.
+)  Computationally one does not often form Jacobians these days as they are too expensive, but rather vjp's.
 A function from R^n to R^m has a Jacobian that is mxn.  
 The resulting vjp then is a vector of size m.    (Note Julia's vectors are not rows or columns, they are just one dimensional.)  In one place in Chris' notes he treats it as a row vector, but more consistent and simpler is to think column vector.
 
