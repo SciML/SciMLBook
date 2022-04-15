@@ -26,7 +26,7 @@ The resulting vjp then is a vector of size m.    (Note Julia's vectors are not r
 * For part 2 see https://book.sciml.ai/notes/10/, specifically equations 36-41 will be relevant to part 2
 
 Perhaps define a function with firstline `function pullback(y,u, W₁, W, b₁, b₂)` which can be called
-`ū, W̄₁, W̄₂, b̄₁, b̄₂ = pullback(y,u, W₁, W, b₁, b₂)`.
+`ū, W̄₁, W̄₂, b̄₁, b̄₂ = pullback(y, u, W₁, W, b₁, b₂)`.
 
 Note the input `y` of the pullback here is a 2-vector and the output has the same shape  of the five objects, u,W1,W2,b1,b2.
  
@@ -51,7 +51,7 @@ So you are solving λ' = fᵤᵀλ + (jumps when appropriate) and μ' = f_pᵀλ
 (We won't take jumps for μ because our loss function will not depend explicitly on the parameters, i.e., g_p=0
 .)
 
-Notice that you will not compute fᵤᵀλ but rather you will use the ū result of the pullback function that you wrote in Part 2 calling for example,    `pullback(λ,u, W₁, W, b₁, b₂)`. Don't worry the
+Notice that you will not compute fᵤᵀλ but rather you will use the ū result of the pullback function that you wrote in Part 2 calling for example,    `pullback(λ, u, W₁, W, b₁, b₂)`. Don't worry the
  `W̄₁, W̄₂, b̄₁, b̄₂`   parts will not go to waste as you need them for the f_pᵀλ.
 
 
