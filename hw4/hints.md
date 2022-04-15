@@ -48,7 +48,7 @@ Following our convention, we might recommend (you can do it either way) thinking
 So you are solving λ' = fᵤᵀλ + (jumps when appropriate) and μ' = f_pᵀλ .  
 (We won't take jumps for μ because our loss function will not depend explicitly on the parameters.)
 
-Notice that you will not compute fᵤᵀλ but rather you will use the ū result of the pullback function that you wrote in Part 2 calling for example,    'pullback(λ,u, W₁, W, b₁, b₂)'.
+Notice that you will not compute fᵤᵀλ but rather you will use the ū result of the pullback function that you wrote in Part 2 calling for example,    `pullback(λ,u, W₁, W, b₁, b₂)`.
 
 To solve for λ you will need Cᵤ for the initial condition at T=1 and Cᵤ at 0:.1:.9 for the jumps.
 Anticipating part 4, we can use the explicit values Cᵤ = 2(u(t)-û(t)), where u(t) is at the forward pass and û(t) is the known theoretical solution. (Those of you who are following will note that Cᵤ plays
