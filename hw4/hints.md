@@ -48,7 +48,7 @@ Notice that μ would be expressed on a blackboard as a simple integral, but as a
 (we don't need to store the λ's, we can use them on the fly) we express this as a differential equation.
 
 Following our convention, we might recommend (you can do it either way) thinking of λ as a column vector.
-So you are solving λ' = fᵤᵀλ + (jumps when appropriate) and μ' = f_pᵀλ .  
+So you are solving λ' = -fᵤᵀλ + (jumps when appropriate) and μ' = -f_pᵀλ .  
 (We won't take jumps for μ because our loss function will not depend explicitly on the parameters, i.e., g_p=0
 .)
 
