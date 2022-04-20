@@ -94,7 +94,7 @@ from which we can sample points and propogate through the solver:
 
 ```julia
 _θ = rand.(θ)
-prob1 = ODEProblem(f1,u0,tspan,_θ)
+prob1 = ODEProblem(lotka_volterra,u0,tspan,_θ)
 sol = solve(prob1,Tsit5())
 plot(sol)
 ```
@@ -105,7 +105,7 @@ and from which we can get an ensemble of solutions:
 prob_func = function (prob,i,repeat)
   remake(prob,p=rand.(θ))
 end
-ensemble_prob = EnsembleProblem(ODEProblem(f1,u0,tspan,θ),
+ensemble_prob = EnsembleProblem(ODEProblem(lotka_volterra,u0,tspan,θ),
                                 prob_func = prob_func)
 sol = solve(ensemble_prob,Tsit5(),EnsembleThreads(),trajectories=1000)
 
