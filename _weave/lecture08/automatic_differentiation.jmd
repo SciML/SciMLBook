@@ -102,7 +102,7 @@ just happens to also be complex analytic when extended to the complex plane.
 Thus it has a Taylor series, and let's see what happens when we expand out this
 Taylor series purely in the complex direction:
 
-$$f(x+ih) = f(x) + f'(x)ih + \frac{1}{2}f''(x)h^2 + \mathcal{O}(h^3)$$
+$$f(x+ih) = f(x) + f'(x)ih - \frac{1}{2}f''(x)h^2 + \mathcal{O}(h^3)$$
 
 which we can re-arrange as:
 
@@ -117,8 +117,8 @@ since $Im(f(x)) = 0$ (since it's real valued, the next order term cancels for
 the same reason). Thus with a sufficiently small choice of $h$, this is the
 *complex step differentiation* formula for calculating the derivative.
 
-But to understand the computational advantage, recal that $x$ is pure real, and
-thus $x+ih$ is an imaginary number where **the $h$ never directly interacts with
+But to understand the computational advantage, recall that $x$ is pure real, and
+thus $x+ih$ is a complex number where **the $h$ never directly interacts with
 $x$** since a complex number is a two dimensional number where you keep the two
 pieces separate. Thus there is no numerical cancellation by using a small value
 of $h$, and thus, due to the relative precision of floating point numbers, both
@@ -592,13 +592,16 @@ dual numbers with vectors for the components. But if there are vectors for the
 components, then we can think of the grouping of dual components as a matrix.
 Thus define our multidimensional multi-partial dual number as:
 
-$$D0 = [d1,d2,d3,...,dn]$$
+$$D_0 = [d_1,d_2,d_3,\ldots,d_n]$$
 
-$$Sigma = [d11 d21 d31
-           d12 ...
-           ...]$$
+$$\Sigma = \begin{bmatrix}
+        d_{11} & d_{12} & \cdots & d_{1n} \\
+        d_{21} & d_{22} &  & \vdots \\
+        \vdots & & \ddots & \vdots \\
+        d_{m1} & \hdots & \hdots & d_{mn}
+    \end{bmatrix}$$
          
-$$epsilon = [epsilon_1,epsilon_2,...,epsilon_m]$$
+$$\epsilon=[\epsilon_1,\epsilon_2,\ldots,\epsilon_m]$$
 
 $$D = D_0 + \Sigma \epsilon$$
 
