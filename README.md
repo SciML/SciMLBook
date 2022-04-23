@@ -52,7 +52,7 @@ Final Projects due: May 9
 |19|M|4/11|  Lagrange Multipliers, Spectral Partitioning ||  [Partitioning Slides](https://github.com/alanedelman/18.337_2018/blob/master/Lectures/Lecture13_1022_SpectralPartitioning/Partitioning.ppt)|       |
 |20|W|4/13| |[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA),[notes on adjoint](https://github.com/mitmath/18337/blob/master/lecture20/adjointpde.pdf)|
 |21|W|4/20| 
-|22|M|4/25| Guest Lecturer: Dr. Jeremy Kepner |
+|22|M|4/25| Guest Lecturer: [Dr. Jeremy Kepner](http://www.mit.edu/~kepner/) | [Materials](https://github.com/mitmath/18337/tree/master/lecture%2022)
 
 
 [1]:https://book.sciml.ai/notes/01/
