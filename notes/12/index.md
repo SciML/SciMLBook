@@ -1,8 +1,11 @@
 +++
-title = "How Loops Work, An Introduction to Discrete Dynamics"
-descr = "In this lecture we will go over the basic properties of dynamical systems and understand their general behavior through code."
-rss = "In this lecture we will go over the basic properties of dynamical systems and understand their general behavior through code."
+title = "Introduction to MPI.jl"
+descr = "Description of MPI and MPI.jl, including demonstrations on its use."
+rss = "Description of MPI and MPI.jl, including demonstrations on its use."
 weave = true
 +++
 
-{{ insert ../_weave/lecture04/dynamical_systems.html }}
+Description of MPI and MPI.jl, including demonstrations on its use.
+
+- [MPI.jl slides](./MPI.jl.pdf)
+- [MPI.jl video](https://www.youtube.com/watch?v=LCIJj0czofo)
