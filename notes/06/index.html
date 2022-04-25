@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/tufte.css"> <link rel=stylesheet  href="/css/latex.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <link rel=stylesheet  href="/css/weave.css"> <script type="text/x-mathjax-config"> MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, TeX: { equationNumbers: { autoNumber: "AMS" } } }); </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> <title>The Different Flavors of Parallelism</title> <div id=layout > <div id=menu > <ul> <li><a style="font-size:larger;" href=https://github.com/SciML/SciMLBook><i class="fa fa-github"></i></a> <li><a style="font-size:larger;" href="/">Home</a> <li><a style="font-size:larger;" href="/course/">Course</a> <li><a style="font-size:larger;" href="/homework/">Homework</a> <li><a style="font-size:larger;" href="/lectures/">Lectures</a> <li><a style="font-size:larger;" href="/notes/">Notes</a> <ul style="font-size:smaller"> <li><a href="/notes/02/">02</a> <li><a href="/notes/03/">03</a> <li><a href="/notes/04/">04</a> <li><a href="/notes/05/">05</a> <li><a href="/notes/06/">06</a> <li><a href="/notes/07/">07</a> <li><a href="/notes/08/">08</a> <li><a href="/notes/09/">09</a> <li><a href="/notes/10/">10</a> <li><a href="/notes/11/">11</a> <li><a href="/notes/13/">13</a> <li><a href="/notes/14/">14</a> <li><a href="/notes/15/">15</a> <li><a href="/notes/16/">16</a> <li><a href="/notes/17/">17</a> <li><a href="/notes/18/">18</a> <li><a href="/notes/19/">19</a> </ul> </ul> </div> <div id=main > <div class=franklin-content > <h1 class=title >The Different Flavors of Parallelism</h1> <h5>Chris Rackauckas</h5> <h5>September 25th, 2020</h5> <h2><a href="https://youtu.be/EP5VWwPIews">Youtube Video Link</a></h2> <p>Now that you are aware of the basics of parallel computing, let&#39;s give a high level overview of the differences between different modes of parallelism.</p> <h2>Lowest Level: SIMD</h2> <p>Recall SIMD, the idea that processors can run multiple commands simultaneously on specially structured data. &quot;Single Instruction Multiple Data&quot;. SIMD is parallelism within a single core.</p> <h3>High Level Idea of SIMD</h3> <p>Calculations can occur in parallel in the processor if there is sufficient structure in the computation.</p> <h3>How to do SIMD</h3> <p>The simplest way to do SIMD is simply to make sure that your values are aligned. If they are, then great, LLVM&#39;s autovectorizer pass has a good chance of automatic vectorization &#40;in the world of computing, &quot;SIMD&quot; is synonymous with vectorization since it is taking specific values and instead computing on small vectors. That is not to be confused with &quot;vectorization&quot; in the sense of Python/R/MATLAB, which is a programming style which prefers using C-defined primitive functions, like broadcast or matrix multiplication&#41;.</p> <p>You can check for auto-vectorization inside of the LLVM IR by looking for statements like:</p> <pre><code>&#37;wide.load24 &#61; load &lt;4 x double&gt;, &lt;4 x double&gt; addrspac&#40;13&#41;* &#37;46, align 8
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/tufte.css"> <link rel=stylesheet  href="/css/latex.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <link rel=stylesheet  href="/css/weave.css"> <script type="text/x-mathjax-config"> MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, TeX: { equationNumbers: { autoNumber: "AMS" } } }); </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> <title>The Different Flavors of Parallelism</title> <div id=layout > <div id=menu > <ul> <li><a style="font-size:larger;" href=https://github.com/SciML/SciMLBook><i class="fa fa-github"></i></a> <li><a style="font-size:larger;" href="/">Home</a> <li><a style="font-size:larger;" href="/course/">Course</a> <li><a style="font-size:larger;" href="/homework/">Homework</a> <li><a style="font-size:larger;" href="/lectures/">Lectures</a> <li><a style="font-size:larger;" href="/notes/">Notes</a> <ul style="font-size:smaller"> <li><a href="/notes/02/">02</a> <li><a href="/notes/03/">03</a> <li><a href="/notes/04/">04</a> <li><a href="/notes/05/">05</a> <li><a href="/notes/06/">06</a> <li><a href="/notes/07/">07</a> <li><a href="/notes/08/">08</a> <li><a href="/notes/09/">09</a> <li><a href="/notes/10/">10</a> <li><a href="/notes/11/">11</a> <li><a href="/notes/12/">12</a> <li><a href="/notes/13/">13</a> <li><a href="/notes/14/">14</a> <li><a href="/notes/15/">15</a> <li><a href="/notes/16/">16</a> <li><a href="/notes/17/">17</a> <li><a href="/notes/18/">18</a> <li><a href="/notes/19/">19</a> </ul> </ul> </div> <div id=main > <div class=franklin-content > <h1 class=title >The Different Flavors of Parallelism</h1> <h5>Chris Rackauckas</h5> <h5>September 25th, 2020</h5> <h2><a href="https://youtu.be/EP5VWwPIews">Youtube Video Link</a></h2> <p>Now that you are aware of the basics of parallel computing, let&#39;s give a high level overview of the differences between different modes of parallelism.</p> <h2>Lowest Level: SIMD</h2> <p>Recall SIMD, the idea that processors can run multiple commands simultaneously on specially structured data. &quot;Single Instruction Multiple Data&quot;. SIMD is parallelism within a single core.</p> <h3>High Level Idea of SIMD</h3> <p>Calculations can occur in parallel in the processor if there is sufficient structure in the computation.</p> <h3>How to do SIMD</h3> <p>The simplest way to do SIMD is simply to make sure that your values are aligned. If they are, then great, LLVM&#39;s autovectorizer pass has a good chance of automatic vectorization &#40;in the world of computing, &quot;SIMD&quot; is synonymous with vectorization since it is taking specific values and instead computing on small vectors. That is not to be confused with &quot;vectorization&quot; in the sense of Python/R/MATLAB, which is a programming style which prefers using C-defined primitive functions, like broadcast or matrix multiplication&#41;.</p> <p>You can check for auto-vectorization inside of the LLVM IR by looking for statements like:</p> <pre><code>&#37;wide.load24 &#61; load &lt;4 x double&gt;, &lt;4 x double&gt; addrspac&#40;13&#41;* &#37;46, align 8
 ; └
 ; ┌ @ float.jl:395 within &#96;&#43;&#39;
 &#37;47 &#61; fadd &lt;4 x double&gt; &#37;wide.load, &#37;wide.load24</code></pre> <p>which means that 4 additions are happening simultaneously. The amount of vectorization is heavily dependent on your architecture. The ancient form of SIMD, the SSE&#40;2&#41; instructions, required that your data was aligned. Now there&#39;s a bit more leeway, but generally it holds that making your the data you&#39;re trying to SIMD over is aligned. Thus there can be major differences in computing using a <em>struct of array</em> format instead of an <em>arrays of structs</em> format. For example:</p> <pre class='hljl'>
@@ -9,26 +9,26 @@
 </span><span class='hljl-n'>arr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>())</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-p'>]</span>
 </pre> <pre class=output >
 100-element Vector&#123;MyComplex&#125;:
- MyComplex&#40;0.24835472796012215, 0.7205741672896995&#41;
- MyComplex&#40;0.9951346749170901, 0.4418752399941145&#41;
- MyComplex&#40;0.5028207219878775, 0.20558409659320975&#41;
- MyComplex&#40;0.14788324309646783, 0.19883718833357134&#41;
- MyComplex&#40;0.4798189256027817, 0.7039205704528071&#41;
- MyComplex&#40;0.6737875753250588, 0.25142261876705785&#41;
- MyComplex&#40;0.8064425640127151, 0.6428512415771144&#41;
- MyComplex&#40;0.8013503260228916, 0.8051015453558804&#41;
- MyComplex&#40;0.30648849520773935, 0.5438677393476793&#41;
- MyComplex&#40;0.09728941513267497, 0.48472377175294235&#41;
+ MyComplex&#40;0.4210809016440228, 0.4005372271555717&#41;
+ MyComplex&#40;0.8155355695735873, 0.35668030762111624&#41;
+ MyComplex&#40;0.3153157880628529, 0.26903224172813345&#41;
+ MyComplex&#40;0.33664484248576665, 0.025403427981726456&#41;
+ MyComplex&#40;0.26253512797559275, 0.47403094521018097&#41;
+ MyComplex&#40;0.2607297382817949, 0.4336893129042908&#41;
+ MyComplex&#40;0.2298504779005337, 0.9231359903580212&#41;
+ MyComplex&#40;0.23547150527109084, 0.5514230474619234&#41;
+ MyComplex&#40;0.37472826881222865, 0.5350774841842308&#41;
+ MyComplex&#40;0.8385939540188521, 0.5547273604178986&#41;
  ⋮
- MyComplex&#40;0.013805030957446673, 0.6058228839395153&#41;
- MyComplex&#40;0.7975513464327137, 0.9491060271268482&#41;
- MyComplex&#40;0.736583843489915, 0.10322997576896098&#41;
- MyComplex&#40;0.5240730978174891, 0.27540177503350816&#41;
- MyComplex&#40;0.4632564453832183, 0.4799190141252636&#41;
- MyComplex&#40;0.47829123370715954, 0.9728019485664589&#41;
- MyComplex&#40;0.3566990456391812, 0.07920767949770102&#41;
- MyComplex&#40;0.05649794326605595, 0.9356322162070676&#41;
- MyComplex&#40;0.06680031415858045, 0.3983977618058563&#41;
+ MyComplex&#40;0.06514207354792245, 0.1653718557988264&#41;
+ MyComplex&#40;0.11542782069091162, 0.6567184373824884&#41;
+ MyComplex&#40;0.9527323551754793, 0.23328944764297876&#41;
+ MyComplex&#40;0.575261902354638, 0.017836401873697283&#41;
+ MyComplex&#40;0.9604721393904931, 0.21676911314920366&#41;
+ MyComplex&#40;0.47625895519153716, 0.7526414853760719&#41;
+ MyComplex&#40;0.8411996274181338, 0.3056029092649293&#41;
+ MyComplex&#40;0.5574079363604457, 0.1384222911265227&#41;
+ MyComplex&#40;0.976522550095319, 0.159156511224831&#41;
 </pre> <p>is represented in memory as</p> <pre><code>&#91;real1,imag1,real2,imag2,...&#93;</code></pre>
 <p>while the struct of array formats are</p>
 
@@ -43,18 +43,18 @@
 
 
 <pre class=output >
-MyComplexes&#40;&#91;0.7628796149090418, 0.35530385234827566, 0.8823862865755042, 0
-.43021489714203887, 0.8365928946363123, 0.9124488677053549, 0.1549942672363
-6722, 0.0632941961831861, 0.5482286855166109, 0.7579703581942488  …  0.3371
-520628032565, 0.9732163640293674, 0.44572935048582585, 0.07979470752929174,
- 0.37542922994326555, 0.0840526650756881, 0.6754295991434017, 0.65882010366
-28688, 0.22125911973691248, 0.3722978937050594&#93;, &#91;0.02333411802275842, 0.72
-80660831084387, 0.15668192066140596, 0.24291525854558627, 0.56674552036226,
- 0.03590413945410642, 0.5929863319186823, 0.3429974312697529, 0.29910259660
-60018, 0.5174396101075879  …  0.31720771048899543, 0.9129467959842811, 0.16
-321620547202798, 0.7255511437965743, 0.10353123692960697, 0.171183438925841
-3, 0.5284033226703773, 0.8155175640895261, 0.12571647723138824, 0.927655665
-4470456&#93;&#41;
+MyComplexes&#40;&#91;0.5877836226034953, 0.11993092350158208, 0.7960010254448964, 0
+.8591824369954898, 0.1149976798650102, 0.5889936645378312, 0.74120758252373
+96, 0.02775505286138158, 0.5959787906963638, 0.15626825137945044  …  0.9685
+28732623467, 0.838838586837447, 0.2563284256359918, 0.20715707629449476, 0.
+2938354112344601, 0.31314194966006526, 0.7708850382581329, 0.10415920535426
+97, 0.2773407084871644, 0.8698592477231751&#93;, &#91;0.4195099062325014, 0.9078171
+217033457, 0.09107224269989345, 0.2604502906742364, 0.47535419576333804, 0.
+647342485292807, 0.66272591486428, 0.8795801270329177, 0.8100168718947505, 
+0.010152400942335937  …  0.25881962509656264, 0.8303436141058063, 0.3424125
+0907418697, 0.2274015981790133, 0.6780964690033882, 0.5620875030369513, 0.2
+509637069306797, 0.1797349933172665, 0.7959584143737168, 0.9228592551519947
+&#93;&#41;
 </pre>
 
 
@@ -73,7 +73,7 @@ MyComplexes&#40;&#91;0.7628796149090418, 0.35530385234827566, 0.8823862865755042
 <pre class=output >
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:5 within &#96;average&#96;
-define void @julia_average_16227&#40;&#91;2 x double&#93;* noalias nocapture sret&#40;&#91;2 x 
+define void @julia_average_16220&#40;&#91;2 x double&#93;* noalias nocapture sret&#40;&#91;2 x 
 double&#93;&#41; &#37;0, &#123;&#125;* nonnull align 16 dereferenceable&#40;40&#41; &#37;1&#41; #0 &#123;
 top:
   &#37;2 &#61; alloca &#91;4 x &#123;&#125;*&#93;, align 8
@@ -107,21 +107,21 @@ top:
 L8:                                               ; preds &#61; &#37;top
 ; │││││││││└
 ; │││││││││┌ @ reduce.jl:402 within &#96;_mapreduce&#96;
-            store &#123;&#125;* inttoptr &#40;i64 140321146720576 to &#123;&#125;*&#41;, &#123;&#125;** &#37;.sub, al
+            store &#123;&#125;* inttoptr &#40;i64 140583293514048 to &#123;&#125;*&#41;, &#123;&#125;** &#37;.sub, al
 ign 8
             &#37;8 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i6
 4 1
-            store &#123;&#125;* inttoptr &#40;i64 140321166045888 to &#123;&#125;*&#41;, &#123;&#125;** &#37;8, align
+            store &#123;&#125;* inttoptr &#40;i64 140583312839360 to &#123;&#125;*&#41;, &#123;&#125;** &#37;8, align
  8
             &#37;9 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i6
 4 2
             store &#123;&#125;* &#37;1, &#123;&#125;** &#37;9, align 8
             &#37;10 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i
 64 3
-            store &#123;&#125;* inttoptr &#40;i64 140321145690880 to &#123;&#125;*&#41;, &#123;&#125;** &#37;10, alig
+            store &#123;&#125;* inttoptr &#40;i64 140583292484352 to &#123;&#125;*&#41;, &#123;&#125;** &#37;10, alig
 n 8
-            &#37;11 &#61; call nonnull &#123;&#125;* @jl_invoke&#40;&#123;&#125;* inttoptr &#40;i64 14032114706
-4880 to &#123;&#125;*&#41;, &#123;&#125;** nonnull &#37;.sub, i32 4, &#123;&#125;* inttoptr &#40;i64 140319270693680 
+            &#37;11 &#61; call nonnull &#123;&#125;* @jl_invoke&#40;&#123;&#125;* inttoptr &#40;i64 14058329385
+8352 to &#123;&#125;*&#41;, &#123;&#125;** nonnull &#37;.sub, i32 4, &#123;&#125;* inttoptr &#40;i64 140581326860096 
 to &#123;&#125;*&#41;&#41;
             call void @llvm.trap&#40;&#41;
             unreachable
@@ -203,7 +203,7 @@ L42:                                              ; preds &#61; &#37;L14
 ; │││││││││└
 ; │││││││││┌ @ reduce.jl:417 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:259 within &#96;mapreduce_impl&#96;
-             call void @j_mapreduce_impl_16229&#40;&#91;2 x double&#93;* noalias nocapt
+             call void @j_mapreduce_impl_16222&#40;&#91;2 x double&#93;* noalias nocapt
 ure nonnull sret&#40;&#91;2 x double&#93;&#41; &#37;tmpcast, &#123;&#125;* nonnull &#37;1, i64 signext 1, i64
  signext &#37;7, i64 signext 1024&#41; #0
 ; └└└└└└└└└└└
@@ -383,7 +383,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-164.001 μs &#40;6 allocations: 544 bytes&#41;
+182.215 μs &#40;6 allocations: 544 bytes&#41;
 </pre>
 
 
@@ -396,7 +396,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-471.617 μs &#40;6 allocations: 544 bytes&#41;
+533.845 μs &#40;6 allocations: 544 bytes&#41;
 </pre>
 
 
@@ -409,7 +409,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-63.700 μs &#40;6 allocations: 544 bytes&#41;
+70.705 μs &#40;6 allocations: 544 bytes&#41;
 </pre>
 
 
@@ -422,7 +422,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-3.987 μs &#40;0 allocations: 0 bytes&#41;
+3.772 μs &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -437,13 +437,13 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 <pre class=output >
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:26 within &#96;h&#96;
-define void @julia_h_16411&#40;&#41; #0 &#123;
+define void @julia_h_16404&#40;&#41; #0 &#123;
 top:
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:29 within &#96;h&#96;
 ; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
 ; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 140320518486944 to i64*&#41;, align 32
+    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 140582747550112 to i64*&#41;, align 32
 ; └└
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:28 within &#96;h&#96;
@@ -462,7 +462,7 @@ lelism.jmd:29 within &#96;h&#96;
 ; └
 ; ┌ @ refvalue.jl:57 within &#96;setindex&#33;&#96;
 ; │┌ @ Base.jl:43 within &#96;setproperty&#33;&#96;
-    store i64 &#37;1, i64* inttoptr &#40;i64 140320518486944 to i64*&#41;, align 32
+    store i64 &#37;1, i64* inttoptr &#40;i64 140582747550112 to i64*&#41;, align 32
 ; └└
 ; ┌ @ range.jl:837 within &#96;iterate&#96;
 ; │┌ @ promotion.jl:468 within &#96;&#61;&#61;&#96;
@@ -495,7 +495,7 @@ L19:                                              ; preds &#61; &#37;L2
 
 
 <pre class=output >
-3.350 μs &#40;0 allocations: 0 bytes&#41;
+3.738 μs &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -508,13 +508,13 @@ L19:                                              ; preds &#61; &#37;L2
 <pre class=output >
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:3 within &#96;h2&#96;
-define void @julia_h2_16419&#40;&#41; #0 &#123;
+define void @julia_h2_16412&#40;&#41; #0 &#123;
 top:
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:6 within &#96;h2&#96;
 ; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
 ; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;0 &#61; load i64, i64* inttoptr &#40;i64 140319220224224 to i64*&#41;, align 32
+    &#37;0 &#61; load i64, i64* inttoptr &#40;i64 140581329933200 to i64*&#41;, align 16
 ; └└
 ; ┌ @ range.jl:5 within &#96;Colon&#96;
 ; │┌ @ range.jl:354 within &#96;UnitRange&#96;
@@ -529,7 +529,7 @@ L14.preheader:                                    ; preds &#61; &#37;top
 lelism.jmd:7 within &#96;h2&#96;
 ; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
 ; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 140320518486944 to i64*&#41;, align 32
+    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 140582747550112 to i64*&#41;, align 32
 ; └└
   br label &#37;L14
 
@@ -545,7 +545,7 @@ eader
 ; └
 ; ┌ @ refvalue.jl:57 within &#96;setindex&#33;&#96;
 ; │┌ @ Base.jl:43 within &#96;setproperty&#33;&#96;
-    store i64 &#37;3, i64* inttoptr &#40;i64 140320518486944 to i64*&#41;, align 32
+    store i64 &#37;3, i64* inttoptr &#40;i64 140582747550112 to i64*&#41;, align 32
 ; └└
 ; ┌ @ range.jl:837 within &#96;iterate&#96;
 ; │┌ @ promotion.jl:468 within &#96;&#61;&#61;&#96;
@@ -579,7 +579,7 @@ L31:                                              ; preds &#61; &#37;L14, &#37;t
 
 
 <pre class=output >
-3.525 μs &#40;0 allocations: 0 bytes&#41;
+3.901 μs &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -962,7 +962,7 @@ ERROR: UndefVarError: cuC not defined
 <div class=footer >
   <p>
     Published from <a href=styles_of_parallelism.jmd >styles_of_parallelism.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-04-21.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-04-25.
   </p>
 </div>
 

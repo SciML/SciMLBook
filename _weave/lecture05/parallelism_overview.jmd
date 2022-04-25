@@ -432,7 +432,7 @@ const _u_cache_threads = [Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000) fo
 function compute_trajectory_mean5(u0,p)
   # u is automatically captured
   solve_system_save!(_u_cache_threads[Threads.threadid()],lorenz,u0,p,1000);
-  mean(_u_cache)
+  mean(_u_cache_threads[Threads.threadid()])
 end
 @btime compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p)
 ```
