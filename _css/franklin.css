@@ -12,6 +12,7 @@
   --color-green:      #389826;
   --color-purple:     #9558b2;
   --color-blue:       #4063d8;
+  --color-green-light: #c0edd4;
 }
 
 /* ==================================================================
@@ -367,4 +368,20 @@ code {
   margin-bottom: 5px;
   border-radius: 0 10px 10px 0;
   border-left: 5px solid var(--color-blue);
+}
+
+.admonition-note {
+  border-left: solid;
+  border-left-color: var(--color-green);
+  /* background-color: var(--color-green-light); */
+  padding-left: 10px;
+}
+
+.admonition-note h3 {
+  color: var(--color-green);
+  /* text-decoration: underline; */
+}
+
+.admonition-body a {
+  background-color: var(--color-green-light);
 }
