@@ -54,7 +54,9 @@ Final Projects due: May 9
 |21|W|4/20| Geometric Partitioning |
 |22|M|4/25| Guest Lecturer: [Dr. Jeremy Kepner](http://www.mit.edu/~kepner/) | [Materials](https://github.com/mitmath/18337/tree/master/lecture%2022)
 |23|W|4/27| Probabilistic Programming | [16][16] | [[video](https://www.youtube.com/watch?v=32rAwtTAGdU)]
-
+|24|M|5/2|
+|25|W|5/4|
+|26|M|5/9| Last Day of Classes|
 
 
 [1]:https://book.sciml.ai/notes/01/
