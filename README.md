@@ -50,9 +50,11 @@ Final Projects due: May 9
 |17|M|4/4|   Chris R on ode adjoints, PRAM Model |[11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
 |18|W|4/6|  Linear and Nonlinear System Adjoints | [11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
 |19|M|4/11|  Lagrange Multipliers, Spectral Partitioning ||  [Partitioning Slides](https://github.com/alanedelman/18.337_2018/blob/master/Lectures/Lecture13_1022_SpectralPartitioning/Partitioning.ppt)|       |
-|20|W|4/13| |[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA),[notes on adjoint](https://github.com/mitmath/18337/blob/master/lecture20/adjointpde.pdf)|
-|21|W|4/20| 
+|20|W|4/13| Physics Informed Learning|[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA),[notes on adjoint](https://github.com/mitmath/18337/blob/master/lecture20/adjointpde.pdf)|
+|21|W|4/20| Geometric Partitioning |
 |22|M|4/25| Guest Lecturer: [Dr. Jeremy Kepner](http://www.mit.edu/~kepner/) | [Materials](https://github.com/mitmath/18337/tree/master/lecture%2022)
+|23|W|4/27| Probabilistic Programming | [16][16] | [[video](https://www.youtube.com/watch?v=32rAwtTAGdU)]
+
 
 
 [1]:https://book.sciml.ai/notes/01/
@@ -69,6 +71,7 @@ Final Projects due: May 9
 [13]:https://book.sciml.ai/notes/13/
 [14]:https://book.sciml.ai/notes/14/
 [15]:https://book.sciml.ai/notes/15/
+[16]:https://book.sciml.ai/notes/16/
 
 # Lecture Summaries and Handouts
 
