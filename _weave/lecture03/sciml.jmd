@@ -375,13 +375,13 @@ the Flux callable struct style from above, the weights are those inside of the
 `NN` chain object, which we can inspect:
 
 ```julia
-NN[1].weights # The W matrix of the first layer
+NN[1].weight # The W matrix of the first layer
 ```
 
 Now let's grab all of the parameters together:
 
 ```julia
-p = params(NN)
+p = Flux.params(NN)
 ```
 
 That's a helper function on `Chain` which recursively gathers all of the defining
