@@ -7,18 +7,18 @@ assignees: ''
 
 ---
 
-**Suggest Correction**
-A clear and concise description of what corrections are needed.
+**Suggestion**
+<!-- A clear and concise description of what corrections are needed. -->
 
-**Identify**
-- Chapter number
-- Section (lectures, notes, link, etc.)
+**Identification**
+<!-- - Chapter number -->
+<!-- - Section (lectures, notes, link, etc.) -->
 
-**Suggested Correction**
-A clear and concise description of what would correct this issue.
+**Correction**
+<!-- A clear and concise description of what would correct this issue. -->
 
 **Screenshots**
-If applicable, add screenshots to help explain.
+<!-- If applicable, add screenshots to help explain. -->
 
 **Additional context**
-Add any other context about the problem here.
+<!-- Add any other context about the problem here. -->
