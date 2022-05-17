@@ -112,7 +112,7 @@ $$\ddot{\theta} + \frac{g}{L} \sin(\theta) = 0$$
 
 ```julia
 using OrdinaryDiffEq, Measurements
-g = 9.79 ± 0.02; # Gravitational constants
+gaccel = 9.79 ± 0.02; # Gravitational constants
 L = 1.00 ± 0.01; # Length of the pendulum
 
 #Initial Conditions
@@ -124,7 +124,7 @@ function simplependulum(du,u,p,t)
     θ  = u[1]
     dθ = u[2]
     du[1] = dθ
-    du[2] = -(g/L) * sin(θ)
+    du[2] = -(gaccel/L) * sin(θ)
 end
 
 #Pass to solvers
@@ -225,7 +225,7 @@ would expect given the actual uncertainties seen in practice. One phonomena
 which causes this can be seen by looking at that pendulum:
 
 ```julia
-g = 9.77..9.81; # Gravitational constants
+gaccel = 9.77..9.81; # Gravitational constants
 L = 0.99..1.01; # Length of the pendulum
 
 #Initial Conditions
@@ -237,7 +237,7 @@ function simplependulum(du,u,p,t)
     θ  = u[1]
     dθ = u[2]
     du[1] = dθ
-    du[2] = -(g/L) * sin(θ)
+    du[2] = -(gaccel/L) * sin(θ)
 end
 
 #Pass to solvers
@@ -257,7 +257,7 @@ intervals. If we only used this to measure the uncertainty of the floating
 point arithmetic, then the intervals are much better contained:
 
 ```julia
-g = 9.8..9.8; # Gravitational constants
+gaccel = 9.8..9.8; # Gravitational constants
 L = 1.0..1.0; # Length of the pendulum
 
 #Initial Conditions
@@ -269,7 +269,7 @@ function simplependulum(du,u,p,t)
     θ  = u[1]
     dθ = u[2]
     du[1] = dθ
-    du[2] = -(g/L) * sin(θ)
+    du[2] = -(gaccel/L) * sin(θ)
 end
 
 #Pass to solvers
