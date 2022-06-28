@@ -14,7 +14,7 @@ weave_options:
 Now that we have a sense of parallelism, let's return back to our thread on
 scientific machine learning to start constructing parallel algorithms for
 integration of scientific models. We previously introduced discrete dynamical
-systems and their asymtopic behavior. However, many physical systems are not
+systems and their asymptotic behavior. However, many physical systems are not
 discrete and are in fact continuous. In this discussion we will understand how
 to numerically compute ordinary differential equations by transforming them into
 discrete dynamical systems, and use this to come up with simulation techniques
@@ -238,7 +238,7 @@ plot(sol)
 ### Biochemistry: Robertson Equations
 
 Biochemical equations commonly display large separation of timescales which lead
-to a stiffness phonomena that will be investigated later. The classic "hard"
+to a stiffness phenomena that will be investigated later. The classic "hard"
 equations for ODE integration thus tend to come from biology (not physics!)
 due to this property. One of the standard models is the Robertson model, which
 can be described as:
@@ -391,7 +391,7 @@ discrete dynamics case. Let $u$ be a vector and have
 
 $$u' = Au$$
 
-be a linear ordinary differential equation. Assuming $A$ is diagonaliziable,
+be a linear ordinary differential equation. Assuming $A$ is diagonalizable,
 we diagonalize $A = P^{-1}DP$ to get
 
 $$Pu' = DPu$$
@@ -409,7 +409,7 @@ discrete dynamical system, we have that:
 
 ### Nonlinear Ordinary Differential Equations
 
-As with discerte dynamical systems, the geometric properties extend locally to
+As with discrete dynamical systems, the geometric properties extend locally to
 the linearization of the continuous dynamical system as defined by:
 
 $$u' = \frac{df}{du} u$$
@@ -538,7 +538,7 @@ u_{n+1} = u_n + \frac{\Delta t}{6}(k_1 + 2 k_2 + 2 k_3 + k_4)\\
 While it's widely known and simple to remember, it's not necessarily good. The
 way to judge a Runge-Kutta method is by looking at the size of the coefficient
 of the next term in the Taylor series: if it's large then the true error can
-be larger, even if it matches another one asymtopically.
+be larger, even if it matches another one asymptotically.
 
 ## What Makes a Good Method?
 
@@ -549,7 +549,7 @@ For given orders of explicit Runge-Kutta methods, lower bounds for the number of
 
 ![](https://user-images.githubusercontent.com/1814174/95117078-f8836380-0715-11eb-9acf-0626338307d1.PNG)
 
-While uninuitive, using the method is not necessarily the one that reduces the
+While unintuitive, using the method is not necessarily the one that reduces the
 coefficient the most. The reason is because what is attempted in ODE solving
 is precisely the opposite of the analysis. In the ODE analysis, we're looking at
 behavior as $\Delta t \rightarrow 0$. However, when efficiently solving ODEs, we
@@ -639,7 +639,7 @@ mutating function calls!).
 
 Simply having an order on the truncation error does not imply convergence of the
 method. The disconnect is that the errors at a given time point may not dissipate.
-What also needs to be checked is the asymtopic behavior of a disturbance. To
+What also needs to be checked is the asymptotic behavior of a disturbance. To
 see this, one can utilize the linear test problem:
 
 $$u' = \alpha u$$

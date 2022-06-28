@@ -82,7 +82,7 @@ only a constant length history, say 5 time points, then one arrives at the
 *l-BFGS* technique, which is one of the most common large-scale optimization
 techniques.
 
-### Connection Between Optimization and Differental Equations
+### Connection Between Optimization and Differential Equations
 
 There is actually a strong connection between optimization and differential
 equations. Let's say we wanted to follow the gradient of the solution towards
@@ -91,7 +91,7 @@ is given by an ODE, specifically the ODE:
 
 $$p' = -\frac{dC}{dp}$$
 
-If we apply the Euler method to this ODE, then we recieve
+If we apply the Euler method to this ODE, then we receive
 
 $$p_{n+1} = p_n - \alpha \frac{dC(p_n)}{dp}$$
 
@@ -140,7 +140,7 @@ for all $x \in I_m$. Equivalently, $NN$ given parameters is dense in $C(I_m)$.
 However, it turns out that using only one hidden layer can require exponential
 growth in the size of said hidden layer, where the size is given by the number
 of columns in $W_1$. To counteract this, *deep neural networks* were developed
-to be in the form of the recurrance relation:
+to be in the form of the recurrence relation:
 
 $$v_{i+1} = \sigma_i.(W_i v_{i} + b_i)$$
 $$v_1 = x$$
@@ -174,7 +174,7 @@ with some choice of parameters.
 
 ### Recurrent Neural Networks
 
-Recurrent neural networks are networks which are given by the recurrance
+Recurrent neural networks are networks which are given by the recurrence
 relation:
 
 $$x_{k+1} = x_k + DNN(x_k,k;p)$$
@@ -457,7 +457,7 @@ Then the Jacobian matrix satisfies:
 $$J = J_L J_{L-1} \ldots J_1$$
 
 A program is essentially a nice way of writing a function in composition form.
-Forward-mode automatic differentiation worked by propogating forward the actions
+Forward-mode automatic differentiation worked by propagating forward the actions
 of the Jacobians at every step of the program:
 
 $$Jv = J_L (J_{L-1} (\ldots (J_1 v) \ldots ))$$
@@ -575,7 +575,7 @@ making it an efficient form for neural networks.
 ### Sparse Reverse Mode AD
 
 Since the Jacobian is built row-by-row with reverse mode AD, the sparse
-differentiation disucssion from forward-mode AD applies similarly but to the
+differentiation discussion from forward-mode AD applies similarly but to the
 transpose. Therefore, in order to perform sparse reverse mode automatic
 differentiation, one would build up a connectivity graph of the columns, and
 perform a coloring algorithm on this graph. The seeds of the reverse call,
@@ -592,7 +592,7 @@ of the two approaches is based on the size of the Jacobian. If
 $f:\mathbb{R}^n \rightarrow \mathbb{R}^m$, then the Jacobian is of size $$m \times n$$.
 If $m$ is much smaller than $n$, then computing by each row will be faster, and
 thus use reverse mode. In the case of a gradient, $m=1$ while $n$ can be large,
-leading to this phonomena. Likewise, if $n$ is much smaller than $m$, then
+leading to this phenomena. Likewise, if $n$ is much smaller than $m$, then
 computing by each column will be faster. We will see shortly the reverse mode
 AD has a high overhead with respect to forward mode, and thus if the values
 are relatively equal (or $n$ and $m$ are small), forward mode is more efficient.
@@ -604,7 +604,7 @@ machine learning.
 ### Side Note on Mixed Mode
 
 Interestingly, one can find cases where mixing the forward and reverse mode
-results would give an asymtopically better result. For example, if a Jacobian
+results would give an asymptotically better result. For example, if a Jacobian
 was non-zero in only the first 3 rows and first 3 columns, then sparse forward
 mode would still require N partials and reverse mode would require M seeds.
 However, one forward mode call of 3 partials and one reverse mode call of 3

@@ -61,7 +61,7 @@ $$f'(x) = \lim_{\epsilon \rightarrow 0} \frac{f(x+\epsilon)-f(x)}{\epsilon}$$
 
 Finite differencing directly follows from this definition by choosing a small
 $\epsilon$. However, choosing a good $\epsilon$ is very difficult. If $\epsilon$
-is too large than there is error since this definition is asymtopic. However,
+is too large than there is error since this definition is asymptotic. However,
 if $\epsilon$ is too small, you receive roundoff error. To understand why
 you would get roundoff error, recall that floating point error is relative,
 and can essentially store 16 digits of accuracy. So let's say we choose
@@ -617,9 +617,9 @@ our dual number arithmetic that:
 $$f(D) = A*D_0 + A*\Sigma*\epsilon$$
 
 is how one would compute the value of $f(D_0)$ and the derivative $f'(D_0)$ in
-all directions signified by the columns of $\Sigma$ simultaniously. Using
+all directions signified by the columns of $\Sigma$ simultaneously. Using
 multidimensional Taylor series expansions and doing the manipulations like
-before indeed implies that the arithematic on this object should follow:
+before indeed implies that the arithmetic on this object should follow:
 
 $$f(D) = f(D_0) + f'(D_0)\Sigma \epsilon$$
 
@@ -721,7 +721,7 @@ x = newton(fsvec2, x0)
 
 To make derivative calculations efficient and correct, we can move to higher
 dimensional numbers. In multiple dimensions, these then allow for multiple
-directional derivatives to be computed simultaniously, giving a method for
+directional derivatives to be computed simultaneously, giving a method for
 computing the Jacobian of a function $f$ on a single input. This is a direct
 application of using the compiler as part of a mathematical framework.
 

@@ -116,7 +116,7 @@ $$u(x+\Delta x)=u(x)+\Delta xu^{\prime}(x)+\mathcal{O}(\Delta x^{2})$$
 
 (here I write $\left(\Delta x\right)^{2}$ as $\Delta x^{2}$ out of convenience,
 note that those two terms are not necessarily the same). That term on the end is
-called “Big-O Notation”. What is means is that those terms are asymtopically
+called “Big-O Notation”. What is means is that those terms are asymptotically
 like $\Delta x^{2}$. If $\Delta x$ is small, then $\Delta x^{2}\ll\Delta x$ and
 so we can think of those terms as smaller than any of the terms we show in the
 expansion. By simplification notice that we get
@@ -351,7 +351,7 @@ represented as a matrix, notice that
 $$A(u) = A_y u + u A_x$$
 
 where $A_y$ and $A_x$ are both the `[1 -2 1]` 1D tridiagonal stencil matrix,
-but by right multiplying it's occuring along the columns and left multiplying
+but by right multiplying it's occurring along the columns and left multiplying
 occurs along the rows. This then gives a semi-dense formulation of the stencil
 operation.
 
@@ -405,7 +405,7 @@ where
 $$\tau_{i}^{n}\sim\mathcal{O}(\Delta t)+\mathcal{O}(\Delta x^{2}).$$
 
 Stability requires that the homogenous equation goes to zero. Another way of
-saying that is that the propogation of errors has errors decrease their
+saying that is that the propagation of errors has errors decrease their
 influence over time. Thus we look at:
 
 $$e_{i}^{n+1}	=e_{i}^{n}+\mu\left(e_{i+1}^{n}-2e_{i}^{n}+e_{i-1}^{n}\right) =\left(1-2\mu\right)e_{i}^{n}+\mu e_{i+1}^{n}+\mu e_{i-1}^{n}$$

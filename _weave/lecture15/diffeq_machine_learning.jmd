@@ -53,7 +53,7 @@ overlap with itself. This is the
 
 We only need one degree of freedom in order to not collide, so we can do the
 following. We can add a fake state to the ODE which is zero at every single
-data point. This then allows this extra dimension to "bump around" as neccessary
+data point. This then allows this extra dimension to "bump around" as necessary
 to let the function be a universal approximator. In code this looks like:
 
 ```julia;eval=false
@@ -153,7 +153,7 @@ Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations available
 whenever adjoint methods are known (and the choice between the two is given to
 the user).
 
-Many of the methods below can be encapsolated as a choice of a universal differential
+Many of the methods below can be encapsulated as a choice of a universal differential
 equation and trained with higher order, adaptive, and more efficient methods with
 DiffEqFlux.jl.
 
@@ -185,7 +185,7 @@ the option **today**?
 
 To solve this, we need to put a model on how we think the stock price will
 evolve. One simple version is a linear stochastic differential equation, i.e.
-the stock price will evolve with a constant interest rate $r$ with some volitility
+the stock price will evolve with a constant interest rate $r$ with some volatility
 (randomness) $\sigma$, in which case:
 
 $$dX_t = r X_t dt + \sigma X_t dW_t.$$
@@ -311,7 +311,7 @@ some known stochastic model. What we want to do is apply some control (push them
 in some direction) at every single timepoint towards some goal. For example,
 we have the physics for the dynamics of drone flight, but there's randomness
 in the wind condition, and so we want to control the engine speeds to move
-in a certain direction. However, there is a cost associated with controling,
+in a certain direction. However, there is a cost associated with controlling,
 and thus the question is how to best balance the use of controls with the
 natural stochastic evolution.
 
@@ -319,7 +319,7 @@ It turns out this is in the same form as the Black-Scholes problem. There is a
 model evolving forwards, and when we get to the end we know how much everything
 "cost" because we know if the drone got to the right location and how much
 energy it took. So in the same sense as Black-Scholes, we can know the value at
-the end and try and propogate it backwards given the current state of the system
+the end and try and propagate it backwards given the current state of the system
 $x$, to find out $u(0,\zeta)$, i.e. how should we control right now given the
 current system is in the state $x = \zeta$. It turns out that the solution of
 $u(t,x)$ where $u(T,x)=g(x)$ and we want to find $u(0,\zeta)$ is given
