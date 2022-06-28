@@ -16,7 +16,7 @@ scientific models are dynamical systems. Thus if we want to start to dig into
 deeper methods, we will need to start looking into the theory and practice of
 nonlinear dynamical systems. In this lecture we will go over the basic
 properties of dynamical systems and understand their general behavior through
-code. We will also learn the idea of stability as an asymtopic property of a
+code. We will also learn the idea of stability as an asymptotic property of a
 mapping, and understand when a system is stable.
 
 ## Discrete Dynamical Systems
@@ -55,7 +55,7 @@ $$u_{n+1} = u_n + f(u_n,\theta)$$
 
 where $f$ is a neural network parameterized by $\theta$.
 
-Note that discrete dyamical systems are even more fundamental than just the
+Note that discrete dynamical systems are even more fundamental than just the
 ones shown. In any case where a continuous model is discretized to loop on the
 computer, the resulting algorithm is a discrete dynamical system and thus
 evolves according to its properties. This fact will be revisited later.
@@ -152,8 +152,8 @@ This is essentially another way of saying that a function that is differentiable
 is Lipschitz, where we can use the derivative as the Lipschitz bound. But notice
 this means that, in this neighborhood, a function with a derivative less than
 1 is a contraction mapping, and thus there is a limiting sequence which goes to
-the fixed point by the Banach Fixed Point Theorem. Furthermore, the uniquess
-guerentees that there is only one fixed point in a sufficiently small neighborhood
+the fixed point by the Banach Fixed Point Theorem. Furthermore, the uniqueness
+guarantees that there is only one fixed point in a sufficiently small neighborhood
 where the derivative is all less than 1.
 
 A way to interpret this result is that, any nice enough function $f$ is locally
@@ -271,7 +271,7 @@ analysis:
 $$u_{n+1} = \sum_{j=0}^{k-1} \alpha_j u_{n-j} + \epsilon_n$$
 
 In a very quick handwavy way, we can understand such a system by seeing how the
-perturbations propogate. If $u_0 = 0$, then the starting is just $\epsilon_0$.
+perturbations propagate. If $u_0 = 0$, then the starting is just $\epsilon_0$.
 If we assume all other $\epsilon_i = 0$, then this system is the same as a linear
 dynamical system with delays. If all of the roots are in the unit circle, then
 it goes to zero, meaning the perturbation is forgotten or squashed over time.
@@ -312,10 +312,10 @@ well: this was a periodic orbit of length 2.
 Chaos is another interesting property of a discrete dynamical system. It can be
 interpreted as a periodic orbit where the length is infinity. This can happen if,
 by changing a parameter, a period 2 orbit becomes a period 4, then a period 8,
-etc. (a phonomenon known as period doubling), and when it goes beyond the
+etc. (a phenomenon known as period doubling), and when it goes beyond the
 accumulation point the "infinite period orbit" is reached and chaos is found.
 A homework problem will delve into the properties of chaos as an example of a
-simple embaressingly data-parallel problem.
+simple embarrassingly data-parallel problem.
 
 ## Efficient Implmentation of Dynamical Systems
 
@@ -441,7 +441,7 @@ count.
 #### Multidimensional System Implementations
 
 When we go to multidimensional systems, some care needs to be taken to decrease
-the number of allocations which are occuring. One of the ways to do this is
+the number of allocations which are occurring. One of the ways to do this is
 to utilize statically sized arrays. For example, let's look at a discretization
 of the Lorenz system:
 
@@ -750,7 +750,7 @@ get involved, this can be a significant effect.
 
 1. What are some ways to compute steady states? Periodic orbits?
 2. When using the mutating algorithms, what are the data dependencies between
-   different solves if they were to happen simultaniously?
+   different solves if they were to happen simultaneously?
 3. We saw that there is a connection between delayed systems and multivariable
    systems. How deep does that go? Is every delayed system also a multivariable
    system and vice versa? Is this a useful idea to explore?

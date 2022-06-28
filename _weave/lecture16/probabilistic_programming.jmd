@@ -15,7 +15,7 @@ the cases we have previously looked at (differential equations, neural networks,
 neural differential equations, physics-informed neural networks, etc.) we have
 incorporated data into our models using point estimates, i.e. getting "exact
 fits". However, data has noise and uncertainty. We want to extend our previous
-modeling approaches to include probablistic estimates. This is known as
+modeling approaches to include probabilistic estimates. This is known as
 *probabilistic programming*, or Bayesian estimation on general programming
 models. To approach this topic, we will first introduce the Bayesian way of
 thinking about variables as random variables, estimating probabilistic
@@ -49,7 +49,7 @@ probability that $Z = y$.
 
 Given this representation of variables, $ax$ where $a$ follows a probability
 distribution induces a probability distribution on $f(x)$. To numerically
-aquire this distribution, one can use *Monte Carlo sampling*. This is simply
+acquire this distribution, one can use *Monte Carlo sampling*. This is simply
 the repeat process of:
 
 1. Sample variables
@@ -90,7 +90,7 @@ using Distributions
 θ = [Uniform(0.5,1.5),Beta(5,1),Normal(3,0.5),Gamma(5,2)]
 ```
 
-from which we can sample points and propogate through the solver:
+from which we can sample points and propagate through the solver:
 
 ```julia
 _θ = rand.(θ)
@@ -289,7 +289,7 @@ it's continuous). With a bit more rigour we arrive at the following algorithm:
 
 1. Starting at $x_i$, take $x_{i+1}$ from a sampling algorithm $g(x_{i+1}|x_i)$.
 2. Calculate $A = \min\left(1,\frac{p(D|x_{i+1})p(x_{i+1})g(x_i|x_{i+1})}{p(D|x_i)p(x_i)g(x_{i+1}|x_i)}\right)$.
-   Notice that if we require $g$ to be symmetric, then this simplies to the
+   Notice that if we require $g$ to be symmetric, then this simplifies to the
    probability ratio
    $A = \min\left(1,\frac{p(D|x_{i+1})p(x_{i+1})}{p(D|x_i)p(x_i)}\right)$
 3. Use a random number to accept the step with a probability $A$. Go back to
@@ -356,7 +356,7 @@ the mode of the distribution:
 
 ![](https://user-images.githubusercontent.com/1814174/69541683-bd41d100-0f57-11ea-9356-dc2f771cca7d.PNG)
 
-To overcome this issue, we look to physical systems and see that a satelite
+To overcome this issue, we look to physical systems and see that a satellite
 orbiting a planet always nicely stays on some manifold instead of following the
 gradient:
 
@@ -381,7 +381,7 @@ $$H(x,p) = - \log \pi(x,p)$$
 
 where $\pi(x,p) = \pi(p|x)\pi(x)$ (where I am now using $pi$ for probability
 since $p$ is momentum!). So to lift from a probability over parameters to one
-thtat includes momentum, we simply need to choose a conditional distribution
+that includes momentum, we simply need to choose a conditional distribution
 $\pi(p|x)$. This would mean that
 
 $$\begin{align}
@@ -390,7 +390,7 @@ H(x,p) &= -log \pi(p|x) - \log \pi(x)\\
 \end{align}$$
 
 where $K$ is the kinetic energy and $V$ is the potential. Thus the potential
-energy is directly given by the posterior calcuation, and the kinetic energy
+energy is directly given by the posterior calculation, and the kinetic energy
 is thus a choice that is used to build the correct Hamiltonian. Hamiltonian
 Monte Carlo methods then dig into good ways to choose the kinetic energy function.
 This is done at the start (along with the choice of ODE solver time step) in such
@@ -434,7 +434,7 @@ plot(sol,vars=(1,2))
 plot(sol)
 ```
 
-What is an oscilatory system slowly loses energy and falls inward towards the
+What is an oscillatory system slowly loses energy and falls inward towards the
 center. To avoid this issue, we can do a few things:
 
 1. Project back to the manifold after steps. That can be costly (but almost might
@@ -498,7 +498,7 @@ $$\mathcal{L}(\phi) = \mathbb{E}_{q}[\log p(x,\theta)] - \mathbb{E}_q [\log q(\t
 The ELBO is equivalent to the negative KL divergence up to a constant $\log p(x)$,
 which means that maximizing this is equivalent to minimizing the KL divergence.
 
-One last detail is neccessary in order for this problem to be tractible. To know
+One last detail is necessary in order for this problem to be tractable. To know
 the set of possible values to optimize over, we assume that the support of $q$
 is a subset of the support of the prior. This means that our prior has to cover
 the probability distribution, which makes sense and matches Cromwell's rule for

@@ -299,7 +299,7 @@ $$g_u(t_i) = 2(d_i - u(t_i,p))$$
 at the data points $(t_i,d_i)$. Therefore, the derivative of an ODE solution
 with respect to a cost function is given by solving for $\lambda^\ast$ using an
 ODE for $\lambda^T$ in reverse time, and then using that to calculate $\frac{dG}{dp}$.
-Note that $\frac{dG}{dp}$ can be calculated simultaniously by appending a single
+Note that $\frac{dG}{dp}$ can be calculated simultaneously by appending a single
 value to the reverse ODE, since we can simply define the new ODE term as
 $g_p + \lambda^\ast f_p$, which would then calculate the integral on the fly
 (ODE integration is just... integration!).

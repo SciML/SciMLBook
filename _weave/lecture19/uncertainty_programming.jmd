@@ -12,7 +12,7 @@ weave_options:
 
 In this lecture we will mix two separate topics: uncertainty quantification
 and adaptivity of algorithms. Using compiler-based tooling, similar to how
-automatic differentiation and probabilsitic programming toolchains, we will
+automatic differentiation and probabilistic programming toolchains, we will
 show how one can begin to pushforward uncertainties of a model or calculation.
 This leads to an idea of *uncertainty programming*, a term which is not in
 use but should be justified by these notes.
@@ -29,13 +29,13 @@ inexact because of:
 - Truncation errors in the interpolation calculation
 - Numerical errors in every dot product along the way (!)
 - Numerical errors in matrix multiplication and linear solving (latter when implicit)
-- Numerical errors in backpropogation
+- Numerical errors in backpropagation
 - Measurement errors in our fitting data
 - Randomness in the optimizer (when stochastic, like ADAM)
 - What is the error in the model specification / model form?
 
 "How correct is my model?" is thus a very involved question, since you'd have
-to konw that every source of uncertainty is contained. In some cases we have
+to know that every source of uncertainty is contained. In some cases we have
 rigorous mathematical results proving bounds. In other cases, we need to find
 empirical ways to quantify what's going on using our known bounds.
 
@@ -67,8 +67,8 @@ $$\alpha + a = (\alpha + a) \pm b$$
 $$\alpha a = \alpha a \pm |\alpha| b$$
 
 Let's investigate this a bit more and see if we can develop an arithmetic, like
-dual numbers, to then propogate through whole programs. This idea comes from the
-arthmetic on normally distributed random variables. If we interpret $x \sim N(a,b)$,
+dual numbers, to then propagate through whole programs. This idea comes from the
+arithmetic on normally distributed random variables. If we interpret $x \sim N(a,b)$,
 i.e. a normally distributed random variable with mean $a$ and standard deviation
 $b$, then the distributions follow that:
 
@@ -104,9 +104,9 @@ so that the second order terms are accurate.
 ### Measurements.jl in Practice: Measurements on DifferentialEquations
 
 Since DifferentialEquations.jl takes in arbitrary number types, we can have it
-recompile to do the arithemetic of uncertainty propogation. For example, the
+recompile to do the arithmetics of uncertainty propagation. For example, the
 following solves the pendulum of arbitrary amplitude with respect to uncertain
-parameters and initial condtions:
+parameters and initial conditions:
 
 $$\ddot{\theta} + \frac{g}{L} \sin(\theta) = 0$$
 
@@ -150,7 +150,7 @@ three steps were:
 
 Note that this idea of discretizing distributions and pushing them through a
 full calculation can be done with more accuracy by using things like orthogonal
-polynomial expsnsions. This is the *polynomial chaos expansion* approach which
+polynomial expansions. This is the *polynomial chaos expansion* approach which
 we will not cover, but there is a
 [PolyChaos.jl package](https://github.com/timueh/PolyChaos.jl) one can explore.
 
@@ -161,7 +161,7 @@ inputs, a different form of uncertainty quantification is that for floating
 point uncertainties. For example, when you calculate $sin(2.3)$ on your computer,
 this has an error in the approximation, and what if we wanted to push these
 errors forward to get an interval which bounds the possible values given the
-numerical uncertainty? This is done via *interval arithemetic*.
+numerical uncertainty? This is done via *interval arithmetic*.
 
 For this we can use [IntervalArithmetic.jl](https://juliaintervals.github.io/IntervalArithmetic.jl/latest/).
 The idea of interval arithmetic is to work rigorously on sets of real numbers,
@@ -188,7 +188,7 @@ the left side it rounds down by one floating point number and on the right it
 rounds up by one floating point number to make sure the set rigorously contains
 the correct value.
 
-From here, non-monotone functions can propogate intervals like:
+From here, non-monotone functions can propagate intervals like:
 
 ```julia;eval=false
 [a, b]^2 := [a^2, b^2]  if 0 < a < b
@@ -199,7 +199,7 @@ From here, non-monotone functions can propogate intervals like:
 The rules can get fairly complicated and may need to be derived
 for each individual elementary function, but, just like automatic
 differentiation, recursion can be performed to get to a bottom
-of primatives which is known to then propogate forward the intervals.
+of primitives which is known to then propagate forward the intervals.
 
 Because this form of uncertainty quantification is rigorous, we can prove
 theorem on it. For example, let's say we want to show that
@@ -221,7 +221,7 @@ in this interval.
 
 Interval arithmetic is nice... but it can have some issues. It's rigorous but
 it's also conservative, meaning that the intervals can be much larger than one
-would expect given the actual uncertainties seen in practice. One phonomena
+would expect given the actual uncertainties seen in practice. One phenomena
 which causes this can be seen by looking at that pendulum:
 
 ```julia
@@ -282,7 +282,7 @@ sol = solve(prob, Vern9(), adaptive=false, dt=0.001, reltol = 1e-6)
 Those previous methods were non-contextual and worked directly through program
 modification. However, by not "clumping" interactions, uncertainty quantification
 can have overestimates like is seen with the interval growth. Thus, just like
-with reverse-mode AD, can we instead look for higher order uncertainty primatives
+with reverse-mode AD, can we instead look for higher order uncertainty primitives
 on which to build such a system? When digging into reverse-mode AD, we saw that
 adjoint problems in engineering corresponded to the the reverse-mode rules for
 things like linear solve, eigenvalue problems, and the solution of ODEs. There
@@ -317,14 +317,14 @@ the step is rejected, decreased, and tried again. In many cases, one may control
 the error proportionally to this error estimator, i.e. the next $\Delta t$ is the
 product $q \Delta t$.
 
-That's all for adapting to a tolerance, but can we use this to propogate
+That's all for adapting to a tolerance, but can we use this to propagate
 uncertainties? It turns out we can. This is known as the ProbInts method.
 Essentially, instead of an ODE, we can think of having solved a stochastic
 differential equation whose additive noise term of size which matches our
 error estimate. Specifically, adding a noise which is normally distributed with
 mean zero and standard deviation $(\Delta t)^{p}$, where $p$ is the order of
 the adaptive error estimate (i.e. the order of the lower approximation), is an
-approximation to the possible values that could have occured given the noise
+approximation to the possible values that could have occurred given the noise
 that was seen. By adding this at every step, we can then recover a distribution
 of possible solutions/trajectories.
 
@@ -368,10 +368,10 @@ as to why general methods will overestimate uncertainty.
 Everything that we've demonstrated here so far can be thought of as "forward mode
 uncertainty quantification". For every example we have constructed a method such
 that, for a known probability distribution in `x`, we build the probability
-distribution of the output of the program, and then compute quantites from that.
+distribution of the output of the program, and then compute quantities from that.
 On a dynamical system this pushforward of a measure is denoted by the
 Frobenius-Perron operator. With a pushforward operator $P$ and an initial
-uncertainty density $f$, we can reprsent calculating the expected value of some
+uncertainty density $f$, we can represent calculating the expected value of some
 cost function on the solution via:
 
 $$\mathbb{E}[g(x)|X \sim Pf] = \int_{S(A)} P f(x) g(x) dx$$
