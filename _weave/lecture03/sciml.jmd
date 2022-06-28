@@ -174,16 +174,16 @@ initial `W` and `b` matrices (according to the `glorot_uniform` distribution for
 
 The last portion might be new. This is known as a **callable struct**, or a
 functor. It defines the dispatch for how calls work on the struct. As a quick
-demonstration, let's define a type `A` with a field `x`, and then make instances
+demonstration, let's define a type `MyCallableStruct` with a field `x`, and then make instances
 of `A` be the function `x+y`:
 
 ```julia
-struct A
+struct MyCallableStruct
   x
 end
 
-(a::A)(y) = a.x+y
-a = A(2)
+(a::MyCallableStruct)(y) = a.x+y
+a = MyCallableStruct(2)
 a(3)
 ```
 
