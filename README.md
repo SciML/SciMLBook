@@ -1,5 +1,7 @@
 # Parallel Computing and Scientific Machine Learning (SciML): Methods and Applications
 
+[![DOI](https://zenodo.org/badge/205191601.svg)](https://zenodo.org/badge/latestdoi/205191601)
+
 This book is a compilation of lecture notes from the MIT Course 18.337J/6.338J: Parallel Computing and Scientific Machine Learning. 
 Links to the old notes https://mitmath.github.io/18337 will redirect here.
 
