@@ -1,0 +1,976 @@
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/tufte.css"> <link rel=stylesheet  href="/css/latex.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <link rel=stylesheet  href="/css/weave.css"> <script type="text/x-mathjax-config"> MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, TeX: { equationNumbers: { autoNumber: "AMS" } } }); </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> <title>The Different Flavors of Parallelism</title> <div id=layout > <div id=menu > <ul> <li><a style="font-size:larger;" href=https://github.com/SciML/SciMLBook><i class="fa fa-github"></i></a> <li><a style="font-size:larger;" href="/">Home</a> <li><a style="font-size:larger;" href="/course/">Course</a> <li><a style="font-size:larger;" href="/homework/">Homework</a> <li><a style="font-size:larger;" href="/lectures/">Lectures</a> <li><a style="font-size:larger;" href="/notes/">Notes</a> <ul style="font-size:smaller"> <li><a href="/notes/02-Optimizing_Serial_Code/">02: Serial Code</a> <li><a href="/notes/03-Introduction_to_Scientific_Machine_Learning_through_Physics-Informed_Neural_Networks/">03: SciML Intro</a> <li><a href="/notes/04-How_Loops_Work-An_Introduction_to_Discrete_Dynamics/">04: How Loops Work</a> <li><a href="/notes/05-The_Basics_of_Single_Node_Parallel_Computing/">05: Basics of Parallelism</a> <li><a href="/notes/06-The_Different_Flavors_of_Parallelism/">06: Flavors of Parallelism</a> <li><a href="/notes/07-Ordinary_Differential_Equations-Applications_and_Discretizations/">07: ODEs</a> <li><a href="/notes/08-Forward-Mode_Automatic_Differentiation_/">08: Forward AD</a> <li><a href="/notes/09-Solving_Stiff_Ordinary_Differential_Equations/">09: Stiff ODEs</a> <li><a href="/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/">10: Reverse AD</a> <li><a href="/notes/11-Differentiable_Programming_and_Neural_Differential_Equations/">11: δP</a> <li><a href="/notes/12-Description_of_MPI_and_MPI/">12: MPI</a> <li><a href="/notes/13-GPU_programming/">13: GPUs</a> <li><a href="/notes/14-PDEs_Convolutions_and_the_Mathematics_of_Locality/">14: PDEs</a> <li><a href="/notes/15-Mixing_Differential_Equations_and_Neural_Networks_for_Physics-Informed_Learning/">15: Physics Informed Learning</a> <li><a href="/notes/16-From_Optimization_to_Probabilistic_Programming/">16: Probabilistic Programming</a> <li><a href="/notes/17-Global_Sensitivity_Analysis/">17: Global Sensitivity Analysis</a> <li><a href="/notes/18-Code_Profiling_and_Optimization/">18: Profiling & Optimization</a> <li><a href="/notes/19-Uncertainty_Programming-Generalized_Uncertainty_Quantification/">19: Uncertainty Programming</a> </ul> </ul> </div> <div id=main > <div class=franklin-content > <h1 class=title >The Different Flavors of Parallelism</h1> <h5>Chris Rackauckas</h5> <h5>September 25th, 2020</h5> <h2><a href="https://youtu.be/EP5VWwPIews">Youtube Video Link</a></h2> <p>Now that you are aware of the basics of parallel computing, let&#39;s give a high level overview of the differences between different modes of parallelism.</p> <h2>Lowest Level: SIMD</h2> <p>Recall SIMD, the idea that processors can run multiple commands simultaneously on specially structured data. &quot;Single Instruction Multiple Data&quot;. SIMD is parallelism within a single core.</p> <h3>High Level Idea of SIMD</h3> <p>Calculations can occur in parallel in the processor if there is sufficient structure in the computation.</p> <h3>How to do SIMD</h3> <p>The simplest way to do SIMD is simply to make sure that your values are aligned. If they are, then great, LLVM&#39;s autovectorizer pass has a good chance of automatic vectorization &#40;in the world of computing, &quot;SIMD&quot; is synonymous with vectorization since it is taking specific values and instead computing on small vectors. That is not to be confused with &quot;vectorization&quot; in the sense of Python/R/MATLAB, which is a programming style which prefers using C-defined primitive functions, like broadcast or matrix multiplication&#41;.</p> <p>You can check for auto-vectorization inside of the LLVM IR by looking for statements like:</p> <pre><code>&#37;wide.load24 &#61; load &lt;4 x double&gt;, &lt;4 x double&gt; addrspac&#40;13&#41;* &#37;46, align 8
+; └
+; ┌ @ float.jl:395 within &#96;&#43;&#39;
+&#37;47 &#61; fadd &lt;4 x double&gt; &#37;wide.load, &#37;wide.load24</code></pre> <p>which means that 4 additions are happening simultaneously. The amount of vectorization is heavily dependent on your architecture. The ancient form of SIMD, the SSE&#40;2&#41; instructions, required that your data was aligned. Now there&#39;s a bit more leeway, but generally it holds that making your the data you&#39;re trying to SIMD over is aligned. Thus there can be major differences in computing using a <em>struct of array</em> format instead of an <em>arrays of structs</em> format. For example:</p> <pre class='hljl'>
+<span class='hljl-k'>struct</span><span class='hljl-t'> </span><span class='hljl-n'>MyComplex</span><span class='hljl-t'>
+  </span><span class='hljl-n'>real</span><span class='hljl-oB'>::</span><span class='hljl-n'>Float64</span><span class='hljl-t'>
+  </span><span class='hljl-n'>imag</span><span class='hljl-oB'>::</span><span class='hljl-n'>Float64</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>arr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>())</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-p'>]</span>
+</pre> <pre class=output >
+100-element Vector&#123;MyComplex&#125;:
+ MyComplex&#40;0.5730370128582241, 0.3584970564719674&#41;
+ MyComplex&#40;0.0980303195672052, 0.3674795848475292&#41;
+ MyComplex&#40;0.18397041849298357, 0.7499250799753486&#41;
+ MyComplex&#40;0.8552964475638654, 0.20996892953300583&#41;
+ MyComplex&#40;0.13371740043711045, 0.16146783905845752&#41;
+ MyComplex&#40;0.6254380678627715, 0.3705953700812692&#41;
+ MyComplex&#40;0.7604441574513876, 0.576146819108532&#41;
+ MyComplex&#40;0.45408000544679494, 0.9695095864209977&#41;
+ MyComplex&#40;0.1558660634315604, 0.35777420934224513&#41;
+ MyComplex&#40;0.9376078906039833, 0.7439855597303927&#41;
+ ⋮
+ MyComplex&#40;0.4419781686824452, 0.36384603874135546&#41;
+ MyComplex&#40;0.31228466618410167, 0.22699769337652342&#41;
+ MyComplex&#40;0.22716683949577132, 0.30279072610846314&#41;
+ MyComplex&#40;0.4180716527192698, 0.2850731751730574&#41;
+ MyComplex&#40;0.0008326507229478031, 0.6791330848624882&#41;
+ MyComplex&#40;0.6197805357001782, 0.6112734324363872&#41;
+ MyComplex&#40;0.6084885102006679, 0.3353161497768725&#41;
+ MyComplex&#40;0.7144305968473228, 0.5948235713392683&#41;
+ MyComplex&#40;0.6080515539155432, 0.08183817586507247&#41;
+</pre> <p>is represented in memory as</p> <pre><code>&#91;real1,imag1,real2,imag2,...&#93;</code></pre>
+<p>while the struct of array formats are</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>struct</span><span class='hljl-t'> </span><span class='hljl-n'>MyComplexes</span><span class='hljl-t'>
+  </span><span class='hljl-n'>real</span><span class='hljl-oB'>::</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}</span><span class='hljl-t'>
+  </span><span class='hljl-n'>imag</span><span class='hljl-oB'>::</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>arr2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyComplexes</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>))</span>
+</pre>
+
+
+<pre class=output >
+MyComplexes&#40;&#91;0.8341366681100438, 0.3700314061282455, 0.5675944654655859, 0.
+5093857716567743, 0.5508472167596493, 0.18223318388700827, 0.54416747227727
+62, 0.3683171703692759, 0.38841184045791, 0.12541162407786288  …  0.0475324
+3562268927, 0.6392263551983294, 0.9356894879471658, 0.05888974798691515, 0.
+3490462922086578, 0.0862098104225183, 0.2862670795838983, 0.447164217345559
+1, 0.47450718774961265, 0.8493848141449419&#93;, &#91;0.8207953961371602, 0.5355131
+897290283, 0.9236131859388294, 0.8345142848701862, 0.10887945129311671, 0.6
+399137339390542, 0.22977033355006482, 0.056293460088464475, 0.7474136184769
+843, 0.4135732854796893  …  0.0746137113401556, 0.019071058569969712, 0.411
+7683819255614, 0.8171389357003626, 0.25831532917444, 0.2703924865907861, 0.
+8896203140643718, 0.6613422429831546, 0.07316640031116806, 0.94841910608244
+71&#93;&#41;
+</pre>
+
+
+<p>Now let&#39;s check what happens when we perform a reduction:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>InteractiveUtils</span><span class='hljl-t'>
+</span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:+</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>::</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>,</span><span class='hljl-n'>y</span><span class='hljl-oB'>::</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-oB'>+</span><span class='hljl-n'>y</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-p'>,</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-oB'>+</span><span class='hljl-n'>y</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>Base</span><span class='hljl-oB'>.:/</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>::</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>,</span><span class='hljl-n'>y</span><span class='hljl-oB'>::</span><span class='hljl-n'>Int</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>real</span><span class='hljl-oB'>/</span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-n'>x</span><span class='hljl-oB'>.</span><span class='hljl-n'>imag</span><span class='hljl-oB'>/</span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-oB'>::</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>MyComplex</span><span class='hljl-p'>})</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>sum</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-oB'>/</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>average</span><span class='hljl-p'>(</span><span class='hljl-n'>arr</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class=output >
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:5 within &#96;average&#96;
+define void @julia_average_16518&#40;&#91;2 x double&#93;* noalias nocapture sret&#40;&#91;2 x 
+double&#93;&#41; &#37;0, &#123;&#125;* nonnull align 16 dereferenceable&#40;40&#41; &#37;1&#41; #0 &#123;
+top:
+  &#37;2 &#61; alloca &#91;4 x &#123;&#125;*&#93;, align 8
+  &#37;3 &#61; alloca &lt;2 x double&gt;, align 16
+  &#37;tmpcast &#61; bitcast &lt;2 x double&gt;* &#37;3 to &#91;2 x double&#93;*
+  &#37;.sub &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i64 0
+; ┌ @ reducedim.jl:889 within &#96;sum&#96;
+; │┌ @ reducedim.jl:889 within &#96;#sum#738&#96;
+; ││┌ @ reducedim.jl:893 within &#96;_sum&#96;
+; │││┌ @ reducedim.jl:893 within &#96;#_sum#740&#96;
+; ││││┌ @ reducedim.jl:894 within &#96;_sum&#96;
+; │││││┌ @ reducedim.jl:894 within &#96;#_sum#741&#96;
+; ││││││┌ @ reducedim.jl:322 within &#96;mapreduce&#96;
+; │││││││┌ @ reducedim.jl:322 within &#96;#mapreduce#731&#96;
+; ││││││││┌ @ reducedim.jl:330 within &#96;_mapreduce_dim&#96;
+; │││││││││┌ @ reduce.jl:399 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ indices.jl:457 within &#96;LinearIndices&#96;
+; │││││││││││┌ @ abstractarray.jl:95 within &#96;axes&#96;
+; ││││││││││││┌ @ array.jl:151 within &#96;size&#96;
+               &#37;4 &#61; bitcast &#123;&#125;* &#37;1 to &#123;&#125;**
+               &#37;5 &#61; getelementptr inbounds &#123;&#125;*, &#123;&#125;** &#37;4, i64 3
+               &#37;6 &#61; bitcast &#123;&#125;** &#37;5 to i64*
+               &#37;7 &#61; load i64, i64* &#37;6, align 8
+; │││││││││└└└└
+; │││││││││┌ @ reduce.jl:401 within &#96;_mapreduce&#96;
+            switch i64 &#37;7, label &#37;L14 &#91;
+    i64 0, label &#37;L8
+    i64 1, label &#37;L12
+  &#93;
+
+L8:                                               ; preds &#61; &#37;top
+; │││││││││└
+; │││││││││┌ @ reduce.jl:402 within &#96;_mapreduce&#96;
+            store &#123;&#125;* inttoptr &#40;i64 139920643696608 to &#123;&#125;*&#41;, &#123;&#125;** &#37;.sub, al
+ign 8
+            &#37;8 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i6
+4 1
+            store &#123;&#125;* inttoptr &#40;i64 139920665395776 to &#123;&#125;*&#41;, &#123;&#125;** &#37;8, align
+ 8
+            &#37;9 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i6
+4 2
+            store &#123;&#125;* &#37;1, &#123;&#125;** &#37;9, align 8
+            &#37;10 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i
+64 3
+            store &#123;&#125;* inttoptr &#40;i64 139920632915408 to &#123;&#125;*&#41;, &#123;&#125;** &#37;10, alig
+n 8
+            &#37;11 &#61; call nonnull &#123;&#125;* @jl_invoke&#40;&#123;&#125;* inttoptr &#40;i64 13992064547
+8848 to &#123;&#125;*&#41;, &#123;&#125;** nonnull &#37;.sub, i32 4, &#123;&#125;* inttoptr &#40;i64 139918701069664 
+to &#123;&#125;*&#41;&#41;
+            call void @llvm.trap&#40;&#41;
+            unreachable
+
+L12:                                              ; preds &#61; &#37;top
+; │││││││││└
+; │││││││││┌ @ reduce.jl:404 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
+             &#37;12 &#61; bitcast &#123;&#125;* &#37;1 to &lt;2 x double&gt;**
+             &#37;13 &#61; load &lt;2 x double&gt;*, &lt;2 x double&gt;** &#37;12, align 8
+             &#37;14 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;13, align 8
+; │││││││││└└
+; │││││││││┌ @ reduce.jl:405 within &#96;_mapreduce&#96;
+            br label &#37;L46
+
+L14:                                              ; preds &#61; &#37;top
+; │││││││││└
+; │││││││││┌ @ reduce.jl:406 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
+             &#37;15 &#61; icmp ugt i64 &#37;7, 15
+; ││││││││││└
+            br i1 &#37;15, label &#37;L42, label &#37;L16
+
+L16:                                              ; preds &#61; &#37;L14
+; │││││││││└
+; │││││││││┌ @ reduce.jl:408 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
+             &#37;16 &#61; bitcast &#123;&#125;* &#37;1 to &#91;2 x double&#93;**
+             &#37;17 &#61; load &#91;2 x double&#93;*, &#91;2 x double&#93;** &#37;16, align 8
+             &#37;18 &#61; bitcast &#91;2 x double&#93;* &#37;17 to &lt;2 x double&gt;*
+             &#37;19 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;18, align 8
+; │││││││││└└
+; │││││││││┌ @ reduce.jl:409 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
+             &#37;.elt65 &#61; getelementptr inbounds &#91;2 x double&#93;, &#91;2 x double&#93;* &#37;
+17, i64 1, i64 0
+             &#37;20 &#61; bitcast double* &#37;.elt65 to &lt;2 x double&gt;*
+             &#37;21 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;20, align 8
+; │││││││││└└
+; │││││││││┌ @ reduce.jl:410 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:24 within &#96;add_sum&#96;
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:399
+              &#37;22 &#61; fadd &lt;2 x double&gt; &#37;19, &#37;21
+; │││││││││└└└
+; │││││││││┌ @ reduce.jl:411 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
+             &#37;.not6974 &#61; icmp ugt i64 &#37;7, 2
+; ││││││││││└
+            br i1 &#37;.not6974, label &#37;L33, label &#37;L46
+
+L33:                                              ; preds &#61; &#37;L33, &#37;L16
+            &#37;value_phi277 &#61; phi i64 &#91; &#37;24, &#37;L33 &#93;, &#91; 2, &#37;L16 &#93;
+            &#37;23 &#61; phi &lt;2 x double&gt; &#91; &#37;27, &#37;L33 &#93;, &#91; &#37;22, &#37;L16 &#93;
+; │││││││││└
+; │││││││││┌ @ reduce.jl:412 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ int.jl:87 within &#96;&#43;&#96;
+             &#37;24 &#61; add nuw nsw i64 &#37;value_phi277, 1
+; ││││││││││└
+; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
+             &#37;.elt70 &#61; getelementptr inbounds &#91;2 x double&#93;, &#91;2 x double&#93;* &#37;
+17, i64 &#37;value_phi277, i64 0
+             &#37;25 &#61; bitcast double* &#37;.elt70 to &lt;2 x double&gt;*
+             &#37;26 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;25, align 8
+; │││││││││└└
+; │││││││││┌ @ reduce.jl:413 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:24 within &#96;add_sum&#96;
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:399
+              &#37;27 &#61; fadd &lt;2 x double&gt; &#37;23, &#37;26
+; │││││││││└└└
+; │││││││││┌ @ reduce.jl:411 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
+             &#37;exitcond.not &#61; icmp eq i64 &#37;24, &#37;7
+; ││││││││││└
+            br i1 &#37;exitcond.not, label &#37;L46, label &#37;L33
+
+L42:                                              ; preds &#61; &#37;L14
+; │││││││││└
+; │││││││││┌ @ reduce.jl:417 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:259 within &#96;mapreduce_impl&#96;
+             call void @j_mapreduce_impl_16520&#40;&#91;2 x double&#93;* noalias nocapt
+ure nonnull sret&#40;&#91;2 x double&#93;&#41; &#37;tmpcast, &#123;&#125;* nonnull &#37;1, i64 signext 1, i64
+ signext &#37;7, i64 signext 1024&#41; #0
+; └└└└└└└└└└└
+  &#37;28 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;3, align 16
+; ┌ @ reducedim.jl:889 within &#96;sum&#96;
+; │┌ @ reducedim.jl:889 within &#96;#sum#738&#96;
+; ││┌ @ reducedim.jl:893 within &#96;_sum&#96;
+; │││┌ @ reducedim.jl:893 within &#96;#_sum#740&#96;
+; ││││┌ @ reducedim.jl:894 within &#96;_sum&#96;
+; │││││┌ @ reducedim.jl:894 within &#96;#_sum#741&#96;
+; ││││││┌ @ reducedim.jl:322 within &#96;mapreduce&#96;
+; │││││││┌ @ reducedim.jl:322 within &#96;#mapreduce#731&#96;
+; ││││││││┌ @ reducedim.jl:330 within &#96;_mapreduce_dim&#96;
+; │││││││││┌ @ reduce.jl:417 within &#96;_mapreduce&#96;
+            br label &#37;L46
+
+L46:                                              ; preds &#61; &#37;L42, &#37;L33, &#37;L1
+6, &#37;L12
+; └└└└└└└└└└
+  &#37;29 &#61; phi &lt;2 x double&gt; &#91; &#37;28, &#37;L42 &#93;, &#91; &#37;14, &#37;L12 &#93;, &#91; &#37;22, &#37;L16 &#93;, &#91; &#37;27
+, &#37;L33 &#93;
+; ┌ @ array.jl:215 within &#96;length&#96;
+   &#37;30 &#61; bitcast &#123;&#125;* &#37;1 to &#123; i8*, i64, i16, i16, i32 &#125;*
+   &#37;31 &#61; getelementptr inbounds &#123; i8*, i64, i16, i16, i32 &#125;, &#123; i8*, i64, i1
+6, i16, i32 &#125;* &#37;30, i64 0, i32 1
+   &#37;32 &#61; load i64, i64* &#37;31, align 8
+; └
+; ┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
+llelism.jmd:4 within &#96;/&#96; @ promotion.jl:382
+; │┌ @ promotion.jl:350 within &#96;promote&#96;
+; ││┌ @ promotion.jl:327 within &#96;_promote&#96;
+; │││┌ @ number.jl:7 within &#96;convert&#96;
+; ││││┌ @ float.jl:146 within &#96;Float64&#96;
+       &#37;33 &#61; sitofp i64 &#37;32 to double
+; │└└└└
+; │ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
+llelism.jmd:4 within &#96;/&#96; @ promotion.jl:382 @ float.jl:408
+   &#37;34 &#61; insertelement &lt;2 x double&gt; poison, double &#37;33, i32 0
+   &#37;35 &#61; shufflevector &lt;2 x double&gt; &#37;34, &lt;2 x double&gt; undef, &lt;2 x i32&gt; zero
+initializer
+   &#37;36 &#61; fdiv &lt;2 x double&gt; &#37;29, &#37;35
+; └
+  &#37;37 &#61; bitcast &#91;2 x double&#93;* &#37;0 to &lt;2 x double&gt;*
+  store &lt;2 x double&gt; &#37;36, &lt;2 x double&gt;* &#37;37, align 8
+  ret void
+&#125;
+</pre>
+
+
+<p>What this is doing is creating small little vectors and then parallelizing the operations of those vectors by calling specific vector-parallel instructions. Keep this in mind.</p>
+<h3>Explicit SIMD</h3>
+<p>The following was all a form of <strong>loop-level parallelism</strong> known as loop vectorization. It&#39;s simply easier for compilers to reason at the array level, prove iterates are independent, and automatically generate SIMD code from that. This is not necessary, and compilers can produce SIMD code from non-looping code through a process known as <strong>SLP supervectorization</strong>, but the results are far from optimal and the compiler requires a lot of time to do this calculation, meaning that it&#39;s usually not a pass used by default.</p>
+<p>If you want to pack the vectors yourself, then primitives for doing so from within Julia are available in SIMD.jl. This is for &quot;real&quot; performance warriors. This looks like for example:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>SIMD</span><span class='hljl-t'>
+</span><span class='hljl-n'>v</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vec</span><span class='hljl-p'>{</span><span class='hljl-ni'>4</span><span class='hljl-p'>,</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}((</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-ni'>4</span><span class='hljl-p'>))</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>v</span><span class='hljl-oB'>+</span><span class='hljl-n'>v</span><span class='hljl-t'> </span><span class='hljl-cs'># basic arithmetic is supported</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>sum</span><span class='hljl-p'>(</span><span class='hljl-n'>v</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-cs'># basic reductions are supported</span>
+</pre>
+
+
+<pre class=output >
+v &#43; v &#61; &lt;4 x Float64&gt;&#91;2.0, 4.0, 6.0, 8.0&#93;
+sum&#40;v&#41; &#61; 10.0
+10.0
+</pre>
+
+
+<p>Using this you can pull apart code and force the usage of SIMD vectors. One library which makes great use of this is LoopVectorization.jl. However, one word of &quot;caution&quot;:</p>
+<p><strong>Most performance optimization is not trying to do something really good for performance. Most performance optimization is trying to not do something that is actively bad for performance.</strong></p>
+<h3>Summary of SIMD</h3>
+<ul>
+<li><p>Communication in SIMD is due to locality: if things are local the processor can automatically setup the operations.</p>
+
+<li><p>There&#39;s no real worry about &quot;getting it wrong&quot;: you cannot overwrite pieces from different parts of the arithmetic unit, and if SIMD is unsafe then it just won&#39;t auto-vectorize.</p>
+
+<li><p>Suitable for operations measured in ns.</p>
+
+</ul>
+<h2>Next Level Up: Multithreading</h2>
+<p>Last time we briefly went over multithreading and described how every process has multiple threads which share a single heap, and when multiple threads are executed simultaneously we have multithreaded parallelism. Note that you can have multiple threads which aren&#39;t executed simultaneously, like in the case of I/O operations, and this is an example of concurrency without parallelism and is commonly referred to as green threads.</p>
+<p><img src="https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png" alt="" /></p>
+<p>Last time we described a simple multithreaded program and noticed that multithreading has an overhead cost of around 50ns-100ns. This is due to the construction of the new stack &#40;among other things&#41; each time a new computational thread is spun up. This means that, unlike SIMD, some thought needs to be put in as to when to perform multithreading: it&#39;s not always a good idea. It needs to be high enough on the cost for this to be counter-balanced.</p>
+<p>One abstraction that was glossed over was the memory access style. Before, we were considering a single heap, or an UMA style:</p>
+<p><img src="https://software.intel.com/sites/default/files/m/2/0/4/e/d/39352-figure-1.jpg" alt="" /></p>
+<p>However, this is the case for all shared memory devices. For example, compute nodes on the HPC tend to be &quot;dual Xeon&quot; or &quot;quad Xeon&quot;, where each Xeon processor is itself a multicore processor. But each processor on its own accesses its own local caches, and thus one has to be aware that this is setup in a NUMA &#40;non-uniform memory access&#41; manner:</p>
+<p><img src="https://software.intel.com/sites/default/files/m/2/d/c/b/2/39353-figure-2.jpg" alt="" /></p>
+<p>where there is a cache that is closer to the processor and a cache that is further away. Care should be taken in this to localize the computation per thread, otherwise a cost associated with the memory sharing will be hit &#40;but all sharing will still be automatic&#41;.</p>
+<p>In this sense, interthread communication is naturally done through the heap: if you want other threads to be able to touch a value, then you can simply place it on the heap and then it&#39;ll be available. We saw this last time by how overlapping computations can re-use the same heap-based caches, meaning that care needs to be taken with how one writes into a dynamically-allocated array.</p>
+<p>A simple example that demonstrates this is. First, let&#39;s make sure we have multithreading enabled:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.</span><span class='hljl-n'>Threads</span><span class='hljl-t'>
+</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>nthreads</span><span class='hljl-p'>()</span><span class='hljl-t'> </span><span class='hljl-cs'># should not be 1</span>
+</pre>
+
+
+<pre class=output >
+1
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>BenchmarkTools</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+    </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc</span><span class='hljl-t'>
+    </span><span class='hljl-n'>acc</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc</span>
+</pre>
+
+
+<pre class=output >
+10000
+</pre>
+
+
+<p>The reason for this behavior is that there is a difference between the reading and the writing step to an array. Here, values are being read while other threads are writing, meaning that they see a lower value than when they are attempting to write into it. The result is that the total summation is lower than the true value because of this clashing. We can prevent this by only allowing one thread to utilize the heap-allocated variable at a time. One abstraction for doing this is <em>atomics</em>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>acc</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Atomic</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+    </span><span class='hljl-nf'>atomic_add!</span><span class='hljl-p'>(</span><span class='hljl-n'>acc</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc</span>
+</pre>
+
+
+<pre class=output >
+Atomic&#123;Int64&#125;&#40;10000&#41;
+</pre>
+
+
+<p>When an atomic add is being done, all other threads wishing to do the same computation are blocked. This of course can have a massive effect on performance since atomic computations are not parallel.</p>
+<p>Julia also exposes a lower level of heap control in threading using <em>locks</em></p>
+
+
+<pre class='hljl'>
+<span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>acc_lock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>splock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SpinLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>f1</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>acc_lock</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>rsplock</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>ReentrantLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>f2</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>rsplock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>acc_lock</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>rsplock</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-n'>acc2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Atomic</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>g</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+      </span><span class='hljl-nf'>atomic_add!</span><span class='hljl-p'>(</span><span class='hljl-n'>acc2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>h</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>10_000</span><span class='hljl-t'>
+      </span><span class='hljl-n'>acc_s</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>f1</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+162.101 μs &#40;6 allocations: 544 bytes&#41;
+</pre>
+
+
+<p><code>SpinLock</code> is non-reentrant, i.e. it will block itself if a thread that calls a <code>lock</code> does another <code>lock</code>. Therefore it has to be used with caution &#40;every <code>lock</code> goes with one <code>unlock</code>&#41;, but it&#39;s fast. <code>ReentrantLock</code> alleviates those concerns, but trades off a bit of performance:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>f2</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+472.704 μs &#40;6 allocations: 544 bytes&#41;
+</pre>
+
+
+<p>But if you can use atomics, they will be faster:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>g</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+64.802 μs &#40;6 allocations: 544 bytes&#41;
+</pre>
+
+
+<p>and if your computation is actually serial, then use serial code:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>h</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+4.457 μs &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+<p>Why is this so fast? Check the code:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>h</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:26 within &#96;h&#96;
+define void @julia_h_16702&#40;&#41; #0 &#123;
+top:
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:29 within &#96;h&#96;
+; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
+; │┌ @ Base.jl:42 within &#96;getproperty&#96;
+    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 139920052307360 to i64*&#41;, align 32
+; └└
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:28 within &#96;h&#96;
+  br label &#37;L2
+
+L2:                                               ; preds &#61; &#37;L2, &#37;top
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:29 within &#96;h&#96;
+; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
+; │┌ @ Base.jl:42 within &#96;getproperty&#96;
+    &#37;0 &#61; phi i64 &#91; &#37;.pre, &#37;top &#93;, &#91; &#37;1, &#37;L2 &#93;
+    &#37;value_phi &#61; phi i64 &#91; 1, &#37;top &#93;, &#91; &#37;2, &#37;L2 &#93;
+; └└
+; ┌ @ int.jl:87 within &#96;&#43;&#96;
+   &#37;1 &#61; add i64 &#37;0, 1
+; └
+; ┌ @ refvalue.jl:57 within &#96;setindex&#33;&#96;
+; │┌ @ Base.jl:43 within &#96;setproperty&#33;&#96;
+    store i64 &#37;1, i64* inttoptr &#40;i64 139920052307360 to i64*&#41;, align 32
+; └└
+; ┌ @ range.jl:837 within &#96;iterate&#96;
+; │┌ @ promotion.jl:468 within &#96;&#61;&#61;&#96;
+    &#37;.not &#61; icmp eq i64 &#37;value_phi, 10000
+; │└
+   &#37;2 &#61; add nuw nsw i64 &#37;value_phi, 1
+; └
+  br i1 &#37;.not, label &#37;L19, label &#37;L2
+
+L19:                                              ; preds &#61; &#37;L2
+  ret void
+&#125;
+</pre>
+
+
+<p>It just knows to add 10000. So to get a proper timing let&#39;s make the size mutable:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>len</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int</span><span class='hljl-p'>}(</span><span class='hljl-ni'>10_000</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>h2</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>len</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>len</span><span class='hljl-p'>[]</span><span class='hljl-t'>
+      </span><span class='hljl-n'>acc_s</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>h2</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+3.237 μs &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@code_llvm</span><span class='hljl-t'> </span><span class='hljl-nf'>h2</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:3 within &#96;h2&#96;
+define void @julia_h2_16710&#40;&#41; #0 &#123;
+top:
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:6 within &#96;h2&#96;
+; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
+; │┌ @ Base.jl:42 within &#96;getproperty&#96;
+    &#37;0 &#61; load i64, i64* inttoptr &#40;i64 139918823188288 to i64*&#41;, align 64
+; └└
+; ┌ @ range.jl:5 within &#96;Colon&#96;
+; │┌ @ range.jl:354 within &#96;UnitRange&#96;
+; ││┌ @ range.jl:359 within &#96;unitrange_last&#96;
+     &#37;.inv &#61; icmp sgt i64 &#37;0, 0
+     &#37;1 &#61; select i1 &#37;.inv, i64 &#37;0, i64 0
+; └└└
+  br i1 &#37;.inv, label &#37;L14.preheader, label &#37;L31
+
+L14.preheader:                                    ; preds &#61; &#37;top
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:7 within &#96;h2&#96;
+; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
+; │┌ @ Base.jl:42 within &#96;getproperty&#96;
+    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 139920052307360 to i64*&#41;, align 32
+; └└
+  br label &#37;L14
+
+L14:                                              ; preds &#61; &#37;L14, &#37;L14.preh
+eader
+; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
+; │┌ @ Base.jl:42 within &#96;getproperty&#96;
+    &#37;2 &#61; phi i64 &#91; &#37;3, &#37;L14 &#93;, &#91; &#37;.pre, &#37;L14.preheader &#93;
+    &#37;value_phi2 &#61; phi i64 &#91; &#37;4, &#37;L14 &#93;, &#91; 1, &#37;L14.preheader &#93;
+; └└
+; ┌ @ int.jl:87 within &#96;&#43;&#96;
+   &#37;3 &#61; add i64 &#37;2, 1
+; └
+; ┌ @ refvalue.jl:57 within &#96;setindex&#33;&#96;
+; │┌ @ Base.jl:43 within &#96;setproperty&#33;&#96;
+    store i64 &#37;3, i64* inttoptr &#40;i64 139920052307360 to i64*&#41;, align 32
+; └└
+; ┌ @ range.jl:837 within &#96;iterate&#96;
+; │┌ @ promotion.jl:468 within &#96;&#61;&#61;&#96;
+    &#37;.not &#61; icmp eq i64 &#37;value_phi2, &#37;1
+; │└
+   &#37;4 &#61; add nuw i64 &#37;value_phi2, 1
+; └
+  br i1 &#37;.not, label &#37;L31, label &#37;L14
+
+L31:                                              ; preds &#61; &#37;L14, &#37;top
+  ret void
+&#125;
+</pre>
+
+
+<p>It&#39;s still optimizing it&#33;</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>non_const_len</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>10000</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>h3</span><span class='hljl-p'>()</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>acc_s</span><span class='hljl-t'>
+  </span><span class='hljl-kd'>global</span><span class='hljl-t'> </span><span class='hljl-n'>non_const_len</span><span class='hljl-t'>
+  </span><span class='hljl-n'>len2</span><span class='hljl-oB'>::</span><span class='hljl-n'>Int</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>non_const_len</span><span class='hljl-t'>
+  </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-n'>len2</span><span class='hljl-t'>
+      </span><span class='hljl-n'>acc_s</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>h3</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class=output >
+3.375 μs &#40;0 allocations: 0 bytes&#41;
+</pre>
+
+
+<p>Note that what is shown here is a type-declaration. <code>a::T &#61; ...</code> forces <code>a</code> to be of type <code>T</code> throughout the whole function. By giving the compiler this information, I am able to use the non-constant global in a type-stable manner.</p>
+<p>One last thing to note about multithreaded computations, and parallel computations, is that one cannot assume that the parallelized computation is computed in any given order. For example, the following will has a quasi-random ordering:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>a2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>zeros</span><span class='hljl-p'>(</span><span class='hljl-nf'>nthreads</span><span class='hljl-p'>()</span><span class='hljl-oB'>*</span><span class='hljl-ni'>10</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>acc_lock2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Ref</span><span class='hljl-p'>{</span><span class='hljl-n'>Int64</span><span class='hljl-p'>}(</span><span class='hljl-ni'>0</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-kd'>const</span><span class='hljl-t'> </span><span class='hljl-n'>splock2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>SpinLock</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>f_order</span><span class='hljl-p'>()</span><span class='hljl-t'>
+    </span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>a2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>lock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-n'>acc_lock2</span><span class='hljl-p'>[]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+        </span><span class='hljl-n'>a2</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>acc_lock2</span><span class='hljl-p'>[]</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>unlock</span><span class='hljl-p'>(</span><span class='hljl-n'>splock2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-nf'>f_order</span><span class='hljl-p'>()</span><span class='hljl-t'>
+</span><span class='hljl-n'>a2</span>
+</pre>
+
+
+<pre class=output >
+10-element Vector&#123;Float64&#125;:
+  1.0
+  2.0
+  3.0
+  4.0
+  5.0
+  6.0
+  7.0
+  8.0
+  9.0
+ 10.0
+</pre>
+
+
+<p>Note that here we can see that Julia 1.5 is dividing up the work into groups of 10 for each thread, and then one thread dominates the computation at a time, but which thread dominates is random.</p>
+<h3>The Dining Philosophers Problem</h3>
+<p>A classic tale in parallel computing is the dining philosophers problem. In this case, there are N philosophers at a table who all want to eat at the same time, following all of the same rules. Each philosopher must alternatively think and then eat. They need both their left and right fork to start eating, but cannot start eating until they have both forks. The problem is how to setup a concurrent algorithm that will not cause any philosophers to starve.</p>
+<p>The difficulty is a situation known as <em>deadlock</em>. For example, if each philosopher was told to grab the right fork when it&#39;s available, and then the left fork, and put down the fork after eating, then they will all grab the right fork and none will ever eat because they will all be waiting on the left fork. This is analogous to two blocked computations which are waiting on the other to finish. Thus, when using blocking structures, one needs to be careful about deadlock&#33;</p>
+<h3>Two Programming Models: Loop-Level Parallelism and Task-Based Parallelism</h3>
+<p>As described in the previous lecture, one can also use <code>Threads.@spawn</code> to do multithreading in Julia v1.3&#43;. The same factors all applay: how to do locks and Mutex etc. This is a case of a parallelism construct having two alternative <strong>programming models</strong>. <code>Threads.@spawn</code> represents task-based parallelism, while <code>Threads.@threads</code> represents Loop-Level Parallelism or a parallel iterator model. Loop-based parallelization models are very high level and, assuming every iteration is independent, almost requires no code change. Task-based parallelism is a more expressive parallelism model, but usually requires modifying the code to be explicitly written as a set of parallelizable tasks. Note that in the case of Julia, <code>Threads.@threads</code> is implemented using <code>Threads.@spawn</code>&#39;s model.</p>
+<h3>Summary of Multithreading</h3>
+<ul>
+<li><p>Communication in multithreading is done on the heap. Locks and atomics allow for a form of safe message passing.</p>
+
+<li><p>50ns-100ns of overhead. Suitable for 1μs calculations.</p>
+
+<li><p>Be careful of ordering and heap-allocated values.</p>
+
+</ul>
+<h2>GPU Computing</h2>
+<p>GPUs are not fast. In fact, the problem with GPUs is that each processor is slow. However, GPUs have a lot of cores... like thousands.</p>
+<p><img src="https://miro.medium.com/max/832/0*xzPjWMqXC0NB6D69.jpg" alt="" /></p>
+<p>An RTX2080, a standard &quot;gaming&quot; GPU &#40;not even the ones in the cluster&#41;, has 2944 cores. However, not only are GPUs slow, but they also need to be programmed in a style that is <em>SPMD</em>, which standard for Single Program Multiple Data. This means that every single thread must be running the same program but on different pieces of data. Exactly the same program. If you have</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>if</span><span class='hljl-t'> </span><span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+  </span><span class='hljl-cs'># Do something</span><span class='hljl-t'>
+</span><span class='hljl-k'>else</span><span class='hljl-t'>
+  </span><span class='hljl-cs'># Do something else</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<p>where some of the data goes on one branch and other data goes on the other branch, every single thread will run both branches &#40;performing &quot;fake&quot; computations while on the other branch&#41;. This means that GPU tasks should be &quot;very parallel&quot; with as few conditionals as possible.</p>
+<h3>GPU Memory</h3>
+<p>GPUs themselves are shared memory devices, meaning they have a heap that is shared amongst all threads. However, GPUs are heavily in the NUMA camp, where different blocks of the GPU have much faster access to certain parts of the memory. Additionally, this heap is disconnected from the standard processor, so data must be passed to the GPU and data must be returned.</p>
+<p>GPU memory size is relatively small compared to CPUs. Example: the RTX2080Ti has 8GB of RAM. Thus one needs to be doing computations that are memory compact &#40;such as matrix multiplications, which are O&#40;n^3&#41; making the computation time scale quicker than the memory cost&#41;.</p>
+<h3>Note on GPU Hardware</h3>
+<p>Standard GPU hardware &quot;for gaming&quot;, like RTX2070, is just as fast as higher end GPU hardware for Float32. Higher end hardware, like the Tesla, add more memory, memory safety, and Float64 support. However, these require being in a server since they have alternative cooling strategies, making them a higher end product.</p>
+<h3>SPMD Kernel Generation GPU Computing Models</h3>
+<p>The core programming models for GPU computing are SPMD kernel compilers, of which the most well-known is CUDA. CUDA is a C&#43;&#43;-like programming language which compiles to .ptx kernels, and GPU execution on NVIDIA GPUs is done by &quot;all steams&quot; of a GPU doing concurrent execution of the kernel &#40;generally, without going into more details, you can of &quot;all streams&quot; as just meaning &quot;all cores&quot;. More detailed views of GPU execution will come later&#41;.</p>
+<p>.ptx CUDA kernels can be compiled from LLVM IR, and thus since Julia is a programming language which emits LLVM IR for all of its operations, native Julia programs are compatible with compilation to CUDA. The helper functions to enable this separate compilation path is CUDA.jl. Let&#39;s take a look at a basic CUDA.jl kernel generating example:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>N</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-oB'>^</span><span class='hljl-ni'>20</span><span class='hljl-t'>
+</span><span class='hljl-n'>x_d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nf'>fill</span><span class='hljl-p'>(</span><span class='hljl-nfB'>1.0f0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>N</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># a vector stored on the GPU filled with 1.0 (Float32)</span><span class='hljl-t'>
+</span><span class='hljl-n'>y_d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nf'>fill</span><span class='hljl-p'>(</span><span class='hljl-nfB'>2.0f0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>N</span><span class='hljl-p'>)</span><span class='hljl-t'>  </span><span class='hljl-cs'># a vector stored on the GPU filled with 2.0</span><span class='hljl-t'>
+
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_add2!</span><span class='hljl-p'>(</span><span class='hljl-n'>y</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>index</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>threadIdx</span><span class='hljl-p'>()</span><span class='hljl-oB'>.</span><span class='hljl-n'>x</span><span class='hljl-t'>    </span><span class='hljl-cs'># this example only requires linear indexing, so just use `x`</span><span class='hljl-t'>
+    </span><span class='hljl-n'>stride</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>blockDim</span><span class='hljl-p'>()</span><span class='hljl-oB'>.</span><span class='hljl-n'>x</span><span class='hljl-t'>
+    </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>index</span><span class='hljl-oB'>:</span><span class='hljl-n'>stride</span><span class='hljl-oB'>:</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>y</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-n'>y</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+    </span><span class='hljl-k'>return</span><span class='hljl-t'> </span><span class='hljl-n'>nothing</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>fill!</span><span class='hljl-p'>(</span><span class='hljl-n'>y_d</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@cuda</span><span class='hljl-t'> </span><span class='hljl-n'>threads</span><span class='hljl-oB'>=</span><span class='hljl-ni'>256</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_add2!</span><span class='hljl-p'>(</span><span class='hljl-n'>y_d</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>x_d</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>all</span><span class='hljl-p'>(</span><span class='hljl-nf'>Array</span><span class='hljl-p'>(</span><span class='hljl-n'>y_d</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.==</span><span class='hljl-t'> </span><span class='hljl-nfB'>3.0f0</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class=julia-error >
+ERROR: Could not find the CUDA driver library. Please make sure you have installed the NVIDIA driver for your GPU.
+If you&#39;re sure it&#39;s installed, look for &#96;libcuda.so&#96; in your system and make sure it&#39;s discoverable by the linker.
+Typically, that involves an entry in &#39;/etc/ld.so.conf&#39;, or setting LD_LIBRARY_PATH.
+</pre>
+
+
+<p>The key to understanding the SPMD kernel approach is the <code>index &#61; threadIdx&#40;&#41;.x</code> and <code>stride &#61; blockDim&#40;&#41;.x</code> portions.</p>
+<p><img src="https://juliagpu.gitlab.io/CUDA.jl/tutorials/intro1.png" alt="" /></p>
+<p>The way kernels are expected to run in parallel is that they are given a specific block of the computation and are expected to write a kernel which only on that small block of the input. This kernel is then called on every separate thread on the GPU, making each CUDA core simultaneously compute each block. Thus as a user in such a SPMD programming model, you never specify the computation globally but instead simply specify how chunks should behave, giving the compiler the leeway to determine the optimal global execution.</p>
+<h3>Array-Based GPU Computing Models</h3>
+<p>The simplest version of GPU computing is the array-based programming model.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>A</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>,</span><span class='hljl-ni'>100</span><span class='hljl-p'>);</span><span class='hljl-t'> </span><span class='hljl-n'>B</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>100</span><span class='hljl-p'>,</span><span class='hljl-ni'>100</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-t'>
+</span><span class='hljl-cs'># Pass to the GPU</span><span class='hljl-t'>
+</span><span class='hljl-n'>cuA</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>cu</span><span class='hljl-p'>(</span><span class='hljl-n'>A</span><span class='hljl-p'>);</span><span class='hljl-t'> </span><span class='hljl-n'>cuB</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>cu</span><span class='hljl-p'>(</span><span class='hljl-n'>B</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>cuC</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>cuA</span><span class='hljl-oB'>*</span><span class='hljl-n'>cuB</span><span class='hljl-t'>
+</span><span class='hljl-cs'># Pass to the CPU</span><span class='hljl-t'>
+</span><span class='hljl-n'>C</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Array</span><span class='hljl-p'>(</span><span class='hljl-n'>cuC</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class=julia-error >
+ERROR: Could not find the CUDA driver library. Please make sure you have installed the NVIDIA driver for your GPU.
+If you&#39;re sure it&#39;s installed, look for &#96;libcuda.so&#96; in your system and make sure it&#39;s discoverable by the linker.
+Typically, that involves an entry in &#39;/etc/ld.so.conf&#39;, or setting LD_LIBRARY_PATH.
+</pre>
+
+
+<p>Let&#39;s see the transfer times:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>cu</span><span class='hljl-p'>(</span><span class='hljl-n'>A</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class=julia-error >
+ERROR: Could not find the CUDA driver library. Please make sure you have installed the NVIDIA driver for your GPU.
+If you&#39;re sure it&#39;s installed, look for &#96;libcuda.so&#96; in your system and make sure it&#39;s discoverable by the linker.
+Typically, that involves an entry in &#39;/etc/ld.so.conf&#39;, or setting LD_LIBRARY_PATH.
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>Array</span><span class='hljl-p'>(</span><span class='hljl-n'>cuC</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class=julia-error >
+ERROR: UndefVarError: cuC not defined
+</pre>
+
+
+<p>The cost transferring is about 20μs-50μs in each direction, meaning that one needs to be doing operations that cost at least 200μs for GPUs to break even. A good rule of thumb is that GPU computations should take at least a millisecond, or GPU memory should be re-used.</p>
+<h3>Summary of GPUs</h3>
+<ul>
+<li><p>GPUs cores are slow</p>
+
+<li><p>GPUs are SPMD</p>
+
+<li><p>GPUs are generally used for linear algebra</p>
+
+<li><p>Suitable for SPMD 1ms computations</p>
+
+</ul>
+<h2>Xeon Phi Accelerators and OpenCL</h2>
+<p>Other architectures exist to keep in mind. Xeon Phis are a now-defunct accelerator that used X86 &#40;standard processors&#41; as the base, using hundreds of them. For example, the Knights Landing series had 256 core accelerator cards. These were all clocked down, meaning they were still slower than a standard CPU, but there were less restrictions on SPMD &#40;though SPMD-like computations were still preferred in order to heavily make use of SIMD&#41;. However, because machine learning essentially only needs linear algebra, and linear algebra is faster when restricting to SPMD-architectures, this failed. These devices can still be found on many high end clusters.</p>
+<p>One alternative to CUDA is OpenCL which supports alternative architectures such as the Xeon Phi at the same time that it supports GPUs. However, one of the issues with OpenCL is that its BLAS implementation currently does not match the speed of CuBLAS, which makes NVIDIA-specific libraries still the king of machine learning and most scientific computing.</p>
+<h2>TPU Computing</h2>
+<p>TPUs are tensor processing units, which is Google&#39;s newest accelerator technology. They are essentially just &quot;tensor operation compilers&quot;, which in computer science speak is simply higher dimensional linear algebra. To do this, they internally utilize a BFloat16 type, which is a 16-bit floating point number with the same exponent size as a Float32 with an 8-bit significant. This means that computations are highly prone to <em>catastrophic cancellation</em>. This computational device only works because BFloat16 has primitive operations for FMA which allows 32-bit-like accuracy of multiply-add operations, and thus computations which are only dot products &#40;linear algebra&#41; end up okay. Thus this is simply a GPU-like device which has gone further to completely specialize in linear algebra.</p>
+<h2>Multiprocessing &#40;Distributed Computing&#41;</h2>
+<p>While multithreading computes with multiple threads, multiprocessing computes with multiple independent processes. Note that processes do not share any memory, not heap or data, and thus this mode of computing also allows for <em>distributed computations</em>, which is the case where processes may be on separate computing hardware. However, even if they are on the same hardware, the lack of a shared address space means that multiprocessing has to do <em>message passing</em>, i.e. send data from one process to the other.</p>
+<h3>Distributed Tasks with Explicit Memory Handling: The Master-Worker Model</h3>
+<p>Given the amount of control over data handling, there are many different models for distributed computing. The simplest, the one that Julia&#39;s Distributed Standard Library defaults to, is the <em>master-worker model</em>. The master-worker model has one process, deemed the master, which controls the worker processes.</p>
+<p>Here we can start by adding some new worker processes:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Distributed</span><span class='hljl-t'>
+</span><span class='hljl-nf'>addprocs</span><span class='hljl-p'>(</span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<p>This adds 4 worker processes for the master to control. The simplest computations are those where the master process gives the worker process a job which returns the value afterwards. For example, a <code>pmap</code> operation or <code>@distributed</code> loop gives the worker a function to execute, along with the data, and the worker then computes and returns the result.</p>
+<p>At a lower level, this is done by <code>Distributed.@spawn</code>ing jobs, or using a <code>remotecall</code> and <code>fetch</code>ing the result. <a href="https://github.com/ChrisRackauckas/ParallelDataTransfer.jl">ParallelDataTransfer.jl</a> gives an extended set of primitive message passing operations. For example, we can explicitly tell it to compute a function <code>f</code> on the remote process like:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@everywhere</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>x</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>x</span><span class='hljl-oB'>.^</span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-cs'># Define this function on all processes</span><span class='hljl-t'>
+</span><span class='hljl-n'>t</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>remotecall</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-nf'>randn</span><span class='hljl-p'>(</span><span class='hljl-ni'>10</span><span class='hljl-p'>))</span>
+</pre>
+
+
+<p><code>remotecall</code> is a non-blocking operation that returns a <code>Future</code>. To access the data, one should use the blocking operation <code>fetch</code> to receive the data:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>xsq</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>fetch</span><span class='hljl-p'>(</span><span class='hljl-n'>t</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<h3>Distributed Tasks with Implicit Memory Handling: Distributed Task-Based Parallelism</h3>
+<p>Another popular programming model for distributed computation is task-based parallelism but where all of the memory handling is implicit. Since, unlike the shared memory parallelism case, data transfers are required for given processes to share heap allocated values, distributed task-based parallelism libraries tend to want a global view of the whole computation in order to build a sophisticated schedule that includes where certain data lives and when transfers will occur. Because of this, distributed task-based parallelism libraries tend to want the entire <strong>computational graph</strong> of the computation, to be able to restructure the graph as necessary with their own data transfer portions spliced into the compute. Examples of this kind of framework are:</p>
+<ul>
+<li><p>Tensorflow</p>
+
+<li><p>dask &#40;&quot;distributed tasks&quot;&#41;</p>
+
+<li><p>Dagger.jl</p>
+
+</ul>
+<p>Using these kinds of libraries requires building a directed acyclic graph &#40;DAG&#41;. For example, the following showcases how to use Dagger.jl to represent a bunch of summations:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Dagger</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>add1</span><span class='hljl-p'>(</span><span class='hljl-n'>value</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>value</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
+</span><span class='hljl-nf'>add2</span><span class='hljl-p'>(</span><span class='hljl-n'>value</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>value</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-t'>
+</span><span class='hljl-nf'>combine</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-oB'>...</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>sum</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>delayed</span><span class='hljl-p'>(</span><span class='hljl-n'>add1</span><span class='hljl-p'>)(</span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>q</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>delayed</span><span class='hljl-p'>(</span><span class='hljl-n'>add2</span><span class='hljl-p'>)(</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>r</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>delayed</span><span class='hljl-p'>(</span><span class='hljl-n'>add1</span><span class='hljl-p'>)(</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>s</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>delayed</span><span class='hljl-p'>(</span><span class='hljl-n'>combine</span><span class='hljl-p'>)(</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>q</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>r</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nd'>@assert</span><span class='hljl-t'> </span><span class='hljl-nf'>collect</span><span class='hljl-p'>(</span><span class='hljl-n'>s</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>==</span><span class='hljl-t'> </span><span class='hljl-ni'>16</span>
+</pre>
+
+
+<p>Once the global computation is specified, commands like <code>collect</code> are used to instantiate the graph on given input data, which then run the computation in a &#40;potentially&#41; distributed manner, depending on internal scheduler heuristics.</p>
+<h3>Distributed Array-Based Parallelism: SharedArrays, Elemental, and DArrays</h3>
+<p>Because array operations are a standard way to compute in scientific computing, there are higher level primitives to help with message passing. A <code>SharedArray</code> is an array which acts like a shared memory device. This means that every change to a <code>SharedArray</code> causes message passing to keep them in sync, and thus this should be used with a performance caution. <a href="https://github.com/JuliaParallel/DistributedArrays.jl">DistributedArrays.jl</a> is a parallel array type which has local blocks and can be used for writing higher level abstractions with explicit message passing. Because it is currently missing high-level parallel linear algebra, currently the recommended tool for distributed linear algebra is <a href="https://github.com/JuliaParallel/Elemental.jl">Elemental.jl</a>.</p>
+<h3>MapReduce, Hadoop, and Spark: The Map-Reduce Model</h3>
+<p>Many data-parallel operations work by mapping a function <code>f</code> onto each piece of data and then reducing it. For example, the sum of squares maps the function <code>x -&gt; x^2</code> onto each value, and then these values are reduced by performing a summation. MapReduce was a Google framework in the 2000&#39;s built around this as the parallel computing concept, and current data-handling frameworks, like Hadoop and Spark, continue this as the core distributed programming model.</p>
+<p>In Julia, there exists the <code>mapreduce</code> function for performing serial mapreduce operations. It also work on GPUs. However, it does not auto-distribute. For distributed map-reduce programming, the <code>@distributed</code> for-loop macro can be used. For example, sum of squares of random numbers is:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@distributed</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-oB'>+</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>1000</span><span class='hljl-t'>
+  </span><span class='hljl-nf'>rand</span><span class='hljl-p'>()</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span>
+</pre>
+
+
+<p>One can see that computing summary statistics is easily done in this framework which is why it was majorly adopted among &quot;big data&quot; communities.</p>
+<p><code>@distributed</code> uses a static scheduler. The dynamic scheduling equivalent is <code>pmap</code>:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nf'>pmap</span><span class='hljl-p'>(</span><span class='hljl-n'>i</span><span class='hljl-oB'>-&gt;</span><span class='hljl-nf'>rand</span><span class='hljl-p'>()</span><span class='hljl-oB'>^</span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<p>which will dynamically allocate jobs to processes as they declare they have finished jobs. This thus has the same performance difference behavior as <code>Threads.@threads</code> vs <code>Threads.@spawn</code>.</p>
+<h3>MPI: The Distributed SPMD Model</h3>
+<p>The main way to do high-performance multiprocessing is <em>MPI</em>, which is an old distributed computing interface from the C/Fortran days. Julia has access to the MPI programming model through MPI.jl. The programming model for MPI is that every computer is running the same program, and synchronization is performed by blocking communication. For example, let&#39;s look at the following:</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>MPI</span><span class='hljl-t'>
+</span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-nf'>Init</span><span class='hljl-p'>()</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>comm</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-n'>COMM_WORLD</span><span class='hljl-t'>
+</span><span class='hljl-n'>rank</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-nf'>Comm_rank</span><span class='hljl-p'>(</span><span class='hljl-n'>comm</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>size</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-nf'>Comm_size</span><span class='hljl-p'>(</span><span class='hljl-n'>comm</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>dst</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mod</span><span class='hljl-p'>(</span><span class='hljl-n'>rank</span><span class='hljl-oB'>+</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>size</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>src</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>mod</span><span class='hljl-p'>(</span><span class='hljl-n'>rank</span><span class='hljl-oB'>-</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>size</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>N</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>send_mesg</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Array</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>N</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>recv_mesg</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Array</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>N</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>fill!</span><span class='hljl-p'>(</span><span class='hljl-n'>send_mesg</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>Float64</span><span class='hljl-p'>(</span><span class='hljl-n'>rank</span><span class='hljl-p'>))</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>rreq</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-nf'>Irecv!</span><span class='hljl-p'>(</span><span class='hljl-n'>recv_mesg</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>src</span><span class='hljl-p'>,</span><span class='hljl-t'>  </span><span class='hljl-n'>src</span><span class='hljl-oB'>+</span><span class='hljl-ni'>32</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>comm</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>print</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;</span><span class='hljl-si'>$rank</span><span class='hljl-s'>: Sending   </span><span class='hljl-si'>$rank</span><span class='hljl-s'> -&gt; </span><span class='hljl-si'>$dst</span><span class='hljl-s'> = </span><span class='hljl-si'>$send_mesg</span><span class='hljl-se'>\n</span><span class='hljl-s'>&quot;</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>sreq</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-nf'>Isend</span><span class='hljl-p'>(</span><span class='hljl-n'>send_mesg</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>dst</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>rank</span><span class='hljl-oB'>+</span><span class='hljl-ni'>32</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>comm</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>stats</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-nf'>Waitall!</span><span class='hljl-p'>([</span><span class='hljl-n'>rreq</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>sreq</span><span class='hljl-p'>])</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>print</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;</span><span class='hljl-si'>$rank</span><span class='hljl-s'>: Received </span><span class='hljl-si'>$src</span><span class='hljl-s'> -&gt; </span><span class='hljl-si'>$rank</span><span class='hljl-s'> = </span><span class='hljl-si'>$recv_mesg</span><span class='hljl-se'>\n</span><span class='hljl-s'>&quot;</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>MPI</span><span class='hljl-oB'>.</span><span class='hljl-nf'>Barrier</span><span class='hljl-p'>(</span><span class='hljl-n'>comm</span><span class='hljl-p'>)</span>
+</pre>
+
+
+
+<pre class='hljl'>
+<span class='hljl-oB'>&gt;</span><span class='hljl-t'> </span><span class='hljl-n'>mpiexecjl</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-n'>n</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-t'> </span><span class='hljl-n'>julia</span><span class='hljl-t'> </span><span class='hljl-n'>examples</span><span class='hljl-oB'>/</span><span class='hljl-ni'>04</span><span class='hljl-oB'>-</span><span class='hljl-n'>sendrecv</span><span class='hljl-oB'>.</span><span class='hljl-n'>jl</span><span class='hljl-t'>
+</span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>Sending</span><span class='hljl-t'>   </span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-ni'>0</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>Sending</span><span class='hljl-t'>   </span><span class='hljl-ni'>0</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>Received</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-ni'>2</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>Sending</span><span class='hljl-t'>   </span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-ni'>0</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>Received</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>0</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>2.0</span><span class='hljl-p'>]</span><span class='hljl-t'>
+</span><span class='hljl-ni'>2</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>Received</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>]</span>
+</pre>
+
+
+<p>Let&#39;s investigate this a little bit. Think about having two computers run this line-by-line side by side. They will both locally build arrays, and then call <code>MPI.Irecv&#33;</code>, which is an asynchronous non-blocking call to listen for a message from a given <code>rank</code> &#40;a rank is the ID for a given process&#41;. Then they call their <code>sreq &#61; MPI.Isend</code> function, which is an asynchronous non-blocking call to send a message <code>send_mesg</code> to the chosen <code>rank</code>. When the expected message is found, <code>MPI.Irecv&#33;</code> will then run on its green thread and finish, updating the <code>recv_mesg</code> with the information from the message. However, in order to make sure all of the messages are received, we have added in a blocking operation <code>MPI.Waitall&#33;&#40;&#91;rreq, sreq&#93;&#41;</code>, which will block all further execution on the given rank until both its <code>rreq</code> and <code>sreq</code> tasks are completed. After that is done, each given rank will have its updated data, and the script will continue on all ranks.</p>
+<p>This model is thus very asynchronous and allows for many different computers to run one highly parallelized program, managing the data transmissions in a sparse way without a single computer in charge of managing the whole computation. However, it can be prone to deadlock, since errors in the program may for example require rank 1 to receive a message from rank 2 before continuing the program, but rank 2 won&#39;t continue to program until it receives a message from rank 1. For this reason, while MPI has been the most successful large-scale distributed computing model and almost all major high-performance computing &#40;HPC&#41; cluster competitions have been won by codes utilizing the MPI model, the MPI model is nowadays considered a last resort due to these safety issues.</p>
+<h3>Summary of Multiprocessing</h3>
+<ul>
+<li><p>Cost is hardware dependent: only suitable for 1ms or higher depending on the connections through which the messages are being passed and the topology of the network.</p>
+
+<li><p>The Master-worker programming model is Julia&#39;s <code>Distributed</code> model</p>
+
+<li><p>The Map-reduce programming model is a common data-handling model</p>
+
+<li><p>Array-based distributed computations are another abstraction, used in all forms of parallelism.</p>
+
+<li><p>MPI is a SPMD model of distributed computing, where each process is completely independent and one just controls the memory handling.</p>
+
+</ul>
+<h2>The Bait-and-switch: Parallelism is about Programming Models</h2>
+<p>While this looked like a lecture about parallel programming at the different levels and types of hardware, this wide overview showcases that the real underlying commonality within parallel program is in the <strong>parallel programming models</strong>, of which there are not too many. There are:</p>
+<ul>
+<li><p>Map-reduce parallelism models. <code>pmap</code>, MapReduce &#40;Hadoop/Spark&#41;</p>
+<ul>
+<li><p>Pros: Easy to use</p>
+
+<li><p>Cons: Requires that your program is specifically only mapping functions <code>f</code> and reducing them. That said, many data science operations like <code>mean</code>, <code>variance</code>, <code>maximum</code>, etc. can be represented as map-reduce calls, which lead to the popularity of these approaches for &quot;big data&quot; operations.</p>
+
+</ul>
+
+<li><p>Array-based parallelism models. SIMD &#40;at the compiler level&#41;, <code>CuArray</code>, <code>DistributedArray</code>, <code>PyTorch.torch</code>, ...</p>
+<ul>
+<li><p>Pros: Easy to use, can have very fast library implementations for specific functions</p>
+
+<li><p>Cons: Less control and restricted to specific functions implemented by the library. Parallelism matches the data structure, so it requires the user to be careful and know the best way to split the data.</p>
+
+</ul>
+
+<li><p>Loop-based parallelism models. <code>Threads.@threads</code>, <code>@distributed</code>, OpenMP, MATLAB&#39;s <code>parfor</code>, Chapel&#39;s iterator parallelism</p>
+<ul>
+<li><p>Pros: Easy to use, almost no code change can make existing loops parallelized</p>
+
+<li><p>Cons: Refined operations, like locking and sharing data, can be awkward to write. Less control over fine details like scheduling, meaning less opportunities to optimize.</p>
+
+</ul>
+
+<li><p>Task-based parallelism models with implicit distributed data handling. <code>Threads.@spawn</code>, Dagger.jl, TensorFlow, dask</p>
+<ul>
+<li><p>Pros: Relatively high level, low risk of errors since parallelism is mostly handled for the user. User simply describes which functions to call in what order.</p>
+
+<li><p>Cons: When used on distributed systems, implicit data handling is hard, meaning it&#39;s generally not as efficient if you don&#39;t optimize the code yourself or help the optimizer, and these require specific programming constructs for building the computational graph. Note this is only a downside for distributed data parallelism, whereas when applied to shared memory systems these aspects no longer require handling by the task scheduler.</p>
+
+</ul>
+
+<li><p>Task-based parallelism models with explicit data handling. <code>Distributed.@spawn</code></p>
+<ul>
+<li><p>Pros: Allows for control over what compute hardware will have specific pieces of data and allows for transferring data manually.</p>
+
+<li><p>Cons: Requires transferring data manually. All computations are managed by a single process/computer/node and thus it can have some issues scaling to extreme &#40;1000&#43; node&#41; computing situations.</p>
+
+</ul>
+
+<li><p>SPMD kernel parallelism models. CUDA, MPI, KernelAbstractions.jl</p>
+<ul>
+<li><p>Pros: Reduces the problem for the user to only specify what happens in small chunks of the problem. Works on accelerator hardware like GPUs, TPUs, and beyond.</p>
+
+<li><p>Cons: Only works for computations that be represented block-wise, and relies on the compiler to generate good code.</p>
+
+</ul>
+
+</ul>
+<p>In this sense, the different parallel programming &quot;languages&quot; and features are much more similar than they are all different, falling into similar categories.</p>
+
+
+<div class=footer >
+  <p>
+    Published from <a href=styles_of_parallelism.jmd >styles_of_parallelism.jmd</a>
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-10-27.
+  </p>
+</div>
+
+<div class=back-to-top >
+  <span><a href="#" title="Back to Top"><i class="fa fa-chevron-circle-up"></i></a></span>
+</div>
+
+
+</div>
+        </div> 
+    </div>
