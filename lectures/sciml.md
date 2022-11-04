@@ -1,0 +1,896 @@
+# Introduction to Scientific Machine Learning through Physics-Informed Neural Networks
+
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video Link Part 1](https://youtu.be/C3vf9ZFYbjI)
+- [Youtube Video Link Part 2](https://youtu.be/hKHl68Fdpq4)
+
+Here we will start to dig into what scientific machine learning is all about
+by looking at physics-informed neural networks. Let's start by understanding
+what a neural network really is, why they are used, and what kinds of problems
+that they solve, and then we will use this understanding of a neural network
+to see how to solve ordinary differential equations with neural networks.
+For there, we will use this method to regularize neural networks with physical
+equations, the aforementioned physics-informed neural network, and see how to
+define neural network architectures that satisfy physical constraints to improve
+the training process.
+
+# Table of Contents
+
+\toc
+
+## Getting Started with Machine Learning: Adding Flux
+
+To add `Flux.jl` we would do:
+
+```julia
+]add Flux
+```
+
+To then use the package we will then use the `using` command:
+
+```julia
+using Flux
+```
+
+If you prefer to namespace all commands (like is normally done in Python, i.e.
+`Flux.gradient` instead of `gradient`), you can use the command:
+
+```julia
+import Flux
+```
+
+Note that the installation and precompilation of these packages will occur at
+the `add` and first `using` phases, so they may take awhile (subsequent uses
+will utilize the precompiled form and take a lot less time!)
+
+## What is a Neural Network?
+
+A neural network is a function:
+
+$$
+\text{NN}(x) = W_3\sigma_2(W_2\sigma_1(W_1x + b_1) + b_2) + b_3
+$$
+
+where we can change the number of layers (`(W_i,b_i)`) as necessary. Let's assume
+we want to approximate some $R^{10} \rightarrow R^5$ function. To do this we need
+to make sure that we start with 10 inputs and arrive at 5 outputs. If we want a
+bigger middle layer for example, we can do something like (10,32,32,5). Size changing
+occurs at the site of the matrix multiplication, which means that we want a
+32x10 matrix, then a 32x32 matrix, and finally a 5x32 matrix. This neural network
+would look like:
+
+```julia:./Wb
+W = [randn(32,10),randn(32,32),randn(5,32)]
+b = [zeros(32),zeros(32),zeros(5)]
+```
+
+\show{./Wb}
+
+```julia:./simpleNN
+simpleNN(x) = W[3]*tanh.(W[2]*tanh.(W[1]*x + b[1]) + b[2]) + b[3]
+simpleNN(rand(10))
+```
+
+\show{./simpleNN}
+
+This is our direct definition of a neural network. Notice that we choose to use
+`tanh` as our **activation function** between the layers.
+
+### Defining Neural Networks with Flux.jl
+
+One of the main deep learning libraries in Julia is Flux.jl. Flux is an interesting
+library for scientific machine learning because it is built on top of language-wide
+**automatic differentiation** libraries, giving rise to a programming paradigm
+known as **differentiable programming**, which means that one can write a program
+in a manner that it has easily accessible fast derivatives. However, due to being
+built on a differentiable programming base, the underlying functionality is
+simply standard Julia code,
+
+To learn how to use the library, consult the documentation. A Google search
+will bring up the [Flux.jl Github repository](https://github.com/FluxML/Flux.jl).
+From there, the blue link on the README brings you to
+[the package documentation](https://fluxml.ai/Flux.jl/stable/). This is common
+through Julia so it's a good habit to learn!
+
+In the documentation you will find that the way a neural network is defined
+is through a `Chain` of layers. A `Dense` layer is the kind we defined above,
+which is given by an input size, an output size, and an activation function.
+For example, the following recreates the neural network that we had above:
+
+```julia:./NN2
+using Flux
+NN2 = Chain(Dense(10,32,tanh),
+           Dense(32,32,tanh),
+           Dense(32,5))
+NN2(rand(10))
+```
+
+\show{./NN2}
+
+Notice that Flux.jl as a library is written in pure Julia, which means that every
+piece of this syntax is just sugar over some Julia code that we can specialize
+ourselves (this is the advantage of having a language fast enough for the
+implementation of the library and the use of the library!)
+
+For example, the activation function is just a scalar Julia function. If we wanted
+to replace it by something like the quadratic function, we can just use an
+**anonymous function** to define the scalar function we would like to use:
+
+```julia:./NN3
+NN3 = Chain(Dense(10,32,x->x^2),
+            Dense(32,32,x->max(0,x)),
+            Dense(32,5))
+NN3(rand(10))
+```
+
+\show{./NN3}
+
+The second activation function there is what's known as a `relu`. A `relu` can
+be good to use because it's an exceptionally operation and satisfies a form of
+the UAT. However, a downside is that its derivative is not continuous, which
+could impact the numerical properties of some algorithms, and thus it's widely
+used throughout standard machine learning but we'll see reasons why it may be
+disadvantageous in some cases in scientific machine learning.
+
+### Digging into the Construction of a Neural Network Library
+
+Again, as mentioned before, this neural network `NN2` is simply a function:
+
+```julia
+simpleNN(x) = W[3]*tanh.(W[2]*tanh.(W[1]*x + b[1]) + b[2]) + b[3]
+```
+
+Let's dig into the library and see how that's represented and really understand
+the construction of a deep learning library. First, let's figure out where
+`Dense` comes from and what it does.
+
+```julia:./which_Dense
+using InteractiveUtils
+@which Dense(10,32,tanh)
+```
+
+\show{./which_Dense}
+
+If we go to that spot of the documentation, we find the following.
+
+```julia:./Dense
+struct Dense{F,S<:AbstractArray,T<:AbstractArray}
+  W::S
+  b::T
+  σ::F
+end
+
+function Dense(in::Integer, out::Integer, σ = identity;
+               initW = glorot_uniform, initb = zeros)
+  return Dense(initW(out, in), initb(out), σ)
+end
+
+function (a::Dense)(x::AbstractArray)
+  W, b, σ = a.W, a.b, a.σ
+  σ.(W*x .+ b)
+end
+```
+
+First, `Dense` defines a struct in Julia. This struct just holds a weight matrix
+`W`, a bias vector `b`, and an activation function `σ`. The function called
+`Dense` is what's known as an **outer constructor** which defines how the
+`Dense` type is built. If you give it two integers (and optionally an activation
+function which defaults to `identity`), then what it will do is take random
+initial `W` and `b` matrices (according to the `glorot_uniform` distribution for
+`W` and `zeros` for `b`), and then it will build the type with those matrices.
+
+The last portion might be new. This is known as a **callable struct**, or a
+functor. It defines the dispatch for how calls work on the struct. As a quick
+demonstration, let's define a type `MyCallableStruct` with a field `x`, and then make instances
+of `A` be the function `x+y`:
+
+```julia:./MyCallableStruct
+struct MyCallableStruct
+  x
+end
+
+(a::MyCallableStruct)(y) = a.x+y
+a = MyCallableStruct(2)
+a(3)
+```
+
+\show{./MyCallableStruct}
+
+If you're familiar with object-oriented programming, this is similar to using
+an object in a way that references the `self`, though it's a bit more general
+due to allowing dispatching, i.e. this can then dependent on the input types
+as well.
+
+So let's look at that `Dense` call with this in mind:
+
+```julia
+function (a::Dense)(x::AbstractArray)
+  W, b, σ = a.W, a.b, a.σ
+  σ.(W*x .+ b)
+end
+```
+
+This means that `Dense` is a function that takes in an `x` and computes
+`σ.(W*x.+b)`, which is precisely how we defined the layer before! To see that
+this is just a function, let's call it directly:
+
+```julia:./f_redef
+f = Dense(32,32,tanh)
+f(rand(32))
+```
+
+\show{./f_redef}
+
+So okay, `Dense` objects are just functions that have weight and bias matrices
+inside of them. Now what does `Chain` do?
+
+```julia:./which_Chain
+@which Chain(1,2,3)
+```
+
+\show{./which_Chain}
+
+gives us:
+
+```julia:./Chain
+struct Chain{T<:Tuple}
+  layers::T
+  Chain(xs...) = new{typeof(xs)}(xs)
+end
+
+applychain(::Tuple{}, x) = x
+applychain(fs::Tuple, x) = applychain(Base.tail(fs), first(fs)(x))
+
+(c::Chain)(x) = applychain(c.layers, x)
+```
+
+Let's now dig into this. The `...` is known that the **slurp operator**, which
+allows for "slurping up" multiple arguments into a single object `xs`. For example:
+
+```julia:./slurper
+slurper(xs...) = @show xs
+slurper(1,2,3,4,5)
+```
+
+\show{./slurper}
+
+We see that slurps the inputs up into a `Tuple`, which is an immutable data store.
+(Note: Tuples are stack-allocated if inferred and is the internal data store of
+the compiler itself, and compiler inference can know exactly the size and the type
+of each individual object, so this does not have an overhead if fully inferred).
+
+The function `Chain(xs...) = new{typeof(xs)}(xs)` is an **inner constructor**
+which builds a new instance of `Chain` where `layers` is a tuple of the inputs.
+This means that in our case where we put a bunch of `Dense` inside of there,
+`layers` is a tuple of functions. What does `Chain` do? Let's look at its call:
+
+```julia:./chain_call
+(c::Chain)(x) = applychain(c.layers, x)
+```
+
+This takes the tuple of functions and then does `applychain` on it.
+
+```julia:applychain
+applychain(::Tuple{}, x) = x
+applychain(fs::Tuple, x) = applychain(Base.tail(fs), first(fs)(x))
+```
+
+`applychain` is a recursive function which applies the first element of the tuple
+onto `x`, then it calls `applychain` to call the second function onto `x`, repeatedly
+until there are no more functions in which case it returns `x`. This means that
+`applychain` is simply doing `h(g(f(x)))` on the tuple of functions `(f,g,h)`!
+We can thus see that this library function is exactly equivalent to the neural
+network we defined by hand, just put together in a different form to give a
+nice user interface.
+
+#### Detail: Recursion?
+
+But there's one more detail... why recursion? If you define a function, look at
+its type:
+
+```julia:./ff
+ff(x,y) = 2x+y
+typeof(ff)
+```
+
+\show{./ff}
+
+Notice that its type is simply `typeof(ff)` which is unique to the function,
+i.e. every single function is its own struct. In fact, given what we just learned,
+it wouldn't be a surprise to learn that is exactly what a function is in Julia!
+A function definition lowers at the parser level to something like:
+
+```julia:./ff2
+struct ff2 <: Function end
+(_::ff2)(x,y) = 2x + y
+const ff = ff2()
+```
+
+This means that the primitive operation here that everything really comes down
+to is calls on structs. Why is this done with unique **singleton** types? (Singleton
+types are types where every instance is equivalent). Well, if we want the compiler
+to be able to optimize with respect to which function we are handling inside of
+another function, then we need "what function we are dealing with" as compile-time
+information, which necessitates being type information.
+
+Tuples are contravariant and heterogeneously typed with a parameter per internal
+object. For example:
+
+```julia:./tup_typeof
+tup = (1.0,1,"1")
+typeof(tup)
+```
+
+\show{./tup_typeof}
+
+This means that it is possible to infer outputs of a tuple even if it's heterogeneously
+typed by making good use of constant literals. For example, the expression
+`tup[1]` will be inferred to have the output `Float64`. However, note that if
+`i` is not a compile-time constant, then `tup[i]` cannot be inferred since, given
+what the compiler knows, the output could be either a `Float64`, an `Int64`, or
+a `String`.
+
+So now let's think back to our tuple of functions. By what we described before,
+`tup = (f,g,h)` is going to have a different type for each of the functions and
+thus could not specialize on the inputs if we used `tup[i]`. Therefore:
+
+```julia:./for_tup
+for i in 1:length(tup)
+  x = tup[i](x)
+end
+```
+
+would be slow (if the function call cost is small compared to the dispatch cost
+of about 100ns. This is not always the case, but should be considered in many
+instances!). So how can you get around it? Well, if everything was constant
+literals then this would specialize:
+
+```julia:./tup
+tup[3](tup[2](tup[1](x)))
+```
+
+would fully specialize and infer, and the compiler would have full knowledge
+of the entire call chain as if it were written out as straightline code. Now
+if we look at the recursion again:
+
+```julia
+applychain(::Tuple{}, x) = x
+applychain(fs::Tuple, x) = applychain(Base.tail(fs), first(fs)(x))
+```
+
+we see that, at compile-time, we know that `typeof((f,g,h)) = Tuple{typeof(f),typeof(g),typeof(h)}`,
+and so we know that the first `first(fs)` will be `f`, and can specialize on this.
+We know then that `tail(fs)` has to be the `(g,h)` and so then we recurse and know
+that `g` is first and ... This means that this scheme is equivalent to have
+written out `xs[3](xs[2](xs[1](x)))` and is thus generating code perfectly specialized
+to the order and amount of functions we had put into the `Chain`. This kind of
+abstraction, an abstraction where all of the overhead compiles away, is known
+as a **zero-cost abstraction**.
+
+(Note that technically, there is a cost since the compiler has to unravel this
+chain of events.)
+
+### Training Neural Networks
+
+Now let's get into training neural networks. "Training" a neural network is
+simply the process of finding weights that minimize a loss function. For example,
+let's say we wanted to make our neural network be the constant function `1` for
+any input $x \in [0,1]^{10}$ We can then write the loss function:
+
+```julia:./NN_loss
+NN = Chain(Dense(10,32,tanh),
+           Dense(32,32,tanh),
+           Dense(32,5))
+loss() = sum(abs2,sum(abs2,NN(rand(10)).-1) for i in 1:100)
+loss()
+```
+
+\show{./NN_loss}
+
+This loss function takes 100 random points in `[0,1]` and then computes the output
+of the neural network minus `1` on each of the values, and sums up the squared
+values (`abs2`). Why the squared values? This means that every computed loss value
+is positive, and so we know that by decreasing the loss this means that, on average
+our neural network outputs are closer to 1. What are the weights? Since we're using
+the Flux callable struct style from above, the weights are those inside of the
+`NN` chain object, which we can inspect:
+
+```julia:./NN_weight
+NN[1].weight # The W matrix of the first layer
+```
+
+\show{./NN_weight}
+
+Now let's grab all of the parameters together:
+
+```julia:./p
+p = Flux.params(NN)
+```
+
+\show{./p}
+
+That's a helper function on `Chain` which recursively gathers all of the defining
+parameters. Let's now find the optimal values `p` which cause the neural network
+to be the constant `1` function:
+
+```julia:./train_loss_p
+Flux.train!(loss, p, Iterators.repeated((), 10000), ADAM(0.1))
+```
+
+Now let's check the loss:
+
+```julia:./loss
+loss()
+```
+
+\show{./loss}
+
+This means that `NN(x)` is now a very good function approximator to `f(x) = ones(5)`!
+
+### So Why Machine Learning? Why Neural Networks?
+
+All we did was find parameters that made `NN(x)` act like a function `f(x)`.
+How does that relate to machine learning? Well, in any case where one is acting
+on data `(x,y)`, the idea is to assume that there exists some underlying
+mathematical model `f(x) = y`. If we had perfect knowledge of what `f` is, then
+from only the information of `x` we can then predict what `y` would be. The
+inference problem is to then figure out what function `f` should be. Therefore,
+machine learning on data is simply this problem of finding an approximator to
+some unknown function!
+
+So why neural networks? Neural networks satisfy two properties. The first of
+which is known as the Universal Approximation Theorem (UAT), which in simple
+non-mathematical language means that, for any ϵ of accuracy, if your neural
+network is large enough (has enough layers, the weight matrices are large enough),
+then it can approximate **any** (nice) function `f` within that ϵ. Therefore,
+we can reduce the problem of finding missing functions, the problem of machine
+learning, to a problem of finding the weights of neural networks,
+which is a well-defined mathematical optimization problem.
+
+Why neural networks specifically? That's a fairly good question, since there
+are many other functions with this property. For example, you will have learned
+from analysis that $a_0 + a_1 x + a_2 x^2 + \ldots$ arbitrary polynomials can
+be used to approximate any analytic function (this is the Taylor series). Similarly,
+a Fourier series
+
+$$
+f(x) = a_0 + \sum_k b_k \cos(kx) + c_k \sin(kx)
+$$
+
+can approximate any continuous function `f` (and discontinuous functions also
+can have convergence, etc. these are the details of a harmonic analysis course).
+
+That's all for one dimension. How about two dimensional functions? It turns out
+it's not difficult to prove that tensor products of universal approximators will
+give higher dimensional universal approximators. So for example, tensoring together
+two polynomials:
+
+$$
+a_0 + a_1 x + a_2 y + a_3 x y + a_4 x^2 y + a_5 x y^2 + a_6 x^2 y^2 + \ldots
+$$
+
+will give a two-dimensional function approximator. But notice how we have to
+resolve every combination of terms. This means that if we used `n` coefficients
+in each dimension `d`, the total number of coefficients to build a `d`-dimensional
+universal approximator from one-dimensional objects would need $n^d$ coefficients.
+This exponential growth is known as **the curse of dimensionality**.
+
+The second property of neural networks that makes them applicable to machine learning
+is that they overcome the curse of dimensionality. The proofs in this area
+[can be a little difficult to parse](https://arxiv.org/abs/1908.10828), but what
+they boil down to is proving in many cases that the growth of neural networks
+to sufficiently approximate a `d`-dimensional function grows as a polynomial
+of `d`, rather than exponential. This means that there's some dimensional cutoff
+where for $d > cutoff$ it is more efficient to use a neural network. This can
+be problem-specific, but generally it tends to be the case at least by 8 or 10
+dimensions.
+
+Neural networks have a few other properties to consider as well:
+
+1. The assumptions of the neural network can be encoded into the neural architectures.
+   A neural network where the last layer has an activation function `x -> x^2`
+   is a neural network where all outputs are positive. This means that if you
+   want to find a positive function, you can make the optimization easier by
+   enforcing this constraint. A lot of other constraints can be enforced, like
+   `tanh` activation functions can make the neural network be a smooth (all
+   derivatives finite) function, or other activations can cause finite numbers
+   of learnable discontinuities.
+2. Generating higher dimensional forms from one dimensional forms does not have
+   good symmetry. For example, the two-dimensional tensor Fourier basis does not
+   have a good way to represent $sin(xy)$ This property of the approximator
+   is called (non)isotropy and more detail can be found in [this wonderful talk
+   about function approximation for multidimensional integration (cubature)](https://www.youtube.com/watch?v=JngdaWe3-gg).
+   Neural networks are naturally not aligned to a basis.
+3. Neural networks are "easy" to compute. There's good software for them, GPU-acceleration,
+   and all other kinds of tooling that make them particularly simple to use.
+4. There are proofs that in many scenarios for neural networks [the local
+   minima are the global minima](https://arxiv.org/abs/2006.05900), meaning that
+   local optimization is sufficient for training a neural network. Global optimization
+   (which we will cover later in the course) is much more expensive than local
+   methods like gradient descent, and thus this can be a good property to abuse
+   for faster computation.
+
+### From Machine Learning to Scientific Machine Learning: Structure and Science
+
+This understanding of a neural network and their libraries directly bridges to
+the understanding of scientific machine learning and the computation done in
+the field. In scientific machine learning, neural networks and machine learning
+are used as the basis to solve problems in scientific computing. [Scientific
+computing, as a discipline also known as Computational Science, is a field of
+study which focuses on scientific simulation, using tools such as differential
+equations to investigate physical, biological, and other phenomena](https://en.wikipedia.org/wiki/Computational_science).
+
+What we wish to do in scientific machine learning is use these properties of
+neural networks to improve the way that we investigate our scientific models.
+
+#### Aside: Why Differential Equations?
+
+Why do differential equations come up so often in as the model in the scientific
+context? This is a deep question with quite a simple answer. Essentially, all
+scientific experiments always have to test how things change. For example, you
+take a system now, you change it, and your measurement is how the changes you
+made caused changes in the system. This boils down to gather information about
+how, for some arbitrary system $y = f(x)$ how $\Delta x$ is related to
+$\Delta y$ Thus what you learn from scientific experiments, what is codified
+as scientific laws, is not "the answer", but the answer to how things change.
+This process of writing down equations by describing how they change precisely
+gives differential equations.
+
+## Solving ODEs with Neural Networks: The Physics-Informed Neural Network
+
+Now let's get to our first true SciML application: solving ordinary differential
+equations with neural networks. The process of solving a differential equation
+with a neural network, or using a differential equation as a regularizer in the
+loss function, is known as a **physics-informed neural network**, since this
+allows for physical equations to guide the training of the neural network in
+circumstances where data might be lacking.
+
+### Background: A Method for Solving Ordinary Differential Equations with Neural Networks
+
+[This is a result first due to Lagaris et. al from 1998](https://arxiv.org/pdf/physics/9705023.pdf).
+The idea is to solve differential equations using neural networks by
+representing the solution by a neural network and training the resulting
+network to satisfy the conditions required by the differential equation.
+
+Let's say we want to solve a system of ordinary differential equations
+
+$$u' = f(u,t)$$
+
+with $t \in [0,1]$ and a known initial condition $u(0)=u_0$. To solve this, we
+approximate the solution by a neural network:
+
+$$NN(t) \approx u(t)$$
+
+If $NN(t)$ was the true solution, then it would hold that $NN'(t) = f(NN(t),t)$ for
+all $t$. Thus we turn this condition into our loss function. This motivates the
+loss function:
+
+$$L(p) = \sum_i \left(\frac{dNN(t_i)}{dt} - f(NN(t_i),t_i) \right)^2$$
+
+The choice of $t_i$ could be done in many ways: it can be random, it can be a
+grid, etc. Anyways, when this loss function is minimized (gradients computed
+with standard reverse-mode automatic differentiation), then we have that
+$\frac{dNN(t_i)}{dt} \approx f(NN(t_i),t_i)$ and thus $NN(t)$ approximately solves
+the differential equation.
+
+Note that we still have to handle the initial condition. One simple way to do
+this is to add an initial condition term to the cost function. This would look like:
+
+$$L(p) = (NN(0) - u_0)^2 + \sum_i \left(\frac{dNN(t_i)}{dt} - f(NN(t_i),t_i) \right)^2$$
+
+While that would work, it can be more efficient to encode the initial condition
+into the function itself so that it's trivially satisfied for any possible set of
+parameters. For example, instead of directly using a neural network, we can
+use:
+
+$$g(t) = u_0 + tNN(t)$$
+
+as our solution. Notice that $g(t)$ is thus a universal approximator for all
+continuous functions such that $g(0)=u_0$ (this is a property one should prove!).
+Since $g(t)$ will always satisfy the initial condition, we can train $g(t)$
+to satisfy the derivative function then it will automatically be a solution to
+the derivative function. In this sense, we can use the loss function:
+
+$$L(p) = \sum_i \left(\frac{dg(t_i)}{dt} - f(g(t_i),t_i) \right)^2$$
+
+where $p$ are the parameters that define $g$ which in turn are the parameters
+which define the neural network $NN$ that define $g$ Thus this reduces down,
+once again, to simply finding weights which minimize a loss function!
+
+### Coding Up the Method
+
+Now let's implement this method with Flux. Let's define a neural network to be
+the `NN(t)` above. To make the problem easier, let's look at the ODE:
+
+$$u' = \cos 2\pi t$$
+
+and approximate it with the neural network from a scalar to a scalar:
+
+```julia:./NNODE
+using Flux
+NNODE = Chain(x -> [x], # Take in a scalar and transform it into an array
+           Dense(1,32,tanh),
+           Dense(32,1),
+           first) # Take first value, i.e. return a scalar
+NNODE(1.0)
+```
+
+\show{./NNODE}
+
+Instead of directly approximating the neural network, we will use the transformed
+equation that is forced to satisfy the boundary conditions. Using `u0=1.0`, we
+have the function:
+
+```julia:./g
+g(t) = t*NNODE(t) + 1f0
+```
+
+\show{./g}
+
+as our universal approximator. Thus, for this to be a function that satisfies
+
+$$g' = \cos 2\pi t$$
+
+we would need that:
+
+```julia:./loss_sigma
+using Statistics
+ϵ = sqrt(eps(Float32))
+loss() = mean(abs2(((g(t+ϵ)-g(t))/ϵ) - cos(2π*t)) for t in 0:1f-2:1f0)
+```
+
+\show{./loss_sigma}
+
+would be minimized.
+
+```julia:./train_loss_NNODE
+opt = Flux.Descent(0.01)
+data = Iterators.repeated((), 5000)
+iter = 0
+cb = function () #callback function to observe training
+  global iter += 1
+  if iter % 500 == 0
+    @show loss()
+  end
+end
+@show loss()
+Flux.train!(loss, Flux.params(NNODE), data, opt; cb=cb)
+```
+
+\show{./train_loss_NNODE}
+
+How well did this do? Well if we take the integral of both sides of our
+differential equation, we see it's fairly trivial:
+
+$$
+\int g' = g = \int \cos 2\pi t = C + \frac{\sin 2\pi t}{2\pi}
+$$
+
+where we defined $C = 1$ Let's take a bunch of (input,output) pairs from the
+neural network and plot it against the analytical solution to the differential
+equation:
+
+```julia:./plot_true_sol
+using Plots
+t = 0:0.001:1.0
+plot(t,g.(t),label="NN")
+plot!(t,1.0 .+ sin.(2π.*t)/2π, label = "True Solution")
+savefig(joinpath(@OUTPUT, "plot_true_sol.svg")) # hide
+```
+
+\fig{./plot_true_sol}
+
+We see that it matches very well, and we can keep improving this fit by increasing
+the size of the neural network, using more training points, and training for
+more iterations.
+
+### Example: Harmonic Oscillator Informed Training
+
+Using this idea, differential equations encoding physical laws can be utilized
+inside of loss functions for terms which we have some basis to believe should
+approximately follow some physical system. Let's investigate this last step
+by looking at how to inform the training of a neural network using the harmonic
+oscillator.
+
+Let's assume that we are taking measurements of (position,force) in some real
+one-dimensional spring pushing and pulling against a wall.
+
+![](https://thumbs.dreamstime.com/b/hookes-law-vector-illustration-physics-extend-spring-force-explanation-scheme-compress-mathematical-experiment-weight-177188357.jpg)
+
+But instead of the simple spring, let's assume we had a more complex spring,
+for example, let's say $F(x) = -kx + 0.1sin(x)$ where this extra term is due to
+some deformities in the medal (assume mass=1). Then by Newton's law of motion
+we have a second order ordinary differential equation:
+
+$$
+x'' = -kx + 0.1 \sin(x)
+$$
+
+We can use the [DifferentialEquations.jl package](https://diffeq.sciml.ai/stable/)
+to solve this differential equation and see what this system looks like:
+
+```julia:./plot_second_order_ode
+using DifferentialEquations
+k = 1.0
+force(dx,x,k,t) = -k*x + 0.1sin(x)
+prob = SecondOrderODEProblem(force,1.0,0.0,(0.0,10.0),k)
+sol = solve(prob)
+plot(sol,label=["Velocity" "Position"])
+savefig(joinpath(@OUTPUT, "plot_second_order_ode.svg")) # hide
+```
+
+\fig{./plot_second_order_ode}
+
+Don't worry if you don't understand this sytnax yet: we will go over differential
+equation solvers and DifferentialEquations.jl in a later lecture.
+
+Let's say we want to learn how to predict the force applied on the spring at
+each point in space, $F(x)$ We want to learn a function, so this is the job
+for machine learning! However, we only have 6 measurements, which includes the
+information about (position,velocity,force) at evenly spaced times:
+
+```julia:./spring_force
+plot_t = 0:0.01:10
+data_plot = sol(plot_t)
+positions_plot = [state[2] for state in data_plot]
+force_plot = [force(state[1],state[2],k,t) for state in data_plot]
+
+# Generate the dataset
+t = 0:3.3:10
+dataset = sol(t)
+position_data = [state[2] for state in sol(t)]
+force_data = [force(state[1],state[2],k,t) for state in sol(t)]
+
+plot(plot_t,force_plot,xlabel="t",label="True Force")
+scatter!(t,force_data,label="Force Measurements")
+savefig(joinpath(@OUTPUT, "spring_force.svg")) # hide
+```
+
+\fig{./spring_force}
+
+Can we train a neural network to approximate the expected force at any location
+for this spring? To see whether this is possible with a standard neural network,
+let's just do it. Let's define a neural network to be $F(x)$ and see if we
+can learn the force function!
+
+```julia:./NNForce
+NNForce = Chain(x -> [x],
+           Dense(1,32,tanh),
+           Dense(32,1),
+           first)
+```
+
+\show{./NNForce}
+
+Now our loss function will be to match the force at the (position,force) pairs
+in the dataset:
+
+```julia:./loss_force
+loss() = sum(abs2,NNForce(position_data[i]) - force_data[i] for i in 1:length(position_data))
+loss()
+```
+
+\show{./loss_force}
+
+Our random parameters do not do so well, so let's train!
+
+```julia:./train_force
+opt = Flux.Descent(0.01)
+data = Iterators.repeated((), 5000)
+iter = 0
+cb = function () #callback function to observe training
+  global iter += 1
+  if iter % 500 == 0
+    @show loss()
+  end
+end
+@show loss()
+Flux.train!(loss, Flux.params(NNForce), data, opt; cb=cb)
+```
+
+\show{./train_force}
+
+The neural network almost exactly matched the dataset, but how well did it
+actually learn the real force function? Let's plot it to see:
+
+```julia:./plot_NNForce
+learned_force_plot = NNForce.(positions_plot)
+
+plot(plot_t,force_plot,xlabel="t",label="True Force")
+plot!(plot_t,learned_force_plot,label="Predicted Force")
+scatter!(t,force_data,label="Force Measurements")
+savefig(joinpath(@OUTPUT, "plot_NNForce.svg")) # hide
+```
+
+\fig{./plot_NNForce}
+
+Ouch. The problem is that a neural network can approximate any function, so it
+approximated *a* function that fits the data, but not *the correct* function.
+We somehow need to have more data... but where can we get more data?
+
+Well, even a first year undergrad in physics will know Hooke's law, which is
+that the idealized spring should satisfy $F(x) = -kx$ This is a decent assumption
+for the evolution of the system:
+
+```julia:./plot_force2
+force2(dx,x,k,t) = -k*x
+prob_simplified = SecondOrderODEProblem(force2,1.0,0.0,(0.0,10.0),k)
+sol_simplified = solve(prob_simplified)
+plot(sol,label=["Velocity" "Position"])
+plot!(sol_simplified,label=["Velocity Simplified" "Position Simplified"])
+savefig(joinpath(@OUTPUT, "plot_force2.svg")) # hide
+```
+
+\fig{./plot_force2}
+
+While it's not quite correct, and it definitely drifts near the end, it should
+be a useful non-data assumption that we can add to improve the fitting. So,
+assuming we know $k$ (this lab you probably have done before!), we can
+regularize this fitting by having a term that states our neural network should
+be the solution to the differential equation.
+
+This term looks like what we had done before:
+
+```julia:./loss_ode
+random_positions = [2rand()-1 for i in 1:100] # random values in [-1,1]
+loss_ode() = sum(abs2,NNForce(x) - (-k*x) for x in random_positions)
+loss_ode()
+```
+
+\show{./loss_ode}
+
+If this term is zero, then $F(x) = -kx$ which is approximately true. So now
+let's put these together:
+
+```julia:./composed_loss
+λ = 0.1
+composed_loss() = loss() + λ*loss_ode()
+```
+
+\show{./composed_loss}
+
+where $λ$ is some weight factor to control the regularization against the
+physics assumption. Now we can train the physics-informed neural network:
+
+```julia:./plot_composed_loss
+opt = Flux.Descent(0.01)
+data = Iterators.repeated((), 5000)
+iter = 0
+cb = function () #callback function to observe training
+  global iter += 1
+  if iter % 500 == 0
+    @show composed_loss()
+  end
+end
+@show composed_loss()
+Flux.train!(composed_loss, Flux.params(NNForce), data, opt; cb=cb)
+
+learned_force_plot = NNForce.(positions_plot)
+
+plot(plot_t,force_plot,xlabel="t",label="True Force")
+plot!(plot_t,learned_force_plot,label="Predicted Force")
+scatter!(t,force_data,label="Force Measurements")
+savefig(joinpath(@OUTPUT, "plot_composed_loss.svg")) # hide
+```
+
+\show{./plot_composed_loss}
+
+\fig{./plot_composed_loss}
+
+And there we go: we have used knowledge of physics to help inform our neural
+network training process!
+
+## Conclusion
+
+In this lecture we motivated machine learning not as a process of predicting
+from data but as a process for learning arbitrary nonlinear functions. Neural
+networks were just one choice of possible function. We then demonstrated how
+differential equations could be solved using this function approximation
+technique and then put together these two domains, solving differential equations
+and approximating data, into a single process to allow for physical knowledge
+to be embedded into the training process of a neural network, thus arriving
+at a physics-informed neural network. This is just one method in scientific
+machine learning which we will be exploring in more detail, demonstrating how
+we can utilize scientific knowledge to improve fits and allow for data-efficient
+machine learning.

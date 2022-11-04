@@ -1,0 +1,830 @@
+# How Loops Work, An Introduction to Discrete Dynamics
+
+As we saw with the physics-informed neural networks, the basics of most
+scientific models are dynamical systems. Thus if we want to start to dig into
+deeper methods, we will need to start looking into the theory and practice of
+nonlinear dynamical systems. In this lecture we will go over the basic
+properties of dynamical systems and understand their general behavior through
+code. We will also learn the idea of stability as an asymptotic property of a
+mapping, and understand when a system is stable.
+
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video Link Part 1](https://www.youtube.com/watch?v=GhBARuHEydM)
+- [Youtube Video Link Part 2](https://youtu.be/AXHLyHfyEuA)
+
+# Table of Contents
+
+\toc
+
+## Discrete Dynamical Systems
+
+A discrete dynamical system is a system which updates through discrete updates:
+
+$$
+u_{n+1} = model(u_n,n)
+$$
+
+There are many examples of a discrete dynamical system found throughout the
+scientific literature. For example, many ecological models are discrete dynamical
+systems, with the most famous being the logistic map:
+
+$$
+u_{n+1} = r u_n (1 - u_n)
+$$
+
+describing the growth of a population with a carrying capacity of 1 and a growth
+rate of `r`. Another way in which discrete dynamical systems are often encountered
+is through time series models. These are generally seen in financial forecasting
+and For example, the autoregressive model AR1 is
+the following linear dynamical system:
+
+$$
+u_{n+1} = \alpha u_n + \epsilon_n
+$$
+
+where $\epsilon$ is a standard normal random number. The AR(k) model allows
+itself to update using delays as well:
+
+$$
+u_{n+1} = \sum_{j=0}^{k-1} \alpha_j u_{n-j} + \epsilon_n
+$$
+
+The ARMA model is one that allows using delays on the randomness as well:
+
+$$
+u_{n+1} = \sum_{j=0}^{k-1} (\alpha_j u_{n-j}  + \beta_j \epsilon_{n-j})
+$$
+
+Another embodiment of a discrete dynamical system is a Recurrent Neural Network
+(RNN). In its simplest form, a RNN is a system of the form:
+
+$$
+u_{n+1} = u_n + f(u_n,\theta)
+$$
+
+where ``f`` is a neural network parameterized by $\theta$
+
+Note that discrete dynamical systems are even more fundamental than just the
+ones shown. In any case where a continuous model is discretized to loop on the
+computer, the resulting algorithm is a discrete dynamical system and thus
+evolves according to its properties. This fact will be revisited later.
+
+## Properties of Linear Dynamical Systems
+
+First let's take a look at the scalar linear dynamical system:
+
+$$
+u_{n+1} = \alpha u_{n}
+$$
+
+We want to ask what the global or geometric behavior of this system is. We
+can do this by expanding out the system. Notice that if $u_0$ is known,
+then
+
+$$
+u_{n+1} = \alpha^n u_0
+$$
+
+The global behavior can then be categorized as:
+
+- If $\Vert \alpha \Vert < 1$, then $u_n \rightarrow 0$
+- If $\Vert \alpha \Vert > 1$, then $u_n \rightarrow \infty$
+
+If $\Vert \alpha \Vert = 1$, then $u_n \rightarrow u_0$ if everything is in the
+real numbers, but more complex dynamics can occur on the complex plane.
+
+## Nonlinear Geometric Dynamics
+
+The Geometric Theory of Dynamical Systems is the investigation of their long-term
+properties and the geometry of the phase space which they occupy. Let's start
+looking at this in practical terms: how do nonlinear update equations act
+as time goes to infinity?
+
+#### Banach Fixed Point Theorem
+
+There are surprisingly simple results that we can prove. First let's recall
+the Banach Fixed Point Theorem (also known as the Contraction Mapping Theorem).
+Let $(X,d)$ be a metric space ($X$ is the set of points we are thinking of, here
+the real numbers. $d$ is a distance function). $f$ is a contraction mapping if
+
+$$d(f(x),f(y)) \leq q d(x,y)$$
+
+where $q < 1$, that is, if applying $f$ always decreases the distance.
+The theorem then states
+that if $f$ is a contraction mapping, then there is a unique fixed point
+(point $x^\ast$ where $f(x^\ast)=x^\ast$) and a sequence such that $x_0 \rightarrow x^\ast$
+where
+
+$$x_{n+1} = f(x_n)$$
+
+The proof is by induction, showing that the sequence is Cauchy. For some $m>n$
+we do by the Triangle Inequality
+
+$$d(x_m,x_n) \leq d(x_{m},x_{m-1}) + \ldots + d(x_{n+1},x_n)$$
+
+then apply the contraction relation down to the bottom:
+
+$$d(x_m,x_n) \leq q^{m-1} d(x_{1},x_{0}) + \ldots + q^{n} d(x_{1},x_0)$$
+
+$$d(x_m,x_n) \leq q^n d(x_{1},x_{0}) \sum_{k=0}^{m-n-1} q^k$$
+
+and since adding more never hurts:
+
+$$d(x_m,x_n) \leq q^n d(x_{1},x_{0}) \sum_{k=0}^{\infty} q^k$$
+
+But that summation is just a geometric series now, and since $q<1$ we know it
+converges to $1/(1-q)$, and so we get:
+
+$$d(x_m,x_n) \leq \frac{q^n}{1-q} d(x_{1},x_{0})$$
+
+The coefficient converges to zero as $n$ increases, and so the sequence must
+be Cauchy, which implies there's a unique fixed point.
+
+#### Stability of Linear Discrete Dynamical Systems
+
+Now let's take a mapping $f$ which is sufficiently nice ($f \in C^1$, i.e.
+the derivative of $f$ exists and is continuous), where
+
+$$x_{n+1} = f(x_n)$$
+
+Assume that $\Vert f^\prime (x^\ast) \Vert < 1$ at some point where $f(x)=x$. Then by
+continuity of the second derivative, it follows that there is a neighborhood
+where $\Vert f^\prime (x) \Vert < 1$ (). Now recall that this means
+
+$$\frac{df}{dx} \leq 1$$
+
+which means that, for any $x$ and $y$ in the neighborhood,
+
+$$\Vert \frac{f(y)-f(x)}{y-x} \Vert \leq 1$$
+
+or
+
+$$\Vert f(y)-f(x) \Vert \leq \Vert y-x \Vert$$
+
+This is essentially another way of saying that a function that is differentiable
+is Lipschitz, where we can use the derivative as the Lipschitz bound. But notice
+this means that, in this neighborhood, a function with a derivative less than
+1 is a contraction mapping, and thus there is a limiting sequence which goes to
+the fixed point by the Banach Fixed Point Theorem. Furthermore, the uniqueness
+guarantees that there is only one fixed point in a sufficiently small neighborhood
+where the derivative is all less than 1.
+
+A way to interpret this result is that, any nice enough function $f$ is locally
+linear. Thus we can understand the global properties of $f$ by looking the
+linearization of its dynamics, where the best linear approximation is the
+linear function $f^\prime (x) x$. This means that we can think of
+
+$$x_{n+1} = f(x_n)$$
+
+locally as being approximated by
+
+$$x_{n+1} = f^\prime (x) x_n$$
+
+and so if the derivative is less than 1 in some neighborhood of a fixed point,
+then we locally have a linear dynamical system which looks like the simple
+$x_{n+1} = \alpha x_n$ where $\alpha <1$, and so we get the same convergence
+property.
+
+This is termed "stability" since, if you are a little bit off from the fixed
+point, you will tend to go right back to it. An unstable fixed point is one
+where you fall away. And what happens when the derivative is one? There are
+various forms of semi-stability that can be proved which go beyond the topic
+of this course.
+
+#### Update Form
+
+Now let's look at another form:
+
+$$x_{n+1} = x_n + f(x_n)$$
+
+For example, this is what we generally see with the recurrent neural network
+(or, as we will find out later, this is how discretizations of continuous systems
+tend to look!). In this case, we can say that this is a dynamical system
+
+$$x_{n+1} = g(x_n)$$
+
+and so if $-2 < f^\prime < 0$, then $\Vert g^\prime \Vert = \Vert 1 + f^\prime \Vert < 1$ and so we have the
+same stability idea except now with a condition shifted to zero instead of one.
+
+## Multivariable Systems
+
+Now let $x \in R^k$ be a vector, and define discrete mappings:
+
+$$x_{n+1} = f(x_n)$$
+
+To visualize this, let's write out the version for $x \in R^3$:
+
+$$x_{n+1}=\left[\begin{array}{c}
+a_{n+1}\\
+b_{n+1}\\
+c_{n+1}
+\end{array}\right]=\left[\begin{array}{c}
+f_{1}(a_{n},b_{n},c_{n})\\
+f_{2}(a_{n},b_{n},c_{n})\\
+f_{3}(a_{n},b_{n},c_{n})
+\end{array}\right]=f(x_{n})$$
+
+The linear multidimensional discrete dynamical system is:
+
+$$x_{n+1} = A x_n$$
+
+The easiest way to analyze a multidimensional system is to turn it into a bunch
+of single dimension systems. To do this, assume that $A$ is diagonalizable. This means
+that there exists a diagonalization $A =P^{-1}DP$ where $P$ is the matrix of
+eigenvectors and $D$ is the diagonal matrix of eigenvalues. We can then decompose
+the system as follows:
+
+$$Px_{n+1} = DPx_n$$
+
+and now define new variables $z_n = Px_n$. In these variables,
+
+$$z_{n+1} = D z_n$$
+
+but $D$ is diagonal, so this is a system of $k$ independent linear dynamical
+systems. We know that the linear dynamical system will converge to zero if
+$\Vert D_i \Vert < 1$, and so this means that $z_n$ converges to zero if all
+of the eigenvalues are within the unit circle. Since $P0 = 0$, this implies that
+if all of the eigenvalues of $A$ are in the unit circle, then $x_n \rightarrow 0$.
+
+A multidimensional version of the contraction mapping theorem is then proven
+exactly in this manner, meaning that if $f(x) = x$ and all eigenvalues of the
+Jacobian matrix (the linearization of $f$) are in the unit circle, then $x$ is
+a unique fixed point in some neighborhood.
+
+#### Understanding Delayed Systems
+
+A similar property holds in linear dynamical systems with delays. Take
+
+$$x_{n+1} = \sum_{j=0}^{k-1} \alpha_j x_{n-j}$$
+
+Notice that we can write this as a multidimensional non-delayed system. Let
+$x_n^i$ be the $i$th term in the vector of the $n$ time. Then we have:
+
+$$x_{n+1}^1 = \sum_{j=1}^{k-1} \alpha_{j-1} x_{n}^{j}$$
+
+as an equivalent way to write this, where
+
+$$x_{n+1}^j = x_n^{j-1}$$
+
+for all of the other terms. Essentially, instead of a system with a delay, we
+store the memory in other terms of the vector, and keep shifting them down.
+However, this makes our system much easier to analyze. Instead of a linear
+delayed dynamical system, this is now a linear multidimensional dynamical
+system. Its characteristic polynomial is
+
+$$\varphi(x) = 1 - \sum_{j=0}^{k-1} \alpha_j x^j$$
+
+and so if all of the roots are in the unit circle then this system is stable.
+
+#### Stochastic Dynamical Systems
+
+Now let's take a look again at the autoregressive process from time series
+analysis:
+
+$$u_{n+1} = \sum_{j=0}^{k-1} \alpha_j u_{n-j} + \epsilon_n$$
+
+In a very quick handwavy way, we can understand such a system by seeing how the
+perturbations propagate. If $u_0 = 0$, then the starting is just $\epsilon_0$.
+If we assume all other $\epsilon_i = 0$, then this system is the same as a linear
+dynamical system with delays. If all of the roots are in the unit circle, then
+it goes to zero, meaning the perturbation is forgotten or squashed over time.
+
+We can analyze this more by using the moments. Notice that, by the linearity
+of the expected value,
+
+$$\mathbb{E}[u_{n+1}] = \sum_{j=0}^{k-1} \alpha_j \mathbb{E}[u_{n-j}]$$
+
+is a deterministic linear dynamical system which converges if the roots are in
+the unit circle. This means that the mean stabilizes over time if all of the
+roots are in the unit circle. In time series analysis, this is called stationarity
+of the time series.
+
+We can then also look at the stability of the variance as well. Recall that
+
+$$\mathbb{V}[x] = \mathbb{E}[x^2] - \mathbb{E}[x]^2$$
+
+and so therefore
+
+$$\mathbb{E}[u_{n+1}^2] = \mathbb{E}[\sum_{j=0}^{k-1} \alpha_j u_{n-j}^2]$$
+
+and with a bunch of analysis here, working in the same way with the same basic
+ideas, we can determine conditions on which the variance goes to zero.
+
+## Periodicity and Chaos
+
+Stability is the simplest geometric dynamical property, but there are many others.
+For example, maps can also have periodic orbits, like:
+
+$$u_{n+1} = -u_n$$
+
+will bounce back and forth between two values. These periodic orbits themselves
+have geometric properties, such as whether it's a stable periodic orbit (points
+nearby are attracted to the periodic orbit). Periodic orbits have a length as
+well: this was a periodic orbit of length 2.
+
+Chaos is another interesting property of a discrete dynamical system. It can be
+interpreted as a periodic orbit where the length is infinity. This can happen if,
+by changing a parameter, a period 2 orbit becomes a period 4, then a period 8,
+etc. (a phenomenon known as period doubling), and when it goes beyond the
+accumulation point the "infinite period orbit" is reached and chaos is found.
+A homework problem will delve into the properties of chaos as an example of a
+simple embarrassingly data-parallel problem.
+
+## Efficient Implmentation of Dynamical Systems
+
+Dynamical systems are just loops, so the implementation is easy to understand.
+However, there are a few things that one must keep in mind in order to allow
+for efficient implementations.
+
+#### Higher order functions
+
+Functions which compute the solutions to dynamical systems are inherently
+*higher order functions*, which means it's a function which takes in a function
+as an argument. The following is a quick implementation:
+
+```julia:./solve_system
+"""
+`solve_system(f,u0,n)`
+
+Solves the dynamical system
+
+``u_{n+1} = f(u_n)``
+
+for N steps. Returns the solution at step `n` with parameters `p`.
+
+"""
+function solve_system(f,u0,p,n)
+  u = u0
+  for i in 1:n-1
+    u = f(u,p)
+  end
+  u
+end
+```
+
+Notice the `"""` before the function: this is a docstring. When the Julia REPL
+is queried with `?solve_system` this will be the description that is displayed.
+
+Now, is this function going to be efficient? Recall from the earlier discussion
+that:
+
+- Type-stability is necessary for inference to carry forward type information.
+- Julia auto-specializes on input types.
+- Inlining can occur automatically for sufficiently small functions.
+
+From this information, we know that in order for this to be efficient, we require
+that the type of `f(u)` is inferred. But if `f` is a variable, how can that
+be inferred? In order for that to occur, we would have to know what `f` is, since
+not all functions will give the same output type. Additionally, in order to inline
+the function, we will have to know what the function is at compile-time. So, is
+it possible to make this implementation efficient?
+
+It turns out that this does optimize due to one fact: every function is given
+by its own type. We can verify this by defining a function and checking its type:
+
+```julia:./f_typeof
+f(u,p) = u^2 - p*u
+typeof(f)
+```
+
+\show{./f_typeof}
+
+It displays `typeof(f)` to indicate that the function `f` is its own type, and
+thus at automatic specialization time the compiler knows all of the information
+about the function and thus inlines and performs inference correctly.
+
+Note that this does mean that the function will need to recompile for every new
+`f`. This is similar to statically compiling a function for use in a C/Fortran
+library. What is the equivalent to using a function like a shared library or a
+shared object? This is given by FunctionWrappers.jl. This directly stores the
+function pointer in an object that can have shared type information in order to
+keep every function as the same type. However, the wrapped function has more
+information about the pointer... what's necessary?
+
+The answer is that FunctionWrappers.jl allows for specifying the input and
+output types, in order for the wrapper to do the right assertions for inference
+to carry forward type stability, since in this case inference is not able to
+step through the function pointer.
+
+#### Quick Check
+
+What will approximately be the value of this dynamical system after 1000 steps
+if you start at `1.0` with parameter `p=0.25`? Can you guess without solving the
+system? Think about steady states and stabiltiy.
+
+```julia:./solve_system1
+solve_system(f,1.0,0.25,1000)
+```
+
+\show{./solve_system1}
+
+The answer is that it goes to zero. The steady states are the zeros of the polynomial,
+which are `0` and `p+1`. It's reasonable to believe that it either goes to one
+of those 2 values or infinity. In the first step, `1^2 - 0.25 = 0.75 < 1` which
+suggests (but doesn't confirm!) that it's a contraction. Notice that the derivative
+is `2u-p`, and so `u=p+1=1.25` is not a stable steady state, and thus we go to
+zero. In fact, we can check a few values:
+
+```julia:./solve_system2
+solve_system(f,1.1,0.25,1000)
+```
+
+\show{./solve_system2}
+
+```julia:./solve_system3
+solve_system(f,1.22,0.25,1000)
+```
+
+\show{./solve_system3}
+
+```julia:./solve_system4
+solve_system(f,1.25,0.25,1000)
+```
+
+\show{./solve_system4}
+
+```julia:./solve_system5
+solve_system(f,1.251,0.25,20)
+```
+
+\show{./solve_system5}
+
+Notice that the moment we go above the steady state `p+1`, we exponentially
+grow to infinity.
+
+Just to double check the implementation:
+
+```julia:./solve_system6
+solve_system(f,1.251,0.25,10)
+solve_system(f,1.251,0.25,100)
+solve_system(f,1.251,0.25,1000)
+```
+
+\show{./solve_system6}
+
+Those allocations are just the output, and notice it's independent of the loop
+count.
+
+#### Multidimensional System Implementations
+
+When we go to multidimensional systems, some care needs to be taken to decrease
+the number of allocations which are occurring. One of the ways to do this is
+to utilize statically sized arrays. For example, let's look at a discretization
+of the Lorenz system:
+
+```julia:./solve_lorenz
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  du1 = u[1] + α*(σ*(u[2]-u[1]))
+  du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+  du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  [du1,du2,du3]
+end
+p = (0.02,10.0,28.0,8/3)
+solve_system(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_lorenz}
+
+Let's see what this gives us by saving:
+
+```julia:./solve_lorenz_save
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  u[1] = u0
+  for i in 1:n-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+to_plot = solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+last(to_plot, 8) # hide
+```
+
+\show{./solve_lorenz_save}
+
+```julia:./plot_lorenz
+using Plots
+x = [to_plot[i][1] for i in 1:length(to_plot)]
+y = [to_plot[i][2] for i in 1:length(to_plot)]
+z = [to_plot[i][3] for i in 1:length(to_plot)]
+plot(x,y,z)
+savefig(joinpath(@OUTPUT, "plot_lorenz.svg")) # hide
+```
+
+\fig{./plot_lorenz}
+
+This is the chaotic Lorenz attractor plotted in phase space, i.e. the values
+of the variables against each other.
+
+Let's look at the implementation a little bit more. `u = Vector{typeof(u0)}(undef,n)`
+is type-generic, meaning any `u0` can be used with that code. However, as a
+vector of vectors, it is a vector of pointers to contiguous memory, instead of
+being contiguous itself. Note that that means there is not much of a cost
+by not pre-specifying the size up front:
+
+```julia:./solve_system_save_push1
+function solve_system_save_push(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,1)
+  u[1] = u0
+  for i in 1:n-1
+    push!(u,f(u[i],p))
+  end
+  u
+end
+@time solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_save_push1}
+
+```julia:./solve_system_save_push2
+@time solve_system_save_push(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_save_push2}
+
+The first time Julia compiles the function, and the second is a straight call.
+
+```julia:./solve_system_save_push3
+@time solve_system_save_push(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_save_push3}
+
+or we can use `@btime`:
+
+```julia:./solve_system_save_btime
+using BenchmarkTools
+@btime solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_save_btime}
+
+```julia:./solve_system_save_push_btime
+@btime solve_system_save_push(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_save_push_btime}
+
+This is because growth costs are amortized, meaning that when pushing, the size
+isn't increasing by one each time, but rather it's doing something like doubling,
+so that it's averaging O(1) cost to keep growing (in theory the best is to do
+Golden ratio resizing, and long discussions can be had on this topic).
+
+We can also look at what happens if we use matrices:
+
+```julia:./solve_system_save_matrix
+function solve_system_save_matrix(f,u0,p,n)
+  u = Matrix{eltype(u0)}(undef,length(u0),n)
+  u[:,1] = u0
+  for i in 1:n-1
+    u[:,i+1] = f(u[:,i],p)
+  end
+  u
+end
+@btime solve_system_save_matrix(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_system_save_matrix}
+
+Where is this cost coming from? A large portion of the cost is due to the slicing
+on the `u`, which we can fix with a `view`:
+
+```julia:./solve_system_save_matrix_view
+function solve_system_save_matrix_view(f,u0,p,n)
+  u = Matrix{eltype(u0)}(undef,length(u0),n)
+  u[:,1] = u0
+  for i in 1:n-1
+    u[:,i+1] = f(@view(u[:,i]),p)
+  end
+  u
+end
+@btime solve_system_save_matrix_view(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_system_save_matrix_view}
+
+Since we are only ever using single columns as a unit, notice that there isn't
+any benefit to keeping the whole thing contiguous, and in fact there are some
+downsides (cache is harder to optimize because the longer cache lines are
+unnecessary, the views need to be used). Also, growing the matrix adaptively
+is not a very good idea since every growth requires both allocating memory
+and copying over the old values:
+
+```julia:./solve_system_save_matrix_resize
+function solve_system_save_matrix_resize(f,u0,p,n)
+  u = Matrix{eltype(u0)}(undef,length(u0),1)
+  u[:,1] = u0
+  for i in 1:n-1
+    u = hcat(u,f(@view(u[:,i]),p))
+  end
+  u
+end
+@btime solve_system_save_matrix_resize(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_system_save_matrix_resize}
+
+So for now let's go back to the Vector of Arrays approach. One way to reduce the
+number of allocations is to require that the user provides an in-place non-allocating
+function. For example:
+
+```julia:./solve_system_save_lorenz
+function lorenz(du,u,p)
+  α,σ,ρ,β = p
+  du[1] = u[1] + α*(σ*(u[2]-u[1]))
+  du[2] = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+  du[3] = u[3] + α*(u[1]*u[2] - β*u[3])
+end
+p = (0.02,10.0,28.0,8/3)
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  du = similar(u0)
+  u[1] = u0
+  for i in 1:n-1
+    f(du,u[i],p)
+    u[i+1] = du
+  end
+  u
+end
+solve_system_save(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_system_save_lorenz}
+
+Oh no, all of the outputs are the same! What happened? The problem is in the line
+`u[i+1] = du`. What we had done is set the save vector to the same pointer as `du`,
+effectively linking all of the pointers. The moral of the story is, you cannot
+get around allocating for all of these outputs if you're going to give the user
+all of the outputs! It's impossible to not make all of these arrays, so if this is
+the case then you'd have to:
+
+```julia:./solve_system_save_copy
+function solve_system_save_copy(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  du = similar(u0)
+  u[1] = u0
+  for i in 1:n-1
+    f(du,u[i],p)
+    u[i+1] = copy(du)
+  end
+  u
+end
+solve_system_save_copy(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_system_save_copy}
+
+which nullifies the advantage of the non-allocating approach. However, if only
+the end point is necessary, then the reduced allocation approach is helpful:
+
+```julia:./solve_system_mutate
+function solve_system_mutate(f,u0,p,n)
+  # create work buffers
+  du = similar(u0); u = copy(u0)
+  # non-allocating loop
+  for i in 1:n-1
+    f(du,u,p)
+    u,du = du,u
+  end
+  u
+end
+solve_system_mutate(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_system_mutate}
+
+Here we see a little trick: the line `u,du = du,u` is swapping the pointer of
+`u` with the pointer of `du` (since the value of the array is its reference).
+An alternative way to write the loop is:
+
+```julia
+for i in 1:n-1
+  f(du,u,p)
+  u .= du
+end
+```
+
+which would compute `f` and then take the values of `du` and update `u` with them,
+but that's 3 extra operations than required, whereas `u,du = du,u` will change `u`
+to be a pointer to the updated memory and now `du` is an "empty" cache array that
+we can refill (this decreases the computational cost by ~33%). Let's see what the
+cost is with this newest version:
+
+```julia:./solve_system_btime
+@btime solve_system(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_btime}
+
+```julia:./solve_system_mutate_btime
+@btime solve_system_mutate(lorenz,[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_mutate_btime}
+
+One last change that we could do is make use of StaticArrays. To do this, we
+need to go back to non-mutating, like:
+
+```julia:./solve_system_save2
+using StaticArrays
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  du1 = u[1] + α*(σ*(u[2]-u[1]))
+  du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+  du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  @SVector [du1,du2,du3]
+end
+p = (0.02,10.0,28.0,8/3)
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  u[1] = u0
+  for i in 1:n-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+\show{./solve_system_save2}
+
+```julia:./solve_system_save_btime2
+@btime solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_save_btime2}
+
+This is utilizing a lot more optimizations, like SIMD, automatically, which is
+helpful. Let's also remove the bounds checks:
+
+```julia:./solve_system_save_lorenz2
+function lorenz(u,p)
+  α,σ,ρ,β = p
+  @inbounds begin
+    du1 = u[1] + α*(σ*(u[2]-u[1]))
+    du2 = u[2] + α*(u[1]*(ρ-u[3]) - u[2])
+    du3 = u[3] + α*(u[1]*u[2] - β*u[3])
+  end
+  @SVector [du1,du2,du3]
+end
+function solve_system_save(f,u0,p,n)
+  u = Vector{typeof(u0)}(undef,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:n-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+\show{solve_system_save_lorenz2}
+
+```julia:./solve_system_save_lorenz2_btime
+@btime solve_system_save(lorenz,@SVector[1.0,0.0,0.0],p,1000)
+```
+
+\output{./solve_system_save_lorenz2_btime}
+
+And we can get down to non-allocating for the loop:
+
+```julia:./solve_system_save_lorenz2_btime_sarray
+@btime solve_system(lorenz,@SVector([1.0,0.0,0.0]),p,1000)
+```
+
+\output{./solve_system_save_lorenz2_btime_sarray}
+
+Notice that the single allocation is the output.
+
+We can lastly make the saving version completely non-allocating if we hoist the
+allocation out to the higher level:
+
+```julia:./solve_system_save_btime_sarray
+function solve_system_save!(u,f,u0,p,n)
+  @inbounds u[1] = u0
+  @inbounds for i in 1:length(u)-1
+    u[i+1] = f(u[i],p)
+  end
+  u
+end
+u = Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000)
+@btime solve_system_save!(u,lorenz,@SVector([1.0,0.0,0.0]),p,1000)
+```
+
+\output{./solve_system_save_btime_sarray}
+
+It is important to note that this single allocation does not
+seem to effect the timing of the result in this case, when
+run serially. However, when parallelism or embedded applications
+get involved, this can be a significant effect.
+
+## Discussion Questions
+
+1. What are some ways to compute steady states? Periodic orbits?
+2. When using the mutating algorithms, what are the data dependencies between
+   different solves if they were to happen simultaneously?
+3. We saw that there is a connection between delayed systems and multivariable
+   systems. How deep does that go? Is every delayed system also a multivariable
+   system and vice versa? Is this a useful idea to explore?

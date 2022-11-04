@@ -2,25 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {{if hasmath}} {{insert head_katex.html }}     {{end}}
-    {{if hascode}} {{insert head_highlight.html }}   {{end}}
-    {{insert style.html}}
-    {{if weave}}
-        <link rel="stylesheet" href="/css/weave.css">
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
-            TeX: { equationNumbers: { autoNumber: "AMS" } }
-          });
-        </script>
-        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    {{end}}
-    {{isdef title}} <title>{{fill title}}</title>  {{end}}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{if hasmath}} {{insert head_katex.html }}     {{end}}
+  {{if hascode}} {{insert head_highlight.html }}   {{end}}
+  {{insert style.html}}
+  {{isdef title}} <title>{{fill title}}</title>  {{end}}
 </head>
+<body>                      <!-- closed in foot.html -->
+{{insert pgwrap.html}}
 
-<body>
-{{insert nav.html}}
 
-
-<!-- Content appended here -->
+<!-- Content appended here (in class franklin-content) -->

@@ -1,0 +1,368 @@
+# Global Sensitivity Analysis
+
+## [Youtube Video](https://youtu.be/wzTpoINJyBQ)
+
+Sensitivity analysis is the measure of how sensitive a model is to changes in
+parameters, i.e. how much the output changes given a change in the input. Clearly,
+derivatives are a measure of sensitivity, but derivative are *local sensitivity*
+measures because they are only the derivative at a single point. However, the
+idea of probabilistic programming starts to bring up an alternative question:
+how does the output of a model generally change with a change in the input?
+This kind of question requires an understanding of *global sensitivity* of a
+model. While there isn't a single definition of the concept, there are a few
+methods that individuals have employed to estimate the global sensitivity.
+
+Reference implementations of these methods can be found in [GlobalSensitivity.jl](https://github.com/SciML/GlobalSensitivity.jl)
+
+## Setup for Global Sensitivity
+
+In our global sensitivity analysis, we have a model $f$ and want to understand
+the relationship
+
+$$y = f(x_i)$$
+
+Recall $f$ can be a neural network, an ODE solve, etc. where the $X_i$ are items like
+initial conditions and parameters. What we want to do is understand how much
+the total changes in $y$ can be attributed to changes in specific $x_i$.
+
+However, this is not an actionable form since we don't know what valid inputs
+into $f$ look like. Thus any global sensitivity study at least needs a domain
+for the $x_i$, at least in terms of bounds. This is still underdefined because
+what makes one thing that it's not more likely for $x_i$ to be near the lower
+part of the bound instead of the upper part? Thus, for global sensitivity analysis
+to be well-defined, $x_i$ must take a distributional form, i.e. be random variables.
+Thus $f$ is a deterministic program with probabilistic inputs, and we want to
+determine the effects of the distributional inputs on the distribution of the
+output.
+
+### Reasons for Global Sensitivity Analysis
+
+What are the things we can learn from doing such a global sensitivity analysis?
+
+1. You can learn what variables would need to be changed to drive the solution
+   in a given direction or control the system. If your model is exact and the
+   parameters are known, the "standard" methods apply, but if your model is only
+   approximate, a global sensitivity metric may be a better prediction as to
+   how variables cause changes.
+2. You can learn if there are any variables which do not have a true effect on
+   the output. These variables would be practically unidentifiable from data
+   and models can be reduced by removing the terms. It also is predictive as to
+   robustness properties.
+3. You can find ways to automatically sparsify a model by dropping off the
+   components which contribute the least. This matters in automatically generated
+   or automatically detected models, where many pieces may be spurious and
+   global sensitivities would be a method to detect that in a manner that is not
+   sensitive to the chosen parameters.
+
+## Global Sensitivity Analysis Measures
+
+### Linear Global Sensitivity Metrics: Correlations and Regressions
+
+The first thing that you can do is approximate the full model with a linear
+surrogate, i.e.
+
+$$y = AX$$
+
+for some linear model. A regression can be done on the outputs of the model
+in order to find the linear approximation. The best fitting global linear model
+then gives coefficients for the global sensitivities via the individual effects,
+i.e. for
+
+$$y = \sum_i \beta_i x_i$$,
+
+the $\beta_i$ are the global effect. Just as with any use of a linear model, the
+same ideas apply. The coefficient of determination ($R^2$) is a measure of how
+well the model fits. However, one major change needs to be done in order to
+ensure that the solutions are comparable between different models. The dependence
+of the solution on the units can cause the coefficients to be large/small. Thus
+we need to normalize the data, i.e. use the transformation
+
+$$\tilde{x_i} = \frac{x_i-E[x_i]}{V[x_i]}$$
+$$\tilde{y_i} = \frac{y_i-E[y_i]}{V[y_i]}$$
+
+The normalized coefficients are known as the *Standardized Regression Coefficients*
+(SRC) and are a measure of the global effects.
+
+Notice that while the $\beta_i$ capture the mean effects, it holds that
+
+$$V(y) = \sum_i \beta^2_i x_i$$
+
+and thus the variance due to $x_i$ can be measured as:
+
+$$SRC_i = \beta_i \sqrt{\frac{V[x_i]}{V[y]}}$$
+
+This interpretation is the same as the solution from the normalized variables.
+
+From the same linear model, two other global sensitivity metrics are defined.
+The *Correlation Coefficients* (CC) are simply the correlations:
+
+$$CC_i = \frac{\text{cov}(x_i,y)}{\sqrt{V[x_i]V[y]}}$$
+
+Similarly, the *Partial Correlation Coefficient* is the correlation coefficient
+where the linear effect of the other terms are removed, i.e. for
+$S_i = {x_1,x_2,\ldots,x_{j-1},x_{j+1},\ldots,x_n}$ we have
+
+$$PCC_{i|S_i} = \frac{\text{cov}(x_i,y|S)j)}{\sqrt{V[x_i|S_i]V[y|S_i]}}$$
+
+### Derivative-based Global Sensitivity Measures (DGSM)
+
+To go beyond just a linear model, one might want to do successive linearization.
+Since derivatives are a form of linearization, then one may thing to average
+derivatives. This averaging of derivatives is the DGSM method. If the $x_i$
+are random variables with joint CDF $F(x)$, then it holds that:
+
+$$v_i = \int_{R^d} \left(\frac{\partial f(x)}{\partial x_i}\right)^2 dF(x) = \mathbb{E}\left[\left(\frac{\partial f(x)}{\partial x_i}\right)^2\right],$$
+
+We can also define the mean measure, which is simply:
+
+$$w_i = \int_{R^d} \frac{\partial f(x)}{\partial x_i} dF(x) = \mathbb{E}\left[\frac{\partial f(x)}{\partial x_i}\right].$$
+
+Thus a global variance estimate would be $v_i - w_i^2$.
+
+### ADVI for Global Sensitivity
+
+Note that the previously discussed method for probabilistic programming, ADVI,
+is a method for producing a Gaussian approximation for a probabilistic program.
+The resulting mean-field or full Gaussian approximations are variance index
+calculations!
+
+### The Morris One-At-A-Time (OAT) Method
+
+Instead of using derivatives, one can use finite difference approximations.
+Normally you want to use small $\Delta x$, but if we are averaging derivatives
+over a large area, then in reality we don't really need a small $\Delta x$!
+
+This is where the Morris method comes in. The basic idea is that moving in one
+direction at a time is a derivative estimate, and if we step large enough
+then the next derivative estimate may be sufficiently different enough to
+contribute well to the total approximation. Thus we do the following:
+
+1. Take a random starting point
+2. Randomly choose a direction $i$ and make a change $\Delta x_i$ only in that
+   direction.
+3. Calculate the derivative approximation from that change. Repeat 2 and 3.
+
+Keep doing this for enough steps, and the average of your derivative approximations
+becomes a global index. Notice that this reuses every simulation as part of two
+separate estimates, making it much more computationally efficient than the other
+methods. However, it accounts for average changes and not necessarily measurements
+gives a value that's a decomposition of a total variance. But its computational
+cost makes it attractive for making quick estimates of the global sensitivities.
+
+For practical usage, a few changes have to be done. First of all, notice that
+positive and negative change can cancel out. Thus if one want to measure of
+associated variance, one should use absolute values or squared differences.
+Also, one needs to make sure that these trajectories get good coverage of the
+input space. Define the distance between two trajectories as the sum of the
+geometric distances between all pairs of points. Generate many more trajectories
+than necessary and choose the $r$ trajectories with the largest distance. If
+the model evaluations are expensive, this is significantly cheap enough in
+comparison that it's okay to do.
+
+### Sobol's Method (ANOVA)
+
+Sobol's method is a true nonlinear decomposition of variance and it is thus
+considered one of the gold standards. For Sobol's method, we define the
+decomposition
+
+$$f(x) = f_0 + \sum_i f_i(x_i) + \sum_{i,j} f_{ij}(x_i,x_j) + \ldots$$
+
+where
+
+$$f_0 = \int_\Omega f(x) dx$$
+
+and orthogonality holds:
+
+$$f_{i,j,\ldots}(x_i,x_j,\ldots)dx = 0$$
+
+by the definitions:
+
+$$f_i(x_i) = E(y|x_i) - f_0$$
+
+$$f_{ij}(x_i,y_j) = E(y|x_i,x_j) - f_0 - f_i - f_j$$
+
+Assuming that $f(x)$ is L2, it holds that
+
+$$\int_\Omega f^2(x)dx - f_0^2 = \sum_s \sum_i \int f^2_{i_1,i_2,\ldots,i_s} dx$$
+
+and thus
+
+$$V[y] = \sum V_i + \sum V_{ij} + \ldots$$
+
+where
+
+$$V_i = V[E_{x_{\sim i}}[y|x_i]]$$
+$$V_{ij} = V[E_{x_{\sim ij}}[y|x_i,x_j]]-V_i - V_j$$
+
+where $X_{\sim i}$ means all of the variables except $X_i$. This means that the
+total variance can be decomposed into each of these variances.
+
+From there, the fractional contribution to the total variance is thus the index:
+
+$$S_i = \frac{V_i}{Var[y]}$$
+
+and similarly for the second, third, etc. indices.
+
+Additionally, if there are too many variables, one can compute the contribution
+of $x_i$ including all of its interactions as:
+
+$$S_{T_i} = \frac{E_{X_{\sim i}}[Var[y|X_{\sim i}]]}{Var[y]} = 1 - \frac{Var_{X_{\sim i}}[E_{X_i}[y|x_{\sim i}]]}{Var[y]}$$
+
+#### Computational Tractability and Quasi-Monte Carlo
+
+Notice that every single expectation has an integral in it, so the variance is
+defined as integrals of integrals, making this a very challenging calculation.
+Thus instead of directly calculating the integrals, in many cases Monte Carlo
+estimators are used. Instead of a pure Monte Carlo method, one generally uses
+a low-discrepancy sequence (a form of quasi-Monte Carlo) to effectively sample
+the search space.
+
+The following generates for example a *Sobol sequence*:
+
+```!
+using Sobol, Plots
+s = SobolSeq(2)
+p = hcat([next!(s) for i = 1:1024]...)'
+scatter(p[:,1], p[:,2])
+```
+
+Another common quasi-Monte Carlo sequence is the *Latin Hypercube*, which is
+a generalization of the Latin Square where in every row, column, etc. only one
+point is given, allowing a linear spread over a high dimensional space.
+
+```!
+using LatinHypercubeSampling
+p = LHCoptim(120,2,1000)
+scatter(p[1][:,1],p[1][:,2])
+```
+
+For a reference library with many different quasi-Monte Carlo samplers, check
+out [QuasiMonteCarlo.jl](https://github.com/SciML/QuasiMonteCarlo.jl).
+
+## Fourier Amplitude Sensitivity Sampling (FAST) and eFAST
+
+The FAST method is a change to the Sobol method to allow for faster convergence.
+First transform the variables $x_i$ onto the space $[0,1]$. Then, instead of the
+linear decomposition, one decomposes into a Fourier basis:
+
+$$f(x_i,x_2,\ldots,x_n) = \sum_{m_1 = -\infty}^{\infty} \ldots \sum_{m_n = -\infty}^{\infty} C_{m_1m_2\ldots m_n}\exp\left(2\pi i (m_1 x_1 + \ldots + m_n x_n)\right)$$
+
+where
+
+$$C_{m_1m_2\ldots m_n} = \int_0^1 \ldots \int_0^1 f(x_i,x_2,\ldots,x_n) \exp\left(-2\pi i (m_1 x_1 + \ldots + m_n x_n)\right)$$
+
+The ANOVA like decomposition is thus
+
+$$f_0 = C_{0\ldots 0}$$
+
+$$f_j = \sum_{m_j \neq 0} C_{0\ldots 0 m_j 0 \ldots 0} \exp (2\pi i m_j x_j)$$
+
+$$f_{jk} = \sum_{m_j \neq 0} \sum_{m_k \neq 0} C_{0\ldots 0 m_j 0 \ldots m_k 0 \ldots 0} \exp \left(2\pi i (m_j x_j + m_k x_k)\right)$$
+
+The first order conditional variance is thus:
+
+$$V_j = \int_0^1 f_j^2 (x_j) dx_j = \sum_{m_j \neq 0} |C_{0\ldots 0 m_j 0 \ldots 0}|^2$$
+
+or
+
+$$V_j = 2\sum_{m_j = 1}^\infty \left(A_{m_j}^2 + B_{m_j}^2 \right)$$
+
+where $C_{0\ldots 0 m_j 0 \ldots 0} = A_{m_j} + i B_{m_j}$. By Fourier series we
+know this to be:
+
+$$A_{m_j} = \int_0^1 \ldots \int_0^1 f(x)\cos(2\pi m_j x_j)dx$$
+
+$$B_{m_j} = \int_0^1 \ldots \int_0^1 f(x)\sin(2\pi m_j x_j)dx$$
+
+#### Implementation via the Ergodic Theorem
+
+Define
+
+$$X_j(s) = \frac{1}{2\pi} (\omega_j s \mod 2\pi)$$
+
+By the ergodic theorem, if $\omega_j$ are irrational numbers, then the dynamical
+system will never repeat values and thus it will create a solution that is dense
+in the plane (Let's prove a bit later). As an animation:
+
+![](https://upload.wikimedia.org/wikipedia/commons/6/64/Search_curve_1.gif)
+
+(here, $\omega_1 = \pi$ and $\omega_2 = 7$)
+
+This means that:
+
+$$A_{m_j} = \lim_{T\rightarrow \infty} \frac{1}{2T} \int_{-T}^T f(x)\cos(m_j \omega_j s)ds$$
+
+$$B_{m_j} = \lim_{T\rightarrow \infty} \frac{1}{2T} \int_{-T}^T f(x)\sin(m_j \omega_j s)ds$$
+
+i.e. the multidimensional integral can be approximated by the integral over a
+single line.
+
+One can satisfy this approximately to get a simpler form for the integral.
+Using $\omega_i$ as integers, the integral is periodic and so only integrating
+over $2\pi$ is required. This would mean that:
+
+$$A_{m_j} \approx \frac{1}{2\pi} \int_{-\pi}^\pi f(x)\cos(m_j \omega_j s)ds$$
+
+$$B_{m_j} \approx \frac{1}{2\pi} \int_{-\pi}^\pi f(x)\sin(m_j \omega_j s)ds$$
+
+It's only approximate since the sequence cannot be dense. For example, with
+$\omega_1 = 11$ and $\omega_2 = 7$:
+
+![](https://upload.wikimedia.org/wikipedia/commons/2/29/Search_curve_3.gif)
+
+A higher period thus gives a better fill of the space and thus a better
+approximation, but may require a more points. However, this transformation
+makes the true integrals simple one dimensional quadratures which can be
+efficiently computed.
+
+To get the total index from this method, one can calculate the total contribution
+of the complementary set, i.e. $V_{c_i} = \sum_{j \neq i} V_j$ and then
+
+$$S_{T_i} = 1 - S_{c_i}$$
+
+Note that this then is a fast measure for the total contribution of variable $i$,
+including all higher-order nonlinear interactions, all from one-dimensional
+integrals! (This extension is called extended FAST or eFAST)
+
+#### Proof of the Ergodic Theorem
+
+Look at the map $x_{n+1} = x_n + \alpha (\text{mod} 1)$, where $\alpha$
+is irrational. This is the irrational rotation map that corresponds to our
+problem. We wish to prove that in any interval $I$, there is a point of our
+orbit in this interval.
+
+First let's prove a useful result: our points get arbitrarily close.
+Assume that for some finite $\epsilon$ that no two points are $\epsilon$
+apart. This means that we at most have spacings of $\epsilon$ between the points,
+and thus we have at most $\frac{2\pi}{\epsilon}$ points (rounded up). This means
+our orbit is periodic. This means that there is a $p$ such that
+
+$$x_{n+p} = x_n$$
+
+which means that $p \alpha = 1$ or $p = \frac{1}{\alpha}$ which is a contradiction
+since $\alpha$ is irrational.
+
+Thus for every $\epsilon$ there are two points which are $\epsilon$ apart. Now
+take any arbitrary $I$. Let $\epsilon < d/2$ where $d$ is the length of the
+interval. We have just shown that there are two points $\epsilon$ apart, so
+there is a point that is $x_{n+m}$ and $x_{n+k}$ which are $<\epsilon$ apart.
+Assuming WLOG $m>k$, this means that $m-k$ rotations takes one from $x_{n+k}$
+to $x_{n+m}$, and so $m-k$ rotations is a rotation by $\epsilon$. If we do
+$\frac{1}{\epsilon}$ rounded up rotations, we will then cover the space with
+intervals of length epsilon, each with one point of the orbit in it. Since
+$\epsilon < d/2$, one of those intervals is completely encapsulated in $I$,
+which means there is at least one point in our orbit that is in $I$.
+
+Thus for every interval we have at least one point in our orbit that lies in
+it, proving that the rotation map with irrational $\alpha$ is dense. Note that
+during the proof we essentially showed as well that if $\alpha$ is rational,
+then the map is periodic based on the denominator of the map in its reduced
+form.
+
+## A Quick Note on Parallelism
+
+Very quick note: all of these are hyper parallel since it does the same calculation
+per parameter or trajectory, and each calculation is long. For quasi-Monte Carlo,
+after generating "good enough" trajectories, one can evaluate the model at all
+points in parallel, and then simply do the GSA index measurement. For FAST, one
+can do each quadrature in parallel.
