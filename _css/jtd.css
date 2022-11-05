@@ -7,7 +7,7 @@ https://github.com/pmarsceill/just-the-docs/blob/master/LICENSE.txt
 
 :root {
   --block-background: #f4f5f6;
-  --output-background: #f6f5f4;
+  --output-background: #f5f6fa;
   --small: 14px;
   --normal: 19px;
   --text-color: hsv(0, 0%, 20%);
@@ -18,6 +18,7 @@ https://github.com/pmarsceill/just-the-docs/blob/master/LICENSE.txt
   --color-sciml-blue:   #27355e;
   --color-sciml-purple: #a885ba;
   --color-sciml-white:  #f4f5f6;
+  --color-sciml-blue-light: #c2c0d0
 }
 
 html {
@@ -179,7 +180,7 @@ SIDE BAR
   z-index: 100;
   display: flex;
   flex-wrap: wrap;
-  background-color: #f5f6fa;
+  background-color: var(--output-background);
 }
 
 .side-bar .header {
