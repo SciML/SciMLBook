@@ -18,9 +18,9 @@ high-performance computing.
 \note{
     You can help improve this course!
     \\
-    Please [**report mistakes**](https://github.com/SciML/SciMLBook/issues/new?assignees=&labels=bug&template=bug-report.md&title=Fix+Mistake) you find in the content.
+    Please [report mistakes](https://github.com/SciML/SciMLBook/issues/new?assignees=&labels=bug&template=bug-report.md&title=Fix+Mistake) you find in the content.
     \\
-    Similarly, [**suggest improvements**](https://github.com/SciML/SciMLBook/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=New+Feature) to the organization and navigation of this site.
+    Similarly, [suggest improvements](https://github.com/SciML/SciMLBook/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=New+Feature) to the organization and navigation of this site.
 }
 
 ## Introduction to Parallel Computing and Scientific Machine Learning
