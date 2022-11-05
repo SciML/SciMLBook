@@ -5,6 +5,10 @@ If you prefer, you may follow along with the lecture recordings.
 - [Youtube Video Part 1](https://youtu.be/KCYlEub_8xc)
 - [Youtube Video Part 2](https://youtu.be/v9bFRg4rUfk)
 
+# Table of Contents
+
+\toc
+
 ## Levels of parallelism in hardware
 
 1. Instruction-Level Parallelism

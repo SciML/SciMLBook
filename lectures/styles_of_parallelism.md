@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video Link](https://youtu.be/EP5VWwPIews)
 
+# Table of Contents
+
+\toc
+
 Now that you are aware of the basics of parallel computing, let's give a high
 level overview of the differences between different modes of parallelism.
 

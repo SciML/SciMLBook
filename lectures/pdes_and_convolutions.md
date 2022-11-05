@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video](https://youtu.be/apkyk8n0vBo)
 
+# Table of Contents
+
+\toc
+
 At this point we have identified how the worlds of machine learning and scientific
 computing collide by looking at the parameter estimation problem. Training
 neural networks is parameter estimation of a function `f` where `f` is a neural

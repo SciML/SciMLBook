@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video Link](https://youtu.be/zHPXGBiTM5A)
 
+# Table of Contents
+
+\toc
+
 ## Machine Epsilon and Roundoff Error
 
 Floating point arithmetic is relatively scaled, which means that the precision

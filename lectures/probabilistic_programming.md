@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video](https://youtu.be/32rAwtTAGdU)
 
+# Table of Contents
+
+\toc
+
 With a high degree of probability, all things are probabilistic. In all of
 the cases we have previously looked at (differential equations, neural networks,
 neural differential equations, physics-informed neural networks, etc.) we have

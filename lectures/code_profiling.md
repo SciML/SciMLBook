@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video](https://youtu.be/h-xVBD2Pk9o)
 
+# Table of Contents
+
+\toc
+
 This is just a quick look into code profiling. By now we should be writing
 high performance parallel code which is combining machine learning and
 scientific computing techniques and doing large-scale parameter analyses on

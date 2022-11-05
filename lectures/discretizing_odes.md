@@ -5,6 +5,10 @@ If you prefer, you may follow along with the lecture recordings.
 - [Youtube Video Link Part 1](https://youtu.be/riAbPZy9gFc)
 - [Youtube Video Link Part 2](https://youtu.be/HMmOk9GIhsw)
 
+# Table of Contents
+
+\toc
+
 Now that we have a sense of parallelism, let's return back to our thread on
 scientific machine learning to start constructing parallel algorithms for
 integration of scientific models. We previously introduced discrete dynamical

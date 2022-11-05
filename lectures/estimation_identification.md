@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video Link](https://youtu.be/XQAe4pEZ6L4)
 
+# Table of Contents
+
+\toc
+
 Have a model. Have data. Fit model to data.
 
 This is a problem that goes under many different names: *parameter estimation*,

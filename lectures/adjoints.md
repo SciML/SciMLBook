@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video Link](https://youtu.be/fXcekZZP-1A)
 
+# Table of Contents
+
+\toc
+
 Our last discussion focused on how, at a high mathematical level, one could
 in theory build programs which compute gradients in a fast manner by looking
 at the computational graph and performing reverse-mode automatic differentiation.

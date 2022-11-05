@@ -4,6 +4,10 @@ If you prefer, you may follow along with the lecture recordings.
 
 - [Youtube Video](https://youtu.be/YuaVXt--gAA)
 
+# Table of Contents
+
+\toc
+
 Given this background in both neural network and differential equation modeling,
 let's take a moment to survey some methods which integrate the two ideas. In this
 course we have fully described how Physics-Informed Neural Networks (PINNs) and
