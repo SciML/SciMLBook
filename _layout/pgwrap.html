@@ -3,36 +3,34 @@
   <div class="side-bar">
     <div class="header">
       <a href="/" class="title">
-        Franklin
+        SciML Book
       </a>
     </div>
     <label for="show-menu" class="show-menu">MENU</label>
     <input type="checkbox" id="show-menu" role="button">
     <div class="menu" id="side-menu">
       <ul class="menu-list">
-        <li class="menu-list-item {{ispage index}}active{{end}}"><a href="/" class="menu-list-link {{ispage index}}active{{end}}">Home</a>
-        <li class="menu-list-item {{ispage lectures/*}}active{{end}}"><a href="/lectures/" class="menu-list-link {{ispage lectures/}}active{{end}}">Lectures</a>
-        <!-- <li class="menu-list-item {{ispage menu2/*}}active{{end}}"><a href="/menu2/" class="menu-list-link {{ispage menu2}}active{{end}}">More goodies</a> -->
-        <!-- <li class="menu-list-item {{ispage menu3/*}}active{{end}}"><a href="/menu3/" class="menu-list-link {{ispage menu3}}active{{end}}">Tags</a> -->
+        <li class="menu-list-item {{ispage index}}active{{end}}"><a href="/" class="menu-list-link {{ispage index}}active{{end}}">Home</a></li>
+        <li class="menu-list-item {{ispage lectures/*}}active{{end}}"><a href="/lectures/" class="menu-list-link {{ispage lectures/}}active{{end}}">Lectures</a></li>
         <ul class="menu-list-child-list ">
-            <li class="menu-list-item "><a href="/lectures/optimizing/" class="menu-list-link">2: Optimizing Serial Code</a></li>
-            <li class="menu-list-item "><a href="/lectures/sciml" class="menu-list-link">3: SciML Introduction</a></li>
-            <li class="menu-list-item "><a href="/lectures/dynamical_systems" class="menu-list-link">4: How Loops Work</a></li>
-            <li class="menu-list-item "><a href="/lectures/parallelism_overview" class="menu-list-link">5: Parallelism Overview</a></li>
-            <li class="menu-list-item "><a href="/lectures/styles_of_parallelism" class="menu-list-link">6: Styles of Parallelism</a></li>
-            <li class="menu-list-item "><a href="/lectures/discretizing_odes" class="menu-list-link">7: ODEs</a></li>
-            <li class="menu-list-item "><a href="/lectures/automatic_differentiation" class="menu-list-link">8: Forward AD</a></li>
-            <li class="menu-list-item "><a href="/lectures/stiff_odes" class="menu-list-link">9: Stiff ODEs</a></li>
-            <li class="menu-list-item "><a href="/lectures/estimation_identification" class="menu-list-link">10: Reverse AD</a></li>
-            <li class="menu-list-item "><a href="/lectures/adjoints" class="menu-list-link">12: δP</a></li>
-            <li class="menu-list-item "><a href="/lectures/intro_mpi" class="menu-list-link">12: MPI</a></li>
-            <li class="menu-list-item "><a href="/lectures/gpus" class="menu-list-link">13: GPUs</a></li>
-            <li class="menu-list-item "><a href="/lectures/pdes_and_convolutions" class="menu-list-link">14: PDEs</a></li>
-            <li class="menu-list-item "><a href="/lectures/diffeq_machine_learning" class="menu-list-link">15: Physics Informed Learning</a></li>
-            <li class="menu-list-item "><a href="/lectures/probabilistic_programming" class="menu-list-link">16: Probabilistic Programming</a></li>
-            <li class="menu-list-item "><a href="/lectures/global_sensitivity" class="menu-list-link">17: Global Sensitivity Analysis</a></li>
-            <li class="menu-list-item "><a href="/lectures/code_profiling" class="menu-list-link">18: Profiling & Optimization</a></li>
-            <li class="menu-list-item "><a href="/lectures/uncertainty_programming" class="menu-list-link">19: Uncertainty Programming</a></li>
+            <li class="menu-list-item {{ispage lectures/optimizing/}}active{{end}}"><a href="/lectures/optimizing" class="menu-list-link">2: Optimizing Serial Code</a></li>
+            <li class="menu-list-item {{ispage lectures/sciml}}active{{end}}"><a href="/lectures/sciml" class="menu-list-link">3: SciML Introduction</a></li>
+            <li class="menu-list-item {{ispage lectures/dynamical_systems}}active{{end}}"><a href="/lectures/dynamical_systems" class="menu-list-link">4: How Loops Work</a></li>
+            <li class="menu-list-item {{ispage lectures/parallelism_overview}}active{{end}}"><a href="/lectures/parallelism_overview" class="menu-list-link">5: Parallelism Overview</a></li>
+            <li class="menu-list-item {{ispage lectures/styles_of_parallelism}}active{{end}}"><a href="/lectures/styles_of_parallelism" class="menu-list-link">6: Styles of Parallelism</a></li>
+            <li class="menu-list-item {{ispage lectures/discretizing_odes}}active{{end}}"><a href="/lectures/discretizing_odes" class="menu-list-link">7: ODEs</a></li>
+            <li class="menu-list-item {{ispage lectures/automatic_differentiation}}active{{end}}"><a href="/lectures/automatic_differentiation" class="menu-list-link">8: Forward AD</a></li>
+            <li class="menu-list-item {{ispage lectures/stiff_odes}}active{{end}}"><a href="/lectures/stiff_odes" class="menu-list-link">9: Stiff ODEs</a></li>
+            <li class="menu-list-item {{ispage lectures/estimation_identification}}active{{end}}"><a href="/lectures/estimation_identification" class="menu-list-link">10: Reverse AD</a></li>
+            <li class="menu-list-item {{ispage lectures/adjoints}}active{{end}}"><a href="/lectures/adjoints" class="menu-list-link">12: δP</a></li>
+            <li class="menu-list-item {{ispage lectures/intro_mpi}}active{{end}}"><a href="/lectures/intro_mpi" class="menu-list-link">12: MPI</a></li>
+            <li class="menu-list-item {{ispage lectures/gpus}}active{{end}}"><a href="/lectures/gpus" class="menu-list-link">13: GPUs</a></li>
+            <li class="menu-list-item {{ispage lectures/pdes_and_convolutions}}active{{end}}"><a href="/lectures/pdes_and_convolutions" class="menu-list-link">14: PDEs</a></li>
+            <li class="menu-list-item {{ispage lectures/diffeq_machine_learning}}active{{end}}"><a href="/lectures/diffeq_machine_learning" class="menu-list-link">15: Physics Informed Learning</a></li>
+            <li class="menu-list-item {{ispage lectures/probabilistic_programming}}active{{end}}"><a href="/lectures/probabilistic_programming" class="menu-list-link">16: Probabilistic Programming</a></li>
+            <li class="menu-list-item {{ispage lectures/global_sensitivity}}active{{end}}"><a href="/lectures/global_sensitivity" class="menu-list-link">17: Global Sensitivity Analysis</a></li>
+            <li class="menu-list-item {{ispage lectures/code_profiling}}active{{end}}"><a href="/lectures/code_profiling" class="menu-list-link">18: Profiling & Optimization</a></li>
+            <li class="menu-list-item {{ispage lectures/uncertainty_programming}}active{{end}}"><a href="/lectures/uncertainty_programming" class="menu-list-link">19: Uncertainty Programming</a></li>
         </ul>
       </ul>
     </div>
