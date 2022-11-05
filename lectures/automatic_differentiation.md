@@ -1,6 +1,8 @@
 # Forward-Mode Automatic Differentiation (AD) via High Dimensional Algebras
 
-## [Youtube Video Link](https://youtu.be/zHPXGBiTM5A)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video Link](https://youtu.be/zHPXGBiTM5A)
 
 ## Machine Epsilon and Roundoff Error
 

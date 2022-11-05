@@ -1,6 +1,8 @@
 # Solving Stiff Ordinary Differential Equations
 
-## [Youtube Video Link](https://youtu.be/bY2VCoxMuo8)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video Link](https://youtu.be/bY2VCoxMuo8)
 
 We have previously shown how to solve non-stiff ODEs via optimized Runge-Kutta
 methods, but we ended by showing that there is a fundamental limitation of these

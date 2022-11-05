@@ -1,6 +1,8 @@
 # Differentiable Programming and Neural Differential Equations
 
-## [Youtube Video Link](https://youtu.be/fXcekZZP-1A)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video Link](https://youtu.be/fXcekZZP-1A)
 
 Our last discussion focused on how, at a high mathematical level, one could
 in theory build programs which compute gradients in a fast manner by looking

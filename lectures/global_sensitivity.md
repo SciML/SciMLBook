@@ -1,6 +1,8 @@
 # Global Sensitivity Analysis
 
-## [Youtube Video](https://youtu.be/wzTpoINJyBQ)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video](https://youtu.be/wzTpoINJyBQ)
 
 Sensitivity analysis is the measure of how sensitive a model is to changes in
 parameters, i.e. how much the output changes given a change in the input. Clearly,

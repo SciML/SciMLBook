@@ -1,6 +1,8 @@
 # Code Profiling and Optimization
 
-## [Youtube Video](https://youtu.be/h-xVBD2Pk9o)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video](https://youtu.be/h-xVBD2Pk9o)
 
 This is just a quick look into code profiling. By now we should be writing
 high performance parallel code which is combining machine learning and

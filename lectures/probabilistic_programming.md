@@ -1,6 +1,8 @@
 # From Optimization to Probabilistic Programming
 
-## [Youtube Video](https://youtu.be/32rAwtTAGdU)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video](https://youtu.be/32rAwtTAGdU)
 
 With a high degree of probability, all things are probabilistic. In all of
 the cases we have previously looked at (differential equations, neural networks,

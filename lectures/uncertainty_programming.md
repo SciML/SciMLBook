@@ -1,6 +1,8 @@
 # Uncertainty Programming, Generalized Uncertainty Quantification
 
-## [Youtube Video](https://youtu.be/MRTXK2Vc0YE)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video](https://youtu.be/MRTXK2Vc0YE)
 
 In this lecture we will mix two separate topics: uncertainty quantification
 and adaptivity of algorithms. Using compiler-based tooling, similar to how

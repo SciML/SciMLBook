@@ -1,6 +1,8 @@
 # Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems
 
-## [Youtube Video Link](https://youtu.be/XQAe4pEZ6L4)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video Link](https://youtu.be/XQAe4pEZ6L4)
 
 Have a model. Have data. Fit model to data.
 

@@ -1,7 +1,9 @@
 # GPU programming
 
-## [Youtube Video Part 1](https://youtu.be/KCYlEub_8xc)
-## [Youtube Video Part 2](https://youtu.be/v9bFRg4rUfk)
+If you prefer, you may follow along with the lecture recordings.
+
+- [Youtube Video Part 1](https://youtu.be/KCYlEub_8xc)
+- [Youtube Video Part 2](https://youtu.be/v9bFRg4rUfk)
 
 ## Levels of parallelism in hardware
 
