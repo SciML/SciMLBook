@@ -18,7 +18,8 @@ https://github.com/pmarsceill/just-the-docs/blob/master/LICENSE.txt
   --color-sciml-blue:   #27355e;
   --color-sciml-purple: #a885ba;
   --color-sciml-white:  #f4f5f6;
-  --color-sciml-blue-light: #c2c0d0
+  --color-sciml-blue-light: #c2c0d0;
+  --color-sciml-grey-light: #c0bfbc;
 }
 
 html {
@@ -180,7 +181,8 @@ SIDE BAR
   z-index: 100;
   display: flex;
   flex-wrap: wrap;
-  background-color: var(--output-background);
+  background-color: var(--color-sciml-blue);
+  justify-content: right;
 }
 
 .side-bar .header {
@@ -198,7 +200,7 @@ SIDE BAR
   align-items: center;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  color: #27262b;
+  color: var(--color-sciml-white);
   font-size: 18px !important;
   line-height: 1.15em;
 }
@@ -211,14 +213,14 @@ SIDE BAR
   line-height: 60px;
   padding: 1rem;
   align-items: center;
-  color: #0e39b0;
+  color: var(--color-sciml-white);
   text-transform: uppercase;
   background: transparent;
   text-align: right;
   padding-right: 2rem;
   border: 0;
   width: calc(100% - 220px);
-  background-color: white;
+  background-color: var(--color-sciml-purple);
 }
 
 .side-bar .menu {
@@ -234,13 +236,17 @@ SIDE BAR
   list-style: none;
 }
 
+.menu-list-item a {
+  color: var(--color-sciml-white);
+}
+
 .menu-list-child-list {
   padding-left: 0.75rem;
   list-style: none;
 }
 
 .menu-list-child-list .menu-list-link {
-  color: #5c5962;
+  color: var(--color-sciml-grey-light);
 }
 
 .menu-list-child-list .menu-list-item {
@@ -251,12 +257,12 @@ SIDE BAR
   position: absolute;
   margin-top: 0.3em;
   margin-left: -0.8em;
-  color: rgba(92, 89, 98, 0.3);
+  color: var(--color-sciml-blue-light);
   content: "- ";
 }
 
 .menu-list-child-list .menu-list-item.active::before {
-  color: #5c5962;
+  color: var(--color-sciml-blue-light);
 }
 
 .menu-list-item.active {
@@ -373,7 +379,7 @@ input[type=checkbox]:checked ~ #side-menu { display: block; }
   }
 
   .side-bar .menu {
-    width: 135px;
+    width: 185px;
     padding-right: 2rem;
     padding-left: 2rem;
     padding-top: 3rem;
@@ -386,6 +392,11 @@ input[type=checkbox]:checked ~ #side-menu { display: block; }
     padding-right: 2rem;
     padding-left: 2rem;
     position: static;
+    color: var(--color-sciml-grey-light);
+  }
+
+  .side-bar .footer a {
+    color: var(--color-sciml-purple);
   }
 }
 
@@ -463,7 +474,7 @@ MAIN CONTENT
 
 .main-footer {
   font-size: 14px;
-  color: darkgray;
+  color: var(--color-sciml-grey-light);
   border-top: 1px solid #eeebee;
   padding-top: 15px;
 }
