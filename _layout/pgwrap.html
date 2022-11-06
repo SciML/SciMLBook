@@ -9,9 +9,15 @@
     <label for="show-menu" class="show-menu">MENU</label>
     <input type="checkbox" id="show-menu" role="button">
     <div class="menu" id="side-menu">
+    <form id="lunrSearchForm" name="lunrSearchForm">
+      <input class="search-input" name="q" placeholder="Enter search term" type="text">
+      <input type="submit" value="Search" formaction="/search/index.html">
+    </form>
       <ul class="menu-list">
-        <li class="menu-list-item {{ispage index}}active{{end}}"><a href="/" class="menu-list-link {{ispage index}}active{{end}}">Home</a></li>
-        <li class="menu-list-item {{ispage lectures/*}}active{{end}}"><a href="/lectures/" class="menu-list-link {{ispage lectures/}}active{{end}}">Lectures</a></li>
+        <li class="menu-list-item {{ispage index}}active{{end}}"><a href="/" class="menu-list-link">Home</a></li>
+        <li class="menu-list-item {{ispage course/*}}active{{end}}"><a href="/course/" class="menu-list-link">Course</a></li>
+        <li class="menu-list-item {{ispage homework/*}}active{{end}}"><a href="/homework/" class="menu-list-link">Homework</a></li>
+        <li class="menu-list-item {{ispage lectures/*}}active{{end}}"><a href="/lectures/" class="menu-list-link">Lectures</a></li>
         <ul class="menu-list-child-list ">
             <li class="menu-list-item {{ispage lectures/optimizing/}}active{{end}}"><a href="/lectures/optimizing" class="menu-list-link">2: Optimizing Serial Code</a></li>
             <li class="menu-list-item {{ispage lectures/sciml}}active{{end}}"><a href="/lectures/sciml" class="menu-list-link">3: SciML Introduction</a></li>
