@@ -23,7 +23,7 @@ https://github.com/pmarsceill/just-the-docs/blob/master/LICENSE.txt
 }
 
 html {
-  font-family: sans-serif;
+  font-family: InterUI;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   font-size: 15px;
@@ -39,7 +39,7 @@ body {
   margin: 0;
   position: relative;
   padding-bottom: 4rem;
-  font-family: -apple-system, "helvetica neue", helvetica, roboto, noto, "segoe ui", arial, sans-serif;
+  font-family: InterUI, -apple-system, "helvetica neue", helvetica, roboto, noto, "segoe ui", arial, sans-serif;
   font-size: inherit;
   line-height: 1.5;
   color: #5c5962;
@@ -129,7 +129,7 @@ pre {
 }
 
 code {
-  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-family: JuliaMono, "SFMono-Regular", Menlo, Consolas, monospace;
   font-size: 14px;
   line-height: 1.4;
   padding: 0.2em 0.15em;
@@ -772,4 +772,87 @@ franklin-toc {
 #lunrSearchForm {
   margin-top: 0;
   margin-bottom: 1em;
+}
+
+/* ==================================================================
+    Fonts
+================================================================== */
+
+@font-face {
+  font-family: InterUI;
+  font-style:normal;
+  font-display:auto;
+  font-weight:400;
+  src:url(../assets/fonts/Inter-UI-Regular.woff2) format("woff2"),
+  url(../assets/fonts/Inter-UI-Regular.woff) format("woff")
+}
+@font-face {
+  font-family: InterUI;
+  font-style:italic;
+  font-display:auto;
+  font-weight:400;
+  src:url(../assets/fonts/Inter-UI-Italic.woff2) format("woff2"),
+  url(../assets/fonts/Inter-UI-Italic.woff) format("woff")
+}
+@font-face {
+  font-family: InterUI;
+  font-style:normal;
+  font-display:auto;
+  font-weight:600;
+  src:url(../assets/fonts/Inter-UI-Medium.woff2) format("woff2"),
+  url(../assets/fonts/Inter-UI-Medium.woff) format("woff")
+}
+@font-face {
+  font-family: InterUI;
+  font-style:italic;
+  font-display:auto;
+  font-weight:600;
+  src:url(../assets/fonts/Inter-UI-MediumItalic.woff2) format("woff2"),
+  url(../assets/fonts/Inter-UI-MediumItalic.woff) format("woff")
+}
+@font-face {
+  font-family: InterUI;
+  font-style:normal;
+  font-display:auto;
+  font-weight:800;
+  src:url(../assets/fonts/Inter-UI-Bold.woff2) format("woff2"),
+  url(../assets/fonts/Inter-UI-Bold.woff) format("woff")
+}
+@font-face {
+  font-family: InterUI;
+  font-style:italic;
+  font-display:auto;
+  font-weight:800;
+  src:url(../assets/fonts/Inter-UI-BoldItalic.woff2) format("woff2"),
+  url(../assets/fonts/Inter-UI-BoldItalic.woff) format("woff")
+}
+
+@font-face {
+  font-family: JuliaMono;
+  src: url("../assets/fonts/JuliaMono-RegularLatin.woff2") format("woff2");
+  font-display: auto;
+  font-weight: 400;
+  unicode-range: U+00-7F; /* Basic Latin characters */
+}
+
+@font-face {
+  font-family: JuliaMono;
+  src: url("../assets/fonts/JuliaMono-BoldLatin.woff2") format("woff2");
+  font-display: auto;
+  font-weight: 700;
+  unicode-range: U+00-7F; /* Basic Latin characters */
+}
+
+@font-face {
+  font-family: JuliaMono;
+  src: url("../assets/fonts/JuliaMono-Regular.woff2") format("woff2");
+  font-display: auto;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: JuliaMono;
+  src: url("../assets/fonts/JuliaMono-Bold.woff2") format("woff2");
+  font-display: auto;
+  font-weight: 700;
 }
