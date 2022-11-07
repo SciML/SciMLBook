@@ -65,7 +65,7 @@ another.
 
 *Julia, MATLAB, and Fortran are column major*. Python's numpy is row-major.
 
-```julia:./inner_rows
+```!
 A = rand(100,100)
 B = rand(100,100)
 C = rand(100,100)
@@ -78,9 +78,7 @@ end
 @btime inner_rows!(C,A,B)
 ```
 
-\output{./inner_rows}
-
-```julia:./inner_cols
+```!
 function inner_cols!(C,A,B)
   for j in 1:100, i in 1:100
     C[i,j] = A[i,j] + B[i,j]
@@ -88,8 +86,6 @@ function inner_cols!(C,A,B)
 end
 @btime inner_cols!(C,A,B)
 ```
-
-\output{./inner_cols}
 
 ### Lower Level View: The Stack and the Heap
 
@@ -112,7 +108,7 @@ Heap allocations are costly because they involve this pointer indirection,
 so stack allocation should be done when sensible (it's not helpful for really
 large arrays, but for small values like scalars it's essential!)
 
-```julia:./inner_alloc
+```!
 function inner_alloc!(C,A,B)
   for j in 1:100, i in 1:100
     val = [A[i,j] + B[i,j]]
@@ -122,9 +118,7 @@ end
 @btime inner_alloc!(C,A,B)
 ```
 
-\output{./inner_alloc}
-
-```julia:./inner_noalloc
+```!
 function inner_noalloc!(C,A,B)
   for j in 1:100, i in 1:100
     val = A[i,j] + B[i,j]
@@ -133,8 +127,6 @@ function inner_noalloc!(C,A,B)
 end
 @btime inner_noalloc!(C,A,B)
 ```
-
-\output{./inner_noalloc}
 
 Why does the array here get heap-allocated? It isn't able to prove/guarantee
 at compile-time that the array's size will always be a given value, and thus
@@ -147,7 +139,7 @@ address.
 Note that one can use the StaticArrays.jl library to get statically-sized arrays
 and thus arrays which are stack-allocated:
 
-```julia:./static_inner_alloc
+```!
 using StaticArrays
 function static_inner_alloc!(C,A,B)
   for j in 1:100, i in 1:100
@@ -157,8 +149,6 @@ function static_inner_alloc!(C,A,B)
 end
 @btime static_inner_alloc!(C,A,B)
 ```
-
-\output{./static_inner_alloc}
 
 ### Mutation to Avoid Heap Allocations
 
@@ -171,7 +161,7 @@ the garbage collector).
 In Julia, functions which mutate the first value are conventionally noted by
 a `!`. See the difference between these two equivalent functions:
 
-```julia:./inner_noalloc2
+```!
 function inner_noalloc!(C,A,B)
   for j in 1:100, i in 1:100
     val = A[i,j] + B[i,j]
@@ -181,9 +171,7 @@ end
 @btime inner_noalloc!(C,A,B)
 ```
 
-\output{./inner_noalloc2}
-
-```julia:./inner_alloc2
+```!
 function inner_alloc(A,B)
   C = similar(A)
   for j in 1:100, i in 1:100
@@ -193,8 +181,6 @@ function inner_alloc(A,B)
 end
 @btime inner_alloc(A,B)
 ```
-
-\output{./inner_alloc2}
 
 To use this algorithm effectively, the `!` algorithm assumes that the caller
 already has allocated the output array to put as the output argument. If that
@@ -216,13 +202,13 @@ call `broadcast!` on composed expression. This is customizable and
 However, to a first approximation we can think of the broadcast mechanism as a
 mechanism for building *fused expressions*. For example, the Julia code:
 
-```julia:./fused
+```!
 A .+ B .+ C;
 ```
 
 under the hood lowers to something like:
 
-```julia:./under_hood_map
+```!
 map((a,b,c)->a+b+c,A,B,C);
 ```
 
@@ -233,7 +219,7 @@ where `map` is a function that just loops over the values element-wise.
 This about what would happen if you did not fuse the operations. We can write
 that out as:
 
-```julia:./temp_broadcast
+```!
 tmp = A .+ B
 tmp .+ C;
 ```
@@ -243,7 +229,7 @@ the result of `A .+ B`, and that would have to be an array, which means it would
 cause a heap allocation. Thus broadcast fusion eliminates the *temporary variable*
 (colloquially called just a *temporary*).
 
-```julia:./unfused
+```!
 function unfused(A,B,C)
   tmp = A .+ B
   tmp .+ C
@@ -251,25 +237,19 @@ end
 @btime unfused(A,B,C);
 ```
 
-\output{./unfused}
-
-```julia:./fused_time
+```!
 fused(A,B,C) = A .+ B .+ C
 @btime fused(A,B,C);
 ```
 
-\output{./fused_time}
-
 Note that we can also fuse the output by using `.=`. This is essentially the
 vectorized version of a `!` function:
 
-```julia:./fused_mut
+```!
 D = similar(A)
 fused!(D,A,B,C) = (D .= A .+ B .+ C)
 @btime fused!(D,A,B,C);
 ```
-
-\output{./fused_mut}
 
 ### Note on Broadcasting Function Calls
 
@@ -309,24 +289,20 @@ only compiling the combinations that are necessary for a specific code)
 It's important to note that slices in Julia produce copies instead of views.
 Thus for example:
 
-```julia:./slice
+```!
 A[50,50]
 ```
-
-\show{./slice}
 
 allocates a new output. This is for safety, since if it pointed to the same
 array then writing to it would change the original array. We can demonstrate
 this by asking for a *view* instead of a copy.
 
-```julia:./slice_view
+```!
 @show A[1]
 E = @view A[1:5,1:5]
 E[1] = 2.0
 @show A[1]
 ```
-
-\output{./slice_view}
 
 However, this means that `@view A[1:5,1:5]` did not allocate an array (it does
 allocate a pointer if the escape analysis is unable to prove that it can be
@@ -484,13 +460,11 @@ which hopefully begins to explain why this is not as fast as C.
 
 The solution is Julia is somewhat of a hybrid. The Julia code looks like:
 
-```julia:./types
+```!
 a = 2
 b = 4
 a + b
 ```
-
-\show{./types}
 
 However, before JIT compilation, Julia runs a type inference algorithm which
 finds out that `A` is an `Int`, and `B` is an `Int`. You can then understand
@@ -504,11 +478,9 @@ a function is "untyped", Julia will interpret this as a *generic function*
 over possible *methods*, where every method has a concrete type. This means that
 in Julia, the function:
 
-```julia:./f
+```!
 f(x,y) = x+y
 ```
-
-\show{./f}
 
 is not what you may think of as a "single function", since given inputs of
 different types it will actually be a different function. We can see this by
@@ -517,24 +489,20 @@ examining the *LLVM IR* (LLVM is Julia's compiler, the IR is the
 of assembly that lives in LLVM that it knows how to convert into assembly per
 architecture):
 
-```julia:./f_code_llvm
+```!
 using InteractiveUtils
 @code_llvm f(2,5)
 ```
 
-\output{./f_code_llvm}
-
-```julia:./f_code_llvm_float
+```!
 @code_llvm f(2.0,5.0)
 ```
-
-\output{./f_code_llvm_float}
 
 Notice that when `f` is the function that takes in two `Int`s, `Int`s add to
 give an `Int` and thus `f` outputs an `Int`. When `f` is the function that
 takes two `Float64`s, `f` returns a `Float64`. Thus in the code:
 
-```julia:./g
+```!
 function g(x,y)
   a = 4
   b = 2
@@ -546,44 +514,34 @@ end
 @code_llvm g(2,5)
 ```
 
-\output{./g}
-
 `g` on two `Int` inputs is a function that has `Int`s at every step along the
 way and spits out an `Int`. We can use the `@code_warntype` macro to better
 see the inference along the steps of the function:
 
-```julia:./g_warntype
+```!
 @code_warntype g(2,5)
 ```
 
-\output{./g_warntype}
-
 What happens on mixtures?
 
-```julia:./f_code_llvm_mix
+```!
 @code_llvm f(2.0,5)
 ```
-
-\output{./f_code_llvm_mix}
 
 When we add an `Int` to a `Float64`, we promote the `Int` to a `Float64` and then
 perform the `+` between two `Float64`s. When we go to the full function, we
 see that it can still infer:
 
-```julia:./g_warntype_mix
+```!
 @code_warntype g(2.0,5)
 ```
-
-\output{./g_warntype_mix}
 
 and it uses this to build a very efficient assembly code because it knows exactly
 what the types will be at every step:
 
-```julia:./g_code_llvm
+```!
 @code_llvm g(2.0,5)
 ```
-
-\output{./g_code_llvm}
 
 (notice how it handles the constant *literals* 4 and 2: it converted them at
 compile time to reduce the algorithm to 3 floating point additions).
@@ -600,23 +558,19 @@ known as type-stability.
 
 An example of breaking it is as follows:
 
-```julia:./h
+```!
 function h(x,y)
   out = x + y
   rand() < 0.5 ? out : Float64(out)
 end
 ```
 
-\show{./h}
-
 Here, on an integer input the output's type is randomly either Int or Float64,
 and thus the output is unknown:
 
-```julia:./h_warntype
+```!
 @code_warntype h(2,5)
 ```
-
-\output{./h_warntype}
 
 This means that its output type is `Union{Int,Float64}` (Julia uses union types
 to keep the types still somewhat constrained). Once there are multiple choices,
@@ -634,23 +588,19 @@ how to act differently on different types by using type assertions on the
 input values. For example, let's make a function that computes `2x + y` on `Int`
 and `x/y` on `Float64`:
 
-```julia:./ff
+```!
 ff(x::Int,y::Int) = 2x + y
 ff(x::Float64,y::Float64) = x/y
 @show ff(2,5)
 @show ff(2.0,5.0)
 ```
 
-\output{./ff}
-
 The `+` function in Julia is just defined as `+(a,b)`, and we can actually
 point to that code in the Julia distribution:
 
-```julia:./which_plus
+```!
 @which +(2.0,5)
 ```
-
-\show{./which_plus}
 
 To control at a higher level, Julia uses *abstract types*. For example,
 `Float64 <: AbstractFloat`, meaning `Float64`s are a subtype of `AbstractFloat`.
@@ -664,28 +614,22 @@ that is called is the most strict version that is correct. For example, right
 now with `ff` we will get a `MethodError` if we call it between a `Int` and a
 `Float64` because no such method exists:
 
-```julia:./ff_methoderror
+```!
 ff(2.0,5)
 ```
 
-\output{./ff_methoderror}
-
 However, we can add a *fallback method* to the function `ff` for two numbers:
 
-```julia:./ff2
+```!
 ff(x::Number,y::Number) = x + y
 ff(2.0,5)
 ```
 
-\output{./ff2}
-
 Notice that the fallback method still specializes on the inputs:
 
-```julia:./ff_code_llvm_fallback
+```!
 @code_llvm ff(2.0,5)
 ```
-
-\output{./ff_code_llvm_fallback}
 
 It's essentially just a template for what functions to possibly try and create
 given the types that are seen. When it sees `Float64` and `Int`, it knows it
@@ -716,23 +660,19 @@ since it will be specialized on the input types.
 The version that is called is the most strict version that is correct. What
 happens if it's impossible to define "the most strict version"? For example,
 
-```julia:./ff3
+```!
 ff(x::Float64,y::Number) = 5x + 2y
 ff(x::Number,y::Int) = x - y
 ```
-
-\show{./ff3}
 
 What should it call on `f(2.0,5)` now?  `ff(x::Float64,y::Number)` and
 `ff(x::Number,y::Int)` are both more strict than `ff(x::Number,y::Number)`,
 so one of them should be called, but neither are more strict than each other,
 and thus you will end up with an ambiguity error:
 
-```julia:./ff4
+```!
 ff(2.0,5)
 ```
-
-\output{./ff4}
 
 ### Untyped Containers
 
@@ -740,55 +680,45 @@ One way to ruin inference is to use an untyped container. For example, the
 array constructors use type inference themselves to know what their container
 type will be. Therefore,
 
-```julia:./a
+```!
 a = [1.0,2.0,3.0]
 ```
-
-\show{./a}
 
 uses type inference on its inputs to know that it should be something that holds
 `Float64` values, and thus it is a 1-dimensional array of `Float64` values, or
 `Array{Float64,1}`. The accesses:
 
-```julia:./a_slice
+```!
 a[1]
 ```
-
-\show{./a_slice}
 
 are then inferred, since this is just the function `getindex(a::Array{T},i) where T`
 which is a function that will produce something of type `T`, the element type of
 the array. However, if we tell Julia to make an array with element type `Any`:
 
-```julia:./b
+```!
 b = ["1.0",2,2.0]
 ```
-
-\show{./b}
 
 (here, Julia falls back to `Any` because it cannot promote the values to the same
 type), then the best inference can do on the output is to say it could have
 any type:
 
-```julia:./bad_container
+```!
 function bad_container(a)
   a[2]
 end
 @code_warntype bad_container(a)
 ```
 
-\output{./bad_container}
-
-```julia:./bad_container_code_warntype
+```!
 @code_warntype bad_container(b)
 ```
-
-\output{./bad_container_code_warntype}
 
 This is one common way that type inference can breakdown. For example, even if
 the array is all numbers, we can still break inference:
 
-```julia:./q
+```!
 x = Number[1.0,3]
 function q(x)
   a = 4
@@ -799,8 +729,6 @@ function q(x)
 end
 @code_warntype q(x)
 ```
-
-\output{./q}
 
 Here the type inference algorithm quickly gives up and infers to `Any`, losing
 all specialization and automatically switching to Python-style runtime type
@@ -816,16 +744,14 @@ values are the values of the type itself, and not a pointer to the values.
 
 You can check if the type is a value type through `isbits`:
 
-```julia:./isbits
+```!
 isbits(1.0)
 ```
-
-\show{./isbits}
 
 Note that a Julia `struct` which holds i`sbits` values is `isbits` as well,
 if it's fully inferred:
 
-```julia:./MyComplex
+```!
 struct MyComplex
   real::Float64
   imag::Float64
@@ -833,37 +759,29 @@ end
 isbits(MyComplex(1.0,1.0))
 ```
 
-\show{./MyComplex}
-
 We can see that the compiler knows how to use this efficiently since it knows
 that what comes out is always `Float64`:
 
-```julia:./g_MyComplex
+```!
 Base.:+(a::MyComplex,b::MyComplex) = MyComplex(a.real+b.real,a.imag+b.imag)
 Base.:+(a::MyComplex,b::Int) = MyComplex(a.real+b,a.imag)
 Base.:+(b::Int,a::MyComplex) = MyComplex(a.real+b,a.imag)
 g(MyComplex(1.0,1.0),MyComplex(1.0,1.0))
 ```
 
-\show{./g_MyComplex}
-
-```julia:./g_MyComplex_warntype
+```!
 @code_warntype g(MyComplex(1.0,1.0),MyComplex(1.0,1.0))
 ```
 
-\output{./g_MyComplex_warntype}
-
-```julia:./g_MyComplex_code_llvm
+```!
 @code_llvm g(MyComplex(1.0,1.0),MyComplex(1.0,1.0))
 ```
-
-\output{./g_MyComplex_code_llvm}
 
 Note that the compiled code simply works directly on the `double` pieces.
 We can also make this be concrete without pre-specifying that the values always
 have to be `Float64` by using a type parameter.
 
-```julia:./MyParameterizedComplex
+```!
 struct MyParameterizedComplex{T}
   real::T
   imag::T
@@ -871,46 +789,36 @@ end
 isbits(MyParameterizedComplex(1.0,1.0))
 ```
 
-\show{./MyParameterizedComplex}
-
 Note that `MyParameterizedComplex{T}` is a concrete type for every `T`: it is a
 shorthand form for defining a whole family of types.
 
-```julia:./g_MyParameterizedComplex
+```!
 Base.:+(a::MyParameterizedComplex,b::MyParameterizedComplex) = MyParameterizedComplex(a.real+b.real,a.imag+b.imag)
 Base.:+(a::MyParameterizedComplex,b::Int) = MyParameterizedComplex(a.real+b,a.imag)
 Base.:+(b::Int,a::MyParameterizedComplex) = MyParameterizedComplex(a.real+b,a.imag)
 g(MyParameterizedComplex(1.0,1.0),MyParameterizedComplex(1.0,1.0))
 ```
 
-\show{./g_MyParameterizedComplex}
-
-```julia:./g_MyParameterizedComplex_code_warntype
+```!
 @code_warntype g(MyParameterizedComplex(1.0,1.0),MyParameterizedComplex(1.0,1.0))
 ```
-
-\output{./g_MyParameterizedComplex_code_warntype}
 
 See that this code also automatically works and compiles efficiently for
 `Float32` as well:
 
-```julia:./g_MyParameterizedComplex_code_warntype_float32
+```!
 @code_warntype g(MyParameterizedComplex(1.0f0,1.0f0),MyParameterizedComplex(1.0f0,1.0f0))
 ```
 
-\output{./g_MyParameterizedComplex_code_warntype_float32}
-
-```julia:./g_MyParameterizedComplex_code_warntype_f
+```!
 @code_llvm g(MyParameterizedComplex(1.0f0,1.0f0),MyParameterizedComplex(1.0f0,1.0f0))
 ```
-
-\output{./g_MyParameterizedComplex_code_warntype_f}
 
 It is important to know that if there is any piece of a type which doesn't
 contain type information, then it cannot be isbits because then it would have
 to be compiled in such a way that the size is not known in advance. For example:
 
-```julia:./MySlowComplex
+```!
 struct MySlowComplex
   real
   imag
@@ -918,30 +826,22 @@ end
 isbits(MySlowComplex(1.0,1.0))
 ```
 
-\show{./MySlowComplex}
-
-```julia:./g_MySlowComplex
+```!
 Base.:+(a::MySlowComplex,b::MySlowComplex) = MySlowComplex(a.real+b.real,a.imag+b.imag)
 Base.:+(a::MySlowComplex,b::Int) = MySlowComplex(a.real+b,a.imag)
 Base.:+(b::Int,a::MySlowComplex) = MySlowComplex(a.real+b,a.imag)
 g(MySlowComplex(1.0,1.0),MySlowComplex(1.0,1.0))
 ```
 
-\show{./g_MySlowComplex}
-
-```julia:./g_MySlowComplex_code_warntype
+```!
 @code_warntype g(MySlowComplex(1.0,1.0),MySlowComplex(1.0,1.0))
 ```
 
-\output{./g_MySlowComplex_code_warntype}
-
-```julia:./g_MySlowComplex_code_llvm
+```!
 @code_llvm g(MySlowComplex(1.0,1.0),MySlowComplex(1.0,1.0))
 ```
 
-\output{./g_MySlowComplex_code_llvm}
-
-```julia:./MySlowComplex2
+```!
 struct MySlowComplex2
   real::AbstractFloat
   imag::AbstractFloat
@@ -949,50 +849,38 @@ end
 isbits(MySlowComplex2(1.0,1.0))
 ```
 
-\show{./MySlowComplex2}
-
-```julia:./g_MySlowComplex2
+```!
 Base.:+(a::MySlowComplex2,b::MySlowComplex2) = MySlowComplex2(a.real+b.real,a.imag+b.imag)
 Base.:+(a::MySlowComplex2,b::Int) = MySlowComplex2(a.real+b,a.imag)
 Base.:+(b::Int,a::MySlowComplex2) = MySlowComplex2(a.real+b,a.imag)
 g(MySlowComplex2(1.0,1.0),MySlowComplex2(1.0,1.0))
 ```
 
-\show{./g_MySlowComplex2}
-
 Here's the timings:
 
-```julia:./g_MyComplex_btime
+```!
 a = MyComplex(1.0,1.0)
 b = MyComplex(2.0,1.0)
 @btime g(a,b)
 ```
 
-\show{./g_MyComplex_btime}
-
-```julia:./g_MyParameterizedComplex_btime
+```!
 a = MyParameterizedComplex(1.0,1.0)
 b = MyParameterizedComplex(2.0,1.0)
 @btime g(a,b)
 ```
 
-\show{./g_MyParameterizedComplex_btime}
-
-```julia:./g_MySlowComplex_btime
+```!
 a = MySlowComplex(1.0,1.0)
 b = MySlowComplex(2.0,1.0)
 @btime g(a,b)
 ```
 
-\show{./g_MySlowComplex_btime}
-
-```julia:./g_MySlowComplex2_btime
+```!
 a = MySlowComplex2(1.0,1.0)
 b = MySlowComplex2(2.0,1.0)
 @btime g(a,b)
 ```
-
-\show{./g_MySlowComplex2_btime}
 
 ### Note on Julia
 
@@ -1015,7 +903,7 @@ Since functions automatically specialize on their input types in Julia, we can
 use this to our advantage in order to make an inner loop fully inferred. For
 example, take the code from above but with a loop:
 
-```julia:./r
+```!
 function r(x)
   a = 4
   b = 2
@@ -1029,13 +917,11 @@ end
 @btime r(x)
 ```
 
-\show{./r}
-
 In here, the loop variables are not inferred and thus this is really slow.
 However, we can force a function call in the middle to end up with specialization
 and in the inner loop be stable:
 
-```julia:./s
+```!
 s(x) = _s(x[1],x[2])
 function _s(x1,x2)
   a = 4
@@ -1050,15 +936,11 @@ end
 @btime s(x)
 ```
 
-\show{./s}
-
 Notice that this algorithm still doesn't infer:
 
-```julia:./s_warntype
+```!
 @code_warntype s(x)
 ```
-
-\output{./s_warntype}
 
 since the output of `_s` isn't inferred, but while it's in `_s` it will have
 specialized on the fact that `x[1]` is a `Float64` while `x[2]` is a `Int`,
@@ -1072,7 +954,7 @@ of the dispatch is already made and compiled into the LLVM IR.
 Julia code will specialize at compile time if it can prove something about the
 result. For example:
 
-```julia:./fff
+```!
 function fff(x)
   if x isa Int
     y = 2
@@ -1083,23 +965,17 @@ function fff(x)
 end
 ```
 
-\show{./fff}
-
 You might think this function has a branch, but in reality Julia can determine
 whether `x` is an `Int` or not at compile time, so it will actually compile it
 away and just turn it into the function `x+2` or `x+4.0`:
 
-```julia:./fff_code_llvm
+```!
 @code_llvm fff(5)
 ```
 
-\output{./fff_code_llvm}
-
-```julia:./fff_code_llvm_float
+```!
 @code_llvm fff(2.0)
 ```
-
-\output{./fff_code_llvm_float}
 
 Thus one does not need to worry about over-optimizing since in the obvious
 cases the compiler will actually remove all of the extra pieces when it can!
@@ -1111,14 +987,12 @@ specialization times. Thus calling Julia functions is fast. But what about
 when doing something outside of the function, like directly in a module or in
 the REPL?
 
-```julia:./dynamicism
+```!
 @btime for j in 1:100, i in 1:100
   global A,B,C
   C[i,j] = A[i,j] + B[i,j]
 end
 ```
-
-\output{./dynamicism}
 
 This is very slow because the types of `A`, `B`, and `C` cannot be inferred.
 Why can't they be inferred? Well, at any time in the dynamic REPL scope I can
@@ -1159,7 +1033,7 @@ A few things should immediately jump out to you:
 
 Let's check the LLVM IR on one of our earlier loops:
 
-```julia:./inner_alloc_code_llvm
+```!
 function inner_noalloc!(C,A,B)
   for j in 1:100, i in 1:100
     val = A[i,j] + B[i,j]
@@ -1169,24 +1043,20 @@ end
 @code_llvm inner_noalloc!(C,A,B)
 ```
 
-\output{./inner_alloc_code_llvm}
-
 Notice that this `getelementptr inbounds` stuff is bounds checking. Julia, like
 all other high level languages, enables bounds checking by default in order to
 not allow the user to index outside of an array. Indexing outside of an array
 is dangerous: it can quite easily segfault your system if you change some memory
 that is unknown beyond your actual array. Thus Julia throws an error:
 
-```julia:./A_slice
+```!
 A[101,1]
 ```
-
-\output{./A_slice}
 
 In tight inner loops, we can remove this bounds checking process using the
 `@inbounds` macro:
 
-```julia:./inner_noalloc_ib
+```!
 function inner_noalloc_ib!(C,A,B)
   @inbounds for j in 1:100, i in 1:100
     val = A[i,j] + B[i,j]
@@ -1196,23 +1066,17 @@ end
 @btime inner_noalloc!(C,A,B)
 ```
 
-\output{./inner_noalloc_ib}
-
-```julia:./inner_noalloc_ib_btime
+```!
 @btime inner_noalloc_ib!(C,A,B)
 ```
-
-\output{./inner_noalloc_ib_btime}
 
 ### SIMD
 
 Now let's inspect the LLVM IR again:
 
-```julia:./inner_noalloc_ib_code_llvm
+```!
 @code_llvm inner_noalloc_ib!(C,A,B)
 ```
-
-\output{./inner_noalloc_ib_code_llvm}
 
 If you look closely, you will see things like:
 
@@ -1241,11 +1105,9 @@ the addition in the operation `x*y+z`, known as a *fused multiply-add* or
 FMA. Note that FMA has less floating point roundoff error than the two operation
 form. We can see this intrinsic in the resulting LLVM IR:
 
-```julia:./fma_code_llvm
+```!
 @code_llvm fma(2.0,5.0,3.0)
 ```
-
-\output{./fma_code_llvm}
 
 The Julia function `muladd` will automatically choose between FMA and the original
 form depending on the availability of the routine in the processor. The MuladdMacro.jl
@@ -1268,7 +1130,7 @@ function call is determined to be "cheap enough", the actual function call
 is removed and the code is basically pasted into the function caller. We can
 force a function call to occur by teling it to not inline:
 
-```julia:./fnoinline
+```!
 @noinline fnoinline(x,y) = x + y
 finline(x,y) = x + y # Can add @inline, but this is automatic here
 function qinline(x,y)
@@ -1287,19 +1149,13 @@ function qnoinline(x,y)
 end
 ```
 
-\show{./fnoinline}
-
-```julia:./qinline
+```!
 @code_llvm qinline(1.0,2.0)
 ```
 
-\output{./qinline}
-
-```julia:./qnoinline_code_llvm
+```!
 @code_llvm qnoinline(1.0,2.0)
 ```
-
-\output{./qnoinline_code_llvm}
 
 We can see now that it keeps the function calls:
 
@@ -1309,19 +1165,15 @@ We can see now that it keeps the function calls:
 
 and this is slower in comparison to what we had before (but it still infers).
 
-```julia:./qinline_btime
+```!
 x = 1.0
 y = 2.0
 @btime qinline(x,y)
 ```
 
-\show{./qinline_btime}
-
-```julia:./qnoinline
+```!
 @btime qnoinline(x,y)
 ```
-
-\show{./qnoinline}
 
 Note that if we ever want to go the other direction and tell Julia to inline as
 much as possible, one can use the macro `@inline`.
@@ -1344,21 +1196,17 @@ be very careful when benchmarking: your tests may have just compiled away!
 
 Notice the following:
 
-```julia:./qinline_btime2
+```!
 @btime qinline(1.0,2.0)
 ```
-
-\output{./qinline_btime2}
 
 Dang, that's much faster! But if you look into it, Julia's compiler is actually
 "cheating" on this benchmark:
 
-```julia:./cheat_code_llvm
+```!
 cheat() = qinline(1.0,2.0)
 @code_llvm cheat()
 ```
-
-\output{./cheat_code_llvm}
 
 It realized that `1.0` and `2.0` are constants, so it did what's known as
 *constant propagation*, and then used those constants inside of the function.
