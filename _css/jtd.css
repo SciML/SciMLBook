@@ -110,7 +110,17 @@ h6 {
   margin-bottom: 0.8em;
   font-weight: 500;
   line-height: 1.15;
-  color: #27262b;
+  color: var(--color-sciml-purple);
+}
+
+.franklin-content a.header-anchor {
+  text-decoration: none;
+}
+
+.franklin-content a.header-anchor::after {
+  content: " \f0c1";
+  font-family: FontAwesome;
+  font-size: x-large;
 }
 
 p {
