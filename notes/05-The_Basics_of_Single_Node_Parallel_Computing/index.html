@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/tufte.css"> <link rel=stylesheet  href="/css/latex.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <link rel=stylesheet  href="/css/weave.css"> <script type="text/x-mathjax-config"> MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, TeX: { equationNumbers: { autoNumber: "AMS" } } }); </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> <title>The Basics of Single Node Parallel Computing</title> <div id=layout > <div id=menu > <ul> <li><a style="font-size:larger;" href=https://github.com/SciML/SciMLBook><i class="fa fa-github"></i></a> <li><a style="font-size:larger;" href="/">Home</a> <li><a style="font-size:larger;" href="/course/">Course</a> <li><a style="font-size:larger;" href="/homework/">Homework</a> <li><a style="font-size:larger;" href="/lectures/">Lectures</a> <li><a style="font-size:larger;" href="/notes/">Notes</a> <ul style="font-size:smaller"> <li><a href="/notes/02-Optimizing_Serial_Code/">02: Serial Code</a> <li><a href="/notes/03-Introduction_to_Scientific_Machine_Learning_through_Physics-Informed_Neural_Networks/">03: SciML Intro</a> <li><a href="/notes/04-How_Loops_Work-An_Introduction_to_Discrete_Dynamics/">04: How Loops Work</a> <li><a href="/notes/05-The_Basics_of_Single_Node_Parallel_Computing/">05: Basics of Parallelism</a> <li><a href="/notes/06-The_Different_Flavors_of_Parallelism/">06: Flavors of Parallelism</a> <li><a href="/notes/07-Ordinary_Differential_Equations-Applications_and_Discretizations/">07: ODEs</a> <li><a href="/notes/08-Forward-Mode_Automatic_Differentiation_/">08: Forward AD</a> <li><a href="/notes/09-Solving_Stiff_Ordinary_Differential_Equations/">09: Stiff ODEs</a> <li><a href="/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/">10: Reverse AD</a> <li><a href="/notes/11-Differentiable_Programming_and_Neural_Differential_Equations/">11: δP</a> <li><a href="/notes/12-Description_of_MPI_and_MPI/">12: MPI</a> <li><a href="/notes/13-GPU_programming/">13: GPUs</a> <li><a href="/notes/14-PDEs_Convolutions_and_the_Mathematics_of_Locality/">14: PDEs</a> <li><a href="/notes/15-Mixing_Differential_Equations_and_Neural_Networks_for_Physics-Informed_Learning/">15: Physics Informed Learning</a> <li><a href="/notes/16-From_Optimization_to_Probabilistic_Programming/">16: Probabilistic Programming</a> <li><a href="/notes/17-Global_Sensitivity_Analysis/">17: Global Sensitivity Analysis</a> <li><a href="/notes/18-Code_Profiling_and_Optimization/">18: Profiling & Optimization</a> <li><a href="/notes/19-Uncertainty_Programming-Generalized_Uncertainty_Quantification/">19: Uncertainty Programming</a> </ul> </ul> </div> <div id=main > <div class=franklin-content > <h1 class=title >The Basics of Single Node Parallel Computing</h1> <h5>Chris Rackauckas</h5> <h5>September 21st, 2020</h5> <h2><a href="https://youtu.be/eca6kcFntiE">Youtube Video Link</a></h2> <p>Moore&#39;s law was the idea that computers double in efficiency at fixed time points, leading to exponentially more computing power over time. This was true for a very long time.</p> <p><img src="https://assets.weforum.org/editor/large_SOupdi6_TD1Lyud4kWEHmsB5rcslL0q2BB6UCRCEZKE.png" alt="" /></p> <p>However, sometime in the last decade, computer cores have stopped getting faster.</p> <blockquote> <p>The technology that promises to keep Moore’s Law going after 2013 is known as extreme ultraviolet &#40;EUV&#41; lithography. It uses light to write a pattern into a chemical layer on top of a silicon wafer, which is then chemically etched into the silicon to make chip components. EUV lithography uses very high energy ultraviolet light rays that are closer to X-rays than visible light. That’s attractive because EUV light has a short wavelength—around 13 nanometers—which allows for making smaller details than the 193-nanometer ultraviolet light used in lithography today. But EUV has proved surprisingly difficult to perfect.</p> </blockquote> <p>-MIT Technology Review</p> <p>The answer to the “end of Moore&#39;s Law” is Parallel Computing. However, programs need to be specifically designed in order to adequately use parallelism. This lecture will describe at a very high level the forms of parallelism and when they are appropriate. We will then proceed to use shared-memory multithreading to parallelize the simulation of the discrete dynamical system.</p> <h2>Managing Threads</h2> <h3>Concurrency vs Parallelism and Green Threads</h3> <p>There is a difference between concurrency and parallelism. In a nutshell:</p> <ul> <li><p>Concurrency: Interruptability</p> <li><p>Parallelism: Independentability</p> </ul> <p><img src="http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-1.png" alt="" /> <img src="http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-2.png" alt="" /></p> <p>To start thinking about concurrency, we need to distinguish between a process and a thread. A process is discrete running instance of a computer program. It has allocated memory for the program&#39;s code, its data, a heap, etc. Each process can have many compute threads. These threads are the unit of execution that needs to be done. On each task is its own stack and a virtual CPU &#40;virtual CPU since it&#39;s not the true CPU, since that would require that the task is ON the CPU, which it might not be because the task can be temporarily haulted&#41;. The kernel of the operating systems then <em>schedules</em> tasks, which runs them. In order to keep the computer running smooth, <em>context switching</em>, i.e. changing the task that is actually running, happens all the time. This is independent of whether tasks are actually scheduled in parallel or not.</p> <p><img src="https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png" alt="" /></p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/process.png" alt="" /></p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/guard-page.png" alt="" /></p> <p>Each thread has its own stack associated with it.</p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/threads.png" alt="" /></p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/stack-growth.png" alt="" /></p> <p>This is an important distinction because many tasks may need to be ran concurrently but without parallelism. Examples of this are input/output &#40;I/O&#41;. For example, in a game you may want to be updating the graphics, but the moment a user clicks you want to handle that event. You do not necessarily need to have these running in parallel, but you need the event handling task to be running concurrently to the processing of the game.</p> <p><img src="https://assets.weforum.org/editor/large_MbM-fLOQDkOW_Gvmj_X5ZO9ys6dDF4EMrtiVQG-Fy4Y.png" alt="" /></p> <p>Data handling is the key area of scientific computing where green threads &#40;concurrent non-parallel threads&#41; show up. For data handling, one may need to send a signal that causes a message to start being passed. Alternative hardware take over at that point. This alternative hardware is a processor specific for an I/O bus, like the controller for the SSD, modem, GPU, or Infiniband. It will be polled, then it will execute the command, and give the result. There are two variants:</p> <ul> <li><p>Non-Blocking vs Blocking: Whether the thread will periodically poll for whether that task is complete, or whether it should wait for the task to complete before doing anything else</p> <li><p>Synchronous vs Asynchronus: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.</p> </ul> <p>I/O operations cause a <em>privileged context switch</em>, allowing the task which is handling the I/O to directly be switched to in order to continue actions.</p> <h4>The Main Event Loop</h4> <p>Julia, along with other languages with a runtime &#40;Javascript, Go, etc.&#41; at its core is a single process running an event loop. This event loop has is the main thread, and &quot;Julia program&quot; or &quot;script&quot; that one is running is actually ran in a green thread that is controlled by the main event loop. The event loop takes over to look for other work whenever the program hits a <em>yield point</em>. More yield points allows for more aggressive task switching, while it also means more switches to the event loop which <em>suspends</em> the numerical task, i.e. making it slower. Thus yielding shouldn&#39;t interrupt the main loop&#33;</p> <p>This is one area where languages can wildly differ in implementation. Languages structured for lots of I/O and input handling, like Javascript, have yield points at every line &#40;it&#39;s an interpreted language and therefore the interpreter can always take control&#41;. In Julia, the yield points are minimized. The common yield points are allocations and I/O &#40;<code>println</code>&#41;. This means that a tight non-allocating inner loop will not have any yield points and will be a thread that is not interruptible. While this is great for numerical performance, it is something to be aware of.</p> <p>Side effect: if you run a long tight loop and wish to exit it, you may try <code>Ctrl &#43; C</code> and see that it doesn&#39;t work. This is because interrupts are handled by the event loop. The event loop is never re-entered until after your tight numerical loop, and therefore you have the waiting occur. If you hit <code>Ctrl &#43; C</code> multiple times, you will escalate the interruption until the OS takes over and then this is handled by the signal handling of the OS&#39;s event loop, which sends a higher level interrupt which Julia handles the moment the safety locks says it&#39;s okay &#40;these locks occur during memory allocations to ensure that memory is not corrupted&#41;.</p> <h4>Asynchronus Calling Example</h4> <p>This example will become more clear when we get to distributed computing, but for think of <code>remotecall_fetch</code> as a way to run a command on a different computer. What we want to do is start all of the commands at once, and then wait for all the results before finishing the loop. We will use <code>@async</code> to make the call to <code>remotecall_fetch</code> be non-blocking, i.e. it&#39;ll start the job and only poll infrequently to find out when the other machine has completed the job and returned the result. We then add <code>@sync</code> to the loop, which will only continue the loop after all of the green threads have fetched the result. Otherwise, it&#39;s possible that <code>a&#91;idx&#93;</code> may not be filled yet, since the thread may not have fetched the result&#33;</p> <pre class='hljl'>
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/tufte.css"> <link rel=stylesheet  href="/css/latex.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <link rel=stylesheet  href="/css/weave.css"> <script type="text/x-mathjax-config"> MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, TeX: { equationNumbers: { autoNumber: "AMS" } } }); </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> <title>The Basics of Single Node Parallel Computing</title> <div id=layout > <div id=menu > <ul> <li><a style="font-size:larger;" href=https://github.com/SciML/SciMLBook><i class="fa fa-github"></i></a> <li><a style="font-size:larger;" href="/">Home</a> <li><a style="font-size:larger;" href="/course/">Course</a> <li><a style="font-size:larger;" href="/homework/">Homework</a> <li><a style="font-size:larger;" href="/lectures/">Lectures</a> <li><a style="font-size:larger;" href="/notes/">Notes</a> <ul style="font-size:smaller"> <li><a href="/notes/02-Optimizing_Serial_Code/">02: Serial Code</a> <li><a href="/notes/03-Introduction_to_Scientific_Machine_Learning_through_Physics-Informed_Neural_Networks/">03: SciML Intro</a> <li><a href="/notes/04-How_Loops_Work-An_Introduction_to_Discrete_Dynamics/">04: How Loops Work</a> <li><a href="/notes/05-The_Basics_of_Single_Node_Parallel_Computing/">05: Basics of Parallelism</a> <li><a href="/notes/06-The_Different_Flavors_of_Parallelism/">06: Flavors of Parallelism</a> <li><a href="/notes/07-Ordinary_Differential_Equations-Applications_and_Discretizations/">07: ODEs</a> <li><a href="/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/">08: Forward AD</a> <li><a href="/notes/09-Solving_Stiff_Ordinary_Differential_Equations/">09: Stiff ODEs</a> <li><a href="/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/">10: Reverse AD</a> <li><a href="/notes/11-Differentiable_Programming_and_Neural_Differential_Equations/">11: δP</a> <li><a href="/notes/12-Description_of_MPI_and_MPI/">12: MPI</a> <li><a href="/notes/13-GPU_programming/">13: GPUs</a> <li><a href="/notes/14-PDEs_Convolutions_and_the_Mathematics_of_Locality/">14: PDEs</a> <li><a href="/notes/15-Mixing_Differential_Equations_and_Neural_Networks_for_Physics-Informed_Learning/">15: Physics Informed Learning</a> <li><a href="/notes/16-From_Optimization_to_Probabilistic_Programming/">16: Probabilistic Programming</a> <li><a href="/notes/17-Global_Sensitivity_Analysis/">17: Global Sensitivity Analysis</a> <li><a href="/notes/18-Code_Profiling_and_Optimization/">18: Profiling & Optimization</a> <li><a href="/notes/19-Uncertainty_Programming-Generalized_Uncertainty_Quantification/">19: Uncertainty Programming</a> </ul> </ul> </div> <div id=main > <div class=franklin-content > <h1 class=title >The Basics of Single Node Parallel Computing</h1> <h5>Chris Rackauckas</h5> <h5>September 21st, 2020</h5> <h2><a href="https://youtu.be/eca6kcFntiE">Youtube Video Link</a></h2> <p>Moore&#39;s law was the idea that computers double in efficiency at fixed time points, leading to exponentially more computing power over time. This was true for a very long time.</p> <p><img src="https://assets.weforum.org/editor/large_SOupdi6_TD1Lyud4kWEHmsB5rcslL0q2BB6UCRCEZKE.png" alt="" /></p> <p>However, sometime in the last decade, computer cores have stopped getting faster.</p> <blockquote> <p>The technology that promises to keep Moore’s Law going after 2013 is known as extreme ultraviolet &#40;EUV&#41; lithography. It uses light to write a pattern into a chemical layer on top of a silicon wafer, which is then chemically etched into the silicon to make chip components. EUV lithography uses very high energy ultraviolet light rays that are closer to X-rays than visible light. That’s attractive because EUV light has a short wavelength—around 13 nanometers—which allows for making smaller details than the 193-nanometer ultraviolet light used in lithography today. But EUV has proved surprisingly difficult to perfect.</p> </blockquote> <p>-MIT Technology Review</p> <p>The answer to the “end of Moore&#39;s Law” is Parallel Computing. However, programs need to be specifically designed in order to adequately use parallelism. This lecture will describe at a very high level the forms of parallelism and when they are appropriate. We will then proceed to use shared-memory multithreading to parallelize the simulation of the discrete dynamical system.</p> <h2>Managing Threads</h2> <h3>Concurrency vs Parallelism and Green Threads</h3> <p>There is a difference between concurrency and parallelism. In a nutshell:</p> <ul> <li><p>Concurrency: Interruptability</p> <li><p>Parallelism: Independentability</p> </ul> <p><img src="http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-1.png" alt="" /> <img src="http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-2.png" alt="" /></p> <p>To start thinking about concurrency, we need to distinguish between a process and a thread. A process is discrete running instance of a computer program. It has allocated memory for the program&#39;s code, its data, a heap, etc. Each process can have many compute threads. These threads are the unit of execution that needs to be done. On each task is its own stack and a virtual CPU &#40;virtual CPU since it&#39;s not the true CPU, since that would require that the task is ON the CPU, which it might not be because the task can be temporarily haulted&#41;. The kernel of the operating systems then <em>schedules</em> tasks, which runs them. In order to keep the computer running smooth, <em>context switching</em>, i.e. changing the task that is actually running, happens all the time. This is independent of whether tasks are actually scheduled in parallel or not.</p> <p><img src="https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png" alt="" /></p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/process.png" alt="" /></p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/guard-page.png" alt="" /></p> <p>Each thread has its own stack associated with it.</p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/threads.png" alt="" /></p> <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/stack-growth.png" alt="" /></p> <p>This is an important distinction because many tasks may need to be ran concurrently but without parallelism. Examples of this are input/output &#40;I/O&#41;. For example, in a game you may want to be updating the graphics, but the moment a user clicks you want to handle that event. You do not necessarily need to have these running in parallel, but you need the event handling task to be running concurrently to the processing of the game.</p> <p><img src="https://assets.weforum.org/editor/large_MbM-fLOQDkOW_Gvmj_X5ZO9ys6dDF4EMrtiVQG-Fy4Y.png" alt="" /></p> <p>Data handling is the key area of scientific computing where green threads &#40;concurrent non-parallel threads&#41; show up. For data handling, one may need to send a signal that causes a message to start being passed. Alternative hardware take over at that point. This alternative hardware is a processor specific for an I/O bus, like the controller for the SSD, modem, GPU, or Infiniband. It will be polled, then it will execute the command, and give the result. There are two variants:</p> <ul> <li><p>Non-Blocking vs Blocking: Whether the thread will periodically poll for whether that task is complete, or whether it should wait for the task to complete before doing anything else</p> <li><p>Synchronous vs Asynchronus: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.</p> </ul> <p>I/O operations cause a <em>privileged context switch</em>, allowing the task which is handling the I/O to directly be switched to in order to continue actions.</p> <h4>The Main Event Loop</h4> <p>Julia, along with other languages with a runtime &#40;Javascript, Go, etc.&#41; at its core is a single process running an event loop. This event loop has is the main thread, and &quot;Julia program&quot; or &quot;script&quot; that one is running is actually ran in a green thread that is controlled by the main event loop. The event loop takes over to look for other work whenever the program hits a <em>yield point</em>. More yield points allows for more aggressive task switching, while it also means more switches to the event loop which <em>suspends</em> the numerical task, i.e. making it slower. Thus yielding shouldn&#39;t interrupt the main loop&#33;</p> <p>This is one area where languages can wildly differ in implementation. Languages structured for lots of I/O and input handling, like Javascript, have yield points at every line &#40;it&#39;s an interpreted language and therefore the interpreter can always take control&#41;. In Julia, the yield points are minimized. The common yield points are allocations and I/O &#40;<code>println</code>&#41;. This means that a tight non-allocating inner loop will not have any yield points and will be a thread that is not interruptible. While this is great for numerical performance, it is something to be aware of.</p> <p>Side effect: if you run a long tight loop and wish to exit it, you may try <code>Ctrl &#43; C</code> and see that it doesn&#39;t work. This is because interrupts are handled by the event loop. The event loop is never re-entered until after your tight numerical loop, and therefore you have the waiting occur. If you hit <code>Ctrl &#43; C</code> multiple times, you will escalate the interruption until the OS takes over and then this is handled by the signal handling of the OS&#39;s event loop, which sends a higher level interrupt which Julia handles the moment the safety locks says it&#39;s okay &#40;these locks occur during memory allocations to ensure that memory is not corrupted&#41;.</p> <h4>Asynchronus Calling Example</h4> <p>This example will become more clear when we get to distributed computing, but for think of <code>remotecall_fetch</code> as a way to run a command on a different computer. What we want to do is start all of the commands at once, and then wait for all the results before finishing the loop. We will use <code>@async</code> to make the call to <code>remotecall_fetch</code> be non-blocking, i.e. it&#39;ll start the job and only poll infrequently to find out when the other machine has completed the job and returned the result. We then add <code>@sync</code> to the loop, which will only continue the loop after all of the green threads have fetched the result. Otherwise, it&#39;s possible that <code>a&#91;idx&#93;</code> may not be filled yet, since the thread may not have fetched the result&#33;</p> <pre class='hljl'>
 <span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-k'>begin</span><span class='hljl-t'>
     </span><span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Any</span><span class='hljl-p'>}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-nf'>nworkers</span><span class='hljl-p'>())</span><span class='hljl-t'>
     </span><span class='hljl-nd'>@sync</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>idx</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>pid</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-nf'>enumerate</span><span class='hljl-p'>(</span><span class='hljl-nf'>workers</span><span class='hljl-p'>())</span><span class='hljl-t'>
@@ -74,7 +74,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>1000</span><span class='hljl-p'>]</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_iip!</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>lorenz!</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-8.267 μs &#40;1 allocation: 80 bytes&#41;
+8.233 μs &#40;1 allocation: 80 bytes&#41;
 1000-element Vector&#123;Vector&#123;Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -127,7 +127,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-n'>u</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Float64</span><span class='hljl-p'>}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>1000</span><span class='hljl-p'>]</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>solve_system_save_iip!</span><span class='hljl-p'>(</span><span class='hljl-n'>u</span><span class='hljl-p'>,</span><span class='hljl-n'>lorenz_mt!</span><span class='hljl-p'>,[</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>],</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>);</span>
 </pre> <pre class=output >
-3.418 ms &#40;5995 allocations: 577.62 KiB&#41;
+3.217 ms &#40;5995 allocations: 577.62 KiB&#41;
 </pre> <p><strong>Parallelism doesn&#39;t always make things faster</strong>. There are two costs associated with this code. For one, we had to go to the slower heap&#43;mutation version, so its implementation starting point is slower. But secondly, and more importantly, the cost of spinning a new thread is non-negligible. In fact, here we can see that it even needs to make a small allocation for the new context. The total cost is on the order of It&#39;s on the order of 50ns: not huge, but something to take note of. So what we&#39;ve done is taken almost free calculations and made them ~50ns by making each in a different thread, instead of just having it be one thread with one call stack.</p> <p>The moral of the story is that you need to make sure that there&#39;s enough work per thread in order to effectively accelerate a program with parallelism.</p> <h3>Data-Parallel Problems</h3> <p>So not every setup is amenable to parallelism. Dynamical systems are notorious for being quite difficult to parallelize because the dependency of the future time step on the previous time step is clear, meaning that one cannot easily &quot;parallelize through time&quot; &#40;though it is possible, which we will study later&#41;.</p> <p>However, one common way that these systems are generally parallelized is in their inputs. The following questions allow for independent simulations:</p> <ul> <li><p>What steady state does an input <code>u0</code> go to for some list/region of initial conditions?</p> <li><p>How does the solution very when I use a different <code>p</code>?</p> </ul> <p>The problem has a few descriptions. For one, it&#39;s called an <em>embarrassingly parallel</em> problem since the problem can remain largely intact to solve the parallelism problem. To solve this, we can use the exact same <code>solve_system_save_iip&#33;</code>, and just change how we are calling it. Secondly, this is called a <em>data parallel</em> problem, since it parallelized by splitting up the input data &#40;here, the possible <code>u0</code> or <code>p</code>s&#41; and acting on them independently.</p> <h4>Multithreaded Parameter Searches</h4> <p>Now let&#39;s multithread our parameter search. Let&#39;s say we wanted to compute the mean of the values in the trajectory. For a single input pair, we can compute that like:</p> <pre class='hljl'>
 <span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Statistics</span><span class='hljl-t'>
 </span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -137,7 +137,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.325 μs &#40;3 allocations: 23.52 KiB&#41;
+7.300 μs &#40;3 allocations: 23.52 KiB&#41;
 3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
  -0.31149962346484683
  -0.3097490174897651
@@ -165,7 +165,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean3</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-6.960 μs &#40;1 allocation: 32 bytes&#41;
+6.940 μs &#40;1 allocation: 32 bytes&#41;
 3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
  -0.31149962346484683
  -0.3097490174897651
@@ -178,7 +178,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-nf'>compute_trajectory_mean4</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>_compute_trajectory_mean4</span><span class='hljl-p'>(</span><span class='hljl-n'>_u_cache</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean4</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.000 μs &#40;1 allocation: 32 bytes&#41;
+6.920 μs &#40;1 allocation: 32 bytes&#41;
 3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
  -0.31149962346484683
  -0.3097490174897651
@@ -187,50 +187,50 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 <span class='hljl-n'>ps</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[(</span><span class='hljl-nfB'>0.02</span><span class='hljl-p'>,</span><span class='hljl-nfB'>10.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>28.0</span><span class='hljl-p'>,</span><span class='hljl-ni'>8</span><span class='hljl-oB'>/</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.*</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>3</span><span class='hljl-p'>)</span><span class='hljl-oB'>...</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>1000</span><span class='hljl-p'>]</span>
 </pre> <pre class=output >
 1000-element Vector&#123;NTuple&#123;4, Float64&#125;&#125;:
- &#40;0.02, 9.307077744903104, 14.04748592370704, 0.3209868593688636&#41;
- &#40;0.02, 8.84771553550496, 26.071906411499114, 1.100689484020425&#41;
- &#40;0.02, 1.2458643346420561, 18.216525610665947, 2.1774527932435657&#41;
- &#40;0.02, 2.59322189746681, 21.697786069237274, 1.8346839400493273&#41;
- &#40;0.02, 6.834270448486983, 6.718053310822343, 1.8781503280684433&#41;
- &#40;0.02, 1.940602071753954, 26.99973633837243, 0.9659106557977252&#41;
- &#40;0.02, 2.0994262890728166, 23.457854299406065, 1.9950515074079722&#41;
- &#40;0.02, 9.544509294952455, 18.60892226606274, 1.030349090848012&#41;
- &#40;0.02, 3.1737106265160064, 5.1844234110923555, 0.6008843622620171&#41;
- &#40;0.02, 3.3746095100173843, 5.649642861196705, 0.9302543404632866&#41;
+ &#40;0.02, 5.1250288476888715, 22.211474767256846, 0.06643875507220127&#41;
+ &#40;0.02, 4.322854764034348, 5.912433664510871, 1.5991560552029234&#41;
+ &#40;0.02, 6.1098319830242, 25.263312767792165, 2.5299007436920373&#41;
+ &#40;0.02, 4.524775015082893, 22.516611006325476, 2.1411954964186135&#41;
+ &#40;0.02, 4.500799470612275, 26.468367900182084, 1.6282982735774776&#41;
+ &#40;0.02, 0.31669777789390063, 14.408512378142037, 0.42946763218190454&#41;
+ &#40;0.02, 3.940702581852973, 18.622477329922585, 2.4089174046068518&#41;
+ &#40;0.02, 1.693325998891494, 1.873429781340274, 1.5304168227377528&#41;
+ &#40;0.02, 9.234736262488017, 0.3439055998274543, 0.5542281573591108&#41;
+ &#40;0.02, 5.9826279486843, 13.070774689789506, 0.09907653323578516&#41;
  ⋮
- &#40;0.02, 6.0677377072130545, 9.673653982130427, 2.628945619249106&#41;
- &#40;0.02, 7.656609928146434, 25.103586632260914, 1.4749253507131117&#41;
- &#40;0.02, 0.8765388658505513, 22.120450083230008, 1.4845152776542179&#41;
- &#40;0.02, 9.47094462652404, 10.008638953568138, 0.37175230664931525&#41;
- &#40;0.02, 6.812391139945062, 3.9897928557775817, 1.632144848088517&#41;
- &#40;0.02, 1.0047646814002664, 17.51686968569787, 0.047343442755979716&#41;
- &#40;0.02, 5.616480015798723, 2.802920413342637, 1.0085446001844238&#41;
- &#40;0.02, 0.023175503156227517, 21.768366485135047, 1.4087586772132623&#41;
- &#40;0.02, 1.2774881571850771, 0.9499332483419058, 1.4641179336508947&#41;
+ &#40;0.02, 3.416405891341433, 13.955070773459163, 0.39253149964620937&#41;
+ &#40;0.02, 1.253856955024083, 22.397950281300822, 1.56143384832562&#41;
+ &#40;0.02, 5.173034506644329, 21.540608340467237, 2.2759794732834506&#41;
+ &#40;0.02, 2.427552767600499, 18.45509019730416, 1.234041993044475&#41;
+ &#40;0.02, 4.758009428636342, 11.81120140236271, 2.272495470443361&#41;
+ &#40;0.02, 6.262879580285459, 2.7365081166093295, 2.0798923734992445&#41;
+ &#40;0.02, 9.884729792465679, 25.785926516584873, 0.7256435512560471&#41;
+ &#40;0.02, 5.422983174795027, 16.80401864125407, 1.9226508176857369&#41;
+ &#40;0.02, 2.6179603132568974, 27.867633578338644, 1.5467198424302735&#41;
 </pre> <p>And let&#39;s get the mean of the trajectory for each of the parameters.</p> <pre class='hljl'>
 <span class='hljl-n'>serial_out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>map</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean4</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>),</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.18716801711364614, -0.19218033269090043, 12.763214676718674&#93;
- &#91;0.14207438960155772, 0.19230363840190776, 24.34887439091255&#93;
- &#91;5.978908954075508, 6.18449851995289, 16.66329251452619&#93;
- &#91;0.016731874987042965, -0.006562582898443087, 15.583683228821549&#93;
- &#91;3.156854847616538, 3.1735396554485096, 5.445270437482376&#93;
- &#91;0.6985270983219148, 0.863470310297844, 21.569721570092174&#93;
- &#91;-5.049201030854701, -5.279440885092874, 18.459203846627016&#93;
- &#91;0.6688472384570502, 0.6199190815696624, 16.26890491231565&#93;
- &#91;-0.8431946059067517, -0.8814496686612001, 3.5908071581100103&#93;
- &#91;1.9237414873559324, 1.9408384029122747, 4.279201285783904&#93;
+ &#91;0.16539176213563053, 0.15563570936346574, 27.630776499210647&#93;
+ &#91;2.7130237560614865, 2.733909727282737, 4.671196489507335&#93;
+ &#91;0.43354972024722155, 0.39301391626001875, 22.047257231245727&#93;
+ &#91;0.08776854614542616, 0.003375478850599744, 18.927460352845753&#93;
+ &#91;-0.595653081057519, -0.6618678986625274, 23.770437247031566&#93;
+ &#91;2.39908347465879, 2.620077097263034, 12.918173308415266&#93;
+ &#91;-0.5871227549406839, -0.599573340241046, 13.724432358318227&#93;
+ &#91;1.1096381617672035, 1.1142492415054517, 0.7913837214577205&#93;
+ &#91;0.00824354140092903, 0.0028292022873747853, 0.00023575862038647784&#93;
+ &#91;-0.005073605028234282, -0.013430116172149361, 12.96368615360699&#93;
  ⋮
- &#91;4.480997743515908, 4.511534145379815, 8.099961808173434&#93;
- &#91;-0.32474611609811743, -0.32266924604708763, 23.318493981976676&#93;
- &#91;5.472331087055449, 5.734702190900853, 20.412190886722815&#93;
- &#91;0.17438509870400518, 0.16876732520041904, 8.279419545974152&#93;
- &#91;2.15002660949271, 2.1589006024932886, 2.8352692455304496&#93;
- &#91;0.40395961786946694, 0.34383124479793387, 16.93168183553241&#93;
- &#91;1.3174846105253637, 1.3205887303210673, 1.6882756227798836&#93;
- &#91;2.8561870252880963, 9.373407495288614, 17.22948244282384&#93;
- &#91;0.2625249156454312, 0.22917364577629457, 0.04349289431029552&#93;
+ &#91;-0.3375441756062939, -0.4214559714133363, 12.152869204804189&#93;
+ &#91;5.614040297013227, 5.8044125481331985, 20.463179259648058&#93;
+ &#91;0.019446211993521926, -0.03143400146238567, 18.113653221079094&#93;
+ &#91;-0.2948029682403512, -0.34858821129868156, 14.39796526065206&#93;
+ &#91;-3.5024534486226293, -3.5354907332000436, 8.979868590175387&#93;
+ &#91;1.816030699101274, 1.8232195656096601, 1.6022871300801071&#93;
+ &#91;0.4569852617235809, 0.44584687192809136, 25.29530766770131&#93;
+ &#91;-1.0313596478082565, -1.0502879257306388, 14.063916044653125&#93;
+ &#91;0.23899128274188441, -0.0069703730444156805, 20.264283988403538&#93;
 </pre> <p>Now let&#39;s do this with multithreading:</p> <pre class='hljl'>
 <span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>tmap</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span><span class='hljl-t'>
   </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-nf'>typeof</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]))}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -243,26 +243,26 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-n'>threaded_out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>tmap</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean4</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>),</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.18716801711364614, -0.19218033269090043, 12.763214676718674&#93;
- &#91;0.14207438960155772, 0.19230363840190776, 24.34887439091255&#93;
- &#91;5.978908954075508, 6.18449851995289, 16.66329251452619&#93;
- &#91;0.016731874987042965, -0.006562582898443087, 15.583683228821549&#93;
- &#91;3.156854847616538, 3.1735396554485096, 5.445270437482376&#93;
- &#91;0.6985270983219148, 0.863470310297844, 21.569721570092174&#93;
- &#91;-5.049201030854701, -5.279440885092874, 18.459203846627016&#93;
- &#91;0.6688472384570502, 0.6199190815696624, 16.26890491231565&#93;
- &#91;-0.8431946059067517, -0.8814496686612001, 3.5908071581100103&#93;
- &#91;1.9237414873559324, 1.9408384029122747, 4.279201285783904&#93;
+ &#91;0.16539176213563053, 0.15563570936346574, 27.630776499210647&#93;
+ &#91;2.7130237560614865, 2.733909727282737, 4.671196489507335&#93;
+ &#91;0.43354972024722155, 0.39301391626001875, 22.047257231245727&#93;
+ &#91;0.08776854614542616, 0.003375478850599744, 18.927460352845753&#93;
+ &#91;-0.595653081057519, -0.6618678986625274, 23.770437247031566&#93;
+ &#91;2.39908347465879, 2.620077097263034, 12.918173308415266&#93;
+ &#91;-0.5871227549406839, -0.599573340241046, 13.724432358318227&#93;
+ &#91;1.1096381617672035, 1.1142492415054517, 0.7913837214577205&#93;
+ &#91;0.00824354140092903, 0.0028292022873747853, 0.00023575862038647784&#93;
+ &#91;-0.005073605028234282, -0.013430116172149361, 12.96368615360699&#93;
  ⋮
- &#91;4.480997743515908, 4.511534145379815, 8.099961808173434&#93;
- &#91;-0.32474611609811743, -0.32266924604708763, 23.318493981976676&#93;
- &#91;5.472331087055449, 5.734702190900853, 20.412190886722815&#93;
- &#91;0.17438509870400518, 0.16876732520041904, 8.279419545974152&#93;
- &#91;2.15002660949271, 2.1589006024932886, 2.8352692455304496&#93;
- &#91;0.40395961786946694, 0.34383124479793387, 16.93168183553241&#93;
- &#91;1.3174846105253637, 1.3205887303210673, 1.6882756227798836&#93;
- &#91;2.8561870252880963, 9.373407495288614, 17.22948244282384&#93;
- &#91;0.2625249156454312, 0.22917364577629457, 0.04349289431029552&#93;
+ &#91;-0.3375441756062939, -0.4214559714133363, 12.152869204804189&#93;
+ &#91;5.614040297013227, 5.8044125481331985, 20.463179259648058&#93;
+ &#91;0.019446211993521926, -0.03143400146238567, 18.113653221079094&#93;
+ &#91;-0.2948029682403512, -0.34858821129868156, 14.39796526065206&#93;
+ &#91;-3.5024534486226293, -3.5354907332000436, 8.979868590175387&#93;
+ &#91;1.816030699101274, 1.8232195656096601, 1.6022871300801071&#93;
+ &#91;0.4569852617235809, 0.44584687192809136, 25.29530766770131&#93;
+ &#91;-1.0313596478082565, -1.0502879257306388, 14.063916044653125&#93;
+ &#91;0.23899128274188441, -0.0069703730444156805, 20.264283988403538&#93;
 </pre> <p>Let&#39;s check the output:</p> <pre class='hljl'>
 <span class='hljl-n'>serial_out</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>threaded_out</span>
 </pre> <pre class=output >
@@ -296,7 +296,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean5</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-6.975 μs &#40;1 allocation: 32 bytes&#41;
+6.920 μs &#40;1 allocation: 32 bytes&#41;
 3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
  -0.31149962346484683
  -0.3097490174897651
@@ -330,53 +330,53 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-n'>serial_out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>map</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean5</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>),</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.055 ms &#40;3 allocations: 23.50 KiB&#41;
+6.971 ms &#40;3 allocations: 23.50 KiB&#41;
 1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.18716801711364614, -0.19218033269090043, 12.763214676718674&#93;
- &#91;0.14207438960155772, 0.19230363840190776, 24.34887439091255&#93;
- &#91;5.978908954075508, 6.18449851995289, 16.66329251452619&#93;
- &#91;0.016731874987042965, -0.006562582898443087, 15.583683228821549&#93;
- &#91;3.156854847616538, 3.1735396554485096, 5.445270437482376&#93;
- &#91;0.6985270983219148, 0.863470310297844, 21.569721570092174&#93;
- &#91;-5.049201030854701, -5.279440885092874, 18.459203846627016&#93;
- &#91;0.6688472384570502, 0.6199190815696624, 16.26890491231565&#93;
- &#91;-0.8431946059067517, -0.8814496686612001, 3.5908071581100103&#93;
- &#91;1.9237414873559324, 1.9408384029122747, 4.279201285783904&#93;
+ &#91;0.16539176213563053, 0.15563570936346574, 27.630776499210647&#93;
+ &#91;2.7130237560614865, 2.733909727282737, 4.671196489507335&#93;
+ &#91;0.43354972024722155, 0.39301391626001875, 22.047257231245727&#93;
+ &#91;0.08776854614542616, 0.003375478850599744, 18.927460352845753&#93;
+ &#91;-0.595653081057519, -0.6618678986625274, 23.770437247031566&#93;
+ &#91;2.39908347465879, 2.620077097263034, 12.918173308415266&#93;
+ &#91;-0.5871227549406839, -0.599573340241046, 13.724432358318227&#93;
+ &#91;1.1096381617672035, 1.1142492415054517, 0.7913837214577205&#93;
+ &#91;0.00824354140092903, 0.0028292022873747853, 0.00023575862038647784&#93;
+ &#91;-0.005073605028234282, -0.013430116172149361, 12.96368615360699&#93;
  ⋮
- &#91;4.480997743515908, 4.511534145379815, 8.099961808173434&#93;
- &#91;-0.32474611609811743, -0.32266924604708763, 23.318493981976676&#93;
- &#91;5.472331087055449, 5.734702190900853, 20.412190886722815&#93;
- &#91;0.17438509870400518, 0.16876732520041904, 8.279419545974152&#93;
- &#91;2.15002660949271, 2.1589006024932886, 2.8352692455304496&#93;
- &#91;0.40395961786946694, 0.34383124479793387, 16.93168183553241&#93;
- &#91;1.3174846105253637, 1.3205887303210673, 1.6882756227798836&#93;
- &#91;2.8561870252880963, 9.373407495288614, 17.22948244282384&#93;
- &#91;0.2625249156454312, 0.22917364577629457, 0.04349289431029552&#93;
+ &#91;-0.3375441756062939, -0.4214559714133363, 12.152869204804189&#93;
+ &#91;5.614040297013227, 5.8044125481331985, 20.463179259648058&#93;
+ &#91;0.019446211993521926, -0.03143400146238567, 18.113653221079094&#93;
+ &#91;-0.2948029682403512, -0.34858821129868156, 14.39796526065206&#93;
+ &#91;-3.5024534486226293, -3.5354907332000436, 8.979868590175387&#93;
+ &#91;1.816030699101274, 1.8232195656096601, 1.6022871300801071&#93;
+ &#91;0.4569852617235809, 0.44584687192809136, 25.29530766770131&#93;
+ &#91;-1.0313596478082565, -1.0502879257306388, 14.063916044653125&#93;
+ &#91;0.23899128274188441, -0.0069703730444156805, 20.264283988403538&#93;
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-n'>threaded_out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>tmap</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean5</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>),</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.021 ms &#40;8 allocations: 24.03 KiB&#41;
+6.975 ms &#40;8 allocations: 24.03 KiB&#41;
 1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.18716801711364614, -0.19218033269090043, 12.763214676718674&#93;
- &#91;0.14207438960155772, 0.19230363840190776, 24.34887439091255&#93;
- &#91;5.978908954075508, 6.18449851995289, 16.66329251452619&#93;
- &#91;0.016731874987042965, -0.006562582898443087, 15.583683228821549&#93;
- &#91;3.156854847616538, 3.1735396554485096, 5.445270437482376&#93;
- &#91;0.6985270983219148, 0.863470310297844, 21.569721570092174&#93;
- &#91;-5.049201030854701, -5.279440885092874, 18.459203846627016&#93;
- &#91;0.6688472384570502, 0.6199190815696624, 16.26890491231565&#93;
- &#91;-0.8431946059067517, -0.8814496686612001, 3.5908071581100103&#93;
- &#91;1.9237414873559324, 1.9408384029122747, 4.279201285783904&#93;
+ &#91;0.16539176213563053, 0.15563570936346574, 27.630776499210647&#93;
+ &#91;2.7130237560614865, 2.733909727282737, 4.671196489507335&#93;
+ &#91;0.43354972024722155, 0.39301391626001875, 22.047257231245727&#93;
+ &#91;0.08776854614542616, 0.003375478850599744, 18.927460352845753&#93;
+ &#91;-0.595653081057519, -0.6618678986625274, 23.770437247031566&#93;
+ &#91;2.39908347465879, 2.620077097263034, 12.918173308415266&#93;
+ &#91;-0.5871227549406839, -0.599573340241046, 13.724432358318227&#93;
+ &#91;1.1096381617672035, 1.1142492415054517, 0.7913837214577205&#93;
+ &#91;0.00824354140092903, 0.0028292022873747853, 0.00023575862038647784&#93;
+ &#91;-0.005073605028234282, -0.013430116172149361, 12.96368615360699&#93;
  ⋮
- &#91;4.480997743515908, 4.511534145379815, 8.099961808173434&#93;
- &#91;-0.32474611609811743, -0.32266924604708763, 23.318493981976676&#93;
- &#91;5.472331087055449, 5.734702190900853, 20.412190886722815&#93;
- &#91;0.17438509870400518, 0.16876732520041904, 8.279419545974152&#93;
- &#91;2.15002660949271, 2.1589006024932886, 2.8352692455304496&#93;
- &#91;0.40395961786946694, 0.34383124479793387, 16.93168183553241&#93;
- &#91;1.3174846105253637, 1.3205887303210673, 1.6882756227798836&#93;
- &#91;2.8561870252880963, 9.373407495288614, 17.22948244282384&#93;
- &#91;0.2625249156454312, 0.22917364577629457, 0.04349289431029552&#93;
+ &#91;-0.3375441756062939, -0.4214559714133363, 12.152869204804189&#93;
+ &#91;5.614040297013227, 5.8044125481331985, 20.463179259648058&#93;
+ &#91;0.019446211993521926, -0.03143400146238567, 18.113653221079094&#93;
+ &#91;-0.2948029682403512, -0.34858821129868156, 14.39796526065206&#93;
+ &#91;-3.5024534486226293, -3.5354907332000436, 8.979868590175387&#93;
+ &#91;1.816030699101274, 1.8232195656096601, 1.6022871300801071&#93;
+ &#91;0.4569852617235809, 0.44584687192809136, 25.29530766770131&#93;
+ &#91;-1.0313596478082565, -1.0502879257306388, 14.063916044653125&#93;
+ &#91;0.23899128274188441, -0.0069703730444156805, 20.264283988403538&#93;
 </pre> <h3>Hierarchical Task-Based Multithreading and Dynamic Scheduling</h3> <p>The major change in Julia v1.3 is that Julia&#39;s <code>Task</code>s, which are traditionally its green threads interface, are now the basis of its multithreading infrastructure. This means that all independent threads are parallelized, and a new interface for multithreading will exist that works by spawning threads.</p> <p>This implementation follows Go&#39;s goroutines and the classic multithreading interface of Cilk. There is a Julia-level scheduler that handles the multithreading to put different tasks on different vCPU threads. A benefit from this is hierarchical multithreading. Since Julia&#39;s tasks can spawn tasks, what can happen is a task can create tasks which create tasks which etc. In Julia &#40;/Go/Cilk&#41;, this is then seen as a single pool of tasks which it can schedule, and thus it will still make sure only <code>N</code> are running at a time &#40;as opposed to the naive implementation where the total number of running threads is equal then multiplied&#41;. This is essential for numerical performance because running multiple compute threads on a single CPU thread requires constant context switching between the threads, which will slow down the computations.</p> <p>To directly use the task-based interface, simply use <code>Threads.@spawn</code> to spawn new tasks. For example:</p> <pre class='hljl'>
 <span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>tmap2</span><span class='hljl-p'>(</span><span class='hljl-n'>f</span><span class='hljl-p'>,</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span><span class='hljl-t'>
   </span><span class='hljl-n'>tasks</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nd'>@spawn</span><span class='hljl-t'> </span><span class='hljl-nf'>f</span><span class='hljl-p'>(</span><span class='hljl-n'>ps</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>])</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>1000</span><span class='hljl-p'>]</span><span class='hljl-t'>
@@ -385,51 +385,51 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-n'>threaded_out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>tmap2</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean5</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>),</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.18716801711364614, -0.19218033269090043, 12.763214676718674&#93;
- &#91;0.14207438960155772, 0.19230363840190776, 24.34887439091255&#93;
- &#91;5.978908954075508, 6.18449851995289, 16.66329251452619&#93;
- &#91;0.016731874987042965, -0.006562582898443087, 15.583683228821549&#93;
- &#91;3.156854847616538, 3.1735396554485096, 5.445270437482376&#93;
- &#91;0.6985270983219148, 0.863470310297844, 21.569721570092174&#93;
- &#91;-5.049201030854701, -5.279440885092874, 18.459203846627016&#93;
- &#91;0.6688472384570502, 0.6199190815696624, 16.26890491231565&#93;
- &#91;-0.8431946059067517, -0.8814496686612001, 3.5908071581100103&#93;
- &#91;1.9237414873559324, 1.9408384029122747, 4.279201285783904&#93;
+ &#91;0.16539176213563053, 0.15563570936346574, 27.630776499210647&#93;
+ &#91;2.7130237560614865, 2.733909727282737, 4.671196489507335&#93;
+ &#91;0.43354972024722155, 0.39301391626001875, 22.047257231245727&#93;
+ &#91;0.08776854614542616, 0.003375478850599744, 18.927460352845753&#93;
+ &#91;-0.595653081057519, -0.6618678986625274, 23.770437247031566&#93;
+ &#91;2.39908347465879, 2.620077097263034, 12.918173308415266&#93;
+ &#91;-0.5871227549406839, -0.599573340241046, 13.724432358318227&#93;
+ &#91;1.1096381617672035, 1.1142492415054517, 0.7913837214577205&#93;
+ &#91;0.00824354140092903, 0.0028292022873747853, 0.00023575862038647784&#93;
+ &#91;-0.005073605028234282, -0.013430116172149361, 12.96368615360699&#93;
  ⋮
- &#91;4.480997743515908, 4.511534145379815, 8.099961808173434&#93;
- &#91;-0.32474611609811743, -0.32266924604708763, 23.318493981976676&#93;
- &#91;5.472331087055449, 5.734702190900853, 20.412190886722815&#93;
- &#91;0.17438509870400518, 0.16876732520041904, 8.279419545974152&#93;
- &#91;2.15002660949271, 2.1589006024932886, 2.8352692455304496&#93;
- &#91;0.40395961786946694, 0.34383124479793387, 16.93168183553241&#93;
- &#91;1.3174846105253637, 1.3205887303210673, 1.6882756227798836&#93;
- &#91;2.8561870252880963, 9.373407495288614, 17.22948244282384&#93;
- &#91;0.2625249156454312, 0.22917364577629457, 0.04349289431029552&#93;
+ &#91;-0.3375441756062939, -0.4214559714133363, 12.152869204804189&#93;
+ &#91;5.614040297013227, 5.8044125481331985, 20.463179259648058&#93;
+ &#91;0.019446211993521926, -0.03143400146238567, 18.113653221079094&#93;
+ &#91;-0.2948029682403512, -0.34858821129868156, 14.39796526065206&#93;
+ &#91;-3.5024534486226293, -3.5354907332000436, 8.979868590175387&#93;
+ &#91;1.816030699101274, 1.8232195656096601, 1.6022871300801071&#93;
+ &#91;0.4569852617235809, 0.44584687192809136, 25.29530766770131&#93;
+ &#91;-1.0313596478082565, -1.0502879257306388, 14.063916044653125&#93;
+ &#91;0.23899128274188441, -0.0069703730444156805, 20.264283988403538&#93;
 </pre> <p>However, if we check the timing we see:</p> <pre class='hljl'>
 <span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>tmap2</span><span class='hljl-p'>(</span><span class='hljl-n'>p</span><span class='hljl-t'> </span><span class='hljl-oB'>-&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean5</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>),</span><span class='hljl-n'>ps</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-7.790 ms &#40;6005 allocations: 531.45 KiB&#41;
+7.475 ms &#40;6005 allocations: 531.45 KiB&#41;
 1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.18716801711364614, -0.19218033269090043, 12.763214676718674&#93;
- &#91;0.14207438960155772, 0.19230363840190776, 24.34887439091255&#93;
- &#91;5.978908954075508, 6.18449851995289, 16.66329251452619&#93;
- &#91;0.016731874987042965, -0.006562582898443087, 15.583683228821549&#93;
- &#91;3.156854847616538, 3.1735396554485096, 5.445270437482376&#93;
- &#91;0.6985270983219148, 0.863470310297844, 21.569721570092174&#93;
- &#91;-5.049201030854701, -5.279440885092874, 18.459203846627016&#93;
- &#91;0.6688472384570502, 0.6199190815696624, 16.26890491231565&#93;
- &#91;-0.8431946059067517, -0.8814496686612001, 3.5908071581100103&#93;
- &#91;1.9237414873559324, 1.9408384029122747, 4.279201285783904&#93;
+ &#91;0.16539176213563053, 0.15563570936346574, 27.630776499210647&#93;
+ &#91;2.7130237560614865, 2.733909727282737, 4.671196489507335&#93;
+ &#91;0.43354972024722155, 0.39301391626001875, 22.047257231245727&#93;
+ &#91;0.08776854614542616, 0.003375478850599744, 18.927460352845753&#93;
+ &#91;-0.595653081057519, -0.6618678986625274, 23.770437247031566&#93;
+ &#91;2.39908347465879, 2.620077097263034, 12.918173308415266&#93;
+ &#91;-0.5871227549406839, -0.599573340241046, 13.724432358318227&#93;
+ &#91;1.1096381617672035, 1.1142492415054517, 0.7913837214577205&#93;
+ &#91;0.00824354140092903, 0.0028292022873747853, 0.00023575862038647784&#93;
+ &#91;-0.005073605028234282, -0.013430116172149361, 12.96368615360699&#93;
  ⋮
- &#91;4.480997743515908, 4.511534145379815, 8.099961808173434&#93;
- &#91;-0.32474611609811743, -0.32266924604708763, 23.318493981976676&#93;
- &#91;5.472331087055449, 5.734702190900853, 20.412190886722815&#93;
- &#91;0.17438509870400518, 0.16876732520041904, 8.279419545974152&#93;
- &#91;2.15002660949271, 2.1589006024932886, 2.8352692455304496&#93;
- &#91;0.40395961786946694, 0.34383124479793387, 16.93168183553241&#93;
- &#91;1.3174846105253637, 1.3205887303210673, 1.6882756227798836&#93;
- &#91;2.8561870252880963, 9.373407495288614, 17.22948244282384&#93;
- &#91;0.2625249156454312, 0.22917364577629457, 0.04349289431029552&#93;
+ &#91;-0.3375441756062939, -0.4214559714133363, 12.152869204804189&#93;
+ &#91;5.614040297013227, 5.8044125481331985, 20.463179259648058&#93;
+ &#91;0.019446211993521926, -0.03143400146238567, 18.113653221079094&#93;
+ &#91;-0.2948029682403512, -0.34858821129868156, 14.39796526065206&#93;
+ &#91;-3.5024534486226293, -3.5354907332000436, 8.979868590175387&#93;
+ &#91;1.816030699101274, 1.8232195656096601, 1.6022871300801071&#93;
+ &#91;0.4569852617235809, 0.44584687192809136, 25.29530766770131&#93;
+ &#91;-1.0313596478082565, -1.0502879257306388, 14.063916044653125&#93;
+ &#91;0.23899128274188441, -0.0069703730444156805, 20.264283988403538&#93;
 </pre> <p><code>Threads.@threads</code> is built on the same multithreading infrastructure, so why is this so much slower? The reason is because <code>Threads.@threads</code> employs <strong>static scheduling</strong> while <code>Threads.@spawn</code> is using <strong>dynamic scheduling</strong>. Dynamic scheduling is the model of allowing the runtime to determine the ordering and scheduling of processes, i.e. what tasks will run run where and when. Julia&#39;s task-based multithreading system has a thread scheduler which will automatically do this for you in the background, but because this is done at runtime it will have overhead. Static scheduling is the model of pre-determining where and when tasks will run, instead of allowing this to be determined at runtime. <code>Threads.@threads</code> is &quot;quasi-static&quot; in the sense that it cuts the loop so that it spawns only as many tasks as there are threads, essentially assigning one thread for even chunks of the input data.</p> <p>Does this lack of runtime overhead mean that static scheduling is &quot;better&quot;? No, it simply has trade-offs. Static scheduling assumes that the runtime of each block is the same. For this specific case where there are fixed number of loop iterations for the dynamical systems, we know that every <code>compute_trajectory_mean5</code> costs exactly the same, and thus this will be more efficient. However, There are many cases where this might not be efficient. For example:</p> <pre class='hljl'>
 <span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>sleepmap_static</span><span class='hljl-p'>()</span><span class='hljl-t'>
   </span><span class='hljl-n'>out</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Vector</span><span class='hljl-p'>{</span><span class='hljl-n'>Int</span><span class='hljl-p'>}(</span><span class='hljl-n'>undef</span><span class='hljl-p'>,</span><span class='hljl-ni'>24</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -489,24 +489,24 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-n'>A</span><span class='hljl-oB'>*</span><span class='hljl-n'>B</span>
 </pre> <pre class=output >
 10000×10000 Matrix&#123;Float64&#125;:
- 2534.61  2494.48  2509.86  2520.43  …  2513.42  2514.57  2516.31  2526.47
- 2503.72  2501.65  2526.51  2507.36     2521.19  2513.8   2503.6   2526.34
- 2511.67  2506.21  2520.22  2502.29     2530.76  2494.04  2512.89  2534.9
- 2483.84  2474.81  2489.29  2491.74     2483.11  2464.63  2498.79  2485.96
- 2492.93  2490.69  2497.25  2476.79     2496.26  2487.27  2472.65  2500.87
- 2490.71  2482.09  2473.89  2476.13  …  2497.12  2488.94  2489.74  2487.72
- 2496.27  2495.15  2495.71  2507.22     2517.96  2489.25  2492.59  2519.8
- 2498.56  2516.71  2510.05  2518.41     2520.06  2519.17  2513.61  2547.34
- 2491.52  2482.99  2474.47  2483.29     2487.83  2471.08  2486.84  2498.19
- 2481.75  2469.71  2483.39  2488.78     2510.42  2480.59  2489.55  2505.2
+ 2500.58  2532.27  2518.16  2533.95  …  2504.61  2561.95  2543.53  2520.01
+ 2463.45  2510.94  2485.18  2510.84     2479.55  2510.68  2517.26  2487.05
+ 2475.25  2543.46  2517.8   2530.06     2512.66  2539.02  2533.65  2515.64
+ 2460.6   2506.44  2475.47  2490.98     2476.68  2518.28  2500.25  2492.8
+ 2501.18  2548.72  2513.5   2503.18     2501.16  2541.22  2536.54  2498.11
+ 2480.72  2515.43  2506.89  2511.66  …  2501.59  2538.83  2513.63  2492.93
+ 2472.47  2524.85  2480.7   2503.89     2485.17  2506.18  2504.84  2486.42
+ 2476.16  2501.94  2475.07  2487.12     2466.81  2512.56  2486.36  2488.62
+ 2485.1   2495.12  2507.2   2488.58     2485.02  2533.88  2514.71  2495.59
+ 2494.21  2528.24  2508.77  2523.7      2518.79  2543.47  2520.07  2522.99
     ⋮                                ⋱                             
- 2530.54  2495.88  2510.58  2521.72     2542.98  2514.84  2520.34  2548.83
- 2493.79  2501.84  2489.2   2497.81     2510.81  2502.49  2495.86  2514.82
- 2477.97  2460.62  2463.8   2481.8      2478.02  2462.63  2478.74  2481.13
- 2519.55  2492.52  2508.81  2506.75     2524.07  2503.94  2505.53  2506.13
- 2511.39  2529.83  2523.86  2516.28  …  2539.76  2506.81  2520.86  2529.15
- 2499.05  2475.42  2496.83  2485.47     2492.96  2478.66  2489.69  2499.64
- 2496.58  2486.6   2491.05  2501.25     2509.37  2486.28  2498.29  2508.31
- 2494.82  2484.5   2517.25  2506.57     2523.97  2482.99  2503.39  2509.85
- 2536.81  2535.24  2522.67  2530.05     2547.62  2523.72  2530.93  2545.18
-</pre> <p>If you are using a computer that has N cores, then this will use N cores. Try it and look at your resource usage&#33;</p> <h3>Array-Based Parallelism</h3> <p>The simplest form of parallelism is array-based parallelism. The idea is that you use some construction of an array whose operations are already designed to be parallel under the hood. In Julia, some examples of this are:</p> <ul> <li><p>DistributedArrays &#40;Distributed Computing&#41;</p> <li><p>Elemental</p> <li><p>MPIArrays</p> <li><p>CuArrays &#40;GPUs&#41;</p> </ul> <p>This is not a Julia specific idea either.</p> <h3>BLAS and Standard Libraries</h3> <p>The basic linear algebra calls are all handled by a set of libraries which follow the same interface known as BLAS &#40;Basic Linear Algebra Subroutines&#41;. It&#39;s divided into 3 portions:</p> <ul> <li><p>BLAS1: Element-wise operations &#40;O&#40;n&#41;&#41;</p> <li><p>BLAS2: Matrix-vector operations &#40;O&#40;n^2&#41;&#41;</p> <li><p>BLAS3: Matrix-matrix operations &#40;O&#40;n^3&#41;&#41;</p> </ul> <p>BLAS implementations are highly optimized, like OpenBLAS and Intel MKL, so every numerical language and library essentially uses similar underlying BLAS implementations. Extensions to these, known as LAPACK, include operations like factorizations, and are included in these standard libraries. These are all multithreaded. The reason why this is a location to target is because the operation count is high enough that parallelism can be made efficient even when only targeting this level: a matrix multiplication can take on the order of seconds, minutes, hours, or even days, and these are all highly parallel operations. This means you can get away with a bunch just by parallelizing at this level, which happens to be a bottleneck for a lot scientific computing codes.</p> <p>This is also commonly the level at which GPU computing occurs in machine learning libraries for reasons which we will explain later.</p> <h3>MPI</h3> <p>Well, this is a big topic and we&#39;ll address this one later&#33;</p> <h2>Conclusion</h2> <p>The easiest forms of parallelism are:</p> <ul> <li><p>Embarrassingly parallel</p> <li><p>Array-level parallelism &#40;built into linear algebra&#41;</p> </ul> <p>Exploit these when possible.</p> <div class=footer > <p> Published from <a href=parallelism_overview.jmd >parallelism_overview.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-10-27. </p> </div> <div class=back-to-top > <span><a href="#" title="Back to Top"><i class="fa fa-chevron-circle-up"></i></a></span> </div> </div> </div> </div>
+ 2450.1   2515.59  2480.57  2505.35     2471.86  2494.54  2492.49  2467.64
+ 2503.06  2532.56  2495.96  2504.8      2503.97  2526.23  2500.12  2503.66
+ 2471.93  2517.54  2492.08  2491.82     2465.72  2501.74  2504.68  2486.15
+ 2493.22  2536.83  2518.5   2529.43     2496.5   2538.04  2525.92  2519.83
+ 2471.88  2542.18  2490.6   2504.29  …  2500.52  2532.33  2509.11  2500.25
+ 2486.36  2548.39  2505.42  2511.08     2487.95  2543.19  2516.27  2503.26
+ 2448.95  2473.92  2463.39  2475.27     2475.94  2488.91  2473.4   2464.4
+ 2499.62  2563.64  2522.76  2547.67     2514.56  2572.5   2528.09  2508.61
+ 2508.58  2548.66  2518.54  2533.59     2519.67  2554.63  2537.48  2532.4
+</pre> <p>If you are using a computer that has N cores, then this will use N cores. Try it and look at your resource usage&#33;</p> <h3>Array-Based Parallelism</h3> <p>The simplest form of parallelism is array-based parallelism. The idea is that you use some construction of an array whose operations are already designed to be parallel under the hood. In Julia, some examples of this are:</p> <ul> <li><p>DistributedArrays &#40;Distributed Computing&#41;</p> <li><p>Elemental</p> <li><p>MPIArrays</p> <li><p>CuArrays &#40;GPUs&#41;</p> </ul> <p>This is not a Julia specific idea either.</p> <h3>BLAS and Standard Libraries</h3> <p>The basic linear algebra calls are all handled by a set of libraries which follow the same interface known as BLAS &#40;Basic Linear Algebra Subroutines&#41;. It&#39;s divided into 3 portions:</p> <ul> <li><p>BLAS1: Element-wise operations &#40;O&#40;n&#41;&#41;</p> <li><p>BLAS2: Matrix-vector operations &#40;O&#40;n^2&#41;&#41;</p> <li><p>BLAS3: Matrix-matrix operations &#40;O&#40;n^3&#41;&#41;</p> </ul> <p>BLAS implementations are highly optimized, like OpenBLAS and Intel MKL, so every numerical language and library essentially uses similar underlying BLAS implementations. Extensions to these, known as LAPACK, include operations like factorizations, and are included in these standard libraries. These are all multithreaded. The reason why this is a location to target is because the operation count is high enough that parallelism can be made efficient even when only targeting this level: a matrix multiplication can take on the order of seconds, minutes, hours, or even days, and these are all highly parallel operations. This means you can get away with a bunch just by parallelizing at this level, which happens to be a bottleneck for a lot scientific computing codes.</p> <p>This is also commonly the level at which GPU computing occurs in machine learning libraries for reasons which we will explain later.</p> <h3>MPI</h3> <p>Well, this is a big topic and we&#39;ll address this one later&#33;</p> <h2>Conclusion</h2> <p>The easiest forms of parallelism are:</p> <ul> <li><p>Embarrassingly parallel</p> <li><p>Array-level parallelism &#40;built into linear algebra&#41;</p> </ul> <p>Exploit these when possible.</p> <div class=footer > <p> Published from <a href=parallelism_overview.jmd >parallelism_overview.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-11-08. </p> </div> <div class=back-to-top > <span><a href="#" title="Back to Top"><i class="fa fa-chevron-circle-up"></i></a></span> </div> </div> </div> </div>
