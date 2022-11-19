@@ -1,0 +1,30 @@
+project:
+  type: book
+
+book:
+  title: "QuartoTest"
+  author: "JuliaHub & MIT"
+  date: "11/17/202"
+  chapters:
+    - index.qmd
+    - part: "Parallel Computing"
+      chapters: 
+        - intro.qmd
+        - optimize.qmd
+  appendices: 
+      - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      light: default
+      dark: cyborg
+  pdf:
+    documentclass: scrreprt
+
+jupyter: julia-1.8
+
+execute:
+  cache: true
