@@ -10,12 +10,7 @@ throughout this course.
 ```{julia}
 #| echo: false
 #| output: false
-using Pkg
-Pkg.add("StaticArrays")
-Pkg.add("BenchmarkTools")
-Pkg.add("InteractiveUtils")
-Pkg.add("LinearAlgebra")
-Pkg.add("Plots")
+using Pkg; Pkg.activate(abspath(@__DIR__));
 ```
 
 ## Mental Model of a Memory
