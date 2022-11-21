@@ -19,3 +19,9 @@ and the resulting HTML is inserted into a corresponding markdown file. Updating
 the files in `_weave` will automatically update the webpages.
 
 The theme is adapted from [Tufte CSS](https://edwardtufte.github.io/tufte-css/).
+
+## Todo
+
+- [ ] Transition all references to appendix with BibTex format
+- [ ] Move YouTube videos to common (suplemental resources)location
+- [ ] Update `Juno.profiler()` to equivalent VS Code version
