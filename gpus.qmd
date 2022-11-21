@@ -1,0 +1,275 @@
+# GPU programming
+
+```{julia}
+#| echo: false
+#| output: false
+using Pkg; Pkg.activate(abspath(@__DIR__));
+```
+
+## [Youtube Video Part 1](https://youtu.be/KCYlEub_8xc)
+## [Youtube Video Part 2](https://youtu.be/v9bFRg4rUfk)
+
+## Levels of parallelism in hardware
+
+1. Instruction-Level Parallelism
+2. Data-Level Parallelism
+    - SIMD/Vector
+    - GPUs
+3. Thread-Level Parallelism
+
+### Instruction-Level Parallelism
+
+Instruction-Level parallelism is used by your compiler and CPU to speed up serial
+programs. To signify that **you are not expected** to write code that considers
+ILP, the following code-snippets are in a very explicit low-level Julia
+dialect that approximates 1 RISC instruction per line.
+
+```{julia}
+#| eval: false
+function f(A, x)
+    i = length(A)
+
+    @label Loop
+    a = A[i]    # Load
+    c = a + x   # Add
+    A[i] = c    # Store
+    i = i - 1   # Decrement
+    i > 0 && @goto Loop
+
+    return A
+end
+```
+
+The same code in RISC-V would have been:
+
+```
+...
+Loop: fld    f0, 0(x1)
+      fadd.d f4, f0, f2
+      fsd    f4, 0(x1)
+      addi   x1, x1, -8
+      bnez   x1, Loop
+...
+```
+
+** What are the data-dependencies in this loop? **
+
+### Pipeline Scheduling and loop unrolling
+
+#### Latency
+- Load latency: 1 cycle
+- Float arithmetic latency: 2 cycle
+- Integer arithmetic latency: 0 cycle
+
+```{julia}
+#| eval: false
+    @label Loop
+    a = A[i]             # Cycle 1
+    # Stall              # Cycle 2
+    c = a + x            # Cycle 3
+    # Stall              # Cycle 4
+    # Stall              # Cycle 5
+    A[i] = c             # Cycle 6
+    i = i - 1            # Cycle 7
+    i > 0 && @goto Loop  # Cycle 8
+```
+
+With our given latencies and issueing one operation per cycle,
+we can execute the loop in 8 cycles. By reordering we can
+execute it in 7 cycles. Can we do better?
+
+```{julia}
+#| eval: false
+    @label Loop
+    a = A[i]             # Cycle 1
+    i = i - 1            # Cycle 2
+    c = a + x            # Cycle 3
+    # Stall              # Cycle 4
+    # Stall              # Cycle 5
+    A[i+1] = c             # Cycle 6
+    i > 0 && @goto Loop  # Cycle 7
+```
+
+By reording the decrement we can hide the load latency.
+
+- How many cylces are overhead: 2
+- How many stall cycles: 2
+- How many cycles are actually work: 3
+
+In order to improve the performance of this code we want to reduce
+the overhead of the loop in relative to the work. One technique
+compilers will use is *loop-unrolling*. Unrolling replicates
+the loop body multiple times, changing the loop exit condition
+accordingly. This requires duplicating the loop so that we can
+handle iteration lengths that are not a multiple of the unrolling
+factor.
+
+Note: `A[i+1]` is free since it can be precomputed relative to `A[i]`
+
+#### Unrolling by a factor of 4
+
+```{julia}
+#| eval: false
+    @label Loop
+    a = A[i]
+    c = a + x
+    A[i] = c
+    a1 = A[i-1]
+    c1 = a1 + x
+    A[i-1] = c1
+    a2 = A[i-2]
+    c2 = a2 + x
+    A[i-2] = c2
+    a3 = A[i-3]
+    c3 = a3 + x
+    A[i-3] = c3
+    i = i - 4
+    i > 4 && @goto Loop
+```
+
+By unrolling with a factor of 4, we have reduced the overhead to 2 cycles (ignoring stalls for now).
+Note that `A[i-3]` can be precomputed relative to `A` and is therefore free on most architectures.
+
+- Do we still have stalls?: Yes
+- How many cycles are overhead: 2
+- How many stall cycles: 12
+- How many cycles are actually work: 12
+
+```{julia}
+#| eval: false
+    @label Loop
+    a = A[i]
+    # Stall
+    c = a + x
+    # Stall
+    # Stall
+    A[i] = c
+    a1 = A[i-1]
+    # Stall
+    c1 = a1 + x
+    # Stall
+    # Stall
+    A[i-1] = c1
+    a2 = A[i-2]
+    # Stall
+    c2 = a2 + x
+    # Stall
+    # Stall
+    A[i-2] = c2
+    a3 = A[i-3]
+    # Stall
+    c3 = a3 + x
+    # Stall
+    # Stall
+    A[i-3] = c3
+    i = i - 4
+    i > 4 && @goto Loop
+```
+
+Can we re-order to reduce stalls?
+
+```{julia}
+#| eval: false
+    @label Loop
+    a  = A[i]
+    a1 = A[i-1]
+    a2 = A[i-2]
+    a3 = A[i-3]
+    c  = a  + x
+    c1 = a1 + x
+    c2 = a2 + x
+    c3 = a3 + x
+    A[i]   = c
+    A[i-1] = c1
+    A[i-2] = c2
+    A[i-3] = c3
+    i = i - 4
+    i > 4 && @goto Loop
+```
+- How many cycles are overhead (this includes stalls): 2
+- How many cycles are actually work: 12
+
+This is also called interleaving and one should note that we started to cluster operations together.
+Instead of expressing operations like this that are inherently data-parallel in a serial manner
+and expecting the compiler and the underlying architecture to pick up the slack, we can also
+also explicitly express the data-parallelism. The two big avenues of doing so are:
+explicit vector programming and GPU programming.
+
+### Data-parallelism
+Not all programs are data parallel programs, but many in scientific computing are and this has
+caused the introduction of hardware specialised to perform data-parallel operations.
+As an example many modern CPUs include vector extensions that enable Single-Instruction-Multiple-Data (SIMD)
+programming.
+
+#### SIMD (explicit vectorized)
+
+Terms: Each vector element is processed by a vector lane.
+
+```{julia}
+#| eval: false
+using SIMD
+A = rand(Float64, 64)
+T = Vec{4, Float64}
+x = 1.0
+
+for i in 1:4:length(A)
+    a = vload(T, A, i)
+    c = a + x
+    vstore(c, A, i)
+end
+```
+
+- Stalls are only per instruction, and not per element
+- reduced overhead processing of `3*<4xFloat64>` per iteration
+  with only 2 overhead instructions (excluding stalls), so
+  the overhead is amortized across 4 elements.
+
+Note:
+- We can remove stalls similar to what we did for the serial code:
+  - pipelining
+  - interleaving and unrolling
+- Latencies will be higher
+
+##### How do we handle branching
+
+Translating serial code to a vector processor is tricky if there are data or
+index dependent control-flow. There are some architectures (see the NEC Aurora VX)
+that have support for vector predication and there are also masked load and store
+instructions for SIMD on Intel CPUs. In general though one has to do a manual
+transform that computes both sides of the branch and then merges the results together.
+
+```{julia}
+#| eval: false
+A = rand(Int64, 64)
+for i in 1:length(A)
+    a = A[i]
+    if a % 2 == 0
+        A[i] = -a
+    end
+end
+```
+
+```{julia}
+#| eval: false
+using SIMD
+A = rand(Int64, 64)
+T = Vec{4, Int64}
+
+for i in 1:4:length(A)
+    a = vload(T, A, i)
+    mask = a % 2 == 0        # calculate mask
+    b = -a                   # If branch
+    c = vifelse(mask, b, a)  # merge results
+    vstore(c, A, i)
+end
+```
+
+#### GPU (implicit vectorized)
+
+Instead of using explicit vectorization, GPUs change the programming model
+so that the programmer writes a *kernel* which operates over each element
+of the data. In effect the programmer is writting a program that is executed
+for each vector lane. It is important to remember that the hardware itself
+still operates on vectors (CUDA calls this warp-size and it is 32 elements).
+
+At this point please refer to the [lecture slides](https://docs.google.com/presentation/d/1JfxmqJx7BdVyfBSL0N4bzBYdy8RIJ6hSSTHHJfPAo1o/edit?usp=sharing)
