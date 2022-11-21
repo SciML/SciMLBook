@@ -447,6 +447,10 @@ Floating Point Unit (FPU) which will give the output.
 
 If the types are not known, then... ? So one cannot actually compute until
 the types are known, since otherwise it's impossible to interpret the memory.
+
+::: {.panel-tabset}
+## Compiled
+
 In languages like C, the programmer has to declare the types of
 variables in the program:
 
@@ -460,7 +464,10 @@ void add(double *a, double *b, double *c, size_t n){
 ```
 
 The types are known at compile time because the programmer set it in stone.
-In many interpreted languages Python, types are checked at runtime. For example,
+
+## Interpreted
+
+In many interpreted languages like Python, types are checked at runtime. For example,
 
 ```
 a = 2
@@ -470,7 +477,7 @@ a + b
 
 when the addition occurs, the Python interpreter will check the object holding
 the values and ask it for its types, and use those types to know how to compute
-the + function. For this reason, the add function in Python is rather complex
+the `+` function. For this reason, the add function in Python is rather complex
 since it needs to decode and have a version for all primitive types!
 
 Not only is there runtime overhead checks in function calls due to to not being
@@ -480,6 +487,8 @@ Thus the Python interpreter cannot statically guarantee exact unchanging values
 for the size that a value would take in the stack, meaning that the variables
 are not stack-allocated. This means that every number ends up heap-allocated,
 which hopefully begins to explain why this is not as fast as C.
+
+## Hybrid
 
 The solution is Julia is somewhat of a hybrid. The Julia code looks like:
 
@@ -493,6 +502,7 @@ However, before JIT compilation, Julia runs a type inference algorithm which
 finds out that `A` is an `Int`, and `B` is an `Int`. You can then understand
 that if it can prove that `A + B` is an `Int`, then it can propagate all of the
 types through.
+:::
 
 ### Type Specialization in Functions
 
