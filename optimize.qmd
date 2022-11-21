@@ -191,21 +191,46 @@ form. Broadcast is *lazy*: it will build up an entire `.`'d expression and then
 call `broadcast!` on composed expression. This is customizable and
 [documented in detail](https://docs.julialang.org/en/v1/manual/interfaces/#man-interfaces-broadcasting-1).
 However, to a first approximation we can think of the broadcast mechanism as a
-mechanism for building *fused expressions*. For example, the Julia code:
+mechanism for building *fused expressions*.
+
+::: {.panel-tabset}
+## Julia
+
+High-level code a Julia user would write.
 
 ```{julia}
 #| eval: false
-A .+ B .+ C;
+A .+ B .+ C
 ```
 
-under the hood lowers to something like:
+## Under the Hood
+
+The high-level code lowers to something like:
 
 ```{julia}
 #| eval: false
-map((a, b, c) -> a + b + c, A, B, C);
+map((a, b, c) -> a + b + c, A, B, C)
 ```
 
-where `map` is a function that just loops over the values element-wise.
+`map` is a mechanism to apply some function to each element of a collection.
+This general pattern is how to apply `some_func` elemement-wise to all values
+of `some_collection`.
+
+```{julia}
+#| eval: false
+map((x) -> some_func, some_collection)
+```
+
+## R
+
+Some form of this pattern is supported in most programming languages.
+For example, in R the `apply`, `lapply`, or `sapply` may be used depending on
+the desired return type.
+
+```
+sapply( some_collection, some_func )
+```
+:::
 
 ::: {.callout-tip}
 Take a quick second to think about why loop fusion may be an optimization.
