@@ -1,0 +1,415 @@
+# Uncertainty Programming, Generalized Uncertainty Quantification
+
+```{julia}
+#| echo: false
+#| output: false
+using Pkg; Pkg.activate(abspath(@__DIR__));
+```
+
+## [Youtube Video](https://youtu.be/MRTXK2Vc0YE)
+
+In this lecture we will mix two separate topics: uncertainty quantification
+and adaptivity of algorithms. Using compiler-based tooling, similar to how
+automatic differentiation and probabilsitic programming toolchains, we will
+show how one can begin to pushforward uncertainties of a model or calculation.
+This leads to an idea of *uncertainty programming*, a term which is not in
+use but should be justified by these notes.
+
+## What is Uncertainty Quantification?
+
+Uncertainty quantification is the identification and quantification of sources
+of uncertainty. In our training of a neural differential equation, we have
+seen that the question of uncertainty can quickly become muddled. Results are
+inexact because of:
+
+- Truncation errors in the ODE solve
+- Truncation errors in the adjoint ODE solve
+- Truncation errors in the interpolation calculation
+- Numerical errors in every dot product along the way (!)
+- Numerical errors in matrix multiplication and linear solving (latter when implicit)
+- Numerical errors in backpropogation
+- Measurement errors in our fitting data
+- Randomness in the optimizer (when stochastic, like ADAM)
+- What is the error in the model specification / model form?
+
+"How correct is my model?" is thus a very involved question, since you'd have
+to konw that every source of uncertainty is contained. In some cases we have
+rigorous mathematical results proving bounds. In other cases, we need to find
+empirical ways to quantify what's going on using our known bounds.
+
+## Some High Level UQ Techniques
+
+Two high level UQ techniques fall out of methodologies we have recently
+discussed. If we fit a model $f$ to data, be it a neural network, a neural ODE,
+or some physical ODE model, we can fit it probabilistically using the Bayesian
+estimation or probabilistic programming tools previously described. With this
+form of fitting, one can ask the question "what are the likely results from the
+model given these parameter distributions?", which can then be answered through
+Monte Carlo sampling.
+
+Another form of high level UQ is global sensitivity analysis, which gives a
+measurement for how much the output is going to vary over a wide range and thus
+relates uncertainties in the input to uncertainties in the output.
+
+## Pushforward Methods for Uncertainties
+
+Instead of relying on expensive Monte Carlo methods for the pushforward of an
+uncertainty, we can derive a more programmatic approach to uncertainty
+quantification through the use of uncertain number arithmetic.
+
+To start, let's first revive the old physics way to doing simple uncertainty
+quantification. If you have two numbers, $x = a \pm b$, one
+might remember the rules like,
+
+$$\alpha + a = (\alpha + a) \pm b$$
+$$\alpha a = \alpha a \pm |\alpha| b$$
+
+Let's investigate this a bit more and see if we can develop an arithmetic, like
+dual numbers, to then propogate through whole programs. This idea comes from the
+arthmetic on normally distributed random variables. If we interpret $x \sim N(a,b)$,
+i.e. a normally distributed random variable with mean $a$ and standard deviation
+$b$, then the distributions follow that:
+
+$$\alpha + a \sim N(\alpha + a,b)$$
+$$\alpha a \sim N(\alpha a,|\alpha|b)$$
+
+From here we can begin to expand to multiple variables. If $f = Ax$ where
+$x ~ N(\mu,\Sigma)$ is a multidimensional random variable, then
+
+$$E[f] = A\mu$$
+
+and
+
+$$V[f] = A \Sigma A^T$$
+
+Now take a nonlinear $f(x)$. By a Taylor expansion we have that
+
+$$f(x) = f_0 + Jx + \ldots$$
+
+i.e. the linear approximation is $f_0 + Jx$ where $f_0 = f(\mu)$ and $J$ is the
+Jacobian matrix. If we do a pushforward on the linear approximation, we receive
+
+$$f(x) ~ N(f(\mu),J\Sigma J^T)$$
+
+which gives the rules for the pushforward on any possible function through the
+linearization. But the linearization is the same as the forward differencing
+ones, meaning that we can augment existing tooling for forward-mode automatic
+differentiation to perform pushforwards of uncertain quantities. A library
+which does this is [Measurements.jl](https://github.com/JuliaPhysics/Measurements.jl).
+Note that this library additionally tracks the correlations between each variable
+so that the second order terms are accurate.
+
+### Measurements.jl in Practice: Measurements on DifferentialEquations
+
+Since DifferentialEquations.jl takes in arbitrary number types, we can have it
+recompile to do the arithemetic of uncertainty propogation. For example, the
+following solves the pendulum of arbitrary amplitude with respect to uncertain
+parameters and initial condtions:
+
+$$\ddot{\theta} + \frac{g}{L} \sin(\theta) = 0$$
+
+```{julia}
+using OrdinaryDiffEq, Measurements
+g = 9.79 ± 0.02; # Gravitational constants
+L = 1.00 ± 0.01; # Length of the pendulum
+
+#Initial Conditions
+u₀ = [0 ± 0, π / 3 ± 0.02] # Initial speed and initial angle
+tspan = (0.0, 6.3)
+
+#Define the problem
+function simplependulum(du,u,p,t)
+    θ  = u[1]
+    dθ = u[2]
+    du[1] = dθ
+    du[2] = -(g/L) * sin(θ)
+end
+
+#Pass to solvers
+prob = ODEProblem(simplependulum, u₀, tspan)
+sol = solve(prob, Tsit5(), reltol = 1e-6)
+
+using Plots
+plot(sol,plotdensity=100,vars=2)
+```
+
+From here it is clear that as the pendulum goes forward, the uncertainty grows
+since the exact period is unclear. Notice another nice feature is on display
+here: the [Plots.jl Recipe System](http://docs.juliaplots.org/latest/recipes/).
+The plotting just worked because the recipes are a type-recursive system. The
+three steps were:
+
+1. The DifferentialEquations solution recipe transformed the ODE solution into
+   an array of measurement variables
+2. The Measurements recipe transformed the measurement variables into an array
+   of floats along with a series of error bars
+3. This array of floats was recognized as a native format, and thus the plot was
+   made.
+
+Note that this idea of discretizing distributions and pushing them through a
+full calculation can be done with more accuracy by using things like orthogonal
+polynomial expsnsions. This is the *polynomial chaos expansion* approach which
+we will not cover, but there is a
+[PolyChaos.jl package](https://github.com/timueh/PolyChaos.jl) one can explore.
+
+## Quantifying Numerical Uncertainty with Intervals
+
+While Measurements gives a sense of uncertainty quantification for unknown
+inputs, a different form of uncertainty quantification is that for floating
+point uncertainties. For example, when you calculate $sin(2.3)$ on your computer,
+this has an error in the approximation, and what if we wanted to push these
+errors forward to get an interval which bounds the possible values given the
+numerical uncertainty? This is done via *interval arithemetic*.
+
+For this we can use [IntervalArithmetic.jl](https://juliaintervals.github.io/IntervalArithmetic.jl/latest/).
+The idea of interval arithmetic is to work rigorously on sets of real numbers,
+i.e.
+
+$$[a,b] = \{x\in\mathbb{R} : a\leq x \leq b\}$$
+
+We can construct an interval given the `interval` method:
+
+```{julia}
+using IntervalArithmetic
+x = interval(0.1,0.2)
+```
+
+or using the shorthand
+
+```{julia}
+0.1..0.2
+```
+
+Here the operator catches the constants at compile time and notices that 0.1
+and 0.2 cannot be exactly represented in floating point numbers, and thus on
+the left side it rounds down by one floating point number and on the right it
+rounds up by one floating point number to make sure the set rigorously contains
+the correct value.
+
+From here, non-monotone functions can propogate intervals like:
+
+```{julia}
+#| eval: false
+[a, b]^2 := [a^2, b^2]  if 0 < a < b
+          = [0, max(a^2, b^2)]  if a < 0 < b
+          = [b^2, a^2] if a < b < 0
+```
+
+The rules can get fairly complicated and may need to be derived
+for each individual elementary function, but, just like automatic
+differentiation, recursion can be performed to get to a bottom
+of primatives which is known to then propogate forward the intervals.
+
+Because this form of uncertainty quantification is rigorous, we can prove
+theorem on it. For example, let's say we want to show that
+
+```{julia}
+h(x) = x^2 - 2
+```
+
+has no roots in $[3,4]$. Since these are rigorous bounds, it holds that
+
+```{julia}
+h(3..4)
+```
+
+is a rigorous bound on the possible values, and thus it must not have a root
+in this interval.
+
+### Problems with Interval Arithmetic
+
+Interval arithmetic is nice... but it can have some issues. It's rigorous but
+it's also conservative, meaning that the intervals can be much larger than one
+would expect given the actual uncertainties seen in practice. One phonomena
+which causes this can be seen by looking at that pendulum:
+
+```{julia}
+g = 9.77..9.81; # Gravitational constants
+L = 0.99..1.01; # Length of the pendulum
+
+#Initial Conditions
+u₀ = [0..0, ((π / 3)-0.02)..((π / 3)+0.02)] # Initial speed and initial angle
+tspan = (0.0, 6.3)
+
+#Define the problem
+function simplependulum(du,u,p,t)
+    θ  = u[1]
+    dθ = u[2]
+    du[1] = dθ
+    du[2] = -(g/L) * sin(θ)
+end
+
+#Pass to solvers
+prob = ODEProblem(simplependulum, u₀, tspan)
+sol = solve(prob, Tsit5(), adaptive=false, dt=0.1, reltol = 1e-6)
+```
+
+While we start out with reasonably small intervals, it turns out that every
+operation is calculating "what is the largest I could be? What is the smallest
+I could be?". Comparing these extremes at every operation means that, yes, by
+the end, given the uncertainty in the period, the solution lies in the interval
+$[-11642.4,11652.2]$, but that's not a particularly helpful estimate! This
+demonstrates the exponential explosion of interval estimates.
+
+But note that part of why it got so large is because we started with "such large"
+intervals. If we only used this to measure the uncertainty of the floating
+point arithmetic, then the intervals are much better contained:
+
+```{julia}
+g = 9.8..9.8; # Gravitational constants
+L = 1.0..1.0; # Length of the pendulum
+
+#Initial Conditions
+u₀ = [0..0, (π / 3)..(π / 3)] # Initial speed and initial angle
+tspan = (0.0, 6.3)
+
+#Define the problem
+function simplependulum(du,u,p,t)
+    θ  = u[1]
+    dθ = u[2]
+    du[1] = dθ
+    du[2] = -(g/L) * sin(θ)
+end
+
+#Pass to solvers
+prob = ODEProblem(simplependulum, u₀, tspan)
+sol = solve(prob, Vern9(), adaptive=false, dt=0.001, reltol = 1e-6)
+```
+
+## Contextual Uncertainty Quantification
+
+Those previous methods were non-contextual and worked directly through program
+modification. However, by not "clumping" interactions, uncertainty quantification
+can have overestimates like is seen with the interval growth. Thus, just like
+with reverse-mode AD, can we instead look for higher order uncertainty primatives
+on which to build such a system? When digging into reverse-mode AD, we saw that
+adjoint problems in engineering corresponded to the the reverse-mode rules for
+things like linear solve, eigenvalue problems, and the solution of ODEs. There
+does not seem to be a general analogue in the case of uncertainty quantification,
+but there is hope. Since this is a big enough field, people have found special
+cases where uncertainty can be quantified in interesting manners. Let's look
+specifically at ODEs.
+
+## Quantifying Uncertainty in ODE Solves for Adaptivity
+
+However, in some sense, adaptive numerical methods work by embedding a form of
+uncertainty quantification. Let's take a look at the Bogaki-Shampine method for
+solving ODEs:
+
+Notice that there's a $y_{n+1}$ and a $z_{n+1}$ for two separate solutions for
+the next time step. It so happens that $y$ is $\mathcal{O}(\Delta t^3)$ while
+$z$ is $\mathcal{O}(\Delta t^2)$, meaning that $E = z_{n+1} - y_{n+1}$ is a
+$\mathcal{O}(\Delta t^2)$ estimate for the error in a given step, since the two
+must both be "$\Delta t^2$ close enough" to the true solution. Similarly, when
+we looked at the Dormand-Prince method in our homework, the tableau:
+
+![DP tableau](https://user-images.githubusercontent.com/1814174/70629597-3b5cd380-1bf8-11ea-8a16-07bb5bdc0c3a.PNG)
+
+had a second row as well, with the first being $\mathcal{O}(n^5)$ and the second
+being $\mathcal{O}(n^4)$. Thus these Runge-Kutta methods naturally have error
+estimators. In standard usage, they are compared to the tolerances, like:
+
+$$q = \frac{E}{\text{reltol}\max(z_n,z_{n+1}) + \text{abstol}}$$
+
+and when $q<1$, the $\Delta t$ gives an error larger than the tolerances and so
+the step is rejected, decreased, and tried again. In many cases, one may control
+the error proportionally to this error estimator, i.e. the next $\Delta t$ is the
+product $q \Delta t$.
+
+That's all for adapting to a tolerance, but can we use this to propogate
+uncertainties? It turns out we can. This is known as the ProbInts method.
+Essentially, instead of an ODE, we can think of having solved a stochastic
+differential equation whose additive noise term of size which matches our
+error estimate. Specifically, adding a noise which is normally distributed with
+mean zero and standard deviation $(\Delta t)^{p}$, where $p$ is the order of
+the adaptive error estimate (i.e. the order of the lower approximation), is an
+approximation to the possible values that could have occured given the noise
+that was seen. By adding this at every step, we can then recover a distribution
+of possible solutions/trajectories.
+
+### ProbInts in Action
+
+```{julia}
+using DiffEqUncertainty
+function fitz(du,u,p,t)
+  V,R = u
+  a,b,c = p
+  du[1] = c*(V - V^3/3 + R)
+  du[2] = -(1/c)*(V -  a - b*R)
+end
+u0 = [-1.0;1.0]
+tspan = (0.0,20.0)
+p = (0.2,0.2,3.0)
+prob = ODEProblem(fitz,u0,tspan,p)
+
+cb = AdaptiveProbIntsUncertainty(5) # 5th order method
+sol = solve(prob,Tsit5())
+ensemble_prob = EnsembleProblem(prob)
+sim = solve(ensemble_prob,Tsit5(),trajectories=100,callback=cb)
+plot(sim,vars=(0,1),linealpha=0.4)
+```
+
+```{julia}
+cb = AdaptiveProbIntsUncertainty(5)
+sol = solve(prob,Tsit5())
+ensemble_prob = EnsembleProblem(prob)
+sim = solve(ensemble_prob,Tsit5(),trajectories=100,callback=cb,abstol=1e-3,reltol=1e-1)
+plot(sim,vars=(0,1),linealpha=0.4)
+```
+
+Notice that while an interval estimate would have grown to allow all extremes
+together, this form keeps the trajectories alive, allowing them to fall back to
+the mode, which decreases the true uncertainty. This is thus a good explanation
+as to why general methods will overestimate uncertainty.
+
+## Adjoints of Uncertainty and the Koopman Operator
+
+Everything that we've demonstrated here so far can be thought of as "forward mode
+uncertainty quantification". For every example we have constructed a method such
+that, for a known probability distribution in `x`, we build the probability
+distribution of the output of the program, and then compute quantites from that.
+On a dynamical system this pushforward of a measure is denoted by the
+Frobenius-Perron operator. With a pushforward operator $P$ and an initial
+uncertainty density $f$, we can reprsent calculating the expected value of some
+cost function on the solution via:
+
+$$\mathbb{E}[g(x)|X \sim Pf] = \int_{S(A)} P f(x) g(x) dx$$
+
+where $S$ is the program, i.e. $S(A)$ is the total set of points by pushing every
+value of $A$ through our program, and  $P f(x)$ is the pushforward operator
+applied to the probability distribution. What this means is that, to calculate
+the expectation on the output of our program, like to calculate the mean value
+of the ODE's solution given uncertainty in the parameters, we can pushforward
+the probability distribution to construct $Pf$ and on this probability
+distribution calculate the expected value of some $g$ cost function on the
+solution.
+
+The problem, as seen earlier, is that pushing forward entire probability distributions
+is a fairly expensive process. We can instead think about doing the adjoint to
+this cost function, i.e. pulling back the cost function and computing it on the
+initial density. In terms of inner product notation, this would be doing:
+
+$$\langle Pf,g \rangle = \langle f, Ug \rangle$$
+
+meaning $U$ is the adjoint operator to the pushforward $P$. This operator is
+known as the Koopman operator. There are many properties one can use about the
+Koopman operator, one special property being it's a linear operator on the space
+of observables, but it also gives a nice expression for computing uncertainty
+expectations. Using the Koopman operator, we can rewrite the expectation as:
+
+$$\mathbb{E}[g(x)|X \sim Pf] = \mathbb{E}[Ug(x)|X \sim f]$$
+
+or perform the integral on the pullback of the cost function, i.e.
+
+$$\mathbb{E}[g(x)|X \sim f] = \int_A Ug(x) f(x) dx$$
+
+In images it looks like:
+
+![Koopman vs FP](https://user-images.githubusercontent.com/1814174/102001466-a7b55b80-3cc0-11eb-9208-0f751fdca590.PNG)
+
+This expression gives us a fast way to compute expectations on the program output
+without having to compute the full uncertainty distribution on the output. This
+can thus be used for *optimization under uncertainty*, i.e. the optimization of
+loss functions with respect to expectations of the program's output under the
+assumption of given input uncertainty distributions. For more information, see
+[The Koopman Expectation: An Operator Theoretic Method for Efficient Analysis and Optimization of Uncertain Hybrid Dynamical Systems](https://arxiv.org/abs/2008.08737).
