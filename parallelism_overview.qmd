@@ -102,7 +102,7 @@ points at every line (it's an interpreted language and therefore the interpreter
 can always take control). In Julia, the yield points are minimized. The common
 yield points are allocations and I/O (`println`). This means that a tight
 non-allocating inner loop will not have any yield points and will be a thread
-that is not interruptable. While this is great for numerical performance, it is
+that is not interruptible. While this is great for numerical performance, it is
 something to be aware of.
 
 Side effect: if you run a long tight loop and wish to exit it, you may try
@@ -115,7 +115,7 @@ a higher level interrupt which Julia handles the moment the safety locks says
 it's okay (these locks occur during memory allocations to ensure that memory
 is not corrupted).
 
-#### Asynchronus Calling Example
+#### Asynchronous Calling Example
 
 This example will become more clear when we get to distributed computing, but
 for think of `remotecall_fetch` as a way to run a command on a different computer.
@@ -299,7 +299,7 @@ u = [Vector{Float64}(undef,3) for i in 1:1000]
 **Parallelism doesn't always make things faster**. There are two costs associated
 with this code. For one, we had to go to the slower heap+mutation version, so
 its implementation starting point is slower. But secondly, and more importantly,
-the cost of spinning a new thread is non-negligable. In fact, here we can see
+the cost of spinning a new thread is non-negligible. In fact, here we can see
 that it even needs to make a small allocation for the new context. The total
 cost is on the order of It's on the order of 50ns: not huge, but something
 to take note of. So what we've done is taken almost free calculations and made
@@ -323,7 +323,7 @@ their inputs. The following questions allow for independent simulations:
   conditions?
 - How does the solution very when I use a different `p`?
 
-The problem has a few descriptions. For one, it's called an *embaressingly parallel*
+The problem has a few descriptions. For one, it's called an *embarrassingly parallel*
 problem since the problem can remain largely intact to solve the parallelism
 problem. To solve this, we can use the exact same `solve_system_save_iip!`,
 and just change how we are calling it. Secondly, this is called a *data parallel*
@@ -453,7 +453,7 @@ serial_out - threaded_out
 ### Hierarchical Task-Based Multithreading and Dynamic Scheduling
 
 The major change in Julia v1.3 is that Julia's `Task`s, which are traditionally
-its green threads interface, are now the basis of its multithreading infrustructure.
+its green threads interface, are now the basis of its multithreading infrastructure.
 This means that all independent threads are parallelized, and a new interface for
 multithreading will exist that works by spawning threads.
 
@@ -486,7 +486,7 @@ However, if we check the timing we see:
 @btime tmap2(p -> compute_trajectory_mean5(@SVector([1.0,0.0,0.0]),p),ps)
 ```
 
-`Threads.@threads` is built on the same multithreading infrustructure, so why
+`Threads.@threads` is built on the same multithreading infrastructure, so why
 is this so much slower? The reason is because `Threads.@threads` employs
 **static scheduling** while `Threads.@spawn` is using **dynamic scheduling**.
 Dynamic scheduling is the model of allowing the runtime to determine the ordering
@@ -601,7 +601,7 @@ BLAS implementations. Extensions to these, known as LAPACK, include operations
 like factorizations, and are included in these standard libraries. These are
 all multithreaded. The reason why this is a location to target is because the
 operation count is high enough that parallelism can be made efficient even
-when only targetting this level: a matrix multiplication can take on the order
+when only targeting this level: a matrix multiplication can take on the order
 of seconds, minutes, hours, or even days, and these are all highly parallel
 operations. This means you can get away with a bunch just by parallelizing at
 this level, which happens to be a bottleneck for a lot scientific computing

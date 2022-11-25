@@ -181,13 +181,13 @@ we would still get the correct value for every row because the $\epsilon$
 terms do not collide (a situation known as *perturbation confusion*). If we
 knew the sparsity pattern of the Jacobian included a 0 at (2,1), (1,2), and (3,2),
 then we would know that the vectors would have to be $[1 0 1]$ and $[0 x_3 0]$,
-meaning that columns 1 and 2 can be computed simultaniously and decompressed.
+meaning that columns 1 and 2 can be computed simultaneously and decompressed.
 This is the key to sparse differentiation.
 
 ![](https://user-images.githubusercontent.com/1814174/66027457-efd7cc00-e4c8-11e9-8346-accf468541fb.PNG)
 
 With forward-mode automatic differentiation, recall that we calculate multiple
-dimensions simultaniously by using a multidimensional dual number seeded by
+dimensions simultaneously by using a multidimensional dual number seeded by
 the vectors of the differentiation directions, that is:
 
 $$d = x + v_1 \epsilon_1 + \ldots + v_m \epsilon_m$$
@@ -282,7 +282,7 @@ general Jacobian within a Newton iteration can be transformed via the
 
 $$J = LU$$
 
-where $L$ is lower triangular and $U$ is upper traingular. If we write the linear
+where $L$ is lower triangular and $U$ is upper triangular. If we write the linear
 equation in this form:
 
 $$LUa = b$$
@@ -298,7 +298,7 @@ and thus by dividing we solve. For the next term, we have that
 $$L_{21} a_1 + L_{22} a_2 = b_2$$
 
 and thus we plug in the solution to $a_1$ and solve to get $a_2$. The lower
-traingular form allows this to continue. This occurs in 1+2+3+...+n operations,
+triangular form allows this to continue. This occurs in 1+2+3+...+n operations,
 and is thus O(n^2). Next, we solve $Ua = b$, which once again is done by a
 backsubstitution algorithm but in the reverse direction. Together those two
 operations are O(n^2) and complete the inversion of $LU$.
@@ -431,7 +431,7 @@ the following are well-known methods:
 
 These decompositions are chosen since a diagonal matrix is easy to invert
 (it's just the inversion of the scalars of the diagonal) and it's easy to solve
-an upper or lower traingular linear system (once again, it's backsubstitution).
+an upper or lower triangular linear system (once again, it's backsubstitution).
 
 Since these methods give a a linear dynamical system, we know that there is a
 unique steady state solution, which happens to be $Aw - Bw = Jw = b$. Thus
@@ -468,7 +468,7 @@ which means that the complete Krylov subspace can be computed in finitely many
 jvp, since $J^2 v$ is just the jvp where the vector is the jvp. Indeed, one can
 show that $J^i v$ is linearly independent for each $i$, and thus that maximal
 value is $m$, the dimension of the Jacobian. Therefore in $m$ jvps the solution
-is guerenteed to live in the Krylov subspace, giving a maximal computational
+is guaranteed to live in the Krylov subspace, giving a maximal computational
 cost and a proof of convergence if the vector in there is the "optimal in the
 space".
 
@@ -477,10 +477,10 @@ method. Essentially, in step $i$ one computes $\mathcal{K}_i$, and finds the
 $x$ that is the closest to the Krylov subspace, i.e. finds the $x \in \mathcal{K}_i$
 such that $\Vert Jx-v \Vert$ is minimized. At each step, it adds the new vector
 to the Krylov subspace after orthgonalizing it against the other vectors via
-Arnoldi iterations, leading to an orthoganol basis of $\mathcal{K}_i$ which
+Arnoldi iterations, leading to an orthogonal basis of $\mathcal{K}_i$ which
 makes it easy to express $x$.
 
-While one has a guerenteed bound on the number of possible jvps in GMRES which
+While one has a guaranteed bound on the number of possible jvps in GMRES which
 is simply the number of ODEs (since that is what determines the size of the
 Jacobian and thus the total dimension of the problem), that bound is not
 necessarily a good one. For a large sparse matrix, it may be computationally
@@ -502,7 +502,7 @@ sparse matrix is factorized using a sparse LU factorization.
 When the matrix is too large, then one resorts to using a Krylov subspace
 method, since this only requires being able to do $Jv$ calculations. In
 general, $Jv$ can be done matrix-free because it is simply the directional
-derivative in the direction of the vector $v$, which can be computed thorugh
+derivative in the direction of the vector $v$, which can be computed through
 either numerical or forward-mode automatic differentiation. This is then used
 in the GMRES iterative process to find the solution in the Krylov subspace which
 is closest to the solution, exiting early when the residual error is small enough.
@@ -565,7 +565,7 @@ iteration can itself not always be stable enough to allow convergence. In fact,
 with many of the stiff biological models commonly used in benchmarks, no method
 is stable enough to pass without using adaptive timestepping! Thus
 one may need to adapt the timestep in order to improve the ability for the
-Newton method to converge (smaller timesteps increase the stabiltiy of the
+Newton method to converge (smaller timesteps increase the stability of the
 Newton stepping, see the homework).
 
 This needs to be mixed with the Jacobian re-use strategy, since $J = I - \gamma \frac{df}{du}$
@@ -579,7 +579,7 @@ how far off $\frac{df}{du}$ is from the current true value.
 So how does one perform adaptivity? This is generally done through a rejection
 sampling technique. First one needs some estimate of the error in a step. This
 is calculated through an *embedded method*, which is a method that is able to
-be cacluated without any extra $f$ evaluations that is (usually) one order
+be calculated without any extra $f$ evaluations that is (usually) one order
 different from the true method. The difference between the true and the
 embedded method is then an error estimate. If this is greater than a user chosen
 tolerance, the step is rejected and re-ran with a smaller $\Delta t$ (possibly
@@ -589,7 +589,7 @@ accepted and $\Delta t$ is changed.
 There are many schemes for how one can change $\Delta t$. One of the most common
 is known as the *P-control*, which stands for the proportional controller which
 is used throughout control theory. In this case, the control is to change $\Delta t$
-in propertion to the current error ratio from the desired tolerance. If we let
+in proportion to the current error ratio from the desired tolerance. If we let
 
 $$q = \frac{\text{E}}{\max(u_k,u_{k+1}) \tau_r + \tau_a}$$
 

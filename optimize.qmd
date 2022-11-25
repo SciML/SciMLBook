@@ -10,7 +10,12 @@ throughout this course.
 ```{julia}
 #| echo: false
 #| output: false
-using Pkg; Pkg.activate(abspath(@__DIR__));
+using Pkg
+Pkg.add("StaticArrays")
+Pkg.add("BenchmarkTools")
+Pkg.add("InteractiveUtils")
+Pkg.add("LinearAlgebra")
+Pkg.add("Plots")
 ```
 
 ## Mental Model of a Memory
@@ -119,9 +124,9 @@ end
 @btime inner_noalloc!(C, A, B)
 ```
 
-Why does the array here get heap-allocated? It isn't able to prove/guarentee
+Why does the array here get heap-allocated? It isn't able to prove/guarantee
 at compile-time that the array's size will always be a given value, and thus
-it allocates it to the heap. `@btime` tells us this allocation occured and
+it allocates it to the heap. `@btime` tells us this allocation occurred and
 shows us the total heap memory that was taken. Meanwhile, the size of a Float64
 number is known at compile-time (64-bits), and so this is stored onto the stack
 and given a specific location that the compiler will be able to directly
@@ -191,46 +196,21 @@ form. Broadcast is *lazy*: it will build up an entire `.`'d expression and then
 call `broadcast!` on composed expression. This is customizable and
 [documented in detail](https://docs.julialang.org/en/v1/manual/interfaces/#man-interfaces-broadcasting-1).
 However, to a first approximation we can think of the broadcast mechanism as a
-mechanism for building *fused expressions*.
-
-::: {.panel-tabset}
-## Julia
-
-High-level code a Julia user would write.
+mechanism for building *fused expressions*. For example, the Julia code:
 
 ```{julia}
 #| eval: false
-A .+ B .+ C
+A .+ B .+ C;
 ```
 
-## Under the Hood
-
-The high-level code lowers to something like:
+under the hood lowers to something like:
 
 ```{julia}
 #| eval: false
-map((a, b, c) -> a + b + c, A, B, C)
+map((a, b, c) -> a + b + c, A, B, C);
 ```
 
-`map` is a mechanism to apply some function to each element of a collection.
-This general pattern is how to apply `some_func` elemement-wise to all values
-of `some_collection`.
-
-```{julia}
-#| eval: false
-map((x) -> some_func, some_collection)
-```
-
-## R
-
-Some form of this pattern is supported in most programming languages.
-For example, in R the `apply`, `lapply`, or `sapply` may be used depending on
-the desired return type.
-
-```
-sapply( some_collection, some_func )
-```
-:::
+where `map` is a function that just loops over the values element-wise.
 
 ::: {.callout-tip}
 Take a quick second to think about why loop fusion may be an optimization.
@@ -302,7 +282,7 @@ without a care about performance.
 temporary variables since the individual C kernels are written for specific
 numbers of inputs and thus don't naturally fuse. Julia's broadcast mechanism
 is just generating and JIT compiling Julia functions on the fly, and thus it
-can accomodate the combinatorial explosion in the amount of choices just by
+can accommodate the combinatorial explosion in the amount of choices just by
 only compiling the combinations that are necessary for a specific code)
 
 ### Heap Allocations from Slicing
@@ -335,7 +315,7 @@ but with a relatively small constant).
 ### Asymptotic Cost of Heap Allocations
 
 Heap allocations have to locate and prepare a space in RAM that is proportional
-to the amount of memory that is calcuated, which means that the cost of a heap
+to the amount of memory that is calculated, which means that the cost of a heap
 allocation for an array is O(n), with a large constant. As RAM begins to fill
 up, this cost dramatically increases. If you run out of RAM, your computer
 may begin to use *swap*, which is essentially RAM simulated on your hard drive.
@@ -447,10 +427,6 @@ Floating Point Unit (FPU) which will give the output.
 
 If the types are not known, then... ? So one cannot actually compute until
 the types are known, since otherwise it's impossible to interpret the memory.
-
-::: {.panel-tabset}
-## Compiled
-
 In languages like C, the programmer has to declare the types of
 variables in the program:
 
@@ -464,10 +440,7 @@ void add(double *a, double *b, double *c, size_t n){
 ```
 
 The types are known at compile time because the programmer set it in stone.
-
-## Interpreted
-
-In many interpreted languages like Python, types are checked at runtime. For example,
+In many interpreted languages Python, types are checked at runtime. For example,
 
 ```
 a = 2
@@ -477,18 +450,16 @@ a + b
 
 when the addition occurs, the Python interpreter will check the object holding
 the values and ask it for its types, and use those types to know how to compute
-the `+` function. For this reason, the add function in Python is rather complex
+the + function. For this reason, the add function in Python is rather complex
 since it needs to decode and have a version for all primitive types!
 
 Not only is there runtime overhead checks in function calls due to to not being
 explicit about types, there is also a memory overhead since it is impossible
 to know how much memory a value with take since that's a property of its type.
-Thus the Python interpreter cannot statically guerentee exact unchanging values
+Thus the Python interpreter cannot statically guarantee exact unchanging values
 for the size that a value would take in the stack, meaning that the variables
 are not stack-allocated. This means that every number ends up heap-allocated,
 which hopefully begins to explain why this is not as fast as C.
-
-## Hybrid
 
 The solution is Julia is somewhat of a hybrid. The Julia code looks like:
 
@@ -500,13 +471,12 @@ a + b
 
 However, before JIT compilation, Julia runs a type inference algorithm which
 finds out that `A` is an `Int`, and `B` is an `Int`. You can then understand
-that if it can prove that `A + B` is an `Int`, then it can propogate all of the
+that if it can prove that `A + B` is an `Int`, then it can propagate all of the
 types through.
-:::
 
 ### Type Specialization in Functions
 
-Julia is able to propogate type inference through functions because, even if
+Julia is able to propagate type inference through functions because, even if
 a function is "untyped", Julia will interpret this as a *generic function*
 over possible *methods*, where every method has a concrete type. This means that
 in Julia, the function:
@@ -607,7 +577,7 @@ and thus the output is unknown:
 
 This means that its output type is `Union{Int,Float64}` (Julia uses union types
 to keep the types still somewhat constrained). Once there are multiple choices,
-those need to get propogated through the compiler, and all subsequent calculations
+those need to get propagated through the compiler, and all subsequent calculations
 are the result of either being an `Int` or a `Float64`.
 
 (Note that Julia has small union optimizations, so if this union is of size
@@ -660,7 +630,7 @@ ff(x::Number, y::Number) = x + y
 ff(2.0, 5)
 ```
 
-Notice that the fallback method still specailizes on the inputs:
+Notice that the fallback method still specializes on the inputs:
 
 ```{julia}
 @code_llvm ff(2.0, 5)
@@ -688,7 +658,7 @@ Note that `f(x, y) = x + y` is equivalent to `f(x::Any, y::Any) = x + y`, where 
 is the maximal supertype of every Julia type. Thus `f(x, y) = x + y` is essentially
 a fallback for all possible input values, telling it what to do in the case that
 no other dispatches exist. However, note that this dispatch itself is not slow,
-since it will be specailized on the input types.
+since it will be specialized on the input types.
 
 ### Ambiguities
 
@@ -1246,10 +1216,10 @@ cheat() = qinline(1.0, 2.0)
 ```
 
 It realized that `1.0` and `2.0` are constants, so it did what's known as
-*constant propogation*, and then used those constants inside of the function.
+*constant propagation*, and then used those constants inside of the function.
 It realized that the solution is always `9`, so it compiled the function that...
 spits out `9`! So it's fast because it's not computing anything. So be very
-careful about propogation of constants and literals. In general this is a very
+careful about propagation of constants and literals. In general this is a very
 helpful feature, but when benchmarking this can cause some weird behavior. If
 a micro benchmark is taking less than a nanosecond, check and see if the compiler
 "fixed" your code!

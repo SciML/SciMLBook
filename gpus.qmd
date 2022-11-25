@@ -90,7 +90,7 @@ execute it in 7 cycles. Can we do better?
     i > 0 && @goto Loop  # Cycle 7
 ```
 
-By reording the decrement we can hide the load latency.
+By reordering the decrement we can hide the load latency.
 
 - How many cylces are overhead: 2
 - How many stall cycles: 2
@@ -268,7 +268,7 @@ end
 
 Instead of using explicit vectorization, GPUs change the programming model
 so that the programmer writes a *kernel* which operates over each element
-of the data. In effect the programmer is writting a program that is executed
+of the data. In effect the programmer is writing a program that is executed
 for each vector lane. It is important to remember that the hardware itself
 still operates on vectors (CUDA calls this warp-size and it is 32 elements).
 

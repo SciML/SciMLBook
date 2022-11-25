@@ -14,7 +14,7 @@ derivatives are a measure of sensitivity, but derivative are *local sensitivity*
 measures because they are only the derivative at a single point. However, the
 idea of probabilistic programming starts to bring up an alternative question:
 how does the output of a model generally change with a change in the input?
-This kind of question requires an understanding of *global sensitivty* of a
+This kind of question requires an understanding of *global sensitivity* of a
 model. While there isn't a single definition of the concept, there are a few
 methods that individuals have employed to estimate the global sensitivity.
 
@@ -37,7 +37,7 @@ for the $x_i$, at least in terms of bounds. This is still underdefined because
 what makes one thing that it's not more likely for $x_i$ to be near the lower
 part of the bound instead of the upper part? Thus, for global sensitivity analysis
 to be well-defined, $x_i$ must take a distributional form, i.e. be random variables.
-Thus $f$ is a determinstic program with probabilistic inputs, and we want to
+Thus $f$ is a deterministic program with probabilistic inputs, and we want to
 determine the effects of the distributional inputs on the distribution of the
 output.
 
@@ -156,7 +156,7 @@ gives a value that's a decomposition of a total variance. But its computational
 cost makes it attractive for making quick estimates of the global sensitivities.
 
 For practical usage, a few changes have to be done. First of all, notice that
-positive and negative change can cancel out. Thus if one wanta measure of
+positive and negative change can cancel out. Thus if one want to measure of
 associated variance, one should use absolute values or squared differences.
 Also, one needs to make sure that these trajectories get good coverage of the
 input space. Define the distance between two trajectories as the sum of the
@@ -207,7 +207,7 @@ From there, the fractional contribution to the total variance is thus the index:
 
 $$S_i = \frac{V_i}{Var[y]}$$
 
-and similary for the second, third, etc. indices.
+and similarly for the second, third, etc. indices.
 
 Additionally, if there are too many variables, one can compute the contribution
 of $x_i$ including all of its interactions as:
@@ -356,7 +356,7 @@ Assuming WLOG $m>k$, this means that $m-k$ rotations takes one from $x_{n+k}$
 to $x_{n+m}$, and so $m-k$ rotations is a rotation by $\epsilon$. If we do
 $\frac{1}{\epsilon}$ rounded up rotations, we will then cover the space with
 intervals of length epsilon, each with one point of the orbit in it. Since
-$\epsilon < d/2$, one of those intervals is completely encapsolated in $I$,
+$\epsilon < d/2$, one of those intervals is completely encapsulated in $I$,
 which means there is at least one point in our orbit that is in $I$.
 
 Thus for every interval we have at least one point in our orbit that lies in
