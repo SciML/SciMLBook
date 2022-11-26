@@ -1,22 +1,17 @@
 # Optimizing Serial Code
 
+```{julia}
+#| echo: false
+#| output: false
+using Pkg; Pkg.activate(abspath(@__DIR__));
+```
+
 At the center of any fast parallel code is a fast serial code. Parallelism
 is made to be a performance multiplier, so if you start from a bad position it
 won't ever get much better. Thus the first thing that we need to do is understand 
 what makes code slow and how to avoid the pitfalls. This discussion of serial
 code optimization will also directly motivate why we will be using Julia
 throughout this course.
-
-```{julia}
-#| echo: false
-#| output: false
-using Pkg
-Pkg.add("StaticArrays")
-Pkg.add("BenchmarkTools")
-Pkg.add("InteractiveUtils")
-Pkg.add("LinearAlgebra")
-Pkg.add("Plots")
-```
 
 ## Mental Model of a Memory
 
