@@ -205,8 +205,8 @@ This means that `Dense` is a function that takes in an `x` and computes
 this is just a function, let's call it directly:
 
 ```julia
-f = Dense(32 => 32,tanh)
-f(rand(32))
+denselayer_f = Dense(32 => 32,tanh)
+denselayer_f(rand(32))
 ```
 
 So okay, `Dense` objects are just functions that have weight and bias matrices
