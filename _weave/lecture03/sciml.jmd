@@ -98,9 +98,9 @@ For example, the following recreates the neural network that we had above:
 
 ```julia
 using Flux
-NN2 = Chain(Dense(10,32,tanh),
-           Dense(32,32,tanh),
-           Dense(32,5))
+NN2 = Chain(Dense(10 => 32,tanh),
+           Dense(32 => 32,tanh),
+           Dense(32 => 5))
 NN2(rand(10))
 ```
 
@@ -114,9 +114,9 @@ to replace it by something like the quadratic function, we can just use an
 **anonymous function** to define the scalar function we would like to use:
 
 ```julia
-NN3 = Chain(Dense(10,32,x->x^2),
-            Dense(32,32,x->max(0,x)),
-            Dense(32,5))
+NN3 = Chain(Dense(10 => 32,x->x^2),
+            Dense(32 => 32,x->max(0,x)),
+            Dense(32 => 5))
 NN3(rand(10))
 ```
 
@@ -141,26 +141,25 @@ the construction of a deep learning library. First, let's figure out where
 
 ```julia
 using InteractiveUtils
-@which Dense(10,32,tanh)
+@which Dense(10 => 32,tanh)
 ```
 
 If we go to that spot of the documentation, we find the following.
 
 ```julia;eval=false
-struct Dense{F,S<:AbstractArray,T<:AbstractArray}
-  W::S
-  b::T
+struct Dense{F, M<:AbstractMatrix, B}
+  weight::M
+  bias::B
   σ::F
+  function Dense(W::M, bias = true, σ::F = identity) where {M<:AbstractMatrix, F}
+    b = create_bias(W, bias, size(W,1))
+    new{F,M,typeof(b)}(W, b, σ)
+  end
 end
 
-function Dense(in::Integer, out::Integer, σ = identity;
-               initW = glorot_uniform, initb = zeros)
-  return Dense(initW(out, in), initb(out), σ)
-end
-
-function (a::Dense)(x::AbstractArray)
-  W, b, σ = a.W, a.b, a.σ
-  σ.(W*x .+ b)
+function Dense((in, out)::Pair{<:Integer, <:Integer}, σ = identity;
+               init = glorot_uniform, bias = true)
+  Dense(init(out, in), bias, σ)
 end
 ```
 
@@ -206,7 +205,7 @@ This means that `Dense` is a function that takes in an `x` and computes
 this is just a function, let's call it directly:
 
 ```julia
-f = Dense(32,32,tanh)
+f = Dense(32 => 32,tanh)
 f(rand(32))
 ```
 
@@ -359,9 +358,9 @@ let's say we wanted to make our neural network be the constant function `1` for
 any input ``x \in [0,1]^{10}``. We can then write the loss function:
 
 ```julia
-NN = Chain(Dense(10,32,tanh),
-           Dense(32,32,tanh),
-           Dense(32,5))
+NN = Chain(Dense(10 => 32,tanh),
+           Dense(32 => 32,tanh),
+           Dense(32 => 5))
 loss() = sum(abs2,sum(abs2,NN(rand(10)).-1) for i in 1:100)
 loss()
 ```
@@ -582,8 +581,8 @@ and approximate it with the neural network from a scalar to a scalar:
 ```julia
 using Flux
 NNODE = Chain(x -> [x], # Take in a scalar and transform it into an array
-           Dense(1,32,tanh),
-           Dense(32,1),
+           Dense(1 => 32,tanh),
+           Dense(32 => 1),
            first) # Take first value, i.e. return a scalar
 NNODE(1.0)
 ```
@@ -711,8 +710,8 @@ can learn the force function!
 
 ```julia
 NNForce = Chain(x -> [x],
-           Dense(1,32,tanh),
-           Dense(32,1),
+           Dense(1 => 32,tanh),
+           Dense(32 => 1),
            first)
 ```
 
