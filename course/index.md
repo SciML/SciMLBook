@@ -61,7 +61,7 @@ Homework 2: Parameter estimation in dynamical systems and overhead of parallelis
   - Definition of inverse problems with applications to clinical pharmacology
     and smartgrid optimization
   - Adjoint methods for fast gradients
-  - Automated adjoints through reverse-mode automatic differentiation (backpropogation)
+  - Automated adjoints through reverse-mode automatic differentiation (backpropagation)
   - Adjoints of differential equations
   - Using neural ordinary differential equations as a memory-efficient RNN for
     deep learning

@@ -1118,7 +1118,7 @@ interrupting every single `+`. Fortunately these function calls disappear during
 the compilation process due to what's known as inlining. Essentially, if the
 function call is determined to be "cheap enough", the actual function call
 is removed and the code is basically pasted into the function caller. We can
-force a function call to occur by teling it to not inline:
+force a function call to occur by telling it to not inline:
 
 ```julia
 @noinline fnoinline(x,y) = x + y

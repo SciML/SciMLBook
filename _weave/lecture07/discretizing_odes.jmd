@@ -151,7 +151,7 @@ system by describing the force between two particles as:
 
 $$F = G \frac{m_1m_2}{r^2}$$
 
-where $r^2$ is the Euclidian distance between the two particles. From here, we
+where $r^2$ is the Euclidean distance between the two particles. From here, we
 use the fact that
 
 $$F = ma$$
@@ -451,7 +451,7 @@ that
 $$u(t+\Delta t) = u(t) + \Delta t f(u,p,t) + \mathcal{O}(\Delta t^2)$$
 
 This is a first order approximation because the error in our step can be
-expresed as an error in the derivative, i.e.
+expressed as an error in the derivative, i.e.
 
 $$\frac{u(t + \Delta t) - u(t)}{\Delta t} = f(u,p,t) + \mathcal{O}(\Delta t)$$
 
@@ -542,7 +542,7 @@ be larger, even if it matches another one asymptotically.
 
 ## What Makes a Good Method?
 
-### Leading Truncation Coeffcients
+### Leading Truncation Coefficients
 
 For given orders of explicit Runge-Kutta methods, lower bounds for the number of
 `f` evaluations (stages) required to receive a given order are known:
@@ -743,7 +743,7 @@ Stiffness can thus be approximated in some sense by the condition number of
 the Jacobian. The condition number of a matrix is its maximal eigenvalue divided
 by its minimal eigenvalue and gives a rough measure of the local timescale
 separations. If this value is large and one wants to resolve the slow dynamics,
-then explict integrators, like the explicit Runge-Kutta methods described before,
+then explicit integrators, like the explicit Runge-Kutta methods described before,
 have issues with stability. In this case implicit integrators (or other forms
 of stabilized stepping) are required in order to efficiently reach the end
 time step.
