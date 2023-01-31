@@ -478,7 +478,7 @@ The most common method in the Krylov subspace family of methods is the GMRES
 method. Essentially, in step $i$ one computes $\mathcal{K}_i$, and finds the
 $x$ that is the closest to the Krylov subspace, i.e. finds the $x \in \mathcal{K}_i$
 such that $\Vert Jx-v \Vert$ is minimized. At each step, it adds the new vector
-to the Krylov subspace after orthgonalizing it against the other vectors via
+to the Krylov subspace after orthogonalizing it against the other vectors via
 Arnoldi iterations, leading to an orthogonal basis of $\mathcal{K}_i$ which
 makes it easy to express $x$.
 

@@ -74,7 +74,7 @@ Loop: fld    f0, 0(x1)
     i > 0 && @goto Loop  # Cycle 8
 ```
 
-With our given latencies and issueing one operation per cycle,
+With our given latencies and issuing one operation per cycle,
 we can execute the loop in 8 cycles. By reordering we can
 execute it in 7 cycles. Can we do better?
 
@@ -91,7 +91,7 @@ execute it in 7 cycles. Can we do better?
 
 By reordering the decrement we can hide the load latency.
 
-- How many cylces are overhead: 2
+- How many cycles are overhead: 2
 - How many stall cycles: 2
 - How many cycles are actually work: 3
 
