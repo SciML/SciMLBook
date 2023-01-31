@@ -351,7 +351,7 @@ using blocking structures, one needs to be careful about deadlock!
 ### Two Programming Models: Loop-Level Parallelism and Task-Based Parallelism
 
 As described in the previous lecture, one can also use `Threads.@spawn` to
-do multithreading in Julia v1.3+. The same factors all applay: how to do locks
+do multithreading in Julia v1.3+. The same factors all apply: how to do locks
 and Mutex etc. This is a case of a parallelism construct having two alternative
 **programming models**. `Threads.@spawn` represents task-based parallelism, while
 `Threads.@threads` represents Loop-Level Parallelism or a parallel iterator

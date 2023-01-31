@@ -47,7 +47,7 @@ Each process can have many compute threads. These threads are the unit of
 execution that needs to be done. On each task is its own stack and a virtual
 CPU (virtual CPU since it's not the true CPU, since that would require that the
 task is ON the CPU, which it might not be because the task can be temporarily
-haulted). The kernel of the operating systems then *schedules* tasks, which
+halted). The kernel of the operating systems then *schedules* tasks, which
 runs them. In order to keep the computer running smooth, *context switching*,
 i.e. changing the task that is actually running, happens all the time. This is
 independent of whether tasks are actually scheduled in parallel or not.
@@ -82,7 +82,7 @@ be polled, then it will execute the command, and give the result. There are two
 variants:
 
 - Non-Blocking vs Blocking: Whether the thread will periodically poll for whether that task is complete, or whether it should wait for the task to complete before doing anything else
-- Synchronous vs Asynchronus: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.
+- Synchronous vs Asynchronous: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.
 
 I/O operations cause a *privileged context switch*, allowing the task which is
 handling the I/O to directly be switched to in order to continue actions.
@@ -117,7 +117,7 @@ a higher level interrupt which Julia handles the moment the safety locks says
 it's okay (these locks occur during memory allocations to ensure that memory
 is not corrupted).
 
-#### Asynchronus Calling Example
+#### Asynchronous Calling Example
 
 This example will become more clear when we get to distributed computing, but
 for think of `remotecall_fetch` as a way to run a command on a different computer.
