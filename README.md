@@ -3,7 +3,7 @@
 ## MW 3:00 to 4:30
 ## TA : (To be confirmed)
 ## [Piazza Link](http://piazza.com/mit/spring2022/18337/home)
-## [Canvas](https://canvas.mit.edu/courses/13026) will only be used for homework submission and nothing else.
+## [Canvas](https://canvas.mit.edu/courses/18760) will only be used for homework submission and nothing else.
 
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 ## Classes are not taped, but we will follow closely Chris Rackauckas' videos.  See [link](https://github.com/SciML/SciMLBook).
