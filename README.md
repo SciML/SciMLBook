@@ -2,7 +2,7 @@
 ## Professor Alan Edelman (and Philip the Corgi)
 ## MW 3:00 to 4:30
 ## TA : (To be confirmed)
-## [Piazza Link](http://piazza.com/mit/spring2022/18337/home)
+## [Piazza Link](https://piazza.com/mit/spring2023/18337)
 ## [Canvas](https://canvas.mit.edu/courses/18760) will only be used for homework submission and nothing else.
 
 ## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
