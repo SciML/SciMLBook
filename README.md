@@ -5,27 +5,13 @@
 ## [Piazza Link](https://piazza.com/mit/spring2023/18337)
 ## [Canvas](https://canvas.mit.edu/courses/18760) will only be used for homework submission and nothing else.
 
-## [SciML by Chris Rackauckas (spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
+## [SciML by Chris Rackauckas (18.337 Spring 2021)](https://github.com/mitmath/18337/tree/spring21) (we will follow somewhat closely)
 ## Classes are not taped, but we will follow closely Chris Rackauckas' videos.  See [link](https://github.com/SciML/SciMLBook).
 
 ## Announcement:
-[HW1](https://rawcdn.githack.com/mitmath/18337/f6ded42513499741ca0906b9978f1562a402dc21/hw1/hw1.html) is out. Please also see the [Hints and Tricks](hw1/hints.md).
-
- HW: The remaining parts of HW1 (Problem 3 parts 3-5), due  Tuesday 2/22.
-
- HW: Problem 1 of [Chris R's HW2](https://book.sciml.ai/homework/02/) due March 14th on canvas. [Hints and Tricks](hw2/hints2.md)
-
- Project Proposal due March 30
  
- HW: April 4th 2nd half of [Chris R's HW2](https://book.sciml.ai/homework/02/)
- where the plot that he refers to is on page 318, Fig 15-10 of [ High Performance Embedded Computing Handbook chapter 15](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf), perhaps
- also see Eq. (15.6) on the page before, and see if that works out on your computer.
- You may try to do this on your own machine (windows users should probably
- install the [windows  subsystem for linux](https://docs.microsoft.com/en-us/windows/wsl/about).  Others might try using [juliahub](https://juliahub.com/lp/) (see signup on piazza) or you might try [supercloud](https://supercloud.mit.edu/).
 
- HW: ~~April 11th~~ Wednesday, April 20th first half of [Chris R's HW3](https://book.sciml.ai/homework/03/). Please see the [Hints and Tricks](hw4/hints.md)
-
-Final Projects due: May 9
+Final Project reports due: May 15
 
 
 # Lectures at a Glance
