@@ -31,32 +31,33 @@ Final Projects due: May 9
 # Lectures at a Glance
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture | Materials |
 |-|-|------|------|-----|--|
-|1|M|1/31| Intro to Julia.  My Two Favorite Notebooks. | [1][1]+extra |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
-|2|W|2/2| Matrix Calculus I |extra+[2][2] | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
-|3|M|2/7| Matrix Calculus II |[2][2] + [4][4]|  [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
-|4|W|2/9| Automatic differentiation I : Forward mode AD | [3][3]|   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
-|5|M|2/14| Automatic differentiation II : Reverse mode AD |[5][5]|  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
-|6|W|2/16| Models of Parallelism |[6][6]|  [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
-|7|T|2/22| Multithreading, Static and Dynamic Scheduling  | | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
-|8|W|2/23| GPU Parallelism I |[7][7]| [[video 1]](https://www.youtube.com/watch?v=riAbPZy9gFc),[[video2]](https://www.youtube.com/watch?v=HMmOk9GIhsw)
-|9|M|2/28| GPU Paralellism II | [8][8]| [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A), [[Eig&SVD derivatives notebooks]](https://github.com/mitmath/18337/tree/master/lecture9), [[2022 IAP Class Matrix Calculus]](https://github.com/mitmath/matrixcalc)
-|10|W|3/2| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo),[[Performance Metrics]](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf) see p317,15.6
-|11|M|3/7| Differential Equations I  | [9][9]| 
-|12|W|3/9| Differential Equations II   |[10][10] |
-|13|W|3/14| Neural ODE  |[11][11] | 
-|14|W|3/16|   |[13][13] |
-|15|M|3/28|   | | [GPU Slides](https://docs.google.com/presentation/d/1npryMMe7JyLLCLdeAM3xSjLe5Q54eq0QQrZg5cxw-ds/edit?usp=sharing) [Prefix Materials](https://github.com/mitmath/18337/tree/master/lecture%2013)
-|16|W|3/30|  Convolutions and PDEs | [14][14] |
-|17|M|4/4|   Chris R on ode adjoints, PRAM Model |[11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
-|18|W|4/6|  Linear and Nonlinear System Adjoints | [11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
-|19|M|4/11|  Lagrange Multipliers, Spectral Partitioning ||  [Partitioning Slides](https://github.com/alanedelman/18.337_2018/blob/master/Lectures/Lecture13_1022_SpectralPartitioning/Partitioning.ppt)|       |
-|20|W|4/13|  |[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA),[notes on adjoint](https://github.com/mitmath/18337/blob/master/lecture20/adjointpde.pdf)|
-|21|W|4/20| Project Presentation I |
-|22|M|4/25| Project Presentation II | [Materials](https://github.com/mitmath/18337/tree/master/lecture%2022)
-|23|W|4/27| Project Presentation III | [16][16] | [[video](https://www.youtube.com/watch?v=32rAwtTAGdU)]
-|24|M|5/2|  Project Presentation IV |  
-|25|W|5/4| Project Presentation V |
-|26|M|5/9| Project Presentation VI|
+|1|M| 2/6 | Intro to Julia.  My Two Favorite Notebooks. | [1][1]+extra |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
+|2|W|2/8| Matrix Calculus I |extra+[2][2] | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
+|3|M|2/13| Matrix Calculus II |[2][2] + [4][4]|  [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
+|4|W|2/15| Automatic differentiation I : Forward mode AD | [3][3]|   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
+|5|T|2/21| Automatic differentiation II : Reverse mode AD |[5][5]|  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
+|6|W|2/22| Models of Parallelism |[6][6]|  [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
+|7|T|2/27| Multithreading, Static and Dynamic Scheduling  | | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
+|8|W|3/1| GPU Parallelism I |[7][7]| [[video 1]](https://www.youtube.com/watch?v=riAbPZy9gFc),[[video2]](https://www.youtube.com/watch?v=HMmOk9GIhsw)
+|9|M|3/6| GPU Paralellism II | [8][8]| [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A), [[Eig&SVD derivatives notebooks]](https://github.com/mitmath/18337/tree/master/lecture9), [[2022 IAP Class Matrix Calculus]](https://github.com/mitmath/matrixcalc)
+|10|W|3/8| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo),[[Performance Metrics]](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf) see p317,15.6
+|11|M|3/13| Differential Equations I  | [9][9]| 
+|12|W|3/15| Differential Equations II   |[10][10] |
+|13|W|3/20| Neural ODE  |[11][11] | 
+|14|W|3/22|   |[13][13] |
+| | | | Spring Break |
+|15|M|4/3|   | | [GPU Slides](https://docs.google.com/presentation/d/1npryMMe7JyLLCLdeAM3xSjLe5Q54eq0QQrZg5cxw-ds/edit?usp=sharing) [Prefix Materials](https://github.com/mitmath/18337/tree/master/lecture%2013)
+|16|W|4/5|  Convolutions and PDEs | [14][14] |
+|17|M|4/10|   Chris R on ode adjoints, PRAM Model |[11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
+|18|W|4/12|  Linear and Nonlinear System Adjoints | [11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
+|19|M|4/17|  Lagrange Multipliers, Spectral Partitioning ||  [Partitioning Slides](https://github.com/alanedelman/18.337_2018/blob/master/Lectures/Lecture13_1022_SpectralPartitioning/Partitioning.ppt)|       |
+|20|W|4/19|  |[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA),[notes on adjoint](https://github.com/mitmath/18337/blob/master/lecture20/adjointpde.pdf)|
+|21|W|4/24| Project Presentation I |
+|22|M|4/26| Project Presentation II | [Materials](https://github.com/mitmath/18337/tree/master/lecture%2022)
+|23|W|5/1| Project Presentation III | [16][16] | [[video](https://www.youtube.com/watch?v=32rAwtTAGdU)]
+|24|M|5/3|  Project Presentation IV |  
+|25|W|5/8| Project Presentation V |
+|26|M|5/10| Project Presentation VI|
 
 
 [1]:https://book.sciml.ai/notes/01/
