@@ -43,7 +43,7 @@ Final Projects due: May 9
 |10|W|3/8| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo),[[Performance Metrics]](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf) see p317,15.6
 |11|M|3/13| Differential Equations I  | [9][9]| 
 |12|W|3/15| Differential Equations II   |[10][10] |
-|13|W|3/20| Neural ODE  |[11][11] | 
+|13|M|3/20| Neural ODE  |[11][11] | 
 |14|W|3/22|   |[13][13] |
 | | | | Spring Break |
 |15|M|4/3|   | | [GPU Slides](https://docs.google.com/presentation/d/1npryMMe7JyLLCLdeAM3xSjLe5Q54eq0QQrZg5cxw-ds/edit?usp=sharing) [Prefix Materials](https://github.com/mitmath/18337/tree/master/lecture%2013)
@@ -52,12 +52,12 @@ Final Projects due: May 9
 |18|W|4/12|  Linear and Nonlinear System Adjoints | [11][11] | [[video]](https://www.youtube.com/watch?v=KCTfPyVIxpc)|
 |19|M|4/17|  Lagrange Multipliers, Spectral Partitioning ||  [Partitioning Slides](https://github.com/alanedelman/18.337_2018/blob/master/Lectures/Lecture13_1022_SpectralPartitioning/Partitioning.ppt)|       |
 |20|W|4/19|  |[15][15]| [[video]](https://www.youtube.com/watch?v=YuaVXt--gAA),[notes on adjoint](https://github.com/mitmath/18337/blob/master/lecture20/adjointpde.pdf)|
-|21|W|4/24| Project Presentation I |
-|22|M|4/26| Project Presentation II | [Materials](https://github.com/mitmath/18337/tree/master/lecture%2022)
-|23|W|5/1| Project Presentation III | [16][16] | [[video](https://www.youtube.com/watch?v=32rAwtTAGdU)]
-|24|M|5/3|  Project Presentation IV |  
-|25|W|5/8| Project Presentation V |
-|26|M|5/10| Project Presentation VI|
+|21|M|4/24| Project Presentation I |
+|22|W|4/26| Project Presentation II | [Materials](https://github.com/mitmath/18337/tree/master/lecture%2022)
+|23|M|5/1| Project Presentation III | [16][16] | [[video](https://www.youtube.com/watch?v=32rAwtTAGdU)]
+|24|W|5/3|  Project Presentation IV |  
+|25|M|5/8| Project Presentation V |
+|26|W|5/10| Project Presentation VI|
 
 
 [1]:https://book.sciml.ai/notes/01/
