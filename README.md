@@ -24,7 +24,7 @@ Final Project reports due: May 15
 |2|W|2/8| Matrix Calculus I | | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
 |3|M|2/13| Matrix Calculus II ||  [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
 |4|W|2/15| Automatic differentiation I : Forward mode AD |[8][8] |   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
-|5|T|2/21| Automatic differentiation II : Reverse mode AD ||  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
+|5|T|2/21| Automatic differentiation II : Reverse mode AD |[10][10]|  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
 |6|W|2/22| Models of Parallelism |[6][6]|  [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
 |7|M|2/27| Multithreading, Static and Dynamic Scheduling  | | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
 |8|W|3/1| GPU Parallelism I |[7][7]| [[video 1]](https://www.youtube.com/watch?v=riAbPZy9gFc),[[video2]](https://www.youtube.com/watch?v=HMmOk9GIhsw)
@@ -59,7 +59,7 @@ Final Project reports due: May 15
 [7]:https://book.sciml.ai/notes/07/
 [8]:https://book.sciml.ai/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/
 [9]:https://book.sciml.ai/notes/09/
-[10]:https://book.sciml.ai/notes/10/
+[10]:https://book.sciml.ai/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/
 [11]:https://book.sciml.ai/notes/11/
 [13]:https://book.sciml.ai/notes/13/
 [14]:https://book.sciml.ai/notes/14/
