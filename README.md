@@ -17,7 +17,7 @@ Final Project presentations : April 26 to May 15
 Final Project reports due: May 15
 
 
-# Lecture Schedule (tentative)
+# Lecture Schedule (tentative) (Warning: links currently out of phase starting with lecture 3)
 |#|Day| Date |  Topic | [SciML](https://book.sciml.ai/) lecture | Materials |
 |-|-|------|------|-----|--|
 |1|M| 2/6 | Intro to Julia.  My Two Favorite Notebooks. |  |   [[Julia is fast]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[AutoDiff]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg),[[The Parallel Dream]](https://github.com/mitmath/18337/blob/master/lecture1/the_dream.ipynb)
