@@ -23,12 +23,12 @@ Final Project reports due: May 15
 |1|M| 2/6 | Intro to Julia.  My Two Favorite Notebooks. |  |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
 |2|W|2/8| Matrix Calculus I | | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
 |3|M|2/13| Matrix Calculus II ||  [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
-|4|W|2/15| Automatic differentiation I : Forward mode AD ||   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
+|4|W|2/15| Automatic differentiation I : Forward mode AD |[8][8] |   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
 |5|T|2/21| Automatic differentiation II : Reverse mode AD ||  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
 |6|W|2/22| Models of Parallelism |[6][6]|  [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
 |7|M|2/27| Multithreading, Static and Dynamic Scheduling  | | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
 |8|W|3/1| GPU Parallelism I |[7][7]| [[video 1]](https://www.youtube.com/watch?v=riAbPZy9gFc),[[video2]](https://www.youtube.com/watch?v=HMmOk9GIhsw)
-|9|M|3/6| GPU Paralellism II | [8][8]| [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A), [[Eig&SVD derivatives notebooks]](https://github.com/mitmath/18337/tree/master/lecture9), [[2022 IAP Class Matrix Calculus]](https://github.com/mitmath/matrixcalc)
+|9|M|3/6| GPU Paralellism II | | [[video]](https://www.youtube.com/watch?v=zHPXGBiTM5A), [[Eig&SVD derivatives notebooks]](https://github.com/mitmath/18337/tree/master/lecture9), [[2022 IAP Class Matrix Calculus]](https://github.com/mitmath/matrixcalc)
 |10|W|3/8| MPI |  |  [Slides](https://github.com/SciML/SciMLBook/blob/spring21/lecture12/MPI.jl.pdf),  [[video, Lauren Milichen]](https://www.youtube.com/watch?v=LCIJj0czofo),[[Performance Metrics]](https://github.com/mitmath/18337/blob/spring21/lecture12/PerformanceMetricsSoftwareArchitecture.pdf) see p317,15.6
 |11|M|3/13| Differential Equations I  | [9][9]| 
 |12|W|3/15| Differential Equations II   |[10][10] |
@@ -57,7 +57,7 @@ Final Project reports due: May 15
 [5]:https://book.sciml.ai/notes/05/
 [6]:https://book.sciml.ai/notes/06/
 [7]:https://book.sciml.ai/notes/07/
-[8]:https://book.sciml.ai/notes/08/
+[8]:https://book.sciml.ai/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/
 [9]:https://book.sciml.ai/notes/09/
 [10]:https://book.sciml.ai/notes/10/
 [11]:https://book.sciml.ai/notes/11/
