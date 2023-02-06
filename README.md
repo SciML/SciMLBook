@@ -21,10 +21,10 @@ Final Project reports due: May 15
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture | Materials |
 |-|-|------|------|-----|--|
 |1|M| 2/6 | Intro to Julia.  My Two Favorite Notebooks. |  |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
-|2|W|2/8| Matrix Calculus I |extra+[2][2] | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
-|3|M|2/13| Matrix Calculus II |[2][2] + [4][4]|  [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
-|4|W|2/15| Automatic differentiation I : Forward mode AD | [3][3]|   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
-|5|T|2/21| Automatic differentiation II : Reverse mode AD |[5][5]|  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
+|2|W|2/8| Matrix Calculus I | | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
+|3|M|2/13| Matrix Calculus II ||  [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
+|4|W|2/15| Automatic differentiation I : Forward mode AD ||   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
+|5|T|2/21| Automatic differentiation II : Reverse mode AD ||  [[video]](https://www.youtube.com/watch?v=eca6kcFntiE)|
 |6|W|2/22| Models of Parallelism |[6][6]|  [[video]](https://www.youtube.com/watch?v=EP5VWwPIews)
 |7|M|2/27| Multithreading, Static and Dynamic Scheduling  | | [Slides](https://github.com/mitmath/18337/blob/master/lecture%207/siampp2022.pdf)
 |8|W|3/1| GPU Parallelism I |[7][7]| [[video 1]](https://www.youtube.com/watch?v=riAbPZy9gFc),[[video2]](https://www.youtube.com/watch?v=HMmOk9GIhsw)
