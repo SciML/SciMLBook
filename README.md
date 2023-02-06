@@ -5,7 +5,7 @@
 ## [Piazza Link](https://piazza.com/mit/spring2023/18337)
 ## [Canvas](https://canvas.mit.edu/courses/18760) will only be used for homework and project (+proposal) submission and nothing else.
 
-## Classes are taped. Another great resource is Chris Rackauckas' videos of 2021 spring class. See [SciMLBook](https://github.com/SciML/SciMLBook).
+## Classes are taped. Another great resource is Chris Rackauckas' videos of 2021 spring class. See [SciMLBook](https://book.sciml.ai/).
 
 ## Announcement:
  
@@ -18,7 +18,7 @@ Final Project reports due: May 15
 
 
 # Lecture Schedule (tentative)
-|#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture | Materials |
+|#|Day| Date |  Topic | [SciML](https://book.sciml.ai/) lecture | Materials |
 |-|-|------|------|-----|--|
 |1|M| 2/6 | Intro to Julia.  My Two Favorite Notebooks. |  |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
 |2|W|2/8| Matrix Calculus I | | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
