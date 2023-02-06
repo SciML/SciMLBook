@@ -3,14 +3,16 @@
 ## MW 3:00 to 4:30 @ Room 2-190
 ## TA and Office hours: (To be confirmed)
 ## [Piazza Link](https://piazza.com/mit/spring2023/18337)
-## [Canvas](https://canvas.mit.edu/courses/18760) will only be used for homework and project (+proposal) submission and nothing else.
+## [Canvas](https://canvas.mit.edu/courses/18760) will only be used for homework and project (+proposal) submission + lecture videos
 
-## Classes are taped. Another great resource is Chris Rackauckas' videos of 2021 spring class. See [SciMLBook](https://book.sciml.ai/).
+## Classes are recorded and will be uploaded on canvas. Another great resource is Chris Rackauckas' videos of 2021 spring class. See [SciMLBook](https://book.sciml.ai/).
 
 ## Announcement:
  
 There will be a small number of homeworks, followed by the final project. 
 Everyone needs to present their work and submit a project report. 
+
+1-page Final Project proposal due : March 24 
 
 Final Project presentations : April 26 to May 15
 
