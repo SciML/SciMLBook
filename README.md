@@ -20,7 +20,7 @@ Final Project reports due: May 15
 # Lecture Schedule (tentative)
 |#|Day| Date |  Topic | [SciML](https://github.com/SciML/SciMLBook) lecture | Materials |
 |-|-|------|------|-----|--|
-|1|M| 2/6 | Intro to Julia.  My Two Favorite Notebooks. | [1][1]+extra |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
+|1|M| 2/6 | Intro to Julia.  My Two Favorite Notebooks. |  |   [[notebook1]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb), [[notebook2]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb), [[autodiff video]](https://www.youtube.com/watch?v=vAp6nUMrKYg)
 |2|W|2/8| Matrix Calculus I |extra+[2][2] | [[pdf]](https://github.com/mitmath/18337/blob/master/lecture2/The%20Julia%20HPC%20dream%20-%20Jupyter%20Notebook.pdf),[[video]](https://www.youtube.com/watch?v=M2i7sSRcSIw)
 |3|M|2/13| Matrix Calculus II |[2][2] + [4][4]|  [[video]](https://www.youtube.com/watch?v=GhBARuHEydM)
 |4|W|2/15| Automatic differentiation I : Forward mode AD | [3][3]|   [[video 1]](https://youtu.be/C3vf9ZFYbjI)      [[video2]](https://youtu.be/hKHl68Fdpq4) 
