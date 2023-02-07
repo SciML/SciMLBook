@@ -7,6 +7,21 @@
 
 ## Classes are recorded and will be uploaded on canvas. Another great resource is Chris Rackauckas' videos of 2021 spring class. See [SciMLBook](https://book.sciml.ai/).
 
+
+## Announcement:
+
+## Julia tutorial by Steven Johnson Wed Feb 8
+## *Optional* Julia Tutorial: Wed Feb 8 @ 5pm [via Zoom](https://mit.zoom.us/j/96829722642?pwd=TDhhME0wbmx0SG5RcnFOS3VScTA5Zz09)
+
+* Virtually [via Zoom](https://mit.zoom.us/j/96829722642?pwd=TDhhME0wbmx0SG5RcnFOS3VScTA5Zz09).  Recording will be posted.
+
+A basic overview of the Julia programming environment for numerical computations that we will use in 18.06 for simple computational exploration.   This (Zoom-based) tutorial will cover what Julia is and the basics of interaction, scalar/vector/matrix arithmetic, and plotting — we'll be using it as just a "fancy calculator" and no "real programming" will be required.
+
+* [Tutorial materials](https://github.com/mitmath/julia-mit) (and links to other resources)
+
+If possible, try to install Julia on your laptop beforehand using the instructions at the above link.  Failing that, you can run Julia in the cloud (see instructions above).
+
+
 ## Announcement:
  
 There will be a small number of homeworks, followed by the final project. 
