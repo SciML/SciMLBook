@@ -12,6 +12,8 @@
 
 * Really nice Julia tutorial for the fall 2022 class [Tutorial](https://mit-c25.netlify.app/notebooks/0_julia_tutorial)
 
+* [Julia cheatsheets](https://computationalthinking.mit.edu/Spring21/cheatsheets/)
+
 * Julia tutorial by Steven Johnson Wed Feb 8
  *Optional* Julia Tutorial: Wed Feb 8 @ 5pm [via Zoom](https://mit.zoom.us/j/96829722642?pwd=TDhhME0wbmx0SG5RcnFOS3VScTA5Zz09)
 
