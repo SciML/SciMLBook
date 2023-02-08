@@ -89,15 +89,25 @@ Final Project reports due: May 15
 
 # Lecture Summaries and Handouts
 
+[Class Videos](https://mit.hosted.panopto.com/Panopto/Pages/Sessions/List.aspx?folderID=9e659f61-1fd4-4b98-96a0-af940143c9c7)
 
-## Lecture 1: Introduction and Syllabus
+## Lecture 1:  Syllabus, Introduction to Performance, Introduction to Automatic Differentiation
+
+Setting the stage for this course which will involve high performance computing, mathematics, and scientific machine learning, we looked
+at two introductory notebooks.  The first [Julia is fast]](https://github.com/mitmath/18337/blob/master/lecture1/Julia%20is%20fast.ipynb)
+primarily reveals just how much performance languages like Python can leave on the table.  Many people don't compare languages, so they
+are unlikely to be aware.  The second [AutoDiff]](https://github.com/mitmath/18337/blob/master/lecture1/AutoDiff.ipynb) reveals the "magic"
+of forward mode autodifferentiation showing how a compiler can "rewrite" a program through the use of software overloading and still
+maintain performance. This is a whole new way to see calculus, not the way you learned it in a first year class, and not finite differences either.
+
+
 
 ### Lecture and Notes
 
 
 # Homeworks
 
-
+Stay tuned.
 
 # Final Project
 
