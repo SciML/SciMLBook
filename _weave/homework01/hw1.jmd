@@ -14,16 +14,22 @@ Homework 1 is a chance to get some experience implementing discrete dynamical
 systems techniques in a way that is parallelized, and a time to understand the
 fundamental behavior of the bottleneck algorithms in scientific computing.
 
-Please email the results to `crackauc@mit.edu` titled "**Homework 1: (Your Name)**".
-
 ## Problem 1: A Ton of New Facts on Newton
+
+In lecture 4 we looked at the properties of discrete dynamical systems to see that running
+many systems for infinitely many steps would go to a steady state. This process is used as
+a numerical method known as **fixed point iteration** to solve for the steady state of
+systems $x_{n+1} = f(x_{n})$. Under a transformation (which we will do in this homework),
+it can be used to solve rootfinding problems $f(x) = 0$ to solve for $x$.
 
 In this problem we will look into Newton's method. Newton's method is the
 dynamical system defined by the update process:
 
 $$x_{n+1} = x_n - \left(\frac{dg}{dx}(x_n)\right)^{-1} g(x_n)$$
 
-For these problems, assume that $\frac{dg}{dx}$ is non-singular.
+For these problems, assume that $\frac{dg}{dx}$ is non-singular. We will prove a few properties
+to show why, in practice, Newton methods are preferred for quickly calculating the steady
+state.
 
 ### Part 1
 
