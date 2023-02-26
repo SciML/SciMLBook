@@ -5,4 +5,4 @@ rss = "Levels of parallelism in hardware"
 weave = true
 +++
 
-{{ insert ../_weave/lecture13/gpus.html }}
+{{ insert_weave _weave/lecture13/gpus.jmd }}

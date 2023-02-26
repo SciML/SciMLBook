@@ -5,4 +5,4 @@ rss = "This discussion of serial code optimization will directly motivate why we
 weave = true
 +++
 
-{{ insert ../_weave/lecture02/optimizing.html }}
+{{ insert_weave _weave/lecture02/optimizing.jmd }}

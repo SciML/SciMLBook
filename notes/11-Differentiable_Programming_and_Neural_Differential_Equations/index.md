@@ -5,4 +5,4 @@ rss = "Differentiable Programming and Neural Differential Equations"
 weave = true
 +++
 
-{{ insert ../_weave/lecture11/adjoints.html }}
+{{ insert_weave _weave/lecture11/adjoints.jmd }}

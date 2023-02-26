@@ -5,4 +5,4 @@ rss = "The answer to the 'end of Moore's Law' is Parallel Computing. However, pr
 weave = true
 +++
 
-{{ insert ../_weave/lecture05/parallelism_overview.html }}
+{{ insert_weave _weave/lecture05/parallelism_overview.jmd }}

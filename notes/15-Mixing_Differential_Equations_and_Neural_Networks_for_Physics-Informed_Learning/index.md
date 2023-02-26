@@ -5,4 +5,4 @@ rss = "Mixing Differential Equations and Neural Networks for Physics-Informed Le
 weave = true
 +++
 
-{{ insert ../_weave/lecture15/diffeq_machine_learning.html }}
+{{ insert_weave _weave/lecture15/diffeq_machine_learning.jmd }}

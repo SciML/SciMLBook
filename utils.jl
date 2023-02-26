@@ -34,3 +34,23 @@ function cleanall()
         end
     end
 end
+
+function hfun_insert_weave(params)
+    rpath = params[1]
+    fullpath = joinpath(Franklin.path(:folder), rpath)
+    (isfile(fullpath) && splitext(fullpath)[2] == ".jmd") || return ""
+    @info "Weaving... "
+    t = tempname()
+    weave(fullpath; out_path=t, mod=Main)
+    @info "✓ [done]."
+    fn = splitext(splitpath(fullpath)[end])[1]
+    html = read(joinpath(t, fn * ".html"), String)
+    start = findfirst("<BODY>", html)
+    finish = findfirst("</BODY>", html)
+    range = nextind(html, last(start)):prevind(html, first(finish))
+    html = html[range]
+    anchored_html = replace(html,
+        r"<h(?<level>[1-3]) class=\"title\">" => s"<h\g<level> class=\"header-anchor\">")
+    return anchored_html
+end
+
