@@ -7,4 +7,4 @@ for physical systems."
 weave = true
 +++
 
-{{ insert ../_weave/lecture07/discretizing_odes.html }}
+{{ augment_insert _weave/lecture07/discretizing_odes.html }}

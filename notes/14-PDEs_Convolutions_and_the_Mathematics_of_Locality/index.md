@@ -5,4 +5,4 @@ rss = "PDEs, Convolutions, and the Mathematics of Locality"
 weave = true
 +++
 
-{{ insert ../_weave/lecture14/pdes_and_convolutions.html }}
+{{ augment_insert _weave/lecture14/pdes_and_convolutions.html }}

@@ -5,4 +5,4 @@ rss = "Now that you are aware of the basics of parallel computing, let's give a 
 weave = true
 +++
 
-{{ insert ../_weave/lecture06/styles_of_parallelism.html }}
+{{ augment_insert _weave/lecture06/styles_of_parallelism.html }}

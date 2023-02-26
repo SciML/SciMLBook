@@ -5,4 +5,4 @@ rss = "From Optimization to Probabilistic Programming"
 weave = true
 +++
 
-{{ insert ../_weave/lecture16/probabilistic_programming.html }}
+{{ augment_insert _weave/lecture16/probabilistic_programming.html }}

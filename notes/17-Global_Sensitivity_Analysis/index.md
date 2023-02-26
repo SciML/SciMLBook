@@ -5,4 +5,4 @@ rss = "Global Sensitivity Analysis"
 weave = true
 +++
 
-{{ insert ../_weave/lecture17/global_sensitivity.html }}
+{{ augment_insert _weave/lecture17/global_sensitivity.html }}

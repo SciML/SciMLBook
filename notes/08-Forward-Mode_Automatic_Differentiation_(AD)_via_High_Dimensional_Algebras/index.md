@@ -5,4 +5,4 @@ rss = "Forward-Mode Automatic Differentiation (AD) via High Dimensional Algebras
 weave = true
 +++
 
-{{ insert ../_weave/lecture08/automatic_differentiation.html }}
+{{ augment_insert _weave/lecture08/automatic_differentiation.html }}

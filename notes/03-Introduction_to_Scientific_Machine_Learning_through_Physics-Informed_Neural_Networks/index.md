@@ -5,4 +5,4 @@ rss = "Here we will start to dig into what scientific machine learning is all ab
 weave = true
 +++
 
-{{ insert ../_weave/lecture03/sciml.html }}
+{{ augment_insert _weave/lecture03/sciml.html }}

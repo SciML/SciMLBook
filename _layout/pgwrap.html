@@ -1,0 +1,48 @@
+<div class="page-wrap">   <!-- closed in foot.html -->
+  <!-- SIDE BAR -->
+  <div class="side-bar">
+    <div class="header">
+      <a href="/" class="title">
+        Franklin
+      </a>
+    </div>
+    <label for="show-menu" class="show-menu">MENU</label>
+    <input type="checkbox" id="show-menu" role="button">
+    <div class="menu" id="side-menu">
+      <ul class="menu-list">
+        <li class="menu-list-item {{ispage index}}active{{end}}"><a href="/" class="menu-list-link {{ispage index}}active{{end}}">Home</a>
+        <li class="menu-list-item {{ispage lectures/*}}active{{end}}"><a href="/lectures/" class="menu-list-link {{ispage lectures/}}active{{end}}">Lectures</a>
+        <!-- <li class="menu-list-item {{ispage menu2/*}}active{{end}}"><a href="/menu2/" class="menu-list-link {{ispage menu2}}active{{end}}">More goodies</a> -->
+        <!-- <li class="menu-list-item {{ispage menu3/*}}active{{end}}"><a href="/menu3/" class="menu-list-link {{ispage menu3}}active{{end}}">Tags</a> -->
+        <ul class="menu-list-child-list">
+            <li class="menu-list-item"><a href="/notes/02-Optimizing_Serial_Code/" class="menu-list-link">Optimizing Serial Code</a></li>
+            <li class="menu-list-item"><a href="/notes/03-Introduction_to_Scientific_Machine_Learning_through_Physics-Informed_Neural_Networks/" class="menu-list-link">SciML Introduction</a></li>
+            <li class="menu-list-item"><a href="/notes/04-How_Loops_Work-An_Introduction_to_Discrete_Dynamics/" class="menu-list-link">How Loops Work</a></li>
+            <li class="menu-list-item"><a href="/notes/05-The_Basics_of_Single_Node_Parallel_Computing/" class="menu-list-link">Parallelism Overview</a></li>
+            <li class="menu-list-item"><a href="/notes/06-The_Different_Flavors_of_Parallelism/" class="menu-list-link">Flavors of Parallelism</a></li>
+            <li class="menu-list-item"><a href="/notes/07-Ordinary_Differential_Equations-Applications_and_Discretizations/" class="menu-list-link">ODEs</a></li>
+            <li class="menu-list-item"><a href="/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/" class="menu-list-link">Forward AD</a></li>
+            <li class="menu-list-item"><a href="/notes/09-Solving_Stiff_Ordinary_Differential_Equations/" class="menu-list-link">Stiff ODEs</a></li>
+            <li class="menu-list-item"><a href="/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/" class="menu-list-link">Reverse AD</a></li>
+            <li class="menu-list-item"><a href="/notes/11-Differentiable_Programming_and_Neural_Differential_Equations/" class="menu-list-link">δP</a></li>
+            <li class="menu-list-item"><a href="/notes/12-Description_of_MPI_and_MPI/" class="menu-list-link">MPI Overview</a></li>
+            <li class="menu-list-item"><a href="/notes/13-GPU_programming/" class="menu-list-link">GPUs</a></li>
+            <li class="menu-list-item"><a href="/notes/14-PDEs_Convolutions_and_the_Mathematics_of_Locality/" class="menu-list-link">PDEs</a></li>
+            <li class="menu-list-item"><a href="/notes/15-Mixing_Differential_Equations_and_Neural_Networks_for_Physics-Informed_Learning/" class="menu-list-link">PINNs</a></li>
+            <li class="menu-list-item"><a href="/notes/16-From_Optimization_to_Probabilistic_Programming/" class="menu-list-link">Probabilistic Programming</a></li>
+            <li class="menu-list-item"><a href="/notes/17-Global_Sensitivity_Analysis/" class="menu-list-link">GSA</a></li>
+            <li class="menu-list-item"><a href="/notes/18-Code_Profiling_and_Optimization/" class="menu-list-link">Profiling</a></li>
+            <li class="menu-list-item"><a href="/notes/19-Uncertainty_Programming-Generalized_Uncertainty_Quantification/" class="menu-list-link">Uncertainty</a></li>
+        </ul>
+      </ul>
+    </div>
+    <div class="footer">
+      This is <em>Just the docs</em>, adapted from the <a href="https://github.com/pmarsceill/just-the-docs" target="_blank">Jekyll theme</a>.
+    </div>
+  </div>
+  <!-- CONTENT -->
+  <div class="main-content-wrap"> <!-- closed in foot.html -->
+    <div class="main-content">    <!-- closed in foot.html -->
+      <div class="main-header">
+        <a id="github" href="//github.com/tlienart/Franklin.jl">Franklin on GitHub</a>
+      </div>

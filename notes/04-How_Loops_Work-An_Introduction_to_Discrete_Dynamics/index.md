@@ -5,4 +5,4 @@ rss = "In this lecture we will go over the basic properties of dynamical systems
 weave = true
 +++
 
-{{ insert ../_weave/lecture04/dynamical_systems.html }}
+{{ augment_insert _weave/lecture04/dynamical_systems.html }}

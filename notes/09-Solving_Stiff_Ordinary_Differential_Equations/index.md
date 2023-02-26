@@ -5,4 +5,4 @@ rss = "Let's now go down the path of understanding how to efficiently implement 
 weave = true
 +++
 
-{{ insert ../_weave/lecture09/stiff_odes.html }}
+{{ augment_insert _weave/lecture09/stiff_odes.html }}
