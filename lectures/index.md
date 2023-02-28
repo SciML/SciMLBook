@@ -53,7 +53,7 @@ interested. More details TBA.
 
 - [Optimizing Serial Code in Julia 1: Memory Models, Mutation, and Vectorization (Lecture)](https://youtu.be/M2i7sSRcSIw)
 - [Optimizing Serial Code in Julia 2: Type inference, function specialization, and dispatch (Lecture)](https://youtu.be/10_Ukm9wr9g)
-- [Optimizing Serial Code (Notes)](/notes/02/)
+- [Optimizing Serial Code (Notes)](/notes/02-Optimizing_Serial_Code/)
 
 ### Optional Extra Resources
 
@@ -75,7 +75,7 @@ is efficient.
 
 - [Introduction to Scientific Machine Learning 1: Deep Learning as Function Approximation (Lecture)](https://youtu.be/C3vf9ZFYbjI)
 - [Introduction to Scientific Machine Learning 2: Physics-Informed Neural Networks (Lecture)](https://youtu.be/hKHl68Fdpq4)
-- [Introduction to Scientific Machine Learning through Physics-Informed Neural Networks (Notes)](/notes/03/)
+- [Introduction to Scientific Machine Learning through Physics-Informed Neural Networks (Notes)](/notes/03-Introduction_to_Scientific_Machine_Learning_through_Physics-Informed_Neural_Networks/)
 
 ### Optional Extra Resources
 
@@ -102,7 +102,7 @@ differential equation.
 
 - [How Loops Work 1: An Introduction to the Theory of Discrete Dynamical Systems (Lecture)](https://www.youtube.com/watch?v=GhBARuHEydM)
 - [How Loops Work 2: Computationally-Efficient Discrete Dynamics (Lecture)](https://youtu.be/AXHLyHfyEuA)
-- [How Loops Work, An Introduction to Discrete Dynamics (Notes)](/notes/04/)
+- [How Loops Work, An Introduction to Discrete Dynamics (Notes)](/notes/04-How_Loops_Work-An_Introduction_to_Discrete_Dynamics/)
 
 ### Optional Extra Resources
 
@@ -134,7 +134,7 @@ dynamical systems which will be further explored through the rest of the course.
 ## Lecture 5: Array-Based Parallelism, Embarrassingly Parallel Problems, and Data-Parallelism: The Basics of Single Node Parallel Computing
 
 - [The Basics of Single Node Parallel Computing (Lecture)](https://youtu.be/eca6kcFntiE)
-- [The Basics of Single Node Parallel Computing (Notes)](/notes/05/)
+- [The Basics of Single Node Parallel Computing (Notes)](/notes/05-The_Basics_of_Single_Node_Parallel_Computing/)
 
 ### Optional Extra Resources
 
@@ -156,7 +156,7 @@ considerations will be discussed.
 ## Lecture 6: Styles of Parallelism
 
 - [The Different Flavors of Parallelism: Parallel Programming Models (Lecture)](https://youtu.be/EP5VWwPIews)
-- [The Different Flavors of Parallelism (Notes)](/notes/06/)
+- [The Different Flavors of Parallelism (Notes)](/notes/06-The_Different_Flavors_of_Parallelism/)
 
 Here we continue down the line of describing methods of parallelism by giving a
 high level overview of the types of parallelism. SIMD and multithreading are
@@ -173,14 +173,14 @@ hardware abstractions.
 
 - [Ordinary Differential Equations 1: Applications and Solution Characteristics (Lecture)](https://youtu.be/riAbPZy9gFc)
 - [Ordinary Differential Equations 2: Discretizations and Stability (Lecture)](https://youtu.be/HMmOk9GIhsw)
-- [Ordinary Differential Equations: Applications and Discretizations (Notes)](/notes/07/)
+- [Ordinary Differential Equations: Applications and Discretizations (Notes)](/notes/07-Ordinary_Differential_Equations-Applications_and_Discretizations/)
 
 In this lecture we will describe ordinary differential equations, where they arise in scientific contexts, and how they are solved. We will see that understanding the properties of the numerical methods requires understanding the dynamics of the discrete system generated from the approximation to the continuous system, and thus stability of a numerical method is directly tied to the stability properties of the dynamics. This gives the idea of stiffness, which is a larger computational idea about ill-conditioned systems.
 
 ## Lecture 8: Forward-Mode Automatic Differentiation
 
 - [Forward-Mode Automatic Differentiation (AD) via High Dimensional Algebras (Lecture)](https://youtu.be/zHPXGBiTM5A)
-- [Forward-Mode Automatic Differentiation (AD) via High Dimensional Algebras (Notes)](/notes/08/)
+- [Forward-Mode Automatic Differentiation (AD) via High Dimensional Algebras (Notes)](/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/)
 
 As we will soon see, the ability to calculate derivatives underpins a lot of problems in both scientific computing and machine learning. We will specifically see it show up in later lectures on solving implicit equations f(x)=0 for stiff ordinary differential equation solvers, and in fitting neural networks. The common high performance way that this is done is called automatic differentiation. This lecture introduces the methods of forward and reverse mode automatic differentiation to setup future studies uses of the technique.
 
@@ -189,7 +189,7 @@ As we will soon see, the ability to calculate derivatives underpins a lot of pro
 ### Lecture Notes
 
 - [Solving Stiff Ordinary Differential Equations (Lecture)](https://youtu.be/bY2VCoxMuo8)
-- [Solving Stiff Ordinary Differential Equations (Notes)](/notes/09/)
+- [Solving Stiff Ordinary Differential Equations (Notes)](/notes/09-Solving_Stiff_Ordinary_Differential_Equations/)
 
 ### Additional Readings on Convergence of Newton's Method
 
@@ -213,7 +213,7 @@ have.
 ## Lecture 10: Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems
 
 - [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems (Lecture)](https://youtu.be/XQAe4pEZ6L4)
-- [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems (Notes)](/notes/10/)
+- [Basic Parameter Estimation, Reverse-Mode AD, and Inverse Problems (Notes)](/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/)
 
 Now that we have models, how do you fit the models to data? This lecture goes through the basic shooting method for parameter estimation, showcases how it's equivalent to training neural networks, and gives an in-depth discussion of how reverse-mode automatic differentiation is utilized in the training process for the efficient calculation of gradients.
 
@@ -221,7 +221,7 @@ Now that we have models, how do you fit the models to data? This lecture goes th
 
 - [Differentiable Programming Part 1: Reverse-Mode AD Implementation (Lecture)](https://youtu.be/fXcekZZP-1A)
 - [Differentiable Programming Part 2: Adjoint Derivation for (Neural) ODEs and Nonlinear Solve (Lecture)](https://youtu.be/KCTfPyVIxpc)
-- [Differentiable Programming and Neural Differential Equations (Notes)](/notes/11/)
+- [Differentiable Programming and Neural Differential Equations (Notes)](/notes/11-Differentiable_Programming_and_Neural_Differential_Equations/)
 
 ### Additional Readings on AD Implementations
 
@@ -244,7 +244,7 @@ Guest Lecturer: Lauren E. Milechin, MIT Lincoln Lab and the MIT Supercloud
 Guest Writer: Jeremy Kepner, MIT Lincoln Lab and the MIT Supercloud
 
 - [Introduction to MPI.jl (Lecture)](https://www.youtube.com/watch?v=LCIJj0czofo)
-- [Introduction to MPI.jl (Notes: PDF)](/notes/12/)
+- [Introduction to MPI.jl (Notes: PDF)](/notes/12-Description_of_MPI_and_MPI/MPI.jl.pdf)
 
 In this lecture we went over the basics of MPI (Message Passing Interface) for distributed computing and examples on how to use MPI.jl to write parallel programs that work efficiently over multiple computers (or "compute nodes"). The MPI programming model and the job scripts required for using MPI on the MIT Supercloud HPC were demonstrated.
 
@@ -279,7 +279,7 @@ compilation for such hardware.
 ## Lecture 14: Partial Differential Equations and Convolutional Neural Networks
 
 - [PDEs, Convolutions, and the Mathematics of Locality (Lecture)](https://youtu.be/apkyk8n0vBo)
-- [PDEs, Convolutions, and the Mathematics of Locality (Notes)](/notes/14/)
+- [PDEs, Convolutions, and the Mathematics of Locality (Notes)](/notes/14-PDEs_Convolutions_and_the_Mathematics_of_Locality/)
 
 ### Additional Readings
 
@@ -293,7 +293,7 @@ than just similar: the two are both stencil computations on spatial data!
 ## Lecture 15: More Algorithms which Connect Differential Equations and Machine Learning
 
 - [Mixing Differential Equations and Neural Networks for Physics-Informed Learning (Lecture)](https://youtu.be/YuaVXt--gAA)
-- [Mixing Differential Equations and Neural Networks for Physics-Informed Learning (Notes)](/notes/15/)
+- [Mixing Differential Equations and Neural Networks for Physics-Informed Learning (Notes)](/notes/15-Mixing_Differential_Equations_and_Neural_Networks_for_Physics-Informed_Learning/)
 
 Neural ordinary differential equations and physics-informed neural networks are
 only the tip of the iceberg. In this lecture we will look into other algorithms
@@ -318,7 +318,7 @@ applications can be used effectively.
 ## Lecture 16: Probabilistic Programming
 
 - [From Optimization to Probabilistic Programming (Lecture)](https://youtu.be/32rAwtTAGdU)
-- [From Optimization to Probabilistic Programming (Notes)](/notes/16/)
+- [From Optimization to Probabilistic Programming (Notes)](/notes/16-From_Optimization_to_Probabilistic_Programming/)
 
 All of our previous discussions lived in a deterministic world. Not this one.
 Here we turn to a probabilistic view and allow programs to have random variables.
@@ -343,14 +343,14 @@ programming to estimate distributions of probabilistic programs.
 ## Lecture 17: Global Sensitivity Analysis
 
 - [Global Sensitivity Analysis (Lecture)](https://youtu.be/wzTpoINJyBQ)
-- [Global Sensitivity Analysis (Notes)](/notes/17/)
+- [Global Sensitivity Analysis (Notes)](/notes/17-Global_Sensitivity_Analysis/)
 
 Our previous analysis of sensitivities was all local. What does it mean to example the sensitivities of a model globally? It turns out the probabilistic programming viewpoint gives us a solid way of describing how we expect values to be changing over larger sets of parameters via the random variables that describe the program's inputs. This means we can decompose the output variance into indices which can be calculated via various quadrature approximations which then give a tractable measurement to "variable x has no effect on the mean solution".
 
 ## Lecture 18: Code Profiling and Optimization
 
 - [Code Profiling and Optimization (Lecture)](https://youtu.be/h-xVBD2Pk9o)
-- [Code Profiling and Optimization (Notes)](/notes/18/)
+- [Code Profiling and Optimization (Notes)](/notes/18-Code_Profiling_and_Optimization/)
 
 How do you put everything together in this course? Let's take a look at a PDE
 solver code given in a method of lines form. In this lecture I walk through the
@@ -360,7 +360,7 @@ between variable caching and automatic differentiation.
 ## Lecture 19: Uncertainty Programming and Generalized Uncertainty Quantification
 
 - [Uncertainty Programming (Lecture)](https://youtu.be/MRTXK2Vc0YE)
-- [Uncertainty Programming (Notes)](/notes/19/)
+- [Uncertainty Programming (Notes)](/notes/19-Uncertainty_Programming-Generalized_Uncertainty_Quantification/)
 
 We end the course by taking a look at another mathematical topic to see whether
 it can be addressed in a similar manner: uncertainty quantification (UQ). There
