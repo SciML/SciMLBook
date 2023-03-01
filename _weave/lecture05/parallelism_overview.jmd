@@ -120,7 +120,7 @@ is not corrupted).
 #### Asynchronous Calling Example
 
 This example will become more clear when we get to distributed computing, but
-for think of `remotecall_fetch` as a way to run a command on a different computer.
+for now think of `remotecall_fetch` as a way to run a command on a different computer.
 What we want to do is start all of the commands at once, and then wait for all
 the results before finishing the loop. We will use `@async` to make the call
 to `remotecall_fetch` be non-blocking, i.e. it'll start the job and only poll
