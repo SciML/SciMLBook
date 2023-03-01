@@ -18,9 +18,9 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 </span><span class='hljl-n'>ϵ2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>+</span><span class='hljl-n'>ϵ</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
 </span><span class='hljl-p'>(</span><span class='hljl-n'>ϵ</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>ϵ2</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-ϵ &#61; 5.603328207095638e-11
-1 &#43; ϵ &#61; 1.0000000000560332
-1.0397351980496691e-16
+ϵ &#61; 2.0490487927431567e-11
+1 &#43; ϵ &#61; 1.0000000000204905
+-1.0259655247383187e-17
 </pre> <p>See how <span class=math >$\epsilon$</span> is only rebuilt at accuracy around <span class=math >$10^{-16}$</span> and thus we only keep around 6 digits of accuracy when it&#39;s generated at the size of around <span class=math >$10^{-10}$</span>&#33;</p> <h3>Finite Differencing and Numerical Stability</h3> <p>To start understanding how to compute derivatives on a computer, we start with <em>finite differencing</em>. For finite differencing, recall that the definition of the derivative is:</p> <p class=math >\[ f'(x) = \lim_{\epsilon \rightarrow 0} \frac{f(x+\epsilon)-f(x)}{\epsilon} \]</p> <p>Finite differencing directly follows from this definition by choosing a small <span class=math >$\epsilon$</span>. However, choosing a good <span class=math >$\epsilon$</span> is very difficult. If <span class=math >$\epsilon$</span> is too large than there is error since this definition is asymptotic. However, if <span class=math >$\epsilon$</span> is too small, you receive roundoff error. To understand why you would get roundoff error, recall that floating point error is relative, and can essentially store 16 digits of accuracy. So let&#39;s say we choose <span class=math >$\epsilon = 10^{-6}$</span>. Then <span class=math >$f(x+\epsilon) - f(x)$</span> is roughly the same in the first 6 digits, meaning that after the subtraction there is only 10 digits of accuracy, and then dividing by <span class=math >$10^{-6}$</span> simply brings those 10 digits back up to the correct relative size.</p> <p><img src="https://www.researchgate.net/profile/Jongrae_Kim/publication/267216155/figure/fig1/AS:651888458493955@1532433728729/Finite-Difference-Error-Versus-Step-Size.png" alt="" /></p> <p>This means that we want to choose <span class=math >$\epsilon$</span> small enough that the <span class=math >$\mathcal{O}(\epsilon^2)$</span> error of the truncation is balanced by the <span class=math >$O(1/\epsilon)$</span> roundoff error. Under some minor assumptions, one can argue that the average best point is <span class=math >$\sqrt(E)$</span>, where E is machine epsilon</p> <pre class='hljl'>
 <span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>sqrt</span><span class='hljl-p'>(</span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>))</span>
@@ -85,7 +85,7 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>c</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>c</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>d</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-3.700 ns &#40;0 allocations: 0 bytes&#41;
+3.600 ns &#40;0 allocations: 0 bytes&#41;
 &#40;4, 6&#41;
 </pre> <pre class='hljl'>
 <span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -95,17 +95,17 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-3.300 ns &#40;0 allocations: 0 bytes&#41;
+3.200 ns &#40;0 allocations: 0 bytes&#41;
 Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre> <p>It seems like we have lost <em>no</em> performance.</p> <pre class='hljl'>
 <span class='hljl-nd'>@code_native</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 .text
 	.file	&quot;add&quot;
-	.globl	julia_add_22480                 # -- Begin function julia_add_22480
+	.globl	julia_add_22438                 # -- Begin function julia_add_22438
 	.p2align	4, 0x90
-	.type	julia_add_22480,@function
-julia_add_22480:                        # @julia_add_22480
+	.type	julia_add_22438,@function
+julia_add_22438:                        # @julia_add_22438
 ; ┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture08/automatic_diff
 erentiation.jmd:2 within &#96;add&#96;
 	.cfi_startproc
@@ -119,7 +119,7 @@ erentiation.jmd:2 within &#96;add&#96;
 	movq	&#37;rdx, 8&#40;&#37;rdi&#41;
 	retq
 .Lfunc_end0:
-	.size	julia_add_22480, .Lfunc_end0-julia_add_22480
+	.size	julia_add_22438, .Lfunc_end0-julia_add_22438
 	.cfi_endproc
 ; └
                                         # -- End function
@@ -129,10 +129,10 @@ erentiation.jmd:2 within &#96;add&#96;
 </pre> <pre class=output >
 .text
 	.file	&quot;add&quot;
-	.globl	julia_add_22482                 # -- Begin function julia_add_22482
+	.globl	julia_add_22440                 # -- Begin function julia_add_22440
 	.p2align	4, 0x90
-	.type	julia_add_22482,@function
-julia_add_22482:                        # @julia_add_22482
+	.type	julia_add_22440,@function
+julia_add_22440:                        # @julia_add_22440
 ; ┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture08/automatic_diff
 erentiation.jmd:5 within &#96;add&#96;
 	.cfi_startproc
@@ -146,7 +146,7 @@ ferentiation.jmd:2 within &#96;&#43;&#96; @ int.jl:87
 	vmovdqu	&#37;xmm0, &#40;&#37;rdi&#41;
 	retq
 .Lfunc_end0:
-	.size	julia_add_22482, .Lfunc_end0-julia_add_22482
+	.size	julia_add_22440, .Lfunc_end0-julia_add_22440
 	.cfi_endproc
 ; └
                                         # -- End function
@@ -309,4 +309,4 @@ x &#61; &#91;0.7071067811865476, 0.7071067811865476&#93;
 2-element SVector&#123;2, Float64&#125; with indices SOneTo&#40;2&#41;:
  0.7071067811865476
  0.7071067811865476
-</pre> <h2>Conclusion</h2> <p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaneously, giving a method for computing the Jacobian of a function <span class=math >$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p> <h3>References</h3> <ul> <li><p>John L. Bell, <em>An Invitation to Smooth Infinitesimal Analysis</em>, http://publish.uwo.ca/~jbell/invitation&#37;20to&#37;20SIA.pdf</p> <li><p>Bell, John L. <em>A Primer of Infinitesimal Analysis</em></p> <li><p>Nocedal &amp; Wright, <em>Numerical Optimization</em>, Chapter 8</p> <li><p>Griewank &amp; Walther, <em>Evaluating Derivatives</em></p> </ul> <p>Many thanks to David Sanders for helping make these lecture notes.</p> <div class=footer > <p> Published from <a href=automatic_differentiation.jmd >automatic_differentiation.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.9 on 2023-02-28. </p> </div>
+</pre> <h2>Conclusion</h2> <p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaneously, giving a method for computing the Jacobian of a function <span class=math >$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p> <h3>References</h3> <ul> <li><p>John L. Bell, <em>An Invitation to Smooth Infinitesimal Analysis</em>, http://publish.uwo.ca/~jbell/invitation&#37;20to&#37;20SIA.pdf</p> <li><p>Bell, John L. <em>A Primer of Infinitesimal Analysis</em></p> <li><p>Nocedal &amp; Wright, <em>Numerical Optimization</em>, Chapter 8</p> <li><p>Griewank &amp; Walther, <em>Evaluating Derivatives</em></p> </ul> <p>Many thanks to David Sanders for helping make these lecture notes.</p> <div class=footer > <p> Published from <a href=automatic_differentiation.jmd >automatic_differentiation.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.9 on 2023-03-01. </p> </div>
