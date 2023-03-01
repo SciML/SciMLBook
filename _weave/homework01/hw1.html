@@ -61,7 +61,7 @@ x_{n+1} = rx_n (1-x_n)
 <p><img src="https://upload.wikimedia.org/wikipedia/commons/7/7d/LogisticMap_BifurcationDiagram.png" alt="" /></p>
 <p>&#40;Hint: Generate a single matrix for the attractor values, and use <code>calc_attractor&#33;</code> on views of columns for calculating the output, or inline the <code>calc_attractor&#33;</code> computation directly onto the matrix, or even give <code>calc_attractor&#33;</code> an input for what column to modify.&#41;</p>
 <h3>Part 3</h3>
-<p>Multithread your bifurcation graph generator by performing different steady state calcuations on different threads. Does your timing improve? Why? Be careful and check to make sure you have more than 1 thread&#33;</p>
+<p>Multithread your bifurcation graph generator by performing different steady state calculations on different threads. Does your timing improve? Why? Be careful and check to make sure you have more than 1 thread&#33;</p>
 <h3>Part 4</h3>
 <p>Multiprocess your bifurcation graph generator first by using <code>pmap</code>, and then by using <code>@distributed</code>. Does your timing improve? Why? Be careful to add processes before doing the distributed call.</p>
 <p>&#40;Note: You may need to change your implementation around to be allocating differently in order for it to be compatible with multiprocessing&#33;&#41;</p>

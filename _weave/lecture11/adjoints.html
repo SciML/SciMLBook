@@ -191,7 +191,7 @@ G(u,p) = \int_{t_0}^T \sum_{i=1}^N \Vert d_i - u(t_i,p)\Vert^2 \delta(t_i - t)dt
 <p class="math">\[
 g_u(t_i) = 2(d_i - u(t_i,p))
 \]</p>
-<p>at the data points <span class="math">$(t_i,d_i)$</span>. Therefore, the derivative of an ODE solution with respect to a cost function is given by solving for <span class="math">$\lambda^\ast$</span> using an ODE for <span class="math">$\lambda^T$</span> in reverse time, and then using that to calculate <span class="math">$\frac{dG}{dp}$</span>. Note that <span class="math">$\frac{dG}{dp}$</span> can be calculated simultaniously by appending a single value to the reverse ODE, since we can simply define the new ODE term as <span class="math">$g_p + \lambda^\ast f_p$</span>, which would then calculate the integral on the fly &#40;ODE integration is just... integration&#33;&#41;.</p>
+<p>at the data points <span class="math">$(t_i,d_i)$</span>. Therefore, the derivative of an ODE solution with respect to a cost function is given by solving for <span class="math">$\lambda^\ast$</span> using an ODE for <span class="math">$\lambda^T$</span> in reverse time, and then using that to calculate <span class="math">$\frac{dG}{dp}$</span>. Note that <span class="math">$\frac{dG}{dp}$</span> can be calculated simultaneously by appending a single value to the reverse ODE, since we can simply define the new ODE term as <span class="math">$g_p + \lambda^\ast f_p$</span>, which would then calculate the integral on the fly &#40;ODE integration is just... integration&#33;&#41;.</p>
 <h3>Complexities of Implementing ODE Adjoints</h3>
 <p>The image below explains the dilemma:</p>
 <p><img src="https://user-images.githubusercontent.com/1814174/66882662-4d741a00-ef99-11e9-9233-4d6804fec2ec.PNG" alt="" /></p>

@@ -323,7 +323,7 @@ sum&#40;v&#41; &#61; 10.0
 <h2>Next Level Up: Multithreading</h2>
 <p>Last time we briefly went over multithreading and described how every process has multiple threads which share a single heap, and when multiple threads are executed simultaneously we have multithreaded parallelism. Note that you can have multiple threads which aren&#39;t executed simultaneously, like in the case of I/O operations, and this is an example of concurrency without parallelism and is commonly referred to as green threads.</p>
 <p><img src="https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png" alt="" /></p>
-<p>Last time we described a simple multithreaded program and noticed that multithreading has an overhead cost of around 50ns-100ns. This is due to the construction of the new stack &#40;amont other things&#41; each time a new computational thread is spun up. This means that, unlike SIMD, some thought needs to be put in as to when to perform multithreading: it&#39;s not always a good idea. It needs to be high enough on the cost for this to be counter-balanced.</p>
+<p>Last time we described a simple multithreaded program and noticed that multithreading has an overhead cost of around 50ns-100ns. This is due to the construction of the new stack &#40;among other things&#41; each time a new computational thread is spun up. This means that, unlike SIMD, some thought needs to be put in as to when to perform multithreading: it&#39;s not always a good idea. It needs to be high enough on the cost for this to be counter-balanced.</p>
 <p>One abstraction that was glossed over was the memory access style. Before, we were considering a single heap, or an UMA style:</p>
 <p><img src="https://software.intel.com/sites/default/files/m/2/0/4/e/d/39352-figure-1.jpg" alt="" /></p>
 <p>However, this is the case for all shared memory devices. For example, compute nodes on the HPC tend to be &quot;dual Xeon&quot; or &quot;quad Xeon&quot;, where each Xeon processor is itself a multicore processor. But each processor on its own accesses its own local caches, and thus one has to be aware that this is setup in a NUMA &#40;non-uniform memory access&#41; manner:</p>
@@ -657,7 +657,7 @@ L31:                                              ; preds &#61; &#37;L14, &#37;t
 <p>Note that here we can see that Julia 1.5 is dividing up the work into groups of 10 for each thread, and then one thread dominates the computation at a time, but which thread dominates is random.</p>
 <h3>The Dining Philosophers Problem</h3>
 <p>A classic tale in parallel computing is the dining philosophers problem. In this case, there are N philosophers at a table who all want to eat at the same time, following all of the same rules. Each philosopher must alternatively think and then eat. They need both their left and right fork to start eating, but cannot start eating until they have both forks. The problem is how to setup a concurrent algorithm that will not cause any philosophers to starve.</p>
-<p>The difficulty is a situation known as <em>deadlock</em>. For example, if each philosopher was told to grab the right fork when it&#39;s avaialble, and then the left fork, and put down the fork after eating, then they will all grab the right fork and none will ever eat because they will all be waiting on the left fork. This is analygous to two blocked computations which are waiting on the other to finish. Thus, when using blocking structures, one needs to be careful about deadlock&#33;</p>
+<p>The difficulty is a situation known as <em>deadlock</em>. For example, if each philosopher was told to grab the right fork when it&#39;s available, and then the left fork, and put down the fork after eating, then they will all grab the right fork and none will ever eat because they will all be waiting on the left fork. This is analogous to two blocked computations which are waiting on the other to finish. Thus, when using blocking structures, one needs to be careful about deadlock&#33;</p>
 <h3>Two Programming Models: Loop-Level Parallelism and Task-Based Parallelism</h3>
 <p>As described in the previous lecture, one can also use <code>Threads.@spawn</code> to do multithreading in Julia v1.3&#43;. The same factors all applay: how to do locks and Mutex etc. This is a case of a parallelism construct having two alternative <strong>programming models</strong>. <code>Threads.@spawn</code> represents task-based parallelism, while <code>Threads.@threads</code> represents Loop-Level Parallelism or a parallel iterator model. Loop-based parallelization models are very high level and, assuming every iteration is independent, almost requires no code change. Task-based parallelism is a more expressive parallelism model, but usually requires modifying the code to be explicitly written as a set of parallelizable tasks. Note that in the case of Julia, <code>Threads.@threads</code> is implemented using <code>Threads.@spawn</code>&#39;s model.</p>
 <h3>Summary of Multithreading</h3>
@@ -724,7 +724,7 @@ true
 
 <p>The key to understanding the SPMD kernel approach is the <code>index &#61; threadIdx&#40;&#41;.x</code> and <code>stride &#61; blockDim&#40;&#41;.x</code> portions.</p>
 <p><img src="https://juliagpu.gitlab.io/CUDA.jl/tutorials/intro1.png" alt="" /></p>
-<p>The way kernels are expected to run in parallel is that they are given a specific block of the computation and are expected to write a kernel which only on that small block of the input. This kernel is then called on every separate thread on the GPU, making each CUDA core simultaniously compute each block. Thus as a user in such a SPMD programming model, you never specify the computation globally but instead simply specify how chunks should behave, giving the compiler the leeway to determine the optimal global execution.</p>
+<p>The way kernels are expected to run in parallel is that they are given a specific block of the computation and are expected to write a kernel which only on that small block of the input. This kernel is then called on every separate thread on the GPU, making each CUDA core simultaneously compute each block. Thus as a user in such a SPMD programming model, you never specify the computation globally but instead simply specify how chunks should behave, giving the compiler the leeway to determine the optimal global execution.</p>
 <h3>Array-Based GPU Computing Models</h3>
 <p>The simplest version of GPU computing is the array-based programming model.</p>
 
@@ -831,7 +831,7 @@ true
 </pre>
 
 
-<p>The cost transferring is about 20μs-50μs in each direction, meaning that one needs to be doing operations that cost at least 200μs for GPUs to break even. A good rule of thumb is that GPU computations should take at least a milisecond, or GPU memory should be re-used.</p>
+<p>The cost transferring is about 20μs-50μs in each direction, meaning that one needs to be doing operations that cost at least 200μs for GPUs to break even. A good rule of thumb is that GPU computations should take at least a millisecond, or GPU memory should be re-used.</p>
 <h3>Summary of GPUs</h3>
 <ul>
 <li><p>GPUs cores are slow</p>
@@ -847,7 +847,7 @@ true
 <p>Other architectures exist to keep in mind. Xeon Phis are a now-defunct accelerator that used X86 &#40;standard processors&#41; as the base, using hundreds of them. For example, the Knights Landing series had 256 core accelerator cards. These were all clocked down, meaning they were still slower than a standard CPU, but there were less restrictions on SPMD &#40;though SPMD-like computations were still preferred in order to heavily make use of SIMD&#41;. However, because machine learning essentially only needs linear algebra, and linear algebra is faster when restricting to SPMD-architectures, this failed. These devices can still be found on many high end clusters.</p>
 <p>One alternative to CUDA is OpenCL which supports alternative architectures such as the Xeon Phi at the same time that it supports GPUs. However, one of the issues with OpenCL is that its BLAS implementation currently does not match the speed of CuBLAS, which makes NVIDIA-specific libraries still the king of machine learning and most scientific computing.</p>
 <h2>TPU Computing</h2>
-<p>TPUs are tensor processing units, which is Google&#39;s newest accelerator technology. They are essentially just &quot;tensor operation compilers&quot;, which in computer science speak is simply higher dimensional linear algebra. To do this, they internally utilize a BFloat16 type, which is a 16-bit floating point number with the same exponent size as a Float32 with an 8-bit significand. This means that computations are highly prone to <em>catastrophic cancellation</em>. This computational device only works because BFloat16 has primitive operations for FMA which allows 32-bit-like accuracy of multiply-add operations, and thus computations which are only dot products &#40;linear algebra&#41; end up okay. Thus this is simply a GPU-like device which has gone further to completely specialize in linear algebra.</p>
+<p>TPUs are tensor processing units, which is Google&#39;s newest accelerator technology. They are essentially just &quot;tensor operation compilers&quot;, which in computer science speak is simply higher dimensional linear algebra. To do this, they internally utilize a BFloat16 type, which is a 16-bit floating point number with the same exponent size as a Float32 with an 8-bit significant. This means that computations are highly prone to <em>catastrophic cancellation</em>. This computational device only works because BFloat16 has primitive operations for FMA which allows 32-bit-like accuracy of multiply-add operations, and thus computations which are only dot products &#40;linear algebra&#41; end up okay. Thus this is simply a GPU-like device which has gone further to completely specialize in linear algebra.</p>
 <h2>Multiprocessing &#40;Distributed Computing&#41;</h2>
 <p>While multithreading computes with multiple threads, multiprocessing computes with multiple independent processes. Note that processes do not share any memory, not heap or data, and thus this mode of computing also allows for <em>distributed computations</em>, which is the case where processes may be on separate computing hardware. However, even if they are on the same hardware, the lack of a shared address space means that multiprocessing has to do <em>message passing</em>, i.e. send data from one process to the other.</p>
 <h3>Distributed Tasks with Explicit Memory Handling: The Master-Worker Model</h3>
@@ -862,7 +862,7 @@ true
 
 
 <p>This adds 4 worker processes for the master to control. The simplest computations are those where the master process gives the worker process a job which returns the value afterwards. For example, a <code>pmap</code> operation or <code>@distributed</code> loop gives the worker a function to execute, along with the data, and the worker then computes and returns the result.</p>
-<p>At a lower level, this is done by <code>Distributed.@spawn</code>ing jobs, or using a <code>remotecall</code> and <code>fetch</code>ing the result. <a href="https://github.com/ChrisRackauckas/ParallelDataTransfer.jl">ParallelDataTransfer.jl</a> gives an extended set of primitive message passing operations. For example, we can explicity tell it to compute a function <code>f</code> on the remote process like:</p>
+<p>At a lower level, this is done by <code>Distributed.@spawn</code>ing jobs, or using a <code>remotecall</code> and <code>fetch</code>ing the result. <a href="https://github.com/ChrisRackauckas/ParallelDataTransfer.jl">ParallelDataTransfer.jl</a> gives an extended set of primitive message passing operations. For example, we can explicitly tell it to compute a function <code>f</code> on the remote process like:</p>
 
 
 <pre class='hljl'>
@@ -889,7 +889,7 @@ true
 <li><p>Dagger.jl</p>
 </li>
 </ul>
-<p>Using these kinds of libraries requires building a directed acyclic graph &#40;DAG&#41;. For example, the following showcases how to use Dagger.jl to reprsent a bunch of summations:</p>
+<p>Using these kinds of libraries requires building a directed acyclic graph &#40;DAG&#41;. For example, the following showcases how to use Dagger.jl to represent a bunch of summations:</p>
 
 
 <pre class='hljl'>
@@ -934,7 +934,7 @@ true
 
 <p>which will dynamically allocate jobs to processes as they declare they have finished jobs. This thus has the same performance difference behavior as <code>Threads.@threads</code> vs <code>Threads.@spawn</code>.</p>
 <h3>MPI: The Distributed SPMD Model</h3>
-<p>The main way to do high-performace multiprocessing is <em>MPI</em>, which is an old distributed computing interface from the C/Fortran days. Julia has access to the MPI programming model through MPI.jl. The programming model for MPI is that every computer is running the same program, and synchronization is performed by blocking communication. For example, let&#39;s look at the following:</p>
+<p>The main way to do high-performance multiprocessing is <em>MPI</em>, which is an old distributed computing interface from the C/Fortran days. Julia has access to the MPI programming model through MPI.jl. The programming model for MPI is that every computer is running the same program, and synchronization is performed by blocking communication. For example, let&#39;s look at the following:</p>
 
 
 <pre class='hljl'>
@@ -1032,9 +1032,9 @@ true
 </li>
 <li><p>Task-based parallelism models with explicit data handling. <code>Distributed.@spawn</code></p>
 <ul>
-<li><p>Pros: Allows for control over what compute hardware will have specific pieces of data and allows for transfering data manually.</p>
+<li><p>Pros: Allows for control over what compute hardware will have specific pieces of data and allows for transferring data manually.</p>
 </li>
-<li><p>Cons: Requires transfering data manually. All computations are managed by a single process/computer/node and thus it can have some issues scaling to extreme &#40;1000&#43; node&#41; computing situtations.</p>
+<li><p>Cons: Requires transferring data manually. All computations are managed by a single process/computer/node and thus it can have some issues scaling to extreme &#40;1000&#43; node&#41; computing situations.</p>
 </li>
 </ul>
 </li>

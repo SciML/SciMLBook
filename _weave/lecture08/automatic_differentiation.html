@@ -61,7 +61,7 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 <p class="math">\[
 f'(x) = \lim_{\epsilon \rightarrow 0} \frac{f(x+\epsilon)-f(x)}{\epsilon}
 \]</p>
-<p>Finite differencing directly follows from this definition by choosing a small <span class="math">$\epsilon$</span>. However, choosing a good <span class="math">$\epsilon$</span> is very difficult. If <span class="math">$\epsilon$</span> is too large than there is error since this definition is asymtopic. However, if <span class="math">$\epsilon$</span> is too small, you receive roundoff error. To understand why you would get roundoff error, recall that floating point error is relative, and can essentially store 16 digits of accuracy. So let&#39;s say we choose <span class="math">$\epsilon = 10^{-6}$</span>. Then <span class="math">$f(x+\epsilon) - f(x)$</span> is roughly the same in the first 6 digits, meaning that after the subtraction there is only 10 digits of accuracy, and then dividing by <span class="math">$10^{-6}$</span> simply brings those 10 digits back up to the correct relative size.</p>
+<p>Finite differencing directly follows from this definition by choosing a small <span class="math">$\epsilon$</span>. However, choosing a good <span class="math">$\epsilon$</span> is very difficult. If <span class="math">$\epsilon$</span> is too large than there is error since this definition is asymptotic. However, if <span class="math">$\epsilon$</span> is too small, you receive roundoff error. To understand why you would get roundoff error, recall that floating point error is relative, and can essentially store 16 digits of accuracy. So let&#39;s say we choose <span class="math">$\epsilon = 10^{-6}$</span>. Then <span class="math">$f(x+\epsilon) - f(x)$</span> is roughly the same in the first 6 digits, meaning that after the subtraction there is only 10 digits of accuracy, and then dividing by <span class="math">$10^{-6}$</span> simply brings those 10 digits back up to the correct relative size.</p>
 <p><img src="https://www.researchgate.net/profile/Jongrae_Kim/publication/267216155/figure/fig1/AS:651888458493955@1532433728729/Finite-Difference-Error-Versus-Step-Size.png" alt="" /></p>
 <p>This means that we want to choose <span class="math">$\epsilon$</span> small enough that the <span class="math">$\mathcal{O}(\epsilon^2)$</span> error of the truncation is balanced by the <span class="math">$O(1/\epsilon)$</span> roundoff error. Under some minor assumptions, one can argue that the average best point is <span class="math">$\sqrt(E)$</span>, where E is machine epsilon</p>
 
@@ -673,7 +673,7 @@ d = d_0 + e_1 \epsilon_1 + \ldots + e_n \epsilon_n
 <p class="math">\[
 f(d) = f(d_0) + Je_1 \epsilon_1 + \ldots + Je_n \epsilon_n
 \]</p>
-<p>computes all columns of the Jacobian simultaniously.</p>
+<p>computes all columns of the Jacobian simultaneously.</p>
 <h3>Array of Structs Representation</h3>
 <p>Instead of thinking about a vector of dual numbers, thus we can instead think of dual numbers with vectors for the components. But if there are vectors for the components, then we can think of the grouping of dual components as a matrix. Thus define our multidimensional multi-partial dual number as:</p>
 <p>D0 &#61; &#91;d1,d2,d3,...,dn&#93; Sigma &#61; &#91;d11 d21 d31          d12 ...          ...&#93; epsilon &#61; &#91;epsilon<em>1,epsilon</em>2,...,epsilon<em>m&#93; &#36;D &#61; D</em>0 &#43; \Sigma \epsilon&#36;</p>
@@ -682,7 +682,7 @@ f(d) = f(d_0) + Je_1 \epsilon_1 + \ldots + Je_n \epsilon_n
 <p class="math">\[
 f(D) = A*D_0 + A*\Sigma*\epsilon
 \]</p>
-<p>is how one would compute the value of <span class="math">$f(D_0)$</span> and the derivative <span class="math">$f'(D_0)$</span> in all directions signified by the columns of <span class="math">$\Sigma$</span> simultaniously. Using multidimensional Taylor series expansions and doing the manipulations like before indeed implies that the arithematic on this object should follow:</p>
+<p>is how one would compute the value of <span class="math">$f(D_0)$</span> and the derivative <span class="math">$f'(D_0)$</span> in all directions signified by the columns of <span class="math">$\Sigma$</span> simultaneously. Using multidimensional Taylor series expansions and doing the manipulations like before indeed implies that the arithmetic on this object should follow:</p>
 <p class="math">\[
 f(D) = f(D_0) + f'(D_0)\Sigma \epsilon
 \]</p>
@@ -773,7 +773,7 @@ x &#61; &#91;0.7071067811865476, 0.7071067811865476&#93;
 
 
 <h2>Conclusion</h2>
-<p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaniously, giving a method for computing the Jacobian of a function <span class="math">$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p>
+<p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaneously, giving a method for computing the Jacobian of a function <span class="math">$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p>
 <h3>References</h3>
 <ul>
 <li><p>John L. Bell, <em>An Invitation to Smooth Infinitesimal Analysis</em>, http://publish.uwo.ca/~jbell/invitation&#37;20to&#37;20SIA.pdf</p>

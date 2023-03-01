@@ -87,7 +87,7 @@ Loop: fld    f0, 0&#40;x1&#41;
 </pre>
 
 
-<p>By reording the decrement we can hide the load latency.</p>
+<p>By reordering the decrement we can hide the load latency.</p>
 <ul>
 <li><p>How many cylces are overhead: 2</p>
 </li>
@@ -264,7 +264,7 @@ Loop: fld    f0, 0&#40;x1&#41;
 
 
 <h4>GPU &#40;implicit vectorized&#41;</h4>
-<p>Instead of using explicit vectorization, GPUs change the programming model so that the programmer writes a <em>kernel</em> which operates over each element of the data. In effect the programmer is writting a program that is executed for each vector lane. It is important to remember that the hardware itself still operates on vectors &#40;CUDA calls this warp-size and it is 32 elements&#41;.</p>
+<p>Instead of using explicit vectorization, GPUs change the programming model so that the programmer writes a <em>kernel</em> which operates over each element of the data. In effect the programmer is writing a program that is executed for each vector lane. It is important to remember that the hardware itself still operates on vectors &#40;CUDA calls this warp-size and it is 32 elements&#41;.</p>
 <p>At this point please refer to the <a href="https://docs.google.com/presentation/d/1JfxmqJx7BdVyfBSL0N4bzBYdy8RIJ6hSSTHHJfPAo1o/edit?usp&#61;sharing">lecture slides</a></p>
 
 

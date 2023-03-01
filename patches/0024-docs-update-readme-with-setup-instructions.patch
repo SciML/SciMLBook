@@ -1,0 +1,58 @@
+From 917389f0ecb06fc77c724da753444ac3340b4712 Mon Sep 17 00:00:00 2001
+From: Jacob Vaverka <jacob.vaverka@juliahub.com>
+Date: Mon, 21 Nov 2022 10:58:08 -0600
+Subject: [PATCH 24/41] docs: update readme with setup instructions
+
+---
+ .gitignore |  1 +
+ README.md  | 24 +++++++++++++++++-------
+ 2 files changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/.gitignore b/.gitignore
+index 50b1d08..2fd233c 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -10,4 +10,5 @@ code/
+ 
+ .quarto/
+ JuliaSysimage.so
++JuliaSysimage.dll
+ /.quarto/
+diff --git a/README.md b/README.md
+index dc1d205..b706d88 100644
+--- a/README.md
++++ b/README.md
+@@ -10,13 +10,23 @@ To view this book, go to [book.sciml.ai](https://book.sciml.ai/).
+ 
+ ## Editing the SciML Book
+ 
+-This is a `Franklin.jl` site.
+-Much of the material originated from Julia Markdown Documents (`*.jmd`).
+-Each of these documents are `Weave.jl`-ed with a custom template,
+-and the resulting HTML is inserted into a corresponding markdown file. Updating
+-the files in `_weave` will automatically update the webpages.
+-
+-The theme is adapted from [Tufte CSS](https://edwardtufte.github.io/tufte-css/).
++This is a Quarto book. Prose is authored in Quarto Mardown (`qmd`) files or
++Jupyter (`ipynb`) notebooks and code execution occurs via the Jupyter engine.
++For most efficient editing experience, precompile a system image and build a
++custom Jupyter kernel named `scimlbook-1.8`. This is only done once.
++
++First, precomile a system image for the book project.
++
++1. Open SciMLBook in VS Code
++1. Open command pallete (Ctrl + Shift + P)
++1. `Tasks: Run Build Task`
++1. `Julia: Build custom sysimage for current environment` (will take > 20 minutes)
++1. Fire up a Julia REPL
++1. `using IJulia`
++1. `IJulia.installkernel("SciMLBook", "--project=path/to/SciMLBook --sysimage=/path/to/SciMLBook/JuliaSysimage.(so|dll)")`
++1. Open SciMLBook in VS Code
++1. Open any `*.qmd` file
++1. Click Render
+ 
+ ## Todo
+ 
+-- 
+2.33.1.windows.1
+

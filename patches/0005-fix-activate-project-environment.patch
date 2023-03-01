@@ -1,0 +1,30 @@
+From ef2904b014e53ffadb39eb453e2380e75ebd39da Mon Sep 17 00:00:00 2001
+From: Jacob Vaverka <jvaverka@protonmail.com>
+Date: Sun, 20 Nov 2022 17:19:07 -0600
+Subject: [PATCH 05/41] fix: activate project environment
+
+---
+ optimize.qmd | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/optimize.qmd b/optimize.qmd
+index dd1d7fe..78ba0fa 100644
+--- a/optimize.qmd
++++ b/optimize.qmd
+@@ -10,12 +10,7 @@ throughout this course.
+ ```{julia}
+ #| echo: false
+ #| output: false
+-using Pkg
+-Pkg.add("StaticArrays")
+-Pkg.add("BenchmarkTools")
+-Pkg.add("InteractiveUtils")
+-Pkg.add("LinearAlgebra")
+-Pkg.add("Plots")
++using Pkg; Pkg.activate(abspath(@__DIR__));
+ ```
+ 
+ ## Mental Model of a Memory
+-- 
+2.33.1.windows.1
+

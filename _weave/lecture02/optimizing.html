@@ -54,7 +54,7 @@
 
 
 <h3>Lower Level View: The Stack and the Heap</h3>
-<p>Locally, the stack is composed of a <em>stack</em> and a <em>heap</em>. The stack requires a static allocation: it is ordered. Because it&#39;s ordered, it is very clear where things are in the stack, and therefore accesses are very quick &#40;think instantanious&#41;. However, because this is static, it requires that the size of the variables is known at compile time &#40;to determine all of the variable locations&#41;. Since that is not possible with all variables, there exists the heap. The heap is essentially a stack of pointers to objects in memory. When heap variables are needed, their values are pulled up the cache chain and accessed.</p>
+<p>Locally, the stack is composed of a <em>stack</em> and a <em>heap</em>. The stack requires a static allocation: it is ordered. Because it&#39;s ordered, it is very clear where things are in the stack, and therefore accesses are very quick &#40;think instantaneous&#41;. However, because this is static, it requires that the size of the variables is known at compile time &#40;to determine all of the variable locations&#41;. Since that is not possible with all variables, there exists the heap. The heap is essentially a stack of pointers to objects in memory. When heap variables are needed, their values are pulled up the cache chain and accessed.</p>
 <p><img src="https://bayanbox.ir/view/581244719208138556/virtual-memory.jpg" alt="" /> <img src="https://camo.githubusercontent.com/ca96d70d09ce694363e44b93fd975bb3033898c1/687474703a2f2f7475746f7269616c732e6a656e6b6f762e636f6d2f696d616765732f6a6176612d636f6e63757272656e63792f6a6176612d6d656d6f72792d6d6f64656c2d352e706e67" alt="" /></p>
 <h3>Heap Allocations and Speed</h3>
 <p>Heap allocations are costly because they involve this pointer indirection, so stack allocation should be done when sensible &#40;it&#39;s not helpful for really large arrays, but for small values like scalars it&#39;s essential&#33;&#41;</p>
@@ -93,7 +93,7 @@
 </pre>
 
 
-<p>Why does the array here get heap-allocated? It isn&#39;t able to prove/guarentee at compile-time that the array&#39;s size will always be a given value, and thus it allocates it to the heap. <code>@btime</code> tells us this allocation occured and shows us the total heap memory that was taken. Meanwhile, the size of a Float64 number is known at compile-time &#40;64-bits&#41;, and so this is stored onto the stack and given a specific location that the compiler will be able to directly address.</p>
+<p>Why does the array here get heap-allocated? It isn&#39;t able to prove/guarantee at compile-time that the array&#39;s size will always be a given value, and thus it allocates it to the heap. <code>@btime</code> tells us this allocation occurred and shows us the total heap memory that was taken. Meanwhile, the size of a Float64 number is known at compile-time &#40;64-bits&#41;, and so this is stored onto the stack and given a specific location that the compiler will be able to directly address.</p>
 <p>Note that one can use the StaticArrays.jl library to get statically-sized arrays and thus arrays which are stack-allocated:</p>
 
 
@@ -235,7 +235,7 @@
 <h3>Note on Vectorization and Speed</h3>
 <p>In articles on MATLAB, Python, R, etc., this is where you will be told to vectorize your code. Notice from above that this isn&#39;t a performance difference between writing loops and using vectorized broadcasts. This is not abnormal&#33; The reason why you are told to vectorize code in these other languages is because they have a high per-operation overhead &#40;which will be discussed further down&#41;. This means that every call, like <code>&#43;</code>, is costly in these languages. To get around this issue and make the language usable, someone wrote and compiled the loop for the C/Fortran function that does the broadcasted form &#40;see numpy&#39;s Github repo&#41;. Thus <code>A .&#43; B</code>&#39;s MATLAB/Python/R equivalents are calling a single C function to generally avoid the cost of function calls and thus are faster.</p>
 <p>But this is not an intrinsic property of vectorization. Vectorization isn&#39;t &quot;fast&quot; in these languages, it&#39;s just close to the correct speed. The reason vectorization is recommended is because looping is slow in these languages. Because looping isn&#39;t slow in Julia &#40;or C, C&#43;&#43;, Fortran, etc.&#41;, loops and vectorization generally have the same speed. So use the one that works best for your code without a care about performance.</p>
-<p>&#40;As a small side effect, these high level languages tend to allocate a lot of temporary variables since the individual C kernels are written for specific numbers of inputs and thus don&#39;t naturally fuse. Julia&#39;s broadcast mechanism is just generating and JIT compiling Julia functions on the fly, and thus it can accomodate the combinatorial explosion in the amount of choices just by only compiling the combinations that are necessary for a specific code&#41;</p>
+<p>&#40;As a small side effect, these high level languages tend to allocate a lot of temporary variables since the individual C kernels are written for specific numbers of inputs and thus don&#39;t naturally fuse. Julia&#39;s broadcast mechanism is just generating and JIT compiling Julia functions on the fly, and thus it can accommodate the combinatorial explosion in the amount of choices just by only compiling the combinations that are necessary for a specific code&#41;</p>
 <h3>Heap Allocations from Slicing</h3>
 <p>It&#39;s important to note that slices in Julia produce copies instead of views. Thus for example:</p>
 
@@ -270,7 +270,7 @@ A&#91;1&#93; &#61; 2.0
 
 <p>However, this means that <code>@view A&#91;1:5,1:5&#93;</code> did not allocate an array &#40;it does allocate a pointer if the escape analysis is unable to prove that it can be elided. This means that in small loops there will be no allocation, while if the view is returned from a function for example it will allocate the pointer, ~80 bytes, but not the memory of the array. This means that it is O&#40;1&#41; in cost but with a relatively small constant&#41;.</p>
 <h3>Asymptotic Cost of Heap Allocations</h3>
-<p>Heap allocations have to locate and prepare a space in RAM that is proportional to the amount of memory that is calcuated, which means that the cost of a heap allocation for an array is O&#40;n&#41;, with a large constant. As RAM begins to fill up, this cost dramatically increases. If you run out of RAM, your computer may begin to use <em>swap</em>, which is essentially RAM simulated on your hard drive. Generally when you hit swap your performance is so dead that you may think that your computation froze, but if you check your resource use you will notice that it&#39;s actually just filled the RAM and starting to use the swap.</p>
+<p>Heap allocations have to locate and prepare a space in RAM that is proportional to the amount of memory that is calculated, which means that the cost of a heap allocation for an array is O&#40;n&#41;, with a large constant. As RAM begins to fill up, this cost dramatically increases. If you run out of RAM, your computer may begin to use <em>swap</em>, which is essentially RAM simulated on your hard drive. Generally when you hit swap your performance is so dead that you may think that your computation froze, but if you check your resource use you will notice that it&#39;s actually just filled the RAM and starting to use the swap.</p>
 <p>But think of it as O&#40;n&#41; with a large constant factor. This means that for operations which only touch the data once, heap allocations can dominate the computational cost:</p>
 
 
@@ -372,7 +372,7 @@ A&#91;1&#93; &#61; 2.0
 b &#61; 4
 a &#43; b</code></pre>
 <p>when the addition occurs, the Python interpreter will check the object holding the values and ask it for its types, and use those types to know how to compute the &#43; function. For this reason, the add function in Python is rather complex since it needs to decode and have a version for all primitive types&#33;</p>
-<p>Not only is there runtime overhead checks in function calls due to to not being explicit about types, there is also a memory overhead since it is impossible to know how much memory a value with take since that&#39;s a property of its type. Thus the Python interpreter cannot statically guerentee exact unchanging values for the size that a value would take in the stack, meaning that the variables are not stack-allocated. This means that every number ends up heap-allocated, which hopefully begins to explain why this is not as fast as C.</p>
+<p>Not only is there runtime overhead checks in function calls due to to not being explicit about types, there is also a memory overhead since it is impossible to know how much memory a value with take since that&#39;s a property of its type. Thus the Python interpreter cannot statically guarantee exact unchanging values for the size that a value would take in the stack, meaning that the variables are not stack-allocated. This means that every number ends up heap-allocated, which hopefully begins to explain why this is not as fast as C.</p>
 <p>The solution is Julia is somewhat of a hybrid. The Julia code looks like:</p>
 
 
@@ -388,9 +388,9 @@ a &#43; b</code></pre>
 </pre>
 
 
-<p>However, before JIT compilation, Julia runs a type inference algorithm which finds out that <code>A</code> is an <code>Int</code>, and <code>B</code> is an <code>Int</code>. You can then understand that if it can prove that <code>A&#43;B</code> is an <code>Int</code>, then it can propogate all of the types through.</p>
+<p>However, before JIT compilation, Julia runs a type inference algorithm which finds out that <code>A</code> is an <code>Int</code>, and <code>B</code> is an <code>Int</code>. You can then understand that if it can prove that <code>A&#43;B</code> is an <code>Int</code>, then it can propagate all of the types through.</p>
 <h3>Type Specialization in Functions</h3>
-<p>Julia is able to propogate type inference through functions because, even if a function is &quot;untyped&quot;, Julia will interpret this as a <em>generic function</em> over possible <em>methods</em>, where every method has a concrete type. This means that in Julia, the function:</p>
+<p>Julia is able to propagate type inference through functions because, even if a function is &quot;untyped&quot;, Julia will interpret this as a <em>generic function</em> over possible <em>methods</em>, where every method has a concrete type. This means that in Julia, the function:</p>
 
 
 <pre class='hljl'>
@@ -668,7 +668,7 @@ Body::UNION&#123;FLOAT64, INT64&#125;
 </pre>
 
 
-<p>This means that its output type is <code>Union&#123;Int,Float64&#125;</code> &#40;Julia uses union types to keep the types still somewhat constrained&#41;. Once there are multiple choices, those need to get propogated through the compiler, and all subsequent calculations are the result of either being an <code>Int</code> or a <code>Float64</code>.</p>
+<p>This means that its output type is <code>Union&#123;Int,Float64&#125;</code> &#40;Julia uses union types to keep the types still somewhat constrained&#41;. Once there are multiple choices, those need to get propagated through the compiler, and all subsequent calculations are the result of either being an <code>Int</code> or a <code>Float64</code>.</p>
 <p>&#40;Note that Julia has small union optimizations, so if this union is of size 4 or less then Julia will still be able to optimize it quite a bit.&#41;</p>
 <h3>Multiple Dispatch</h3>
 <p>The <code>&#43;</code> function on numbers was implemented in Julia, so how were these rules all written down? The answer is multiple dispatch. In Julia, you can tell a function how to act differently on different types by using type assertions on the input values. For example, let&#39;s make a function that computes <code>2x &#43; y</code> on <code>Int</code> and <code>x/y</code> on <code>Float64</code>:</p>
@@ -732,7 +732,7 @@ Closest candidates are:
 </pre>
 
 
-<p>Notice that the fallback method still specailizes on the inputs:</p>
+<p>Notice that the fallback method still specializes on the inputs:</p>
 
 
 <pre class='hljl'>
@@ -763,7 +763,7 @@ top:
 <p>It&#39;s essentially just a template for what functions to possibly try and create given the types that are seen. When it sees <code>Float64</code> and <code>Int</code>, it knows it should try and create the function that does <code>x&#43;y</code>, and once it knows it&#39;s <code>Float64</code> plus a <code>Int</code>, it knows it should create the function that converts the <code>Int</code> to a <code>Float64</code> and then does addition between two <code>Float64</code>s, and that is precisely the generated LLVM IR on this pair of input types.</p>
 <p>And that&#39;s essentially Julia&#39;s secret sauce: since it&#39;s always specializing its types on each function, if those functions themselves can infer the output, then the entire function can be inferred and generate optimal code, which is then optimized by the compiler and out comes an efficient function. If types can&#39;t be inferred, Julia falls back to a slower &quot;Python&quot; mode &#40;though with optimizations in cases like small unions&#41;. Users then get control over this specialization process through multiple dispatch, which is then Julia&#39;s core feature since it allows adding new options without any runtime cost.</p>
 <h3>Any Fallbacks</h3>
-<p>Note that <code>f&#40;x,y&#41; &#61; x&#43;y</code> is equivalent to <code>f&#40;x::Any,y::Any&#41; &#61; x&#43;y</code>, where <code>Any</code> is the maximal supertype of every Julia type. Thus <code>f&#40;x,y&#41; &#61; x&#43;y</code> is essentially a fallback for all possible input values, telling it what to do in the case that no other dispatches exist. However, note that this dispatch itself is not slow, since it will be specailized on the input types.</p>
+<p>Note that <code>f&#40;x,y&#41; &#61; x&#43;y</code> is equivalent to <code>f&#40;x::Any,y::Any&#41; &#61; x&#43;y</code>, where <code>Any</code> is the maximal supertype of every Julia type. Thus <code>f&#40;x,y&#41; &#61; x&#43;y</code> is essentially a fallback for all possible input values, telling it what to do in the case that no other dispatches exist. However, note that this dispatch itself is not slow, since it will be specialized on the input types.</p>
 <h3>Ambiguities</h3>
 <p>The version that is called is the most strict version that is correct. What happens if it&#39;s impossible to define &quot;the most strict version&quot;? For example,</p>
 
@@ -2237,7 +2237,7 @@ top:
 </pre>
 
 
-<p>It realized that <code>1.0</code> and <code>2.0</code> are constants, so it did what&#39;s known as <em>constant propogation</em>, and then used those constants inside of the function. It realized that the solution is always <code>9</code>, so it compiled the function that... spits out <code>9</code>&#33; So it&#39;s fast because it&#39;s not computing anything. So be very careful about propogation of constants and literals. In general this is a very helpful feature, but when benchmarking this can cause some weird behavior. If a micro benchmark is taking less than a nanosecond, check and see if the compiler &quot;fixed&quot; your code&#33;</p>
+<p>It realized that <code>1.0</code> and <code>2.0</code> are constants, so it did what&#39;s known as <em>constant propagation</em>, and then used those constants inside of the function. It realized that the solution is always <code>9</code>, so it compiled the function that... spits out <code>9</code>&#33; So it&#39;s fast because it&#39;s not computing anything. So be very careful about propagation of constants and literals. In general this is a very helpful feature, but when benchmarking this can cause some weird behavior. If a micro benchmark is taking less than a nanosecond, check and see if the compiler &quot;fixed&quot; your code&#33;</p>
 <h2>Conclusion</h2>
 <p>Optimize your serial code before you parallelize. There&#39;s a lot to think about.</p>
 <h1>Discussion Questions</h1>
