@@ -424,7 +424,7 @@ Possible examples are:
 - Type-generic BLAS. [Starter code can be found here](https://github.com/JuliaBLAS/JuliaBLAS.jl)
 - Implementation of parallelized map-reduce methods. For example, `pmapreduce`
   [extension to `pmap`](https://docs.julialang.org/en/v1/manual/parallel-computing/index.html)
-  that adds a paralellized reduction, or a fast GPU-based map-reduce.
+  that adds a parallelized reduction, or a fast GPU-based map-reduce.
 - Investigating auto-compilation of full package codes to GPUs using tools like
   [CUDAnative](https://github.com/JuliaGPU/CUDAnative.jl) and/or
   [GPUifyLoops](https://github.com/vchuravy/GPUifyLoops.jl).
