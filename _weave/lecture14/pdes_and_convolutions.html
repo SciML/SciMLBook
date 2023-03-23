@@ -252,7 +252,7 @@ A(u) = A_y u + u A_x
 <p>Thus what is generally used is a <em>stencil compiler</em> which generates functions for stencil operations. These work by dividing the tensor into blocks on which the stencil is applied, where the blocks are small enough to allow the cache lines to fit the future points. This is a very deep computational topic that is beyond the scope of this course. Note one of the main reasons why NVIDA&#39;s CUDA dominates machine learning is because of its <code>cudnn</code> library, which is a very efficient GPU stencil computation library that is specifically tuned to NVIDIA&#39;s GPUs.</p>
 <h2>Cross-Discipline Learning</h2>
 <p>Given these relations, there is a lot each of the disciplines can learn from one another about stencil computations.</p>
-<h3>What ML can learning from SciComp: Stability of Convolutional RNNs</h3>
+<h3>What ML can learn from SciComp: Stability of Convolutional RNNs</h3>
 <p>Stability of time-dependent partial differential equations is a long-known problem. Stability of an RNN defined by stencil computations is then stability of Euler discretizations of PDEs. Let&#39;s take a look at Von Neumann analysis of PDE stability.</p>
 <p>Let&#39;s look at the error update equation. Write</p>
 <p class="math">\[
