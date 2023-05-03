@@ -54,7 +54,7 @@ modeling.
 
 However, these methods will quickly run into a scaling issue if naively coded.
 To handle this problem, everything will have a focus on performance-engineering.
-We will start by focusing on algorithm which are inherently serial and
+We will start by focusing on algorithms that are inherently serial and
 learn to optimize serial code. Then we will showcase how logic-heavy
 code can be parallelized through multithreading and distributed computing
 techniques like MPI, while direct mathematical descriptions can be parallelized
@@ -62,7 +62,7 @@ through GPU computing.
 
 The final part of the course will be a unique project which pulls together these
 techniques. As a new field, the students will be exposed to the "low hanging
-fruit" and will be directed towards an area which they can make a quick impact.
+fruit" and will be directed towards an area in which they can make a quick impact.
 For the final project, students will team up to solve a new problem in the field of
-scientific machine learning, and receive helping writing up a publication-quality
+scientific machine learning, and receive help in writing up a publication-quality
 analysis about their work.
