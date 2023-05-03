@@ -379,7 +379,7 @@ loss() = sum(abs2,sum(abs2,NN(rand(10)).-1) for i in 1:100)
 loss()
 ```
 
-This loss function takes 100 random points in `[0,1]` and then computes the output
+This loss function takes 100 random points in ``[0,1]^{10}`` and then computes the output
 of the neural network minus `1` on each of the values, and sums up the squared
 values (`abs2`). Why the squared values? This means that every computed loss value
 is positive, and so we know that by decreasing the loss this means that, on average
@@ -674,7 +674,7 @@ one-dimensional spring pushing and pulling against a wall.
 
 But instead of the simple spring, let's assume we had a more complex spring,
 for example, let's say ``F(x) = -kx + 0.1sin(x)`` where this extra term is due to
-some deformities in the medal (assume mass=1). Then by Newton's law of motion
+some deformities in the metal (assume mass=1). Then by Newton's law of motion
 we have a second order ordinary differential equation:
 
 ```math
