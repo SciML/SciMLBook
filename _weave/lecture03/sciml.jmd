@@ -13,8 +13,8 @@ weave_options:
 
 Here we will start to dig into what scientific machine learning is all about
 by looking at physics-informed neural networks. Let's start by understanding
-what a neural network really is, why they are used, and what kinds of problems
-that they solve, and then we will use this understanding of a neural network
+what neural networks really are, why they are used, and what kinds of problems
+they solve, and then we will use this understanding of a neural network
 to see how to solve ordinary differential equations with neural networks.
 For there, we will use this method to regularize neural networks with physical
 equations, the aforementioned physics-informed neural network, and see how to
@@ -121,8 +121,8 @@ NN3(rand(10))
 ```
 
 The second activation function there is what's known as a `relu`. A `relu` can
-be good to use because it's an exceptionally operation and satisfies a form of
-the UAT. However, a downside is that its derivative is not continuous, which
+be good to use because it's an exceptionally fast operation and satisfies a form of
+the universal approximation theorem (UAT). However, a downside is that its derivative is not continuous, which
 could impact the numerical properties of some algorithms, and thus it's widely
 used throughout standard machine learning but we'll see reasons why it may be
 disadvantageous in some cases in scientific machine learning.
@@ -144,7 +144,7 @@ using InteractiveUtils
 @which Dense(10 => 32,tanh)
 ```
 
-If we go to that spot of the documentation, we find the following.
+If we go to that spot of the code, we find the following:
 
 ```julia;eval=false
 struct Dense{F, M<:AbstractMatrix, B}
@@ -164,14 +164,27 @@ end
 ```
 
 First, `Dense` defines a struct in Julia. This struct just holds a weight matrix
-`W`, a bias vector `b`, and an activation function `σ`. The function called
-`Dense` is what's known as an **outer constructor** which defines how the
-`Dense` type is built. If you give it two integers (and optionally an activation
+`W`, a bias vector `b`, and an activation function `σ`. It also defines an **inner constructor**
+that ensures that a created `Dense` object will have the desired properties and types
+for its fields.
+The function called `Dense` that is defined next, outside the `struct`, is what's known 
+as an **outer constructor** which provides a more convenient way to create a `Dense` 
+object. If you give it a `Pair` of integers (and optionally an activation
 function which defaults to `identity`), then what it will do is take random
 initial `W` and `b` matrices (according to the `glorot_uniform` distribution for
 `W` and `zeros` for `b`), and then it will build the type with those matrices.
 
-The last portion might be new. This is known as a **callable struct**, or a
+The next portion might be new. We give it here in the simpler form it had in earlier
+versions of the Flux package, so that we can concentrate on the essential:
+
+```julia;eval=false
+function (a::Dense)(x::AbstractArray)
+  W, b, σ = a.W, a.b, a.σ
+  σ.(W*x .+ b)
+end
+```
+
+This defines what is known as a **callable struct**, or a
 functor. It defines the dispatch for how calls work on the struct. As a quick
 demonstration, let's define a type `MyCallableStruct` with a field `x`, and then make instances
 of `A` be the function `x+y`:
@@ -191,7 +204,7 @@ an object in a way that references the `self`, though it's a bit more general
 due to allowing dispatching, i.e. this can then dependent on the input types
 as well.
 
-So let's look at that `Dense` call with this in mind:
+So let's look at `Dense` with this in mind:
 
 ```julia;eval=false
 function (a::Dense)(x::AbstractArray)
@@ -216,7 +229,8 @@ inside of them. Now what does `Chain` do?
 @which Chain(1,2,3)
 ```
 
-gives us:
+Again, for our explanations here we will look at the slightly simpler code From
+and earlier version of the Flux package:
 
 ```julia;eval=false
 struct Chain{T<:Tuple}
