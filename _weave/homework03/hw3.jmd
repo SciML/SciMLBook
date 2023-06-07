@@ -70,7 +70,7 @@ $\mu(0) = \frac{\partial C}{\partial p}$, and thus solving these ODEs in reverse
 gives the solution for the gradient as a part of the system at time zero.
 
 Notice that $B_f^u(\lambda) = \lambda^\ast \frac{\partial f}{\partial u}$ and
-similarly for $\mu$. Implement an adjoint caluculation for a neural ordinary
+similarly for $\mu$. Implement an adjoint calculation for a neural ordinary
 differential equation where
 
 $$u' = NN(u)$$
@@ -86,7 +86,7 @@ Start with only measuring the datapoint at the end, then try multiple data point
 
 Generate data from the ODE $u' = Au$ where `A = [-0.1 2.0; -2.0 -0.1]` at
 `t=0.0:0.1:1.0` (use `saveat`) with $u(0) = [2,0]$.  Define the cost function `C(θ)` to be
-the Euclidian distance between the neural ODE's solution and the data. Optimize
+the Euclidean distance between the neural ODE's solution and the data. Optimize
 this cost function by using gradient descent where the gradient is your
 adjoint method's output.
 
