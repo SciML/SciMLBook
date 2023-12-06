@@ -281,10 +281,10 @@ That was just a re-arrangement. Now, let's require that
 $$\lambda^\prime = -\frac{df}{du}^\ast \lambda + \left(\frac{dg}{du} \right)^\ast$$
 $$\lambda(T) = 0$$
 
-This means that the boundary term of the integration by parts is zero, and also one of those integral terms are perfectly zero.
+This means that one of the boundary term of the integration by parts is zero, and also one of those integrals is perfectly zero.
 Thus, if $\lambda$ satisfies that equation, then we get:
 
-$$\frac{dG}{dp} = \lambda^\ast(t_0)\frac{dG}{du}(t_0) + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt$$
+$$\frac{dG}{dp} = \lambda^\ast(t_0)\frac{du(t_0)}{dp} + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt$$
 
 which gives us our adjoint derivative relation.
 
@@ -296,8 +296,8 @@ in which case
 
 $$g_u(t_i) = 2(d_i - u(t_i,p))$$
 
-at the data points $(t_i,d_i)$. Therefore, the derivative of an ODE solution
-with respect to a cost function is given by solving for $\lambda^\ast$ using an
+at the data points $(t_i,d_i)$. Therefore, the derivatives of a cost function with respect to
+the parameters is obtained by solving for $\lambda^\ast$ using an
 ODE for $\lambda^T$ in reverse time, and then using that to calculate $\frac{dG}{dp}$.
 Note that $\frac{dG}{dp}$ can be calculated simultaneously by appending a single
 value to the reverse ODE, since we can simply define the new ODE term as
@@ -327,15 +327,15 @@ on-demand. There are three ways which this can be done:
    numerically this is unstable and thus not always recommended (ODEs are
    reversible, but ODE solver methods are not necessarily going to generate the
    same exact values or trajectories in reverse!)
-2. If you solve the forward ODE and receive a continuous solution $u(t)$, you
-   can interpolate it to retrieve the values at any given the time reverse pass
+2. If you solve the forward ODE and receive a solution $u(t)$, you
+   can interpolate it to retrieve the values at any time at which the reverse pass
    needs the $\frac{df}{du}$ Jacobian. This is fast but memory-intensive.
 3. Every time you need a value $u(t)$ during the backpass, you re-solve the
    forward ODE to $u(t)$. This is expensive! Thus one can instead use
-   *checkpoints*, i.e. save at finitely many time points during the forward
+   *checkpoints*, i.e. save at a smaller number of time points during the forward
    pass, and use those as starting points for the $u(t)$ calculation.
 
-Alternative strategies can be investigated, such as an interpolation which
+Alternative strategies can be investigated, such as an interpolation that
 stores values in a compressed form.
 
 ### The vjp and Neural Ordinary Differential Equations
@@ -348,11 +348,11 @@ backpass
 $$\lambda^\prime = -\frac{df}{du}^\ast \lambda - \left(\frac{dg}{du} \right)^\ast$$
 $$\lambda(T) = 0$$
 
-can be improved by noticing $\frac{df}{du}^\ast \lambda$ is a vjp, and thus it
+can be improved by noticing $\lambda^\ast \frac{df}{du}$ is a vjp, and thus it
 can be calculated using $\mathcal{B}_f^{u(t)}(\lambda^\ast)$, i.e. reverse-mode
 AD on the function $f$. If $f$ is a neural network, this means that the reverse
 ODE is defined through successive backpropagation passes of that neural network.
-The result is a derivative with respect to the cost function of the parameters
+The result is a derivative of the cost function  with respect to the parameters
 defining $f$ (either a model or a neural network), which can then be used to
 fit the data ("train").
 
@@ -385,7 +385,7 @@ spline:
 ![](https://user-images.githubusercontent.com/1814174/66883762-fc662500-ef9c-11e9-91c7-c445e32d120f.PNG)
 
 If that's the case, one can use the fit spline in order to estimate the derivative
-at each point. Since the ODE is defined as $u^\prime = f(u,p,t)$, one then then
+at each point. Since the ODE is defined as $u^\prime = f(u,p,t)$, one can then
 use the cost function
 
 $$C(p) = \sum_{i=1}^N \Vert\tilde{u}^{\prime}(t_i) - f(u(t_i),p,t)\Vert$$
