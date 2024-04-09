@@ -62,7 +62,7 @@ interested. More details TBA.
 - [Performance Matters](https://www.youtube.com/watch?v=r-TLSBdHe1A0)
 - [You're doing it wrong (B-heaps vs Binary Heaps and Big O)](http://phk.freebsd.dk/B-Heap/queue.html)
 - [Bjarne Stroustrup: Why you should avoid Linked Lists](https://www.youtube.com/watch?v=YQs6IC-vgmo)
-- [What scientists must know about hardware to write fast code](https://biojulia.net/post/hardware/)
+- [What scientists must know about hardware to write fast code](https://viralinstruction.com/posts/hardware/)
 - [When FFI Function Calls Beat Native C (How JIT compilation allows C-calls to be faster than C)](https://nullprogram.com/blog/2018/05/27/)
 
 Before we start to parallelize code, build huge models, and automatically learn
