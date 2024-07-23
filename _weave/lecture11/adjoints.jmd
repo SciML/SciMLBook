@@ -38,7 +38,7 @@ the question, how does one actually build a reverse-mode AD implementation?
 
 ### Static Graph AD
 
-The most obvious solution is to use a static compute graph, since how we
+The most obvious solution is to use a static compute graph since how we
 defined our differentiation structure was on a compute graph. Tensorflow is a
 modern example of this approach, where a user must define variables and
 operations in a graph language (that's embedded into Python, R, Julia, etc.),
@@ -178,7 +178,7 @@ need to insert some data structure to recall the values used from the forward
 pass (in order to invert in the right directions). However, that can be much
 more lightweight than a tracking pass.
 
-This can be a difficult problem to do on a general programming language. In general
+This can be a difficult problem to do in a general programming language. In general
 it needs a strong programmatic representation to use as a compute graph. Google's
 engineers did an analysis [when choosing Swift for TensorFlow](https://github.com/tensorflow/swift/blob/master/docs/WhySwiftForTensorFlow.md)
 and narrowed it down to either Swift or Julia due to their internal graph
@@ -218,7 +218,7 @@ then we obtain
 $$\frac{dg}{dp}\vert_{f=0} = g_p - \lambda^T f_p = g_p - \lambda^T (A_p x - b_p)$$
 
 which is an alternative formulation of the derivative at the solution value.
-However, in this case there is no computational benefit to this reformulation.
+However, in this case, there is no computational benefit to this reformulation.
 
 ### Adjoint of Nonlinear Solve
 
@@ -236,7 +236,7 @@ or
 $$\frac{dg}{dp} = g_p - \left(g_x f_x^{-1} \right) f_p$$
 
 Since $g_x$ is $1 \times M$, $f_x^{-1}$ is $M \times M$, and $f_p$ is $M \times P$,
-this grouping changes the problem gets rid of the size $MP$ term.
+this grouping changes the problem and gets rid of the size $MP$ term.
 
 As is normal with backpasses, we solve for $x$ through the forward pass however
 we like, and then for the backpass solve for
@@ -251,7 +251,7 @@ which does the calculation without ever building the size $M \times MP$ term.
 
 ### Adjoint of Ordinary Differential Equations
 
-We with to solve for some cost function $G(u,p)$ evaluated throughout the
+We wish to solve for some cost function $G(u,p)$ evaluated throughout the
 differential equation, i.e.:
 
 $$G(u,p) = G(u(p)) = \int_{t_0}^T g(u(t,p))dt$$
@@ -281,7 +281,7 @@ That was just a re-arrangement. Now, let's require that
 $$\lambda^\prime = -\frac{df}{du}^\ast \lambda + \left(\frac{dg}{du} \right)^\ast$$
 $$\lambda(T) = 0$$
 
-This means that one of the boundary term of the integration by parts is zero, and also one of those integrals is perfectly zero.
+This means that one of the boundary terms of the integration by parts is zero, and also one of those integrals is perfectly zero.
 Thus, if $\lambda$ satisfies that equation, then we get:
 
 $$\frac{dG}{dp} = \lambda^\ast(t_0)\frac{du(t_0)}{dp} + \int_{t_0}^T \left(g_p + \lambda^\ast f_p \right)dt$$
@@ -297,7 +297,7 @@ in which case
 $$g_u(t_i) = 2(d_i - u(t_i,p))$$
 
 at the data points $(t_i,d_i)$. Therefore, the derivatives of a cost function with respect to
-the parameters is obtained by solving for $\lambda^\ast$ using an
+the parameters are obtained by solving for $\lambda^\ast$ using an
 ODE for $\lambda^T$ in reverse time, and then using that to calculate $\frac{dG}{dp}$.
 Note that $\frac{dG}{dp}$ can be calculated simultaneously by appending a single
 value to the reverse ODE, since we can simply define the new ODE term as
@@ -318,7 +318,7 @@ $$\lambda(T) = 0$$
 in reverse, but $\frac{df}{du}$ is defined by $u(t)$ which is a value only
 computed in the forward pass (the forward pass is embedded within the backpass!).
 Thus we need to be able to retrieve the value of $u(t)$ to get the Jacobian
-on-demand. There are three ways which this can be done:
+on-demand. There are three ways in which this can be done:
 
 1. If you solve the reverse ODE $u^\prime = f(u,p,t)$ backwards in time,
    mathematically it'll give equivalent values. Computation-wise, this means
