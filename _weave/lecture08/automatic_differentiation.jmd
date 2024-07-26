@@ -585,7 +585,7 @@ $f(d) = f(d_0) + Je_1 \epsilon_1 + \ldots + Je_n \epsilon_n$
 
 computes all columns of the Jacobian simultaneously.
 
-### Array of Structs Representation
+### Struct of Arrays Representation
 
 Instead of thinking about a vector of dual numbers, thus we can instead think of
 dual numbers with vectors for the components. But if there are vectors for the
@@ -598,7 +598,7 @@ $$\Sigma = \begin{bmatrix}
         d_{11} & d_{12} & \cdots & d_{1n} \\
         d_{21} & d_{22} &  & \vdots \\
         \vdots & & \ddots & \vdots \\
-        d_{m1} & \hdots & \hdots & d_{mn}
+        d_{m1} & \cdots & \cdots & d_{mn}
     \end{bmatrix}$$
          
 $$\epsilon=[\epsilon_1,\epsilon_2,\ldots,\epsilon_m]$$
