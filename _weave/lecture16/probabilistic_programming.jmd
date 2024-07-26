@@ -55,7 +55,7 @@ the repeat process of:
 1. Sample variables
 2. Compute output
 
-Doing this repeatedly then produces samples of $f(x)$ from which a numerical
+Repeatedly doing this produces samples of $f(x)$ from which a numerical
 representation of the distribution can be had. From there, going to a multivariable
 linear model like $f(x) = Ax$ is the same idea. Going to $f(x)$ where $f$ is an
 arbitrary program is still the same idea: sample every variable in the program,
@@ -154,14 +154,14 @@ that is a decent working definition for practical use. The normal distribution
 is defined by two parameters, $\mu$ and $\sigma$, and is given by the following
 function:
 
-$$f(x;\mu,\sigma) = \frac{1}{\sigma\sqrt{2\pi}}\exp(\frac{-(x-\mu)^2}{2\sigma^2})$$
+$$f(x;\mu,\sigma) = \frac{1}{\sigma\sqrt{2\pi}}\exp\left(\frac{-(x-\mu)^2}{2\sigma^2}\right)$$
 
 This is a bell curve centered at $\mu$ with a variance of $\sigma$. Our best guess
 for the output, i.e. the model's prediction, should be the average measurement,
 meaning that $\mu$ is the result from the simulator. $\sigma$ is a parameter for
 how much measurement error we expect (some intuition on $\sigma$ will come soon).
 
-Let's return to thinking about the ODE example. In this case we have $\theta$ as a
+Let's return to thinking about the ODE example. In this case, we have $\theta$ as a
 vector of random variables. This means that $u(t;\theta)$ is a random variable for the
 ODE $u'= ...$'s solution at a given point in time $t$. If we have a
 measurement at a time $t_i$ and assume our measurement noise is normally distributed
@@ -182,7 +182,7 @@ product becomes a summation, and thus:
 
 $$\begin{align}
 \log p(D|\theta) &= \sum_i \log f(x_i;u(t_i;\theta),\sigma)\\
-                 &= \frac{N}{\sqrt{2\pi}\sigma} + \frac{1}{2\sigma^2} \sum_i -(x-\mu)^2
+                 &= \frac{N}{\log(\sqrt{2\pi}\sigma)} + \frac{1}{2\sigma^2} \sum_i -(x_i - u(t_i; \theta))^2
 \end{align}$$
 
 Notice that **maximizing this log-likelihood is equivalent to minimizing the L2
@@ -271,7 +271,7 @@ Thus, for the sampling-based approaches, we simply need to arrive at an array
 which is sampled according to the distribution that we want to estimate, and
 from that array we can recover the distribution.
 
-### Sampling Distributions with the Metropolis Hastings Algorithm
+### Sampling Distributions with the Metropolis-Hastings Algorithm
 
 The Metropolis-Hastings algorithm is the simplest form of *Markov Chain Monte Carlo*
 (MCMC) which gives a way of sampling the $\theta$ distribution. To see how this
@@ -460,7 +460,7 @@ information on symplectic integration, consult
 
 For a full demo of probabilistic programming on a differential equation system,
 see
-[this tutorial on Bayesian inference of pendulum parameteres](https://tutorials.juliadiffeq.org/html/models/06-pendulum_bayesian_inference.html)
+[this tutorial on Bayesian inference of pendulum parameters](https://tutorials.juliadiffeq.org/html/models/06-pendulum_bayesian_inference.html)
 utilizing DifferentialEquations.jl and DiffEqBayes.jl.
 
 ## Bayesian Estimation of Posterior Distributions with Variational Inference
@@ -472,7 +472,7 @@ probabilistic programming has been the development of *Automatic Differentiation
 Variational Inference (ADVI)*: a general variational inference method which
 is not model-specific and instead uses AD. This has allowed for large expensive
 models to get effective distributional estimation, something that wasn't
-previously possible with HMC. In this section we will build up this methodology
+previously possible with HMC. In this section, we will build up this methodology
 and understand its performance characteristics.
 
 ### ADVI as Optimization
@@ -480,7 +480,7 @@ and understand its performance characteristics.
 In this form of variational inference, we wish to directly estimate the posterior
 distribution. To do so, we pick a functional form to represent the solution
 $q(\theta; \phi)$ where $\phi$ are latent variables. We want our resulting
-distribution to fit the posterior, and tus we enforce that:
+distribution to fit the posterior, and thus we enforce that:
 
 $$\phi^\ast = \text{argmin}_{\phi} \text{KL} \left(q(\theta; \phi) \Vert p(\theta | D)\right)$$
 
@@ -504,7 +504,7 @@ is a subset of the support of the prior. This means that our prior has to cover
 the probability distribution, which makes sense and matches Cromwell's rule for
 MCMC.
 
-At this point we now assume that $q$ is Gaussian. When we rewrite the ELBO in
+At this point, we now assume that $q$ is Gaussian. When we rewrite the ELBO in
 terms of the standard Gaussian, we receive an expectation that is automatically
 differentiable. Calculating gradients is thus done with AD. Using only one
 or a few solves gives a noisy gradient to sample and optimize the latent variables
