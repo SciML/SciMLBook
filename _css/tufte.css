@@ -439,3 +439,52 @@ label.margin-toggle:not(.sidenote-number) { display: none; }
   border-top-style: ridge;
   border-width: thin;
 }
+
+
+
+
+
+
+#backToTop {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  display: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: xx-large;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#backToTop i {
+  color: var(--color-purple)
+}
+
+/* Hover effect: gently lift */
+#backToTop:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Gentle pulse when shown */
+#backToTop.pulse-once {
+  animation: pulse-once 0.6s ease;
+}
+
+@keyframes pulse-once {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  60% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
