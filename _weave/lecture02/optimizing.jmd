@@ -440,9 +440,9 @@ the values and ask it for its types, and use those types to know how to compute
 the + function. For this reason, the add function in Python is rather complex
 since it needs to decode and have a version for all primitive types!
 
-Not only is there runtime overhead checks in function calls due to to not being
+Not only is there runtime overhead checks in function calls due to not being
 explicit about types, there is also a memory overhead since it is impossible
-to know how much memory a value with take since that's a property of its type.
+to know how much memory a value will take since that's a property of its type.
 Thus the Python interpreter cannot statically guarantee exact unchanging values
 for the size that a value would take in the stack, meaning that the variables
 are not stack-allocated. This means that every number ends up heap-allocated,
