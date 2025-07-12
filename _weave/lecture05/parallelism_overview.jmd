@@ -302,7 +302,7 @@ with this code. For one, we had to go to the slower heap+mutation version, so
 its implementation starting point is slower. But secondly, and more importantly,
 the cost of spinning a new thread is non-negligible. In fact, here we can see
 that it even needs to make a small allocation for the new context. The total
-cost is on the order of It's on the order of 50ns: not huge, but something
+cost is on the order of 50ns: not huge, but something
 to take note of. So what we've done is taken almost free calculations and made
 them ~50ns by making each in a different thread, instead of just having it be
 one thread with one call stack.

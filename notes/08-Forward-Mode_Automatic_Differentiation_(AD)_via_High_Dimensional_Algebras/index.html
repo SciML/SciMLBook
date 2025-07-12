@@ -18,9 +18,9 @@ eps&#40;0.01&#41; &#61; 1.734723475976807e-18
 </span><span class='hljl-n'>ϵ2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-oB'>+</span><span class='hljl-n'>ϵ</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'>
 </span><span class='hljl-p'>(</span><span class='hljl-n'>ϵ</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-n'>ϵ2</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
-ϵ &#61; 8.057828300748174e-11
-1 &#43; ϵ &#61; 1.0000000000805782
-7.223702727607228e-17
+ϵ &#61; 8.185263429991506e-11
+1 &#43; ϵ &#61; 1.0000000000818525
+1.095417958484328e-16
 </pre> <p>See how <span class=math >$\epsilon$</span> is only rebuilt at accuracy around <span class=math >$10^{-16}$</span> and thus we only keep around 6 digits of accuracy when it&#39;s generated at the size of around <span class=math >$10^{-10}$</span>&#33;</p> <h3>Finite Differencing and Numerical Stability</h3> <p>To start understanding how to compute derivatives on a computer, we start with <em>finite differencing</em>. For finite differencing, recall that the definition of the derivative is:</p> <p class=math >\[ f'(x) = \lim_{\epsilon \rightarrow 0} \frac{f(x+\epsilon)-f(x)}{\epsilon} \]</p> <p>Finite differencing directly follows from this definition by choosing a small <span class=math >$\epsilon$</span>. However, choosing a good <span class=math >$\epsilon$</span> is very difficult. If <span class=math >$\epsilon$</span> is too large than there is error since this definition is asymptotic. However, if <span class=math >$\epsilon$</span> is too small, you receive roundoff error. To understand why you would get roundoff error, recall that floating point error is relative, and can essentially store 16 digits of accuracy. So let&#39;s say we choose <span class=math >$\epsilon = 10^{-6}$</span>. Then <span class=math >$f(x+\epsilon) - f(x)$</span> is roughly the same in the first 6 digits, meaning that after the subtraction there is only 10 digits of accuracy, and then dividing by <span class=math >$10^{-6}$</span> simply brings those 10 digits back up to the correct relative size.</p> <p><img src="https://www.researchgate.net/profile/Jongrae_Kim/publication/267216155/figure/fig1/AS:651888458493955@1532433728729/Finite-Difference-Error-Versus-Step-Size.png" alt="" /></p> <p>This means that we want to choose <span class=math >$\epsilon$</span> small enough that the <span class=math >$\mathcal{O}(\epsilon^2)$</span> error of the truncation is balanced by the <span class=math >$O(1/\epsilon)$</span> roundoff error. Under some minor assumptions, one can argue that the average best point is <span class=math >$\sqrt(E)$</span>, where E is machine epsilon</p> <pre class='hljl'>
 <span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-nf'>sqrt</span><span class='hljl-p'>(</span><span class='hljl-nf'>eps</span><span class='hljl-p'>(</span><span class='hljl-n'>Float64</span><span class='hljl-p'>))</span>
@@ -85,7 +85,7 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>c</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>d</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>c</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>d</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-3.095 ns &#40;0 allocations: 0 bytes&#41;
+2.785 ns &#40;0 allocations: 0 bytes&#41;
 &#40;4, 6&#41;
 </pre> <pre class='hljl'>
 <span class='hljl-n'>a</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Dual</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>)</span><span class='hljl-t'>
@@ -95,17 +95,17 @@ add &#40;generic function with 1 method&#41;
 </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>))[],</span><span class='hljl-t'> </span><span class='hljl-oB'>$</span><span class='hljl-p'>(</span><span class='hljl-nf'>Ref</span><span class='hljl-p'>(</span><span class='hljl-n'>b</span><span class='hljl-p'>))[])</span>
 </pre> <pre class=output >
-3.396 ns &#40;0 allocations: 0 bytes&#41;
+2.785 ns &#40;0 allocations: 0 bytes&#41;
 Dual&#123;Int64&#125;&#40;4, 6&#41;
 </pre> <p>It seems like we have lost <em>no</em> performance.</p> <pre class='hljl'>
 <span class='hljl-nd'>@code_native</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-ni'>1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>3</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-ni'>4</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 .text
 	.file	&quot;add&quot;
-	.globl	julia_add_90225                 # -- Begin function julia_add_90225
+	.globl	julia_add_90090                 # -- Begin function julia_add_90090
 	.p2align	4, 0x90
-	.type	julia_add_90225,@function
-julia_add_90225:                        # @julia_add_90225
+	.type	julia_add_90090,@function
+julia_add_90090:                        # @julia_add_90090
 ; Function Signature: add&#40;Int64, Int64, Int64, Int64&#41;
 ; ┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture08/automatic_diff
 erentiation.jmd:2 within &#96;add&#96;
@@ -130,28 +130,28 @@ erentiation.jmd:2 within &#96;add&#96;
 	pop	rbp
 	ret
 .Lfunc_end0:
-	.size	julia_add_90225, .Lfunc_end0-julia_add_90225
+	.size	julia_add_90090, .Lfunc_end0-julia_add_90090
 ; └
                                         # -- End function
-	.type	&quot;.L&#43;Core.Tuple#90227&quot;,@object   # @&quot;&#43;Core.Tuple#90227&quot;
+	.type	&quot;.L&#43;Core.Tuple#90092&quot;,@object   # @&quot;&#43;Core.Tuple#90092&quot;
 	.section	.rodata,&quot;a&quot;,@progbits
 	.p2align	3, 0x0
-&quot;.L&#43;Core.Tuple#90227&quot;:
-	.quad	&quot;.L&#43;Core.Tuple#90227.jit&quot;
-	.size	&quot;.L&#43;Core.Tuple#90227&quot;, 8
+&quot;.L&#43;Core.Tuple#90092&quot;:
+	.quad	&quot;.L&#43;Core.Tuple#90092.jit&quot;
+	.size	&quot;.L&#43;Core.Tuple#90092&quot;, 8
 
-.set &quot;.L&#43;Core.Tuple#90227.jit&quot;, 140058785231632
-	.size	&quot;.L&#43;Core.Tuple#90227.jit&quot;, 8
+.set &quot;.L&#43;Core.Tuple#90092.jit&quot;, 140520866700448
+	.size	&quot;.L&#43;Core.Tuple#90092.jit&quot;, 8
 	.section	&quot;.note.GNU-stack&quot;,&quot;&quot;,@progbits
 </pre> <pre class='hljl'>
 <span class='hljl-nd'>@code_native</span><span class='hljl-t'> </span><span class='hljl-nf'>add</span><span class='hljl-p'>(</span><span class='hljl-n'>a</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>b</span><span class='hljl-p'>)</span>
 </pre> <pre class=output >
 .text
 	.file	&quot;add&quot;
-	.globl	julia_add_90230                 # -- Begin function julia_add_90230
+	.globl	julia_add_90095                 # -- Begin function julia_add_90095
 	.p2align	4, 0x90
-	.type	julia_add_90230,@function
-julia_add_90230:                        # @julia_add_90230
+	.type	julia_add_90095,@function
+julia_add_90095:                        # @julia_add_90095
 ; Function Signature: add&#40;Main.Dual&#123;Int64&#125;, Main.Dual&#123;Int64&#125;&#41;
 ; ┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture08/automatic_diff
 erentiation.jmd:5 within &#96;add&#96;
@@ -173,18 +173,18 @@ fferentiation.jmd:3 within &#96;Dual&#96;
 	pop	rbp
 	ret
 .Lfunc_end0:
-	.size	julia_add_90230, .Lfunc_end0-julia_add_90230
+	.size	julia_add_90095, .Lfunc_end0-julia_add_90095
 ; └└└
                                         # -- End function
-	.type	&quot;.L&#43;Main.Dual#90232&quot;,@object    # @&quot;&#43;Main.Dual#90232&quot;
+	.type	&quot;.L&#43;Main.Dual#90097&quot;,@object    # @&quot;&#43;Main.Dual#90097&quot;
 	.section	.rodata,&quot;a&quot;,@progbits
 	.p2align	3, 0x0
-&quot;.L&#43;Main.Dual#90232&quot;:
-	.quad	&quot;.L&#43;Main.Dual#90232.jit&quot;
-	.size	&quot;.L&#43;Main.Dual#90232&quot;, 8
+&quot;.L&#43;Main.Dual#90097&quot;:
+	.quad	&quot;.L&#43;Main.Dual#90097.jit&quot;
+	.size	&quot;.L&#43;Main.Dual#90097&quot;, 8
 
-.set &quot;.L&#43;Main.Dual#90232.jit&quot;, 140058064900880
-	.size	&quot;.L&#43;Main.Dual#90232.jit&quot;, 8
+.set &quot;.L&#43;Main.Dual#90097.jit&quot;, 140519999996176
+	.size	&quot;.L&#43;Main.Dual#90097.jit&quot;, 8
 	.section	&quot;.note.GNU-stack&quot;,&quot;&quot;,@progbits
 </pre> <p>We see that the data structure itself has disappeared, and we basically have a standard Julia tuple.</p> <h3>Defining Higher Order Primitives</h3> <p>We can also define functions of <code>Dual</code> objects, using the chain rule. To speed up our derivative function, we can directly hardcode the derivative of known functions which we call <em>primitives</em>. If <code>f</code> is a <code>Dual</code> representing the function <span class=math >$f$</span>, then <code>exp&#40;f&#41;</code> should be a <code>Dual</code> representing the function <span class=math >$\exp \circ f$</span>, i.e. with value <span class=math >$\exp(f(a))$</span> and derivative <span class=math >$(\exp \circ f)'(a) = \exp(f(a)) \, f'(a)$</span>:</p> <pre class='hljl'>
 <span class='hljl-k'>import</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>:</span><span class='hljl-t'> </span><span class='hljl-n'>exp</span>
@@ -344,4 +344,4 @@ x &#61; &#91;0.7071067811865476, 0.7071067811865476&#93;
 2-element SVector&#123;2, Float64&#125; with indices SOneTo&#40;2&#41;:
  0.7071067811865476
  0.7071067811865476
-</pre> <h2>Conclusion</h2> <p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaneously, giving a method for computing the Jacobian of a function <span class=math >$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p> <h3>References</h3> <ul> <li><p>John L. Bell, <em>An Invitation to Smooth Infinitesimal Analysis</em>, http://publish.uwo.ca/~jbell/invitation&#37;20to&#37;20SIA.pdf</p> <li><p>Bell, John L. <em>A Primer of Infinitesimal Analysis</em></p> <li><p>Nocedal &amp; Wright, <em>Numerical Optimization</em>, Chapter 8</p> <li><p>Griewank &amp; Walther, <em>Evaluating Derivatives</em></p> </ul> <p>Many thanks to David Sanders for helping make these lecture notes.</p> <div class=footer > <p> Published from <a href=automatic_differentiation.jmd >automatic_differentiation.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2025-07-01. </p> </div> </div> <button id=backToTop  class=shadow  title="Back to top"> <i class="fa fa-chevron-circle-up"></i> </button> <script src="/assets/scripts/js/back_to_top.js"></script> </div> </div>
+</pre> <h2>Conclusion</h2> <p>To make derivative calculations efficient and correct, we can move to higher dimensional numbers. In multiple dimensions, these then allow for multiple directional derivatives to be computed simultaneously, giving a method for computing the Jacobian of a function <span class=math >$f$</span> on a single input. This is a direct application of using the compiler as part of a mathematical framework.</p> <h3>References</h3> <ul> <li><p>John L. Bell, <em>An Invitation to Smooth Infinitesimal Analysis</em>, http://publish.uwo.ca/~jbell/invitation&#37;20to&#37;20SIA.pdf</p> <li><p>Bell, John L. <em>A Primer of Infinitesimal Analysis</em></p> <li><p>Nocedal &amp; Wright, <em>Numerical Optimization</em>, Chapter 8</p> <li><p>Griewank &amp; Walther, <em>Evaluating Derivatives</em></p> </ul> <p>Many thanks to David Sanders for helping make these lecture notes.</p> <div class=footer > <p> Published from <a href=automatic_differentiation.jmd >automatic_differentiation.jmd</a> using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2025-07-12. </p> </div> </div> <button id=backToTop  class=shadow  title="Back to top"> <i class="fa fa-chevron-circle-up"></i> </button> <script src="/assets/scripts/js/back_to_top.js"></script> </div> </div>
