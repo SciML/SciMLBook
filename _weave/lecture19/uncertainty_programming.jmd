@@ -205,7 +205,7 @@ h(x) = x^2 - 2
 has no roots in $[3,4]$. Since these are rigorous bounds, it holds that
 
 ```julia
-h(3..4)
+h(interval(3,4))
 ```
 
 is a rigorous bound on the possible values, and thus it must not have a root
@@ -219,11 +219,11 @@ would expect given the actual uncertainties seen in practice. One phenomena
 which causes this can be seen by looking at that pendulum:
 
 ```julia
-gaccel = 9.77..9.81; # Gravitational constants
-L = 0.99..1.01; # Length of the pendulum
+gaccel = interval(9.77,9.81); # Gravitational constants
+L = interval(0.99,1.01); # Length of the pendulum
 
 #Initial Conditions
-u₀ = [0..0, ((π / 3)-0.02)..((π / 3)+0.02)] # Initial speed and initial angle
+u₀ = [interval(0,0), interval(((π / 3)-0.02),((π / 3)+0.02))] # Initial speed and initial angle
 tspan = (0.0, 6.3)
 
 #Define the problem
@@ -251,11 +251,11 @@ intervals. If we only used this to measure the uncertainty of the floating
 point arithmetic, then the intervals are much better contained:
 
 ```julia
-gaccel = 9.8..9.8; # Gravitational constants
-L = 1.0..1.0; # Length of the pendulum
+gaccel = interval(9.8,9.8); # Gravitational constants
+L = interval(1.0,1.0); # Length of the pendulum
 
 #Initial Conditions
-u₀ = [0..0, (π / 3)..(π / 3)] # Initial speed and initial angle
+u₀ = [interval(0,0), interval((π / 3),(π / 3))] # Initial speed and initial angle
 tspan = (0.0, 6.3)
 
 #Define the problem
@@ -325,7 +325,7 @@ of possible solutions/trajectories.
 ### ProbInts in Action
 
 ```julia
-using DiffEqUncertainty
+using DiffEqCallbacks
 function fitz(du,u,p,t)
   V,R = u
   a,b,c = p
