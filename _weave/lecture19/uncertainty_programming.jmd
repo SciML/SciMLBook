@@ -176,12 +176,6 @@ using IntervalArithmetic
 x = interval(0.1,0.2)
 ```
 
-or using the shorthand
-
-```julia
-0.1..0.2
-```
-
 Here the operator catches the constants at compile time and notices that 0.1
 and 0.2 cannot be exactly represented in floating point numbers, and thus on
 the left side it rounds down by one floating point number and on the right it
