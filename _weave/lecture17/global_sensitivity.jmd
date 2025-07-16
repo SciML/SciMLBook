@@ -229,8 +229,8 @@ The following generates for example a *Sobol sequence*:
 
 ```julia
 using Sobol, Plots
-s = SobolSeq(2)
-p = hcat([next!(s) for i = 1:1024]...)'
+seq = SobolSeq(2)
+p = hcat([next!(seq) for i = 1:1024]...)'
 scatter(p[:,1], p[:,2])
 ```
 
