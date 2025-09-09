@@ -223,7 +223,7 @@ gaccel = interval(9.77,9.81); # Gravitational constants
 L = interval(0.99,1.01); # Length of the pendulum
 
 #Initial Conditions
-u₀ = [interval(0,0), interval(((π / 3)-0.02),((π / 3)+0.02))] # Initial speed and initial angle
+u₀ = [interval(0,0), interval(((π / 3.0)-0.02),((π / 3.0)+0.02))] # Initial speed and initial angle
 tspan = (0.0, 6.3)
 
 #Define the problem
@@ -255,7 +255,7 @@ gaccel = interval(9.8,9.8); # Gravitational constants
 L = interval(1.0,1.0); # Length of the pendulum
 
 #Initial Conditions
-u₀ = [interval(0,0), interval((π / 3),(π / 3))] # Initial speed and initial angle
+u₀ = [interval(0,0), interval((π / 3.0),(π / 3.0))] # Initial speed and initial angle
 tspan = (0.0, 6.3)
 
 #Define the problem
