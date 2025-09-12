@@ -236,7 +236,7 @@ end
 
 #Pass to solvers
 prob = ODEProblem(simplependulum, u₀, tspan)
-sol = solve(prob, Tsit5(), adaptive=false, dt=0.1, reltol = 1e-6)
+sol = solve(prob, Euler(), dt=0.1)
 ```
 
 While we start out with reasonably small intervals, it turns out that every
@@ -268,7 +268,7 @@ end
 
 #Pass to solvers
 prob = ODEProblem(simplependulum, u₀, tspan)
-sol = solve(prob, Vern9(), adaptive=false, dt=0.001, reltol = 1e-6)
+sol = solve(prob, Euler(), dt=0.001)
 ```
 
 ## Contextual Uncertainty Quantification
