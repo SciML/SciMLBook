@@ -271,6 +271,73 @@ prob = ODEProblem(simplependulum, u₀, tspan)
 sol = solve(prob, Vern9(), adaptive=false, dt=0.001, reltol = 1e-6)
 ```
 
+### Note on IntervalArithmetic.jl v0.23.0+ Compatibility
+
+With IntervalArithmetic.jl v0.23.0 and later, some interval validation and comparison functions have changed to improve IEEE 1788-2015 standard compliance. You may encounter these breaking changes:
+
+1. **`isfinite` errors**: Use `isbounded(interval)` instead of `isfinite(interval)` for intervals with infinite bounds
+2. **`==` comparison errors**: Use `isequal_interval(a, b)` instead of `a == b` for overlapping intervals  
+3. **Solver compatibility**: Some adaptive ODE solvers may fail with wide intervals; use fixed-step solvers as fallback
+
+**Best practices for IntervalArithmetic v0.23.0+:**
+- Use `isbounded()` to check interval validity before ODE solving
+- Use fixed-step solvers (`Euler()`, `RK4()`) for robust interval ODE solutions
+- Use smaller initial uncertainties to prevent interval explosion
+- Handle solver failures gracefully with fallback methods
+
+For example:
+```julia
+# Check if interval is well-behaved before solving
+x = interval(1.0, 2.0)
+if isbounded(x)
+    println("Interval is bounded and safe for ODE solving")
+end
+
+# Alternative: Use inf() and sup() to access interval bounds
+println("Lower bound: ", inf(x), ", Upper bound: ", sup(x))
+```
+
+Here's a robust example that handles potential interval explosion:
+
+```julia
+using IntervalArithmetic, OrdinaryDiffEq
+
+function solve_interval_ode_safely(gaccel, L, u₀, tspan; max_dt=0.1)
+    function pendulum(du, u, p, t)
+        θ, dθ = u
+        du[1] = dθ
+        du[2] = -(gaccel/L) * sin(θ)
+    end
+    
+    prob = ODEProblem(pendulum, u₀, tspan)
+    
+    # Use fixed-step solver for intervals to avoid adaptive step issues
+    try
+        sol = solve(prob, RK4(), dt=max_dt)
+        
+        # Check if solution remains bounded
+        if all(isbounded, sol[end])
+            return sol
+        else
+            println("Warning: Solution intervals became unbounded")
+            return sol
+        end
+    catch e
+        println("ODE solve failed: ", e)
+        println("Trying with smaller step size...")
+        return solve(prob, Euler(), dt=max_dt/10)
+    end
+end
+
+# Test the robust solver
+gaccel = interval(9.79, 9.81)
+L = interval(0.99, 1.01)
+u₀ = [interval(0,0), interval(π/3.0 - 0.01, π/3.0 + 0.01)]  # Smaller uncertainty
+tspan = (0.0, 3.0)  # Shorter time span
+
+sol = solve_interval_ode_safely(gaccel, L, u₀, tspan)
+```
+
 ## Contextual Uncertainty Quantification
 
 Those previous methods were non-contextual and worked directly through program
