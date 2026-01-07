@@ -117,17 +117,17 @@ using Plots
 plot(sol)
 ```
 
-We can also plot phase space diagrams by telling it which `vars` to compare on
+We can also plot phase space diagrams by telling it which `idxs` to compare on
 which axis. Let's plot this in the `(x,y,z)` plane:
 
 ```julia
-plot(sol,vars=(1,2,3))
+plot(sol,idxs=(1,2,3))
 ```
 
 Note that the sentinal to time is `0`, so we can also do `(t,y,z)` with:
 
 ```julia
-plot(sol,vars=(0,2,3))
+plot(sol,idxs=(0,2,3))
 ```
 
 The equation is continuous and therefore the solution is continuous. We can
@@ -211,7 +211,7 @@ plot(sol)
 tspan = (0.0,200.0)
 prob = ODEProblem(pleiades,[3.0,3.0,-1.0,-3.0,2.0,-2.0,2.0,3.0,-3.0,2.0,0,0,-4.0,4.0,0,0,0,0,0,1.75,-1.5,0,0,0,-1.25,1,0,0],tspan)
 sol = solve(prob,Vern8(),abstol=1e-10,reltol=1e-10)
-plot(sol,vars=((1:7),(8:14)))
+plot(sol,idxs=((1:7),(8:14)))
 ```
 
 ### Population Ecology: Lotka-Volterra

@@ -132,7 +132,7 @@ prob = ODEProblem(simplependulum, u₀, tspan)
 sol = solve(prob, Tsit5(), reltol = 1e-6)
 
 using Plots
-plot(sol,plotdensity=100,vars=2)
+plot(sol,plotdensity=100,idxs=2)
 ```
 
 From here it is clear that as the pendulum goes forward, the uncertainty grows
@@ -341,7 +341,7 @@ cb = AdaptiveProbIntsUncertainty(5) # 5th order method
 sol = solve(prob,Tsit5())
 ensemble_prob = EnsembleProblem(prob)
 sim = solve(ensemble_prob,Tsit5(),trajectories=100,callback=cb)
-plot(sim,vars=(0,1),linealpha=0.4)
+plot(sim,idxs=(0,1),linealpha=0.4)
 ```
 
 ```julia
@@ -349,7 +349,7 @@ cb = AdaptiveProbIntsUncertainty(5)
 sol = solve(prob,Tsit5())
 ensemble_prob = EnsembleProblem(prob)
 sim = solve(ensemble_prob,Tsit5(),trajectories=100,callback=cb,abstol=1e-3,reltol=1e-1)
-plot(sim,vars=(0,1),linealpha=0.4)
+plot(sim,idxs=(0,1),linealpha=0.4)
 ```
 
 Notice that while an interval estimate would have grown to allow all extremes
