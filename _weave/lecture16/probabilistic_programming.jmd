@@ -427,7 +427,7 @@ tspan = (0.0,10000.0)
 prob = ODEProblem(harmonic!,u0,tspan)
 sol = solve(prob,Tsit5())
 gr(fmt=:png) # Make it a PNG instead of an SVG since there's a lot of points!
-plot(sol,vars=(1,2))
+plot(sol,idxs=(1,2))
 ```
 
 ```julia
