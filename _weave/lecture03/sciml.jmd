@@ -391,18 +391,18 @@ the Flux callable struct style from above, the weights are those inside of the
 NN[1].weight # The W matrix of the first layer
 ```
 
-Now let's grab all of the parameters together:
+Now let's train the neural network by finding the optimal parameters which cause
+it to be the constant `1` function. We use `Flux.setup` to initialize the
+optimizer state, then use `Flux.gradient` and `Flux.update!` in a loop:
 
 ```julia
-p = Flux.params(NN)
-```
-
-That's a helper function on `Chain` which recursively gathers all of the defining
-parameters. Let's now find the optimal values `p` which cause the neural network
-to be the constant `1` function:
-
-```julia
-Flux.train!(loss, p, Iterators.repeated((), 10000), ADAM(0.1))
+optim = Flux.setup(Adam(0.1), NN)
+for epoch in 1:10000
+    grads = Flux.gradient(NN) do m
+        sum(abs2,sum(abs2,m(rand(10)).-1) for i in 1:100)
+    end
+    Flux.update!(optim, NN, grads[1])
+end
 ```
 
 Now let's check the loss:
@@ -624,17 +624,19 @@ loss() = mean(abs2(((g(t+ϵ)-g(t))/ϵ) - cos(2π*t)) for t in 0:1f-2:1f0)
 would be minimized.
 
 ```julia
-opt = Flux.Descent(0.01)
-data = Iterators.repeated((), 5000)
-iter = 0
-cb = function () #callback function to observe training
-  global iter += 1
-  if iter % 500 == 0
-    display(loss())
-  end
-end
+optim = Flux.setup(Descent(0.01), NNODE)
 display(loss())
-Flux.train!(loss, Flux.params(NNODE), data, opt; cb=cb)
+for epoch in 1:5000
+    grads = Flux.gradient(NNODE) do m
+        ϵ = sqrt(eps(Float32))
+        g(t) = t*m(t) + 1f0
+        mean(abs2(((g(t+ϵ)-g(t))/ϵ) - cos(2π*t)) for t in 0:1f-2:1f0)
+    end
+    Flux.update!(optim, NNODE, grads[1])
+    if epoch % 500 == 0
+        display(loss())
+    end
+end
 ```
 
 How well did this do? Well if we take the integral of both sides of our
@@ -740,17 +742,17 @@ loss()
 Our random parameters do not do so well, so let's train!
 
 ```julia
-opt = Flux.Descent(0.01)
-data = Iterators.repeated((), 5000)
-iter = 0
-cb = function () #callback function to observe training
-  global iter += 1
-  if iter % 500 == 0
-    display(loss())
-  end
-end
+optim = Flux.setup(Descent(0.01), NNForce)
 display(loss())
-Flux.train!(loss, Flux.params(NNForce), data, opt; cb=cb)
+for epoch in 1:5000
+    grads = Flux.gradient(NNForce) do m
+        sum(abs2,m(position_data[i]) - force_data[i] for i in 1:length(position_data))
+    end
+    Flux.update!(optim, NNForce, grads[1])
+    if epoch % 500 == 0
+        display(loss())
+    end
+end
 ```
 
 The neural network almost exactly matched the dataset, but how well did it
@@ -806,17 +808,18 @@ where ``λ`` is some weight factor to control the regularization against the
 physics assumption. Now we can train the physics-informed neural network:
 
 ```julia
-opt = Flux.Descent(0.01)
-data = Iterators.repeated((), 5000)
-iter = 0
-cb = function () #callback function to observe training
-  global iter += 1
-  if iter % 500 == 0
-    display(composed_loss())
-  end
-end
+optim = Flux.setup(Descent(0.01), NNForce)
 display(composed_loss())
-Flux.train!(composed_loss, Flux.params(NNForce), data, opt; cb=cb)
+for epoch in 1:5000
+    grads = Flux.gradient(NNForce) do m
+        sum(abs2,m(position_data[i]) - force_data[i] for i in 1:length(position_data)) +
+            λ*sum(abs2,m(x) - (-k*x) for x in random_positions)
+    end
+    Flux.update!(optim, NNForce, grads[1])
+    if epoch % 500 == 0
+        display(composed_loss())
+    end
+end
 
 learned_force_plot = NNForce.(positions_plot)
 
