@@ -1,4 +1,4 @@
-<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/tufte.css"> <link rel=stylesheet  href="/css/latex.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <link rel=stylesheet  href="/css/weave.css"> <script type="text/x-mathjax-config"> MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, TeX: { equationNumbers: { autoNumber: "AMS" } } }); </script> <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> <title>The Different Flavors of Parallelism - MIT Parallel Computing and Scientific Machine Learning (SciML)</title> <div id=layout > <div id=menu > <ul> <li><a style="font-size:larger;" href=https://github.com/SciML/SciMLBook><i class="fa fa-github"></i></a> <li><a style="font-size:larger;" href="/">Home</a> <li><a style="font-size:larger;" href="/course/">Course</a> <li><a style="font-size:larger;" href="/homework/">Homework</a> <li><a style="font-size:larger;" href="/lectures/">Lectures</a> <li><a style="font-size:larger;" href="/notes/">Notes</a> <ul style="font-size:smaller"> <li><a href="/notes/02-Optimizing_Serial_Code/">02: Serial Code</a> <li><a href="/notes/03-Introduction_to_Scientific_Machine_Learning_through_Physics-Informed_Neural_Networks/">03: SciML Intro</a> <li><a href="/notes/04-How_Loops_Work-An_Introduction_to_Discrete_Dynamics/">04: How Loops Work</a> <li><a href="/notes/05-The_Basics_of_Single_Node_Parallel_Computing/">05: Basics of Parallelism</a> <li><a href="/notes/06-The_Different_Flavors_of_Parallelism/">06: Flavors of Parallelism</a> <li><a href="/notes/07-Ordinary_Differential_Equations-Applications_and_Discretizations/">07: ODEs</a> <li><a href="/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/">08: Forward AD</a> <li><a href="/notes/09-Solving_Stiff_Ordinary_Differential_Equations/">09: Stiff ODEs</a> <li><a href="/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/">10: Reverse AD</a> <li><a href="/notes/11-Differentiable_Programming_and_Neural_Differential_Equations/">11: δP</a> <li><a href="/notes/12-Description_of_MPI_and_MPI/">12: MPI</a> <li><a href="/notes/13-GPU_programming/">13: GPUs</a> <li><a href="/notes/14-PDEs_Convolutions_and_the_Mathematics_of_Locality/">14: PDEs</a> <li><a href="/notes/15-Mixing_Differential_Equations_and_Neural_Networks_for_Physics-Informed_Learning/">15: Physics Informed Learning</a> <li><a href="/notes/16-From_Optimization_to_Probabilistic_Programming/">16: Probabilistic Programming</a> <li><a href="/notes/17-Global_Sensitivity_Analysis/">17: Global Sensitivity Analysis</a> <li><a href="/notes/18-Code_Profiling_and_Optimization/">18: Profiling & Optimization</a> <li><a href="/notes/19-Uncertainty_Programming-Generalized_Uncertainty_Quantification/">19: Uncertainty Programming</a> </ul> </ul> </div> <div id=main > <div class=franklin-content > <h1 class=title >The Different Flavors of Parallelism</h1> <h5>Chris Rackauckas</h5> <h5>September 25th, 2020</h5> <h2><a href="https://youtu.be/EP5VWwPIews">Youtube Video Link</a></h2> <p>Now that you are aware of the basics of parallel computing, let&#39;s give a high level overview of the differences between different modes of parallelism.</p> <h2>Lowest Level: SIMD</h2> <p>Recall SIMD, the idea that processors can run multiple commands simultaneously on specially structured data. &quot;Single Instruction Multiple Data&quot;. SIMD is parallelism within a single core.</p> <h3>High Level Idea of SIMD</h3> <p>Calculations can occur in parallel in the processor if there is sufficient structure in the computation.</p> <h3>How to do SIMD</h3> <p>The simplest way to do SIMD is simply to make sure that your values are aligned. If they are, then great, LLVM&#39;s autovectorizer pass has a good chance of automatic vectorization &#40;in the world of computing, &quot;SIMD&quot; is synonymous with vectorization since it is taking specific values and instead computing on small vectors. That is not to be confused with &quot;vectorization&quot; in the sense of Python/R/MATLAB, which is a programming style which prefers using C-defined primitive functions, like broadcast or matrix multiplication&#41;.</p> <p>You can check for auto-vectorization inside of the LLVM IR by looking for statements like:</p> <pre><code>&#37;wide.load24 &#61; load &lt;4 x double&gt;, &lt;4 x double&gt; addrspac&#40;13&#41;* &#37;46, align 8
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/tufte.css"> <link rel=stylesheet  href="/css/latex.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/favicon.png"> <link rel=stylesheet  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <link rel=stylesheet  href="/css/weave.css"> <script> MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']], processEscapes: true, tags: 'ams' } }; </script> <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> <title>The Different Flavors of Parallelism - MIT Parallel Computing and Scientific Machine Learning (SciML)</title> <div id=layout > <div id=menu > <ul> <li><a style="font-size:larger;" href=https://github.com/SciML/SciMLBook><i class="fa fa-github"></i></a> <li><a style="font-size:larger;" href="/">Home</a> <li><a style="font-size:larger;" href="/course/">Course</a> <li><a style="font-size:larger;" href="/homework/">Homework</a> <li><a style="font-size:larger;" href="/lectures/">Lectures</a> <li><a style="font-size:larger;" href="/notes/">Notes</a> <ul style="font-size:smaller"> <li><a href="/notes/02-Optimizing_Serial_Code/">02: Serial Code</a> <li><a href="/notes/03-Introduction_to_Scientific_Machine_Learning_through_Physics-Informed_Neural_Networks/">03: SciML Intro</a> <li><a href="/notes/04-How_Loops_Work-An_Introduction_to_Discrete_Dynamics/">04: How Loops Work</a> <li><a href="/notes/05-The_Basics_of_Single_Node_Parallel_Computing/">05: Basics of Parallelism</a> <li><a href="/notes/06-The_Different_Flavors_of_Parallelism/">06: Flavors of Parallelism</a> <li><a href="/notes/07-Ordinary_Differential_Equations-Applications_and_Discretizations/">07: ODEs</a> <li><a href="/notes/08-Forward-Mode_Automatic_Differentiation_(AD)_via_High_Dimensional_Algebras/">08: Forward AD</a> <li><a href="/notes/09-Solving_Stiff_Ordinary_Differential_Equations/">09: Stiff ODEs</a> <li><a href="/notes/10-Basic_Parameter_Estimation-Reverse-Mode_AD-and_Inverse_Problems/">10: Reverse AD</a> <li><a href="/notes/11-Differentiable_Programming_and_Neural_Differential_Equations/">11: δP</a> <li><a href="/notes/12-Description_of_MPI_and_MPI/">12: MPI</a> <li><a href="/notes/13-GPU_programming/">13: GPUs</a> <li><a href="/notes/14-PDEs_Convolutions_and_the_Mathematics_of_Locality/">14: PDEs</a> <li><a href="/notes/15-Mixing_Differential_Equations_and_Neural_Networks_for_Physics-Informed_Learning/">15: Physics Informed Learning</a> <li><a href="/notes/16-From_Optimization_to_Probabilistic_Programming/">16: Probabilistic Programming</a> <li><a href="/notes/17-Global_Sensitivity_Analysis/">17: Global Sensitivity Analysis</a> <li><a href="/notes/18-Code_Profiling_and_Optimization/">18: Profiling & Optimization</a> <li><a href="/notes/19-Uncertainty_Programming-Generalized_Uncertainty_Quantification/">19: Uncertainty Programming</a> </ul> </ul> </div> <div id=main > <div class=franklin-content > <h1 class=title >The Different Flavors of Parallelism</h1> <h5>Chris Rackauckas</h5> <h5>September 25th, 2020</h5> <h2><a href="https://youtu.be/EP5VWwPIews">Youtube Video Link</a></h2> <p>Now that you are aware of the basics of parallel computing, let&#39;s give a high level overview of the differences between different modes of parallelism.</p> <h2>Lowest Level: SIMD</h2> <p>Recall SIMD, the idea that processors can run multiple commands simultaneously on specially structured data. &quot;Single Instruction Multiple Data&quot;. SIMD is parallelism within a single core.</p> <h3>High Level Idea of SIMD</h3> <p>Calculations can occur in parallel in the processor if there is sufficient structure in the computation.</p> <h3>How to do SIMD</h3> <p>The simplest way to do SIMD is simply to make sure that your values are aligned. If they are, then great, LLVM&#39;s autovectorizer pass has a good chance of automatic vectorization &#40;in the world of computing, &quot;SIMD&quot; is synonymous with vectorization since it is taking specific values and instead computing on small vectors. That is not to be confused with &quot;vectorization&quot; in the sense of Python/R/MATLAB, which is a programming style which prefers using C-defined primitive functions, like broadcast or matrix multiplication&#41;.</p> <p>You can check for auto-vectorization inside of the LLVM IR by looking for statements like:</p> <pre><code>&#37;wide.load24 &#61; load &lt;4 x double&gt;, &lt;4 x double&gt; addrspac&#40;13&#41;* &#37;46, align 8
 ; └
 ; ┌ @ float.jl:395 within &#96;&#43;&#39;
 &#37;47 &#61; fadd &lt;4 x double&gt; &#37;wide.load, &#37;wide.load24</code></pre> <p>which means that 4 additions are happening simultaneously. The amount of vectorization is heavily dependent on your architecture. The ancient form of SIMD, the SSE&#40;2&#41; instructions, required that your data was aligned. Now there&#39;s a bit more leeway, but generally it holds that making your the data you&#39;re trying to SIMD over is aligned. Thus there can be major differences in computing using a <em>struct of array</em> format instead of an <em>arrays of structs</em> format. For example:</p> <pre class='hljl'>
@@ -9,26 +9,26 @@
 </span><span class='hljl-n'>arr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>())</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-p'>]</span>
 </pre> <pre class=output >
 100-element Vector&#123;MyComplex&#125;:
- MyComplex&#40;0.24755912429427285, 0.22279008131026778&#41;
- MyComplex&#40;0.4949712973849464, 0.14692485905873975&#41;
- MyComplex&#40;0.3293533232786293, 0.858845731279387&#41;
- MyComplex&#40;0.753219764852673, 0.7412007707158952&#41;
- MyComplex&#40;0.23035911006427578, 0.4585074972854425&#41;
- MyComplex&#40;0.7222811049365047, 0.09501107225594807&#41;
- MyComplex&#40;0.34233932161179814, 0.8633428318863108&#41;
- MyComplex&#40;0.7626098612059549, 0.8706584900446956&#41;
- MyComplex&#40;0.6489007432218009, 0.11593410718615405&#41;
- MyComplex&#40;0.604000538789414, 0.6493581508853518&#41;
+ MyComplex&#40;0.12939700109393382, 0.8376512848706767&#41;
+ MyComplex&#40;0.040419669551278514, 0.5355495580039111&#41;
+ MyComplex&#40;0.5930912896444575, 0.08368297481354503&#41;
+ MyComplex&#40;0.6509420094982795, 0.3405335780006645&#41;
+ MyComplex&#40;0.579837194294367, 0.6254884353198435&#41;
+ MyComplex&#40;0.8104344378069808, 0.6558599639083479&#41;
+ MyComplex&#40;0.3529108647139415, 0.2911086723762004&#41;
+ MyComplex&#40;0.9696936518061993, 0.9298599697469013&#41;
+ MyComplex&#40;0.955167815575827, 0.7083423388137372&#41;
+ MyComplex&#40;0.5179095238664688, 0.5493380261571918&#41;
  ⋮
- MyComplex&#40;0.8035244193756315, 0.5807698384068867&#41;
- MyComplex&#40;0.45274171160569365, 0.7345543504607281&#41;
- MyComplex&#40;0.3768565505677113, 0.5443978660965588&#41;
- MyComplex&#40;0.18987084306321156, 0.25750715302151783&#41;
- MyComplex&#40;0.02942165571472055, 0.8929759874490332&#41;
- MyComplex&#40;0.7382407091248657, 0.28417435996343066&#41;
- MyComplex&#40;0.4668191276139868, 0.8308928557600087&#41;
- MyComplex&#40;0.6955718104552863, 0.55873365570435&#41;
- MyComplex&#40;0.8819726692823551, 0.07269505963293699&#41;
+ MyComplex&#40;0.7208534265522836, 0.658819569427417&#41;
+ MyComplex&#40;0.1601083584473646, 0.7680469355912863&#41;
+ MyComplex&#40;0.5235446282802035, 0.7281005042802311&#41;
+ MyComplex&#40;0.9742888049636115, 0.43957168387039647&#41;
+ MyComplex&#40;0.7595420270143685, 0.7005450805874843&#41;
+ MyComplex&#40;0.6207619202728067, 0.7630735578085706&#41;
+ MyComplex&#40;0.6092584882997024, 0.5274981415414546&#41;
+ MyComplex&#40;0.6444309161604278, 0.8899729798964072&#41;
+ MyComplex&#40;0.36154564366094144, 0.23288920935760704&#41;
 </pre> <p>is represented in memory as</p> <pre><code>&#91;real1,imag1,real2,imag2,...&#93;</code></pre>
 <p>while the struct of array formats are</p>
 
@@ -43,18 +43,18 @@
 
 
 <pre class=output >
-MyComplexes&#40;&#91;0.04924061864584073, 0.4964058840318575, 0.742818907592775, 0.
-5902713248255617, 0.16586717198460244, 0.9290636341793098, 0.87939657257234
-26, 0.33656554918572457, 0.21980566197455642, 0.8068261303657046  …  0.5260
-477909122657, 0.38877757889135434, 0.1105428680182029, 0.2750429046466525, 
-0.05252197610331921, 0.6324135768545862, 0.9072399251649057, 0.800384233258
-1405, 0.21117345979665647, 0.5841614837394812&#93;, &#91;0.10135942832356837, 0.562
-9420530400536, 0.70536250076091, 0.26892221519951787, 0.01470538755069506, 
-0.3176715614623258, 0.5254471519060447, 0.34795689608931357, 0.589163911224
-3773, 0.28138883461989583  …  0.6229890429912076, 0.6483458819600192, 0.057
-5627221618733, 0.413580319672883, 0.02935598852879029, 0.32645192480585494,
- 0.2207192761067832, 0.8538355117932106, 0.6132448918500863, 0.215354804176
-40385&#93;&#41;
+MyComplexes&#40;&#91;0.047462165410264934, 0.46611970811781056, 0.920132893796645, 
+0.4446620056861823, 0.4839823762494885, 0.4751911820680449, 0.5399768600993
+56, 0.02641590097270341, 0.5518195481995736, 0.18065588082949424  …  0.6547
+65667697282, 0.2786820715915256, 0.8196351546000078, 0.5211102255941681, 0.
+33911228090816414, 0.7218823380789002, 0.17755708841064932, 0.3351149946777
+3753, 0.4868189036358126, 0.01924972175513351&#93;, &#91;0.9699141067794386, 0.5458
+75721390152, 0.2014377246398834, 0.01002833801478309, 0.20133402382206134, 
+0.4046877730055255, 0.7354218971479675, 0.631657965725148, 0.66894362566092
+24, 0.5929280937244122  …  0.20396133679496165, 0.8551657735586213, 0.25932
+903792475515, 0.5331980887829704, 0.9775227976010542, 0.9933258595448077, 0
+.6401514988617062, 0.3022432998274819, 0.8142065226115851, 0.22519331031754
+353&#93;&#41;
 </pre>
 
 
@@ -74,7 +74,7 @@ MyComplexes&#40;&#91;0.04924061864584073, 0.4964058840318575, 0.742818907592775,
 ; Function Signature: average&#40;Array&#123;Main.MyComplex, 1&#125;&#41;
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:5 within &#96;average&#96;
-define void @julia_average_57809&#40;ptr noalias nocapture noundef nonnull sret
+define void @julia_average_57816&#40;ptr noalias nocapture noundef nonnull sret
 &#40;&#91;2 x double&#93;&#41; align 8 dereferenceable&#40;16&#41; &#37;sret_return, ptr noundef nonnul
 l align 8 dereferenceable&#40;24&#41; &#37;&quot;x::Array&quot;&#41; #0 &#123;
 top:
@@ -106,15 +106,15 @@ ptr&quot;, align 8
 
 L6:                                               ; preds &#61; &#37;top
 ; ││││││││││ @ reduce.jl:421 within &#96;_mapreduce&#96;
-            store ptr @&quot;jl_global#57814.jit&quot;, ptr &#37;jlcallframe1, align 8
+            store ptr @&quot;jl_global#57821.jit&quot;, ptr &#37;jlcallframe1, align 8
             &#37;0 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 1
-            store ptr @&quot;jl_global#57815.jit&quot;, ptr &#37;0, align 8
+            store ptr @&quot;jl_global#57822.jit&quot;, ptr &#37;0, align 8
             &#37;1 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 2
             store ptr &#37;&quot;x::Array&quot;, ptr &#37;1, align 8
             &#37;2 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 3
-            store ptr @&quot;jl_global#57816.jit&quot;, ptr &#37;2, align 8
-            &#37;3 &#61; call nonnull ptr @j1_mapreduce_empty_iter_57812&#40;ptr nonnul
-l @&quot;jl_global#57813.jit&quot;, ptr nonnull &#37;jlcallframe1, i32 4&#41;
+            store ptr @&quot;jl_global#57823.jit&quot;, ptr &#37;2, align 8
+            &#37;3 &#61; call nonnull ptr @j1_mapreduce_empty_iter_57819&#40;ptr nonnul
+l @&quot;jl_global#57820.jit&quot;, ptr nonnull &#37;jlcallframe1, i32 4&#41;
             call void @llvm.trap&#40;&#41;
             unreachable
 
@@ -220,7 +220,7 @@ guard_pass71:                                     ; preds &#61; &#37;L29
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:436 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:269 within &#96;mapreduce_impl&#96;
-             call void @j_mapreduce_impl_57818&#40;ptr noalias nocapture nounde
+             call void @j_mapreduce_impl_57825&#40;ptr noalias nocapture nounde
 f nonnull sret&#40;&#91;2 x double&#93;&#41; &#37;sret_box, ptr nonnull &#37;&quot;x::Array&quot;, i64 signex
 t 1, i64 signext &#37;&quot;x::Array.size.0.copyload&quot;, i64 signext 1024&#41;
 ; └└└└└└└└└└└
@@ -533,7 +533,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-52.247 μs &#40;7 allocations: 416 bytes&#41;
+51.476 μs &#40;7 allocations: 416 bytes&#41;
 </pre>
 
 
@@ -546,7 +546,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-68.748 μs &#40;7 allocations: 416 bytes&#41;
+69.239 μs &#40;7 allocations: 416 bytes&#41;
 </pre>
 
 
@@ -559,7 +559,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-78.977 μs &#40;7 allocations: 416 bytes&#41;
+79.509 μs &#40;7 allocations: 416 bytes&#41;
 </pre>
 
 
@@ -572,7 +572,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-3.085 ns &#40;0 allocations: 0 bytes&#41;
+3.095 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -588,14 +588,14 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 ; Function Signature: h&#40;&#41;
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:26 within &#96;h&#96;
-define void @julia_h_62034&#40;&#41; #0 &#123;
+define void @julia_h_62041&#40;&#41; #0 &#123;
 top:
-  &#37;&quot;jl_global#62036.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#62036.jit&quot;, a
+  &#37;&quot;jl_global#62043.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#62043.jit&quot;, a
 lign 8
-  &#37;0 &#61; add i64 &#37;&quot;jl_global#62036.jit.promoted&quot;, 10000
+  &#37;0 &#61; add i64 &#37;&quot;jl_global#62043.jit.promoted&quot;, 10000
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:29 within &#96;h&#96;
-  store i64 &#37;0, ptr @&quot;jl_global#62036.jit&quot;, align 8
+  store i64 &#37;0, ptr @&quot;jl_global#62043.jit&quot;, align 8
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:30 within &#96;h&#96;
   ret void
@@ -620,7 +620,7 @@ lelism.jmd:30 within &#96;h&#96;
 
 
 <pre class=output >
-3.095 ns &#40;0 allocations: 0 bytes&#41;
+2.785 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -634,13 +634,13 @@ lelism.jmd:30 within &#96;h&#96;
 ; Function Signature: h2&#40;&#41;
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:3 within &#96;h2&#96;
-define void @julia_h2_62049&#40;&#41; #0 &#123;
+define void @julia_h2_62056&#40;&#41; #0 &#123;
 top:
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:6 within &#96;h2&#96;
 ; ┌ @ refvalue.jl:59 within &#96;getindex&#96;
 ; │┌ @ Base_compiler.jl:54 within &#96;getproperty&#96;
-    &#37;.x &#61; load i64, ptr @&quot;jl_global#62051.jit&quot;, align 8
+    &#37;.x &#61; load i64, ptr @&quot;jl_global#62058.jit&quot;, align 8
 ; └└
 ; ┌ @ range.jl:917 within &#96;iterate&#96;
 ; │┌ @ range.jl:688 within &#96;isempty&#96;
@@ -651,14 +651,14 @@ lelism.jmd:6 within &#96;h2&#96;
   br i1 &#37;0, label &#37;L31, label &#37;L17.preheader
 
 L17.preheader:                                    ; preds &#61; &#37;top
-  &#37;&quot;jl_global#62052.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#62052.jit&quot;, a
+  &#37;&quot;jl_global#62059.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#62059.jit&quot;, a
 lign 8
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:8 within &#96;h2&#96;
-  &#37;1 &#61; add i64 &#37;&quot;jl_global#62052.jit.promoted&quot;, &#37;.x
+  &#37;1 &#61; add i64 &#37;&quot;jl_global#62059.jit.promoted&quot;, &#37;.x
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:7 within &#96;h2&#96;
-  store i64 &#37;1, ptr @&quot;jl_global#62052.jit&quot;, align 8
+  store i64 &#37;1, ptr @&quot;jl_global#62059.jit&quot;, align 8
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:8 within &#96;h2&#96;
   br label &#37;L31
@@ -1066,7 +1066,7 @@ Suggestion: check for spelling errors or missing imports.
 <div class=footer >
   <p>
     Published from <a href=styles_of_parallelism.jmd >styles_of_parallelism.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-02-01.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-02-17.
   </p>
 </div>
 
