@@ -8,13 +8,17 @@
     {{insert style.html}}
     {{if weave}}
         <link rel="stylesheet" href="/css/weave.css">
-        <script type="text/x-mathjax-config">
-          MathJax.Hub.Config({
-            tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
-            TeX: { equationNumbers: { autoNumber: "AMS" } }
-          });
+        <script>
+          MathJax = {
+            tex: {
+              inlineMath: [['$','$'], ['\\(','\\)']],
+              displayMath: [['$$','$$'], ['\\[','\\]']],
+              processEscapes: true,
+              tags: 'ams'
+            }
+          };
         </script>
-        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     {{end}}
     {{isdef title}} <title>{{fill title}} - MIT Parallel Computing and Scientific Machine Learning (SciML)</title>  {{end}}
 </head>
