@@ -21,25 +21,25 @@ equations, the aforementioned physics-informed neural network, and see how to
 define neural network architectures that satisfy physical constraints to improve
 the training process.
 
-## Getting Started with Machine Learning: Adding Flux
+## Getting Started with Machine Learning: Adding Lux
 
-To add Flux.jl we would do:
+To add Lux.jl we would do:
 
 ```julia;eval=false
-]add Flux
+]add Lux Optimisers Enzyme ComponentArrays Random
 ```
 
 To then use the package we will then use the `using` command:
 
 ```julia
-using Flux
+using Lux, Optimisers, Enzyme, ComponentArrays, Random
 ```
 
 If you prefer to namespace all commands (like is normally done in Python, i.e.
-`Flux.gradient` instead of `gradient`), you can use the command:
+`Enzyme.autodiff` instead of `autodiff`), you can use the command:
 
 ```julia;eval=false
-import Flux
+import Lux
 ```
 
 Note that the installation and precompilation of these packages will occur at
@@ -75,9 +75,9 @@ simpleNN(rand(10))
 This is our direct definition of a neural network. Notice that we choose to use
 `tanh` as our **activation function** between the layers.
 
-### Defining Neural Networks with Flux.jl
+### Defining Neural Networks with Lux.jl
 
-One of the main deep learning libraries in Julia is Flux.jl. Flux is an interesting
+One of the main deep learning libraries in Julia is Lux.jl. Lux is an interesting
 library for scientific machine learning because it is built on top of language-wide
 **automatic differentiation** libraries, giving rise to a programming paradigm
 known as **differentiable programming**, which means that one can write a program
@@ -86,9 +86,9 @@ built on a differentiable programming base, the underlying functionality is
 simply standard Julia code,
 
 To learn how to use the library, consult the documentation. A Google search
-will bring up the [Flux.jl Github repository](https://github.com/FluxML/Flux.jl).
+will bring up the [Lux.jl Github repository](https://github.com/LuxDL/Lux.jl).
 From there, the blue link on the README brings you to
-[the package documentation](https://fluxml.ai/Flux.jl/stable/). This is common
+[the package documentation](https://lux.csail.mit.edu/stable/). This is common
 through Julia so it's a good habit to learn!
 
 In the documentation you will find that the way a neural network is defined
@@ -97,14 +97,15 @@ which is given by an input size, an output size, and an activation function.
 For example, the following recreates the neural network that we had above:
 
 ```julia
-using Flux
+using Lux, Optimisers, Enzyme, ComponentArrays, Random
 NN2 = Chain(Dense(10 => 32,tanh),
            Dense(32 => 32,tanh),
            Dense(32 => 5))
-NN2(rand(10))
+ps, st = Lux.setup(Xoshiro(0), NN2)
+NN2(rand(Float32, 10), ps, st)[1]
 ```
 
-Notice that Flux.jl as a library is written in pure Julia, which means that every
+Notice that Lux.jl as a library is written in pure Julia, which means that every
 piece of this syntax is just sugar over some Julia code that we can specialize
 ourselves (this is the advantage of having a language fast enough for the
 implementation of the library and the use of the library!)
@@ -117,7 +118,8 @@ to replace it by something like the quadratic function, we can just use an
 NN3 = Chain(Dense(10 => 32,x->x^2),
             Dense(32 => 32,x->max(0,x)),
             Dense(32 => 5))
-NN3(rand(10))
+ps, st = Lux.setup(Xoshiro(0), NN3)
+NN3(rand(Float32, 10), ps, st)[1]
 ```
 
 The second activation function there is what's known as a `relu`. A `relu` can
@@ -174,13 +176,13 @@ function which defaults to `identity`), then what it will do is take random
 initial `W` and `b` matrices (according to the `glorot_uniform` distribution for
 `W` and `zeros` for `b`), and then it will build the type with those matrices.
 
-The next portion might be new. We give it here in the simpler form it had in earlier
-versions of the Flux package, so that we can concentrate on the essential:
+The next portion might be new. We give it here in the simpler form it has in Lux,
+which makes the parameters and state explicit:
 
 ```julia;eval=false
-function (a::Dense)(x::AbstractArray)
-  W, b, σ = a.W, a.b, a.σ
-  σ.(W*x .+ b)
+function (a::Dense)(x::AbstractArray, ps, st)
+  W, b, σ = ps.weight, ps.bias, a.activation
+  σ.(W*x .+ b), st
 end
 ```
 
@@ -219,7 +221,8 @@ this is just a function, let's call it directly:
 
 ```julia
 denselayer_f = Dense(32 => 32,tanh)
-denselayer_f(rand(32))
+ps, st = Lux.setup(Xoshiro(0), denselayer_f)
+denselayer_f(rand(Float32, 32), ps, st)[1]
 ```
 
 So okay, `Dense` objects are just functions that have weight and bias matrices
@@ -230,7 +233,7 @@ inside of them. Now what does `Chain` do?
 ```
 
 Again, for our explanations here we will look at the slightly simpler code From
-and earlier version of the Flux package:
+and earlier version of the Lux package:
 
 ```julia;eval=false
 struct Chain{T<:Tuple}
@@ -375,8 +378,9 @@ any input ``x \in [0,1]^{10}``. We can then write the loss function:
 NN = Chain(Dense(10 => 32,tanh),
            Dense(32 => 32,tanh),
            Dense(32 => 5))
-loss() = sum(abs2,sum(abs2,NN(rand(10)).-1) for i in 1:100)
-loss()
+ps, st = Lux.setup(Xoshiro(0), NN)
+loss(p) = sum(abs2,sum(abs2,NN(rand(Float32, 10), p, st)[1] .- 1f0) for i in 1:100)
+loss(ps)
 ```
 
 This loss function takes 100 random points in ``[0,1]^{10}`` and then computes the output
@@ -384,34 +388,33 @@ of the neural network minus `1` on each of the values, and sums up the squared
 values (`abs2`). Why the squared values? This means that every computed loss value
 is positive, and so we know that by decreasing the loss this means that, on average
 our neural network outputs are closer to 1. What are the weights? Since we're using
-the Flux callable struct style from above, the weights are those inside of the
-`NN` chain object, which we can inspect:
+parameter-explicit layers, the weights are inside the `ps` NamedTuple, which we can inspect:
 
 ```julia
-NN[1].weight # The W matrix of the first layer
+ps.layer_1.weight # The W matrix of the first layer
 ```
 
 Now let's train the neural network by finding the optimal parameters which cause
-it to be the constant `1` function. We use `Flux.setup` to initialize the
-optimizer state, then use `Flux.gradient` and `Flux.update!` in a loop:
+it to be the constant `1` function. We use `Lux.Training.TrainState` and `Lux.Training.single_train_step!`
+to compute the gradients and update the parameters in a loop:
 
 ```julia
-optim = Flux.setup(Adam(0.1), NN)
+tstate = Lux.Training.TrainState(NN, ps, st, Adam(0.1f0))
+opt_loss(model, p, s, _) = sum(abs2, sum(abs2, model(rand(Float32, 10), p, s)[1] .- 1f0) for i in 1:100), s, ()
+
 for epoch in 1:10000
-    grads = Flux.gradient(NN) do m
-        sum(abs2,sum(abs2,m(rand(10)).-1) for i in 1:100)
-    end
-    Flux.update!(optim, NN, grads[1])
+    global tstate
+    loss_val, grads, stats, tstate = Lux.Training.single_train_step!(AutoEnzyme(), opt_loss, nothing, tstate)
 end
 ```
 
 Now let's check the loss:
 
 ```julia
-loss()
+loss(tstate.parameters)
 ```
 
-This means that `NN(x)` is now a very good function approximator to `f(x) = ones(5)`!
+This means that `NN(x, p, st)[1]` is now a very good function approximator to `f(x) = ones(5)`!
 
 ### So Why Machine Learning? Why Neural Networks?
 
@@ -585,7 +588,7 @@ once again, to simply finding weights which minimize a loss function!
 
 ### Coding Up the Method
 
-Now let's implement this method with Flux. Let's define a neural network to be
+Now let's implement this method with Lux. Let's define a neural network to be
 the `NN(t)` above. To make the problem easier, let's look at the ODE:
 
 $$u' = \cos 2\pi t$$
@@ -593,12 +596,14 @@ $$u' = \cos 2\pi t$$
 and approximate it with the neural network from a scalar to a scalar:
 
 ```julia
-using Flux
+using Lux, Optimisers, Enzyme, ComponentArrays, Random
 NNODE = Chain(x -> [x], # Take in a scalar and transform it into an array
            Dense(1 => 32,tanh),
            Dense(32 => 1),
-           first) # Take first value, i.e. return a scalar
-NNODE(1.0)
+           WrappedFunction(first)) # Take first value, i.e. return a scalar
+ps, st = Lux.setup(Xoshiro(0), NNODE)
+ps = ComponentArray(ps) # Optimization is easier on flat arrays
+NNODE(1.0f0, ps, st)[1]
 ```
 
 Instead of directly approximating the neural network, we will use the transformed
@@ -606,7 +611,7 @@ equation that is forced to satisfy the boundary conditions. Using `u0=1.0`, we
 have the function:
 
 ```julia
-g(t) = t*NNODE(t) + 1f0
+g(t, p) = t * NNODE(t, p, st)[1] + 1f0
 ```
 
 as our universal approximator. Thus, for this to be a function that satisfies
@@ -618,23 +623,21 @@ we would need that:
 ```julia
 using Statistics
 ϵ = sqrt(eps(Float32))
-loss() = mean(abs2(((g(t+ϵ)-g(t))/ϵ) - cos(2π*t)) for t in 0:1f-2:1f0)
+loss(p) = mean(abs2(((g(t+ϵ, p)-g(t, p))/ϵ) - cos(2π*t)) for t in 0f0:1f-2:1f0)
 ```
 
 would be minimized.
 
 ```julia
-optim = Flux.setup(Descent(0.01), NNODE)
-display(loss())
+tstate = Lux.Training.TrainState(NNODE, ps, st, Descent(0.01f0))
+opt_loss(model, p, s, _) = mean(abs2((((t+ϵ)*model(t+ϵ, p, s)[1] + 1f0) - ((t)*model(t, p, s)[1] + 1f0))/ϵ - cos(2π*t)) for t in 0f0:1f-2:1f0), s, ()
+
+display(loss(tstate.parameters))
 for epoch in 1:5000
-    grads = Flux.gradient(NNODE) do m
-        ϵ = sqrt(eps(Float32))
-        g(t) = t*m(t) + 1f0
-        mean(abs2(((g(t+ϵ)-g(t))/ϵ) - cos(2π*t)) for t in 0:1f-2:1f0)
-    end
-    Flux.update!(optim, NNODE, grads[1])
+    global tstate
+    loss_val, grads, stats, tstate = Lux.Training.single_train_step!(AutoEnzyme(), opt_loss, nothing, tstate)
     if epoch % 500 == 0
-        display(loss())
+        display(loss(tstate.parameters))
     end
 end
 ```
@@ -652,8 +655,8 @@ equation:
 
 ```julia
 using Plots
-t = 0:0.001:1.0
-plot(t,g.(t),label="NN")
+t = 0f0:0.001f0:1f0
+plot(t,g.(t, Ref(tstate.parameters)),label="NN")
 plot!(t,1.0 .+ sin.(2π.*t)/2π, label = "True Solution")
 ```
 
@@ -729,28 +732,30 @@ NNForce = Chain(x -> [x],
            Dense(1 => 32,tanh),
            Dense(32 => 1),
            first)
+ps2, st2 = Lux.setup(Xoshiro(0), NNForce)
+ps2 = ComponentArray(ps2)
 ```
 
 Now our loss function will be to match the force at the (position,force) pairs
 in the dataset:
 
 ```julia
-loss() = sum(abs2,NNForce(position_data[i]) - force_data[i] for i in 1:length(position_data))
-loss()
+loss_force(p) = sum(abs2, NNForce(Float32(position_data[i]), p, st2)[1] - Float32(force_data[i]) for i in 1:length(position_data))
+loss_force(ps2)
 ```
 
 Our random parameters do not do so well, so let's train!
 
 ```julia
-optim = Flux.setup(Descent(0.01), NNForce)
-display(loss())
+tstate2 = Lux.Training.TrainState(NNForce, ps2, st2, Descent(0.01f0))
+opt_loss_force(model, p, s, _) = sum(abs2, model(Float32(position_data[i]), p, s)[1] - Float32(force_data[i]) for i in 1:length(position_data)), s, ()
+
+display(loss_force(tstate2.parameters))
 for epoch in 1:5000
-    grads = Flux.gradient(NNForce) do m
-        sum(abs2,m(position_data[i]) - force_data[i] for i in 1:length(position_data))
-    end
-    Flux.update!(optim, NNForce, grads[1])
+    global tstate2
+    loss_val, grads, stats, tstate2 = Lux.Training.single_train_step!(AutoEnzyme(), opt_loss_force, nothing, tstate2)
     if epoch % 500 == 0
-        display(loss())
+        display(loss_force(tstate2.parameters))
     end
 end
 ```
@@ -759,7 +764,7 @@ The neural network almost exactly matched the dataset, but how well did it
 actually learn the real force function? Let's plot it to see:
 
 ```julia
-learned_force_plot = NNForce.(positions_plot)
+learned_force_plot = [NNForce(Float32(x), tstate2.parameters, st2)[1] for x in positions_plot]
 
 plot(plot_t,force_plot,xlabel="t",label="True Force")
 plot!(plot_t,learned_force_plot,label="Predicted Force")
@@ -791,37 +796,37 @@ be the solution to the differential equation.
 This term looks like what we had done before:
 
 ```julia
-random_positions = [2rand()-1 for i in 1:100] # random values in [-1,1]
-loss_ode() = sum(abs2,NNForce(x) - (-k*x) for x in random_positions)
-loss_ode()
+random_positions = Float32[2rand()-1 for i in 1:100] # random values in [-1,1]
+loss_ode(p) = sum(abs2, NNForce(x, p, st2)[1] - Float32(-k*x) for x in random_positions)
+loss_ode(tstate2.parameters)
 ```
 
 If this term is zero, then ``F(x) = -kx``, which is approximately true. So now
 let's put these together:
 
 ```julia
-λ = 0.1
-composed_loss() = loss() + λ*loss_ode()
+λ = 0.1f0
+composed_loss(p) = loss_force(p) + λ*loss_ode(p)
 ```
 
 where ``λ`` is some weight factor to control the regularization against the
 physics assumption. Now we can train the physics-informed neural network:
 
 ```julia
-optim = Flux.setup(Descent(0.01), NNForce)
-display(composed_loss())
+# Reset train state
+tstate2 = Lux.Training.TrainState(NNForce, ps2, st2, Descent(0.01f0))
+opt_composed_loss(model, p, s, _) = sum(abs2, model(Float32(position_data[i]), p, s)[1] - Float32(force_data[i]) for i in 1:length(position_data)) + λ*sum(abs2, model(x, p, s)[1] - Float32(-k*x) for x in random_positions), s, ()
+
+display(composed_loss(tstate2.parameters))
 for epoch in 1:5000
-    grads = Flux.gradient(NNForce) do m
-        sum(abs2,m(position_data[i]) - force_data[i] for i in 1:length(position_data)) +
-            λ*sum(abs2,m(x) - (-k*x) for x in random_positions)
-    end
-    Flux.update!(optim, NNForce, grads[1])
+    global tstate2
+    loss_val, grads, stats, tstate2 = Lux.Training.single_train_step!(AutoEnzyme(), opt_composed_loss, nothing, tstate2)
     if epoch % 500 == 0
-        display(composed_loss())
+        display(composed_loss(tstate2.parameters))
     end
 end
 
-learned_force_plot = NNForce.(positions_plot)
+learned_force_plot = [NNForce(Float32(x), tstate2.parameters, st2)[1] for x in positions_plot]
 
 plot(plot_t,force_plot,xlabel="t",label="True Force")
 plot!(plot_t,learned_force_plot,label="Predicted Force")
