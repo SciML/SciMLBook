@@ -145,6 +145,7 @@ end
 # Display the ODE with the current parameter values.
 cb()
 
+optprob = Optimization.OptimizationProblem((p, _) -> loss_adjoint(), p3)
 res = Optimization.solve(optprob, OptimizationOptimisers.Adam(0.01), callback = cb, maxiters = 300)
 ```
 
