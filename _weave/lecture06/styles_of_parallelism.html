@@ -3,6 +3,7 @@
 <h5>Chris Rackauckas</h5>
 <h5>September 25th, 2020</h5>
 
+<h2><a href="https://youtu.be/EP5VWwPIews">Youtube Video Link</a></h2>
 <p>Now that you are aware of the basics of parallel computing, let&#39;s give a high level overview of the differences between different modes of parallelism.</p>
 <h2>Lowest Level: SIMD</h2>
 <p>Recall SIMD, the idea that processors can run multiple commands simultaneously on specially structured data. &quot;Single Instruction Multiple Data&quot;. SIMD is parallelism within a single core.</p>
@@ -28,38 +29,27 @@
 
 
 <pre class="output">
-100-element Vector&#123;Main.##WeaveSandBox#2401.MyComplex&#125;:
- Main.##WeaveSandBox#2401.MyComplex&#40;0.38323805981773407, 0.614100845258412&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.40902848390188384, 0.2316481428031842
-4&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.18164036340732792, 0.0644396969325540
-2&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.9207581512837222, 0.10655795880108421
-&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.8552971927684474, 0.08983643986443535
-&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.561008989999782, 0.5604262224943958&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.7621166351289782, 0.5852158909788495&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.9952500481025438, 0.40479621590089954
-&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.4074932922062182, 0.37629152775131924
-&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.4514183114463861, 0.19831273861330967
-&#41;
+100-element Vector&#123;MyComplex&#125;:
+ MyComplex&#40;0.8523047548395498, 0.4125531070902788&#41;
+ MyComplex&#40;0.4514769185945525, 0.1029439779582455&#41;
+ MyComplex&#40;0.6863210187786938, 0.5251279130853324&#41;
+ MyComplex&#40;0.9160040383778725, 0.9234830232840949&#41;
+ MyComplex&#40;0.464865355931912, 0.17048033366556836&#41;
+ MyComplex&#40;0.22322931440731453, 0.22552908239324532&#41;
+ MyComplex&#40;0.6246410483852249, 0.4861499334107856&#41;
+ MyComplex&#40;0.6641652576399619, 0.15917068388005784&#41;
+ MyComplex&#40;0.6286365841058164, 0.258712758664405&#41;
+ MyComplex&#40;0.5753550288809771, 0.30124217646613627&#41;
  ⋮
- Main.##WeaveSandBox#2401.MyComplex&#40;0.0890724100047271, 0.9329093667956408&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.7080629672624927, 0.09264905964954429
-&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.2028960779054093, 0.9173583834931458&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.6808121865092325, 0.8721697007083917&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.3950741392747479, 0.8357543882532696&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.44811970651937505, 0.8457675767003067
-&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.32565610128033184, 0.3564957161461616
-&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.5076621240726915, 0.02317245453069860
-5&#41;
- Main.##WeaveSandBox#2401.MyComplex&#40;0.945156883976981, 0.20795364970077923&#41;
+ MyComplex&#40;0.04359318502106313, 0.20904990802512158&#41;
+ MyComplex&#40;0.9238886153126562, 0.40538160009310586&#41;
+ MyComplex&#40;0.9479171515281926, 0.7225584088799417&#41;
+ MyComplex&#40;0.19514936704805952, 0.42368419479442687&#41;
+ MyComplex&#40;0.7324615869041304, 0.9502639915259743&#41;
+ MyComplex&#40;0.27889142243861853, 0.7209901717462973&#41;
+ MyComplex&#40;0.891215293231482, 0.7468381071200766&#41;
+ MyComplex&#40;0.7601179339647308, 0.44593982651878383&#41;
+ MyComplex&#40;0.24586382921297834, 0.07793341027443135&#41;
 </pre>
 
 
@@ -78,18 +68,18 @@
 
 
 <pre class="output">
-Main.##WeaveSandBox#2401.MyComplexes&#40;&#91;0.3277015854626989, 0.844783483309853
-3, 0.5559921805669896, 0.7502237837240239, 0.31973061705895045, 0.943541873
-3661083, 0.392343167736495, 0.4991612522334242, 0.5968351884049063, 0.91192
-02879728876  …  0.5567233332241458, 0.9979073992013336, 0.13987453374008518
-, 0.31807964639956743, 0.48844542083276354, 0.9258391937748647, 0.333663661
-0069953, 0.8586109908987428, 0.7984366122823793, 0.927344922569535&#93;, &#91;0.857
-8723363287695, 0.9670061630582872, 0.3441077731234192, 0.23960031412040117,
- 0.5336533255590962, 0.4432469223581402, 0.6315015147682399, 0.403846904833
-2166, 0.5371341340004073, 0.29373913258515394  …  0.014724943203017093, 0.7
-253003078000944, 0.0800768189887966, 0.29786096099201176, 0.619406132654584
-9, 0.4779568022805464, 0.9161871784385428, 0.15702355660310163, 0.918573039
-1740934, 0.3323347784738929&#93;&#41;
+MyComplexes&#40;&#91;0.29481077653202603, 0.07288746925406919, 0.4880840512484709, 
+0.7517276349987929, 0.22998669941305971, 0.7307431021951104, 0.080334797018
+40618, 0.0687451045985743, 0.6942514393851852, 0.7051978957731863  …  0.823
+9347700882208, 0.3981474083836576, 0.20296679658709227, 0.5058973827247422,
+ 0.19339079937537207, 0.7978266602870819, 0.1096302373610949, 0.74700399170
+55343, 0.3397642678844913, 0.5902495397453125&#93;, &#91;0.4809615355385123, 0.6748
+354373804728, 0.19881127101633933, 0.3657195492221935, 0.7274015717563458, 
+0.4168238770737879, 0.7977522598692781, 0.5038706449136777, 0.8645691999223
+712, 0.6170021414183213  …  0.15977749528462304, 0.09668973529750602, 0.568
+3563328551461, 0.999625074192437, 0.6203738738789205, 0.0713101133894416, 0
+.38630334347922546, 0.3555008535655183, 0.9565664944333779, 0.5547664696543
+487&#93;&#41;
 </pre>
 
 
@@ -106,184 +96,334 @@ Main.##WeaveSandBox#2401.MyComplexes&#40;&#91;0.3277015854626989, 0.844783483309
 
 
 <pre class="output">
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:5 within &#96;average&#96;
-define void @julia_average_38828&#40;&#91;2 x double&#93;* noalias nocapture sret&#40;&#91;2 x 
-double&#93;&#41; &#37;0, &#123;&#125;* nonnull align 16 dereferenceable&#40;40&#41; &#37;1&#41; #0 &#123;
+; Function Signature: average&#40;Array&#123;Main.MyComplex, 1&#125;&#41;
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:5 within &#96;average&#96;
+define void @julia_average_744674&#40;ptr noalias nocapture noundef nonnull sre
+t&#40;&#91;2 x double&#93;&#41; align 8 dereferenceable&#40;16&#41; &#37;sret_return, ptr noundef nonnu
+ll align 8 dereferenceable&#40;24&#41; &#37;&quot;x::Array&quot;&#41; #0 &#123;
 top:
-  &#37;2 &#61; alloca &#91;4 x &#123;&#125;*&#93;, align 8
-  &#37;3 &#61; alloca &lt;2 x double&gt;, align 16
-  &#37;tmpcast &#61; bitcast &lt;2 x double&gt;* &#37;3 to &#91;2 x double&#93;*
-  &#37;.sub &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i64 0
-; ┌ @ reducedim.jl:889 within &#96;sum&#96;
-; │┌ @ reducedim.jl:889 within &#96;#sum#732&#96;
-; ││┌ @ reducedim.jl:893 within &#96;_sum&#96;
-; │││┌ @ reducedim.jl:893 within &#96;#_sum#734&#96;
-; ││││┌ @ reducedim.jl:894 within &#96;_sum&#96;
-; │││││┌ @ reducedim.jl:894 within &#96;#_sum#735&#96;
-; ││││││┌ @ reducedim.jl:322 within &#96;mapreduce&#96;
-; │││││││┌ @ reducedim.jl:322 within &#96;#mapreduce#725&#96;
-; ││││││││┌ @ reducedim.jl:330 within &#96;_mapreduce_dim&#96;
-; │││││││││┌ @ reduce.jl:399 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ indices.jl:457 within &#96;LinearIndices&#96;
-; │││││││││││┌ @ abstractarray.jl:95 within &#96;axes&#96;
-; ││││││││││││┌ @ array.jl:151 within &#96;size&#96;
-               &#37;4 &#61; bitcast &#123;&#125;* &#37;1 to &#123;&#125;**
-               &#37;5 &#61; getelementptr inbounds &#123;&#125;*, &#123;&#125;** &#37;4, i64 3
-               &#37;6 &#61; bitcast &#123;&#125;** &#37;5 to i64*
-               &#37;7 &#61; load i64, i64* &#37;6, align 8
-; │││││││││└└└└
-; │││││││││┌ @ reduce.jl:401 within &#96;_mapreduce&#96;
-            switch i64 &#37;7, label &#37;L14 &#91;
-    i64 0, label &#37;L8
-    i64 1, label &#37;L12
+  &#37;jlcallframe1 &#61; alloca &#91;4 x ptr&#93;, align 8
+  &#37;sret_box &#61; alloca &#91;2 x i64&#93;, align 8
+; ┌ @ reducedim.jl:979 within &#96;sum&#96;
+; │┌ @ reducedim.jl:979 within &#96;#sum#735&#96;
+; ││┌ @ reducedim.jl:983 within &#96;_sum&#96;
+; │││┌ @ reducedim.jl:983 within &#96;#_sum#737&#96;
+; ││││┌ @ reducedim.jl:984 within &#96;_sum&#96;
+; │││││┌ @ reducedim.jl:984 within &#96;#_sum#738&#96;
+; ││││││┌ @ reducedim.jl:326 within &#96;mapreduce&#96;
+; │││││││┌ @ reducedim.jl:326 within &#96;#mapreduce#728&#96;
+; ││││││││┌ @ reducedim.jl:334 within &#96;_mapreduce_dim&#96;
+; │││││││││┌ @ reduce.jl:418 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ indices.jl:536 within &#96;LinearIndices&#96;
+; │││││││││││┌ @ abstractarray.jl:98 within &#96;axes&#96;
+; ││││││││││││┌ @ array.jl:194 within &#96;size&#96;
+               &#37;&quot;x::Array.size_ptr&quot; &#61; getelementptr inbounds i8, ptr &#37;&quot;x::A
+rray&quot;, i64 16
+               &#37;&quot;x::Array.size.0.copyload&quot; &#61; load i64, ptr &#37;&quot;x::Array.size_
+ptr&quot;, align 8
+; ││││││││││└└└
+; ││││││││││ @ reduce.jl:420 within &#96;_mapreduce&#96;
+            switch i64 &#37;&quot;x::Array.size.0.copyload&quot;, label &#37;L29 &#91;
+    i64 0, label &#37;L6
+    i64 1, label &#37;guard_pass61
   &#93;
 
-L8:                                               ; preds &#61; &#37;top
-; │││││││││└
-; │││││││││┌ @ reduce.jl:402 within &#96;_mapreduce&#96;
-            store &#123;&#125;* inttoptr &#40;i64 140677190179072 to &#123;&#125;*&#41;, &#123;&#125;** &#37;.sub, al
-ign 8
-            &#37;8 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i6
-4 1
-            store &#123;&#125;* inttoptr &#40;i64 140677212784032 to &#123;&#125;*&#41;, &#123;&#125;** &#37;8, align
- 8
-            &#37;9 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i6
-4 2
-            store &#123;&#125;* &#37;1, &#123;&#125;** &#37;9, align 8
-            &#37;10 &#61; getelementptr inbounds &#91;4 x &#123;&#125;*&#93;, &#91;4 x &#123;&#125;*&#93;* &#37;2, i64 0, i
-64 3
-            store &#123;&#125;* inttoptr &#40;i64 140677186177952 to &#123;&#125;*&#41;, &#123;&#125;** &#37;10, alig
-n 8
-            &#37;11 &#61; call nonnull &#123;&#125;* @jl_invoke&#40;&#123;&#125;* inttoptr &#40;i64 14067721207
-7216 to &#123;&#125;*&#41;, &#123;&#125;** nonnull &#37;.sub, i32 4, &#123;&#125;* inttoptr &#40;i64 140673791474224 
-to &#123;&#125;*&#41;&#41;
+L6:                                               ; preds &#61; &#37;top
+; ││││││││││ @ reduce.jl:421 within &#96;_mapreduce&#96;
+            store ptr @&quot;jl_global#744679.jit&quot;, ptr &#37;jlcallframe1, align 8
+            &#37;0 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 1
+            store ptr @&quot;jl_global#744680.jit&quot;, ptr &#37;0, align 8
+            &#37;1 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 2
+            store ptr &#37;&quot;x::Array&quot;, ptr &#37;1, align 8
+            &#37;2 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 3
+            store ptr @&quot;jl_global#744681.jit&quot;, ptr &#37;2, align 8
+            &#37;3 &#61; call nonnull ptr @j1_mapreduce_empty_iter_744677&#40;ptr nonnu
+ll @&quot;jl_global#744678.jit&quot;, ptr nonnull &#37;jlcallframe1, i32 4&#41;
             call void @llvm.trap&#40;&#41;
             unreachable
 
-L12:                                              ; preds &#61; &#37;top
-; │││││││││└
-; │││││││││┌ @ reduce.jl:404 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
-             &#37;12 &#61; bitcast &#123;&#125;* &#37;1 to &lt;2 x double&gt;**
-             &#37;13 &#61; load &lt;2 x double&gt;*, &lt;2 x double&gt;** &#37;12, align 8
-             &#37;14 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;13, align 8
-; │││││││││└└
-; │││││││││┌ @ reduce.jl:405 within &#96;_mapreduce&#96;
-            br label &#37;L46
-
-L14:                                              ; preds &#61; &#37;top
-; │││││││││└
-; │││││││││┌ @ reduce.jl:406 within &#96;_mapreduce&#96;
+L29:                                              ; preds &#61; &#37;top
+; ││││││││││ @ reduce.jl:425 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
-             &#37;15 &#61; icmp ugt i64 &#37;7, 15
+             &#37;4 &#61; icmp sgt i64 &#37;&quot;x::Array.size.0.copyload&quot;, 15
 ; ││││││││││└
-            br i1 &#37;15, label &#37;L42, label &#37;L16
+            br i1 &#37;4, label &#37;guard_pass71, label &#37;guard_exit77
 
-L16:                                              ; preds &#61; &#37;L14
-; │││││││││└
-; │││││││││┌ @ reduce.jl:408 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
-             &#37;16 &#61; bitcast &#123;&#125;* &#37;1 to &#91;2 x double&#93;**
-             &#37;17 &#61; load &#91;2 x double&#93;*, &#91;2 x double&#93;** &#37;16, align 8
-             &#37;18 &#61; bitcast &#91;2 x double&#93;* &#37;17 to &lt;2 x double&gt;*
-             &#37;19 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;18, align 8
-; │││││││││└└
-; │││││││││┌ @ reduce.jl:409 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
-             &#37;.elt65 &#61; getelementptr inbounds &#91;2 x double&#93;, &#91;2 x double&#93;* &#37;
-17, i64 1, i64 0
-             &#37;20 &#61; bitcast double* &#37;.elt65 to &lt;2 x double&gt;*
-             &#37;21 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;20, align 8
-; │││││││││└└
-; │││││││││┌ @ reduce.jl:410 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ reduce.jl:24 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles
-_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:399
-              &#37;22 &#61; fadd &lt;2 x double&gt; &#37;19, &#37;21
-; │││││││││└└└
-; │││││││││┌ @ reduce.jl:411 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
-             &#37;.not6974 &#61; icmp ugt i64 &#37;7, 2
-; ││││││││││└
-            br i1 &#37;.not6974, label &#37;L33, label &#37;L46
+L108.loopexit.unr-lcssa:                          ; preds &#61; &#37;guard_exit82, 
+&#37;guard_exit82.preheader
+            &#37;.lcssa.ph &#61; phi &lt;2 x double&gt; &#91; undef, &#37;guard_exit82.preheader 
+&#93;, &#91; &#37;39, &#37;guard_exit82 &#93;
+            &#37;value_phi38106.unr &#61; phi i64 &#91; 2, &#37;guard_exit82.preheader &#93;, &#91;
+ &#37;37, &#37;guard_exit82 &#93;
+            &#37;.unr &#61; phi &lt;2 x double&gt; &#91; &#37;18, &#37;guard_exit82.preheader &#93;, &#91; &#37;3
+9, &#37;guard_exit82 &#93;
+; ││││││││││ @ reduce.jl:430 within &#96;_mapreduce&#96;
+            &#37;lcmp.mod.not &#61; icmp eq i64 &#37;xtraiter, 0
+            br i1 &#37;lcmp.mod.not, label &#37;L108, label &#37;guard_exit82.epil
 
-L33:                                              ; preds &#61; &#37;L33, &#37;L16
-            &#37;value_phi277 &#61; phi i64 &#91; &#37;24, &#37;L33 &#93;, &#91; 2, &#37;L16 &#93;
-            &#37;23 &#61; phi &lt;2 x double&gt; &#91; &#37;27, &#37;L33 &#93;, &#91; &#37;22, &#37;L16 &#93;
-; │││││││││└
-; │││││││││┌ @ reduce.jl:412 within &#96;_mapreduce&#96;
+guard_exit82.epil:                                ; preds &#61; &#37;guard_exit82.e
+pil, &#37;L108.loopexit.unr-lcssa
+            &#37;value_phi38106.epil &#61; phi i64 &#91; &#37;6, &#37;guard_exit82.epil &#93;, &#91; &#37;v
+alue_phi38106.unr, &#37;L108.loopexit.unr-lcssa &#93;
+            &#37;5 &#61; phi &lt;2 x double&gt; &#91; &#37;8, &#37;guard_exit82.epil &#93;, &#91; &#37;.unr, &#37;L10
+8.loopexit.unr-lcssa &#93;
+            &#37;epil.iter &#61; phi i64 &#91; &#37;epil.iter.next, &#37;guard_exit82.epil &#93;, &#91;
+ 0, &#37;L108.loopexit.unr-lcssa &#93;
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ int.jl:87 within &#96;&#43;&#96;
-             &#37;24 &#61; add nuw nsw i64 &#37;value_phi277, 1
+             &#37;6 &#61; add nuw nsw i64 &#37;value_phi38106.epil, 1
 ; ││││││││││└
-; ││││││││││┌ @ array.jl:861 within &#96;getindex&#96;
-             &#37;.elt70 &#61; getelementptr inbounds &#91;2 x double&#93;, &#91;2 x double&#93;* &#37;
-17, i64 &#37;value_phi277, i64 0
-             &#37;25 &#61; bitcast double* &#37;.elt70 to &lt;2 x double&gt;*
-             &#37;26 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;25, align 8
-; │││││││││└└
-; │││││││││┌ @ reduce.jl:413 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ reduce.jl:24 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles
-_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:399
-              &#37;27 &#61; fadd &lt;2 x double&gt; &#37;23, &#37;26
-; │││││││││└└└
-; │││││││││┌ @ reduce.jl:411 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
-             &#37;exitcond.not &#61; icmp eq i64 &#37;24, &#37;7
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_byteoffset.epil &#61; shl i64 &#37;value_phi38106.epil, 4
+             &#37;memoryref_data50.epil &#61; getelementptr inbounds i8, ptr &#37;memor
+yref_data14, i64 &#37;memoryref_byteoffset.epil
+             &#37;7 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.epil, align 8
 ; ││││││││││└
-            br i1 &#37;exitcond.not, label &#37;L46, label &#37;L33
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;8 &#61; fadd &lt;2 x double&gt; &#37;5, &#37;7
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:430 within &#96;_mapreduce&#96;
+            &#37;epil.iter.next &#61; add i64 &#37;epil.iter, 1
+            &#37;epil.iter.cmp.not &#61; icmp eq i64 &#37;epil.iter.next, &#37;xtraiter
+            br i1 &#37;epil.iter.cmp.not, label &#37;L108, label &#37;guard_exit82.epil
 
-L42:                                              ; preds &#61; &#37;L14
-; │││││││││└
-; │││││││││┌ @ reduce.jl:417 within &#96;_mapreduce&#96;
-; ││││││││││┌ @ reduce.jl:259 within &#96;mapreduce_impl&#96;
-             call void @j_mapreduce_impl_38830&#40;&#91;2 x double&#93;* noalias nocapt
-ure nonnull sret&#40;&#91;2 x double&#93;&#41; &#37;tmpcast, &#123;&#125;* nonnull &#37;1, i64 signext 1, i64
- signext &#37;7, i64 signext 1024&#41; #0
-; └└└└└└└└└└└
-  &#37;28 &#61; load &lt;2 x double&gt;, &lt;2 x double&gt;* &#37;3, align 16
-; ┌ @ reducedim.jl:889 within &#96;sum&#96;
-; │┌ @ reducedim.jl:889 within &#96;#sum#732&#96;
-; ││┌ @ reducedim.jl:893 within &#96;_sum&#96;
-; │││┌ @ reducedim.jl:893 within &#96;#_sum#734&#96;
-; ││││┌ @ reducedim.jl:894 within &#96;_sum&#96;
-; │││││┌ @ reducedim.jl:894 within &#96;#_sum#735&#96;
-; ││││││┌ @ reducedim.jl:322 within &#96;mapreduce&#96;
-; │││││││┌ @ reducedim.jl:322 within &#96;#mapreduce#725&#96;
-; ││││││││┌ @ reducedim.jl:330 within &#96;_mapreduce_dim&#96;
-; │││││││││┌ @ reduce.jl:417 within &#96;_mapreduce&#96;
-            br label &#37;L46
-
-L46:                                              ; preds &#61; &#37;L42, &#37;L33, &#37;L1
-6, &#37;L12
+L108:                                             ; preds &#61; &#37;guard_exit77, 
+&#37;guard_pass71, &#37;guard_pass61, &#37;guard_exit82.epil, &#37;L108.loopexit.unr-lcssa
 ; └└└└└└└└└└
-  &#37;29 &#61; phi &lt;2 x double&gt; &#91; &#37;28, &#37;L42 &#93;, &#91; &#37;14, &#37;L12 &#93;, &#91; &#37;22, &#37;L16 &#93;, &#91; &#37;27
-, &#37;L33 &#93;
-; ┌ @ array.jl:215 within &#96;length&#96;
-   &#37;30 &#61; bitcast &#123;&#125;* &#37;1 to &#123; i8*, i64, i16, i16, i32 &#125;*
-   &#37;31 &#61; getelementptr inbounds &#123; i8*, i64, i16, i16, i32 &#125;, &#123; i8*, i64, i1
-6, i16, i32 &#125;* &#37;30, i64 0, i32 1
-   &#37;32 &#61; load i64, i64* &#37;31, align 8
+; ┌ @ essentials.jl:11 within &#96;length&#96;
+   &#37;&quot;x::Array.size6.0.copyload&quot; &#61; phi i64 &#91; &#37;&quot;x::Array.size6.0.copyload.pre
+&quot;, &#37;guard_pass71 &#93;, &#91; 1, &#37;guard_pass61 &#93;, &#91; &#37;&quot;x::Array.size.0.copyload&quot;, &#37;g
+uard_exit77 &#93;, &#91; &#37;&quot;x::Array.size.0.copyload&quot;, &#37;guard_exit82.epil &#93;, &#91; &#37;&quot;x::
+Array.size.0.copyload&quot;, &#37;L108.loopexit.unr-lcssa &#93;
+   &#37;9 &#61; phi &lt;2 x double&gt; &#91; &#37;15, &#37;guard_pass71 &#93;, &#91; &#37;14, &#37;guard_pass61 &#93;, &#91; 
+&#37;18, &#37;guard_exit77 &#93;, &#91; &#37;.lcssa.ph, &#37;L108.loopexit.unr-lcssa &#93;, &#91; &#37;8, &#37;guar
+d_exit82.epil &#93;
 ; └
-; ┌ @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_paralle
-lism.jmd:4 within &#96;/&#96; @ promotion.jl:382
-; │┌ @ promotion.jl:350 within &#96;promote&#96;
-; ││┌ @ promotion.jl:327 within &#96;_promote&#96;
+; ┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jm
+d:4 within &#96;/&#96; @ promotion.jl:436
+; │┌ @ promotion.jl:404 within &#96;promote&#96;
+; ││┌ @ promotion.jl:379 within &#96;_promote&#96;
 ; │││┌ @ number.jl:7 within &#96;convert&#96;
-; ││││┌ @ float.jl:146 within &#96;Float64&#96;
-       &#37;33 &#61; sitofp i64 &#37;32 to double
+; ││││┌ @ float.jl:245 within &#96;Float64&#96;
+       &#37;10 &#61; sitofp i64 &#37;&quot;x::Array.size6.0.copyload&quot; to double
 ; │└└└└
-; │ @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_paralle
-lism.jmd:4 within &#96;/&#96; @ promotion.jl:382 @ float.jl:408
-   &#37;34 &#61; insertelement &lt;2 x double&gt; poison, double &#37;33, i32 0
-   &#37;35 &#61; shufflevector &lt;2 x double&gt; &#37;34, &lt;2 x double&gt; undef, &lt;2 x i32&gt; zero
-initializer
-   &#37;36 &#61; fdiv &lt;2 x double&gt; &#37;29, &#37;35
+; │ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jm
+d:4 within &#96;/&#96; @ promotion.jl:436 @ float.jl:498
+   &#37;11 &#61; insertelement &lt;2 x double&gt; poison, double &#37;10, i64 0
+   &#37;12 &#61; shufflevector &lt;2 x double&gt; &#37;11, &lt;2 x double&gt; poison, &lt;2 x i32&gt; zer
+oinitializer
+   &#37;13 &#61; fdiv &lt;2 x double&gt; &#37;9, &#37;12
+; │ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jm
+d:4 within &#96;/&#96;
+; │┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.j
+md:3 within &#96;MyComplex&#96;
+    store &lt;2 x double&gt; &#37;13, ptr &#37;sret_return, align 8
+    ret void
+
+guard_pass61:                                     ; preds &#61; &#37;top
+; └└
+; ┌ @ reducedim.jl:979 within &#96;sum&#96;
+; │┌ @ reducedim.jl:979 within &#96;#sum#735&#96;
+; ││┌ @ reducedim.jl:983 within &#96;_sum&#96;
+; │││┌ @ reducedim.jl:983 within &#96;#_sum#737&#96;
+; ││││┌ @ reducedim.jl:984 within &#96;_sum&#96;
+; │││││┌ @ reducedim.jl:984 within &#96;#_sum#738&#96;
+; ││││││┌ @ reducedim.jl:326 within &#96;mapreduce&#96;
+; │││││││┌ @ reducedim.jl:326 within &#96;#mapreduce#728&#96;
+; ││││││││┌ @ reducedim.jl:334 within &#96;_mapreduce_dim&#96;
+; │││││││││┌ @ reduce.jl:423 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data &#61; load ptr, ptr &#37;&quot;x::Array&quot;, align 8
+             &#37;14 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data, align 8
+             br label &#37;L108
+
+guard_pass71:                                     ; preds &#61; &#37;L29
+; ││││││││││└
+; ││││││││││ @ reduce.jl:436 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:269 within &#96;mapreduce_impl&#96;
+             call void @j_mapreduce_impl_744683&#40;ptr noalias nocapture nound
+ef nonnull sret&#40;&#91;2 x double&#93;&#41; &#37;sret_box, ptr nonnull &#37;&quot;x::Array&quot;, i64 signe
+xt 1, i64 signext &#37;&quot;x::Array.size.0.copyload&quot;, i64 signext 1024&#41;
+; └└└└└└└└└└└
+  &#37;15 &#61; load &lt;2 x double&gt;, ptr &#37;sret_box, align 8
+; ┌ @ essentials.jl:11 within &#96;length&#96;
+   &#37;&quot;x::Array.size6.0.copyload.pre&quot; &#61; load i64, ptr &#37;&quot;x::Array.size_ptr&quot;, a
+lign 8
+   br label &#37;L108
+
+guard_exit77:                                     ; preds &#61; &#37;L29
 ; └
-  &#37;37 &#61; bitcast &#91;2 x double&#93;* &#37;0 to &lt;2 x double&gt;*
-  store &lt;2 x double&gt; &#37;36, &lt;2 x double&gt;* &#37;37, align 8
-  ret void
+; ┌ @ reducedim.jl:979 within &#96;sum&#96;
+; │┌ @ reducedim.jl:979 within &#96;#sum#735&#96;
+; ││┌ @ reducedim.jl:983 within &#96;_sum&#96;
+; │││┌ @ reducedim.jl:983 within &#96;#_sum#737&#96;
+; ││││┌ @ reducedim.jl:984 within &#96;_sum&#96;
+; │││││┌ @ reducedim.jl:984 within &#96;#_sum#738&#96;
+; ││││││┌ @ reducedim.jl:326 within &#96;mapreduce&#96;
+; │││││││┌ @ reducedim.jl:326 within &#96;#mapreduce#728&#96;
+; ││││││││┌ @ reducedim.jl:334 within &#96;_mapreduce_dim&#96;
+; │││││││││┌ @ reduce.jl:427 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data14 &#61; load ptr, ptr &#37;&quot;x::Array&quot;, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:428 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data31 &#61; getelementptr inbounds i8, ptr &#37;memoryref_
+data14, i64 16
+; ││││││││││└
+; ││││││││││ @ reduce.jl:427 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;16 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data14, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:428 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;17 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data31, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:429 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;18 &#61; fadd &lt;2 x double&gt; &#37;16, &#37;17
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:430 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
+             &#37;.not102103 &#61; icmp sgt i64 &#37;&quot;x::Array.size.0.copyload&quot;, 2
+; ││││││││││└
+            br i1 &#37;.not102103, label &#37;guard_exit82.preheader, label &#37;L108
+
+guard_exit82.preheader:                           ; preds &#61; &#37;guard_exit77
+            &#37;19 &#61; add nsw i64 &#37;&quot;x::Array.size.0.copyload&quot;, -2
+            &#37;20 &#61; add nsw i64 &#37;&quot;x::Array.size.0.copyload&quot;, -3
+            &#37;xtraiter &#61; and i64 &#37;19, 7
+            &#37;21 &#61; icmp ult i64 &#37;20, 7
+            br i1 &#37;21, label &#37;L108.loopexit.unr-lcssa, label &#37;guard_exit82.
+preheader.new
+
+guard_exit82.preheader.new:                       ; preds &#61; &#37;guard_exit82.p
+reheader
+            &#37;unroll_iter &#61; and i64 &#37;19, -8
+            br label &#37;guard_exit82
+
+guard_exit82:                                     ; preds &#61; &#37;guard_exit82, 
+&#37;guard_exit82.preheader.new
+            &#37;value_phi38106 &#61; phi i64 &#91; 2, &#37;guard_exit82.preheader.new &#93;, &#91;
+ &#37;37, &#37;guard_exit82 &#93;
+            &#37;22 &#61; phi &lt;2 x double&gt; &#91; &#37;18, &#37;guard_exit82.preheader.new &#93;, &#91; 
+&#37;39, &#37;guard_exit82 &#93;
+            &#37;niter &#61; phi i64 &#91; 0, &#37;guard_exit82.preheader.new &#93;, &#91; &#37;niter.n
+ext.7, &#37;guard_exit82 &#93;
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_byteoffset &#61; shl i64 &#37;value_phi38106, 4
+             &#37;memoryref_data50 &#61; getelementptr i8, ptr &#37;memoryref_data14, i
+64 &#37;memoryref_byteoffset
+             &#37;23 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;24 &#61; fadd &lt;2 x double&gt; &#37;22, &#37;23
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_byteoffset.1 &#61; or disjoint i64 &#37;memoryref_byteoffse
+t, 16
+             &#37;memoryref_data50.1 &#61; getelementptr inbounds i8, ptr &#37;memoryre
+f_data14, i64 &#37;memoryref_byteoffset.1
+             &#37;25 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.1, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;26 &#61; fadd &lt;2 x double&gt; &#37;24, &#37;25
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data50.2 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+ i64 32
+             &#37;27 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.2, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;28 &#61; fadd &lt;2 x double&gt; &#37;26, &#37;27
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data50.3 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+ i64 48
+             &#37;29 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.3, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;30 &#61; fadd &lt;2 x double&gt; &#37;28, &#37;29
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data50.4 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+ i64 64
+             &#37;31 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.4, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;32 &#61; fadd &lt;2 x double&gt; &#37;30, &#37;31
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data50.5 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+ i64 80
+             &#37;33 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.5, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;34 &#61; fadd &lt;2 x double&gt; &#37;32, &#37;33
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data50.6 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+ i64 96
+             &#37;35 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.6, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;36 &#61; fadd &lt;2 x double&gt; &#37;34, &#37;35
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ int.jl:87 within &#96;&#43;&#96;
+             &#37;37 &#61; add nuw nsw i64 &#37;value_phi38106, 8
+; ││││││││││└
+; ││││││││││┌ @ essentials.jl:920 within &#96;getindex&#96;
+             &#37;memoryref_data50.7 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+ i64 112
+             &#37;38 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.7, align 8
+; ││││││││││└
+; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
+; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
+; │││││││││││┌ @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;&#43;&#96; @ float.jl:495
+              &#37;39 &#61; fadd &lt;2 x double&gt; &#37;36, &#37;38
+; ││││││││││└└
+; ││││││││││ @ reduce.jl:430 within &#96;_mapreduce&#96;
+            &#37;niter.next.7 &#61; add i64 &#37;niter, 8
+            &#37;niter.ncmp.7 &#61; icmp eq i64 &#37;niter.next.7, &#37;unroll_iter
+            br i1 &#37;niter.ncmp.7, label &#37;L108.loopexit.unr-lcssa, label &#37;gua
+rd_exit82
+; └└└└└└└└└└
 &#125;
 </pre>
 
@@ -323,7 +463,7 @@ sum&#40;v&#41; &#61; 10.0
 <h2>Next Level Up: Multithreading</h2>
 <p>Last time we briefly went over multithreading and described how every process has multiple threads which share a single heap, and when multiple threads are executed simultaneously we have multithreaded parallelism. Note that you can have multiple threads which aren&#39;t executed simultaneously, like in the case of I/O operations, and this is an example of concurrency without parallelism and is commonly referred to as green threads.</p>
 <p><img src="https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png" alt="" /></p>
-<p>Last time we described a simple multithreaded program and noticed that multithreading has an overhead cost of around 50ns-100ns. This is due to the construction of the new stack &#40;amont other things&#41; each time a new computational thread is spun up. This means that, unlike SIMD, some thought needs to be put in as to when to perform multithreading: it&#39;s not always a good idea. It needs to be high enough on the cost for this to be counter-balanced.</p>
+<p>Last time we described a simple multithreaded program and noticed that multithreading has an overhead cost of around 50ns-100ns. This is due to the construction of the new stack &#40;among other things&#41; each time a new computational thread is spun up. This means that, unlike SIMD, some thought needs to be put in as to when to perform multithreading: it&#39;s not always a good idea. It needs to be high enough on the cost for this to be counter-balanced.</p>
 <p>One abstraction that was glossed over was the memory access style. Before, we were considering a single heap, or an UMA style:</p>
 <p><img src="https://software.intel.com/sites/default/files/m/2/0/4/e/d/39352-figure-1.jpg" alt="" /></p>
 <p>However, this is the case for all shared memory devices. For example, compute nodes on the HPC tend to be &quot;dual Xeon&quot; or &quot;quad Xeon&quot;, where each Xeon processor is itself a multicore processor. But each processor on its own accesses its own local caches, and thus one has to be aware that this is setup in a NUMA &#40;non-uniform memory access&#41; manner:</p>
@@ -340,7 +480,7 @@ sum&#40;v&#41; &#61; 10.0
 
 
 <pre class="output">
-1
+28
 </pre>
 
 
@@ -357,7 +497,7 @@ sum&#40;v&#41; &#61; 10.0
 
 
 <pre class="output">
-10000
+1246
 </pre>
 
 
@@ -374,7 +514,7 @@ sum&#40;v&#41; &#61; 10.0
 
 
 <pre class="output">
-Base.Threads.Atomic&#123;Int64&#125;&#40;10000&#41;
+Atomic&#123;Int64&#125;&#40;10000&#41;
 </pre>
 
 
@@ -418,7 +558,7 @@ Base.Threads.Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class="output">
-123.060 μs &#40;6 allocations: 544 bytes&#41;
+941.175 μs &#40;142 allocations: 9.91 KiB&#41;
 </pre>
 
 
@@ -431,7 +571,7 @@ Base.Threads.Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class="output">
-365.403 μs &#40;6 allocations: 544 bytes&#41;
+635.952 μs &#40;142 allocations: 9.91 KiB&#41;
 </pre>
 
 
@@ -444,7 +584,7 @@ Base.Threads.Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class="output">
-45.385 μs &#40;6 allocations: 544 bytes&#41;
+267.043 μs &#40;142 allocations: 9.91 KiB&#41;
 </pre>
 
 
@@ -457,7 +597,7 @@ Base.Threads.Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class="output">
-2.568 μs &#40;0 allocations: 0 bytes&#41;
+2.633 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -470,44 +610,19 @@ Base.Threads.Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class="output">
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:26 within &#96;h&#96;
-define void @julia_h_38887&#40;&#41; #0 &#123;
+; Function Signature: h&#40;&#41;
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:26 within &#96;h&#96;
+define void @julia_h_748871&#40;&#41; #0 &#123;
 top:
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:29 within &#96;h&#96;
-; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
-; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 140672397729040 to i64*&#41;, align 16
-; └└
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:28 within &#96;h&#96;
-  br label &#37;L2
-
-L2:                                               ; preds &#61; &#37;L2, &#37;top
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:29 within &#96;h&#96;
-; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
-; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;0 &#61; phi i64 &#91; &#37;.pre, &#37;top &#93;, &#91; &#37;1, &#37;L2 &#93;
-    &#37;value_phi &#61; phi i64 &#91; 1, &#37;top &#93;, &#91; &#37;2, &#37;L2 &#93;
-; └└
-; ┌ @ int.jl:87 within &#96;&#43;&#96;
-   &#37;1 &#61; add i64 &#37;0, 1
-; └
-; ┌ @ refvalue.jl:57 within &#96;setindex&#33;&#96;
-; │┌ @ Base.jl:43 within &#96;setproperty&#33;&#96;
-    store i64 &#37;1, i64* inttoptr &#40;i64 140672397729040 to i64*&#41;, align 16
-; └└
-; ┌ @ range.jl:837 within &#96;iterate&#96;
-; │┌ @ promotion.jl:468 within &#96;&#61;&#61;&#96;
-    &#37;.not &#61; icmp eq i64 &#37;value_phi, 10000
-; │└
-   &#37;2 &#61; add nuw nsw i64 &#37;value_phi, 1
-; └
-  br i1 &#37;.not, label &#37;L19, label &#37;L2
-
-L19:                                              ; preds &#61; &#37;L2
+  &#37;&quot;jl_global#748873.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#748873.jit&quot;,
+ align 8
+  &#37;0 &#61; add i64 &#37;&quot;jl_global#748873.jit.promoted&quot;, 10000
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:29 within &#96;h&#96;
+  store i64 &#37;0, ptr @&quot;jl_global#748873.jit&quot;, align 8
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:30 within &#96;h&#96;
   ret void
 &#125;
 </pre>
@@ -530,7 +645,7 @@ L19:                                              ; preds &#61; &#37;L2
 
 
 <pre class="output">
-2.344 μs &#40;0 allocations: 0 bytes&#41;
+2.638 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -541,56 +656,40 @@ L19:                                              ; preds &#61; &#37;L2
 
 
 <pre class="output">
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:3 within &#96;h2&#96;
-define void @julia_h2_38895&#40;&#41; #0 &#123;
+; Function Signature: h2&#40;&#41;
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:3 within &#96;h2&#96;
+define void @julia_h2_748886&#40;&#41; #0 &#123;
 top:
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:6 within &#96;h2&#96;
-; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
-; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;0 &#61; load i64, i64* inttoptr &#40;i64 140672363801008 to i64*&#41;, align 16
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:6 within &#96;h2&#96;
+; ┌ @ refvalue.jl:59 within &#96;getindex&#96;
+; │┌ @ Base_compiler.jl:54 within &#96;getproperty&#96;
+    &#37;.x &#61; load i64, ptr @&quot;jl_global#748888.jit&quot;, align 8
 ; └└
-; ┌ @ range.jl:5 within &#96;Colon&#96;
-; │┌ @ range.jl:354 within &#96;UnitRange&#96;
-; ││┌ @ range.jl:359 within &#96;unitrange_last&#96;
-     &#37;.inv &#61; icmp sgt i64 &#37;0, 0
-     &#37;1 &#61; select i1 &#37;.inv, i64 &#37;0, i64 0
-; └└└
-  br i1 &#37;.inv, label &#37;L14.preheader, label &#37;L31
+; ┌ @ range.jl:917 within &#96;iterate&#96;
+; │┌ @ range.jl:688 within &#96;isempty&#96;
+; ││┌ @ operators.jl:425 within &#96;&gt;&#96;
+; │││┌ @ int.jl:83 within &#96;&lt;&#96;
+      &#37;0 &#61; icmp slt i64 &#37;.x, 1
+; └└└└
+  br i1 &#37;0, label &#37;L31, label &#37;L17.preheader
 
-L14.preheader:                                    ; preds &#61; &#37;top
-;  @ /home/jake/Repos/SciMLBookFranklin/_weave/lecture06/styles_of_parallel
-ism.jmd:7 within &#96;h2&#96;
-; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
-; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;.pre &#61; load i64, i64* inttoptr &#40;i64 140672397729040 to i64*&#41;, align 16
-; └└
-  br label &#37;L14
+L17.preheader:                                    ; preds &#61; &#37;top
+  &#37;&quot;jl_global#748889.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#748889.jit&quot;,
+ align 8
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:8 within &#96;h2&#96;
+  &#37;1 &#61; add i64 &#37;&quot;jl_global#748889.jit.promoted&quot;, &#37;.x
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:7 within &#96;h2&#96;
+  store i64 &#37;1, ptr @&quot;jl_global#748889.jit&quot;, align 8
+;  @ /mnt/software/lux/SciMLBook/_weave/lecture06/styles_of_parallelism.jmd
+:8 within &#96;h2&#96;
+  br label &#37;L31
 
-L14:                                              ; preds &#61; &#37;L14, &#37;L14.preh
-eader
-; ┌ @ refvalue.jl:56 within &#96;getindex&#96;
-; │┌ @ Base.jl:42 within &#96;getproperty&#96;
-    &#37;2 &#61; phi i64 &#91; &#37;3, &#37;L14 &#93;, &#91; &#37;.pre, &#37;L14.preheader &#93;
-    &#37;value_phi2 &#61; phi i64 &#91; &#37;4, &#37;L14 &#93;, &#91; 1, &#37;L14.preheader &#93;
-; └└
-; ┌ @ int.jl:87 within &#96;&#43;&#96;
-   &#37;3 &#61; add i64 &#37;2, 1
-; └
-; ┌ @ refvalue.jl:57 within &#96;setindex&#33;&#96;
-; │┌ @ Base.jl:43 within &#96;setproperty&#33;&#96;
-    store i64 &#37;3, i64* inttoptr &#40;i64 140672397729040 to i64*&#41;, align 16
-; └└
-; ┌ @ range.jl:837 within &#96;iterate&#96;
-; │┌ @ promotion.jl:468 within &#96;&#61;&#61;&#96;
-    &#37;.not &#61; icmp eq i64 &#37;value_phi2, &#37;1
-; │└
-   &#37;4 &#61; add nuw i64 &#37;value_phi2, 1
-; └
-  br i1 &#37;.not, label &#37;L31, label &#37;L14
-
-L31:                                              ; preds &#61; &#37;L14, &#37;top
+L31:                                              ; preds &#61; &#37;L17.preheader,
+ &#37;top
   ret void
 &#125;
 </pre>
@@ -614,7 +713,7 @@ L31:                                              ; preds &#61; &#37;L14, &#37;t
 
 
 <pre class="output">
-2.533 μs &#40;0 allocations: 0 bytes&#41;
+9.513 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -640,26 +739,36 @@ L31:                                              ; preds &#61; &#37;L14, &#37;t
 
 
 <pre class="output">
-10-element Vector&#123;Float64&#125;:
-  1.0
-  2.0
-  3.0
-  4.0
-  5.0
-  6.0
-  7.0
-  8.0
-  9.0
- 10.0
+280-element Vector&#123;Float64&#125;:
+  11.0
+  12.0
+  13.0
+  14.0
+  15.0
+  16.0
+  17.0
+  18.0
+  19.0
+  20.0
+   ⋮
+ 222.0
+ 223.0
+ 224.0
+ 225.0
+ 226.0
+ 227.0
+ 228.0
+ 229.0
+ 230.0
 </pre>
 
 
 <p>Note that here we can see that Julia 1.5 is dividing up the work into groups of 10 for each thread, and then one thread dominates the computation at a time, but which thread dominates is random.</p>
 <h3>The Dining Philosophers Problem</h3>
 <p>A classic tale in parallel computing is the dining philosophers problem. In this case, there are N philosophers at a table who all want to eat at the same time, following all of the same rules. Each philosopher must alternatively think and then eat. They need both their left and right fork to start eating, but cannot start eating until they have both forks. The problem is how to setup a concurrent algorithm that will not cause any philosophers to starve.</p>
-<p>The difficulty is a situation known as <em>deadlock</em>. For example, if each philosopher was told to grab the right fork when it&#39;s avaialble, and then the left fork, and put down the fork after eating, then they will all grab the right fork and none will ever eat because they will all be waiting on the left fork. This is analygous to two blocked computations which are waiting on the other to finish. Thus, when using blocking structures, one needs to be careful about deadlock&#33;</p>
+<p>The difficulty is a situation known as <em>deadlock</em>. For example, if each philosopher was told to grab the right fork when it&#39;s available, and then the left fork, and put down the fork after eating, then they will all grab the right fork and none will ever eat because they will all be waiting on the left fork. This is analogous to two blocked computations which are waiting on the other to finish. Thus, when using blocking structures, one needs to be careful about deadlock&#33;</p>
 <h3>Two Programming Models: Loop-Level Parallelism and Task-Based Parallelism</h3>
-<p>As described in the previous lecture, one can also use <code>Threads.@spawn</code> to do multithreading in Julia v1.3&#43;. The same factors all applay: how to do locks and Mutex etc. This is a case of a parallelism construct having two alternative <strong>programming models</strong>. <code>Threads.@spawn</code> represents task-based parallelism, while <code>Threads.@threads</code> represents Loop-Level Parallelism or a parallel iterator model. Loop-based parallelization models are very high level and, assuming every iteration is independent, almost requires no code change. Task-based parallelism is a more expressive parallelism model, but usually requires modifying the code to be explicitly written as a set of parallelizable tasks. Note that in the case of Julia, <code>Threads.@threads</code> is implemented using <code>Threads.@spawn</code>&#39;s model.</p>
+<p>As described in the previous lecture, one can also use <code>Threads.@spawn</code> to do multithreading in Julia v1.3&#43;. The same factors all apply: how to do locks and Mutex etc. This is a case of a parallelism construct having two alternative <strong>programming models</strong>. <code>Threads.@spawn</code> represents task-based parallelism, while <code>Threads.@threads</code> represents Loop-Level Parallelism or a parallel iterator model. Loop-based parallelization models are very high level and, assuming every iteration is independent, almost requires no code change. Task-based parallelism is a more expressive parallelism model, but usually requires modifying the code to be explicitly written as a set of parallelizable tasks. Note that in the case of Julia, <code>Threads.@threads</code> is implemented using <code>Threads.@spawn</code>&#39;s model.</p>
 <h3>Summary of Multithreading</h3>
 <ul>
 <li><p>Communication in multithreading is done on the heap. Locks and atomics allow for a form of safe message passing.</p>
@@ -672,7 +781,7 @@ L31:                                              ; preds &#61; &#37;L14, &#37;t
 <h2>GPU Computing</h2>
 <p>GPUs are not fast. In fact, the problem with GPUs is that each processor is slow. However, GPUs have a lot of cores... like thousands.</p>
 <p><img src="https://miro.medium.com/max/832/0*xzPjWMqXC0NB6D69.jpg" alt="" /></p>
-<p>An RTX2080, a standard &quot;gaming&quot; GPU &#40;not even the ones in the cluster&#41;, has 2944 cores. However, not only are GPUs slow, but they also need to be programmed in a style that is <em>SPMD</em>, which standard for Single Program Multiple Data. This means that every single thread must be running the same program but on different pieces of data. Exactly the same program. If you have</p>
+<p>An RTX2080, a standard &quot;gaming&quot; GPU &#40;not even the ones in the cluster&#41;, has 2944 cores. However, not only are GPUs slow, but they also need to be programmed in a style that is <em>SPMD</em>, which stands for Single Program Multiple Data. This means that every single thread must be running the same program but on different pieces of data. Exactly the same program. If you have</p>
 
 
 <pre class='hljl'>
@@ -724,7 +833,7 @@ true
 
 <p>The key to understanding the SPMD kernel approach is the <code>index &#61; threadIdx&#40;&#41;.x</code> and <code>stride &#61; blockDim&#40;&#41;.x</code> portions.</p>
 <p><img src="https://juliagpu.gitlab.io/CUDA.jl/tutorials/intro1.png" alt="" /></p>
-<p>The way kernels are expected to run in parallel is that they are given a specific block of the computation and are expected to write a kernel which only on that small block of the input. This kernel is then called on every separate thread on the GPU, making each CUDA core simultaniously compute each block. Thus as a user in such a SPMD programming model, you never specify the computation globally but instead simply specify how chunks should behave, giving the compiler the leeway to determine the optimal global execution.</p>
+<p>The way kernels are expected to run in parallel is that they are given a specific block of the computation and are expected to write a kernel which only on that small block of the input. This kernel is then called on every separate thread on the GPU, making each CUDA core simultaneously compute each block. Thus as a user in such a SPMD programming model, you never specify the computation globally but instead simply specify how chunks should behave, giving the compiler the leeway to determine the optimal global execution.</p>
 <h3>Array-Based GPU Computing Models</h3>
 <p>The simplest version of GPU computing is the array-based programming model.</p>
 
@@ -742,26 +851,26 @@ true
 
 <pre class="output">
 100×100 Matrix&#123;Float32&#125;:
- 22.0732  20.349   19.7707  18.366   …  23.615   21.5517  18.8831  20.8361
- 21.4472  24.1698  22.3791  21.8703     22.8687  24.064   21.0902  23.2183
- 24.7437  23.8066  22.826   24.0482     25.2357  27.0299  23.2676  25.0556
- 24.1036  23.9407  23.7414  23.2439     25.8165  25.2658  22.2     25.4155
- 28.0766  26.3662  26.9403  24.9558     28.8269  28.1731  26.1132  28.8027
- 24.2818  23.5449  21.2821  21.4399  …  25.9688  25.282   21.6461  24.9524
- 23.4552  22.1945  21.1148  21.969      24.2906  24.3726  21.0727  24.9201
- 25.9671  25.5555  21.8888  24.2071     26.2224  25.0381  22.3726  25.024
- 21.8016  22.3904  20.858   21.4325     22.7539  22.439   20.9279  22.3962
- 26.3269  25.5232  25.1472  24.6821     27.3832  28.8853  24.2826  27.9182
+ 30.3227  27.3553  24.2304  28.5855  …  26.7615  27.5687  27.4875  26.5482
+ 28.2619  27.5446  23.8097  28.0053     25.9867  27.6297  27.392   26.4024
+ 25.0057  24.6703  23.6533  25.2386     25.7834  25.4598  23.0306  24.0235
+ 24.7696  24.4045  22.3917  22.9259     23.1537  24.8271  21.468   25.5108
+ 26.4074  24.2732  23.4033  24.9251     24.9037  25.4371  23.908   24.761
+ 27.2987  26.3165  21.6817  26.5626  …  23.6201  26.904   24.6742  25.0972
+ 25.3874  22.2106  21.395   23.7582     22.0326  24.5809  22.9293  23.3686
+ 23.9063  24.524   21.6969  23.8043     22.6407  22.4136  25.5935  24.4376
+ 27.051   26.4072  24.1831  27.5501     24.9916  28.4015  25.3294  27.9074
+ 25.7568  26.5594  22.5587  25.6154     25.4239  26.2235  24.0095  26.4543
   ⋮                                  ⋱                             
- 22.2227  21.4085  18.9808  18.5287     22.1189  21.0621  19.1262  22.6958
- 22.7541  24.7015  23.8792  21.0503     24.615   25.8723  22.0099  25.2007
- 26.2293  24.5071  24.2508  24.067      27.4204  26.0491  23.4511  26.4943
- 25.7612  22.689   22.6535  23.2413     24.9182  26.2556  22.4937  25.5735
- 27.5048  27.5624  26.8749  25.8342  …  29.2408  28.6409  24.2116  29.4857
- 28.6452  25.6004  24.6839  25.2987     28.6826  28.6036  22.8523  29.2737
- 27.5987  27.1131  25.9545  25.4099     27.4536  29.5409  24.5705  28.7107
- 27.0361  26.3494  26.54    25.86       25.8123  28.5816  24.4304  25.9141
- 27.5198  24.1927  26.1048  25.2295     27.3589  27.5861  23.5938  26.6213
+ 24.5938  23.695   21.2006  21.8866     23.2295  23.8346  23.8713  23.4384
+ 23.7653  23.8106  22.409   25.3807     23.5748  24.6669  23.6371  24.5365
+ 28.4233  27.381   23.912   27.8906     27.2628  29.0151  27.4385  27.3973
+ 28.1324  25.8781  25.4936  27.4395     27.1728  27.6557  25.3791  28.0641
+ 25.4592  24.3301  22.7609  24.1301  …  24.25    25.1481  23.556   24.1089
+ 25.1977  24.3975  20.6747  25.3077     22.0647  25.892   23.8108  24.184
+ 23.7314  22.1551  20.563   21.6989     20.602   22.3199  21.3649  23.8699
+ 28.4907  27.3455  25.9707  30.0178     26.9517  29.4267  28.4306  28.4832
+ 23.3487  25.5308  21.6107  23.8856     21.4921  24.246   24.5311  23.0333
 </pre>
 
 
@@ -774,28 +883,28 @@ true
 
 
 <pre class="output">
-8.334 μs &#40;9 allocations: 39.33 KiB&#41;
-100×100 CUDA.CuArray&#123;Float32, 2, CUDA.Mem.DeviceBuffer&#125;:
- 0.0847169  0.291799    0.225032   …  0.181401   0.504833   0.677082
- 0.742813   0.00302794  0.94926       0.218715   0.32535    0.140124
- 0.277387   0.163628    0.254878      0.988815   0.808173   0.395003
- 0.305794   0.0591247   0.0346376     0.986936   0.302723   0.488998
- 0.614606   0.554491    0.783703      0.744688   0.173018   0.954586
- 0.439716   0.314357    0.843207   …  0.628501   0.349499   0.875102
- 0.0843293  0.301616    0.56304       0.0186096  0.454908   0.823826
- 0.328079   0.485529    0.485472      0.786964   0.0605378  0.691524
- 0.53162    0.332825    0.736449      0.276725   0.693428   0.36281
- 0.784706   0.922864    0.0193128     0.557257   0.669265   0.828881
- ⋮                                 ⋱                        
- 0.89664    0.983169    0.132122      0.191728   0.0089875  0.255151
- 0.568117   0.150186    0.77567       0.307077   0.286692   0.393965
- 0.477839   0.857013    0.243598      0.744792   0.619521   0.467337
- 0.30356    0.749151    0.348206      0.298936   0.731162   0.22481
- 0.1533     0.285864    0.564226   …  0.762558   0.868636   0.396243
- 0.236074   0.455661    0.587594      0.673031   0.951335   0.446498
- 0.717012   0.322896    0.728688      0.938636   0.844913   0.0828102
- 0.682979   0.498305    0.198296      0.97147    0.630088   0.15299
- 0.522842   0.834146    0.965898      0.900311   0.313846   0.203342
+6.395 μs &#40;13 allocations: 39.45 KiB&#41;
+100×100 CuArray&#123;Float32, 2, CUDA.DeviceMemory&#125;:
+ 0.697902   0.133978   0.86062    …  0.53855    0.35849    0.795663
+ 0.39554    0.215087   0.106621      0.526926   0.247469   0.529221
+ 0.590695   0.762798   0.517664      0.302071   0.159349   0.0947361
+ 0.422006   0.246781   0.206421      0.828164   0.761085   0.230498
+ 0.952374   0.398549   0.97278       0.632696   0.999612   0.913391
+ 0.164915   0.819161   0.108775   …  0.0539399  0.764275   0.719054
+ 0.882923   0.98134    0.548956      0.534881   0.789586   0.42959
+ 0.0656666  0.388049   0.302111      0.551236   0.911326   0.243352
+ 0.583753   0.32288    0.387391      0.478451   0.294403   0.999125
+ 0.684355   0.634293   0.995336      0.913091   0.462291   0.835682
+ ⋮                                ⋱                        
+ 0.80603    0.380415   0.557621      0.39179    0.243833   0.522754
+ 0.925686   0.286688   0.0673555     0.880526   0.957339   0.200102
+ 0.361321   0.477612   0.942078      0.949456   0.779698   0.529397
+ 0.227617   0.657111   0.946938      0.104569   0.72174    0.926575
+ 0.375392   0.334044   0.526721   …  0.296965   0.565715   0.637715
+ 0.304635   0.0808282  0.105063      0.871956   0.0974322  0.802753
+ 0.539291   0.149205   0.517452      0.391541   0.971197   0.295938
+ 0.678954   0.82298    0.582875      0.834867   0.687174   0.753821
+ 0.373595   0.961758   0.299004      0.0809908  0.896714   0.128503
 </pre>
 
 
@@ -806,32 +915,32 @@ true
 
 
 <pre class="output">
-12.969 μs &#40;3 allocations: 39.12 KiB&#41;
+11.386 μs &#40;9 allocations: 39.24 KiB&#41;
 100×100 Matrix&#123;Float32&#125;:
- 22.0732  20.349   19.7707  18.366   …  23.615   21.5517  18.8831  20.8361
- 21.4472  24.1698  22.3791  21.8703     22.8687  24.064   21.0902  23.2183
- 24.7437  23.8066  22.826   24.0482     25.2357  27.0299  23.2676  25.0556
- 24.1036  23.9407  23.7414  23.2439     25.8165  25.2658  22.2     25.4155
- 28.0766  26.3662  26.9403  24.9558     28.8269  28.1731  26.1132  28.8027
- 24.2818  23.5449  21.2821  21.4399  …  25.9688  25.282   21.6461  24.9524
- 23.4552  22.1945  21.1148  21.969      24.2906  24.3726  21.0727  24.9201
- 25.9671  25.5555  21.8888  24.2071     26.2224  25.0381  22.3726  25.024
- 21.8016  22.3904  20.858   21.4325     22.7539  22.439   20.9279  22.3962
- 26.3269  25.5232  25.1472  24.6821     27.3832  28.8853  24.2826  27.9182
+ 30.3227  27.3553  24.2304  28.5855  …  26.7615  27.5687  27.4875  26.5482
+ 28.2619  27.5446  23.8097  28.0053     25.9867  27.6297  27.392   26.4024
+ 25.0057  24.6703  23.6533  25.2386     25.7834  25.4598  23.0306  24.0235
+ 24.7696  24.4045  22.3917  22.9259     23.1537  24.8271  21.468   25.5108
+ 26.4074  24.2732  23.4033  24.9251     24.9037  25.4371  23.908   24.761
+ 27.2987  26.3165  21.6817  26.5626  …  23.6201  26.904   24.6742  25.0972
+ 25.3874  22.2106  21.395   23.7582     22.0326  24.5809  22.9293  23.3686
+ 23.9063  24.524   21.6969  23.8043     22.6407  22.4136  25.5935  24.4376
+ 27.051   26.4072  24.1831  27.5501     24.9916  28.4015  25.3294  27.9074
+ 25.7568  26.5594  22.5587  25.6154     25.4239  26.2235  24.0095  26.4543
   ⋮                                  ⋱                             
- 22.2227  21.4085  18.9808  18.5287     22.1189  21.0621  19.1262  22.6958
- 22.7541  24.7015  23.8792  21.0503     24.615   25.8723  22.0099  25.2007
- 26.2293  24.5071  24.2508  24.067      27.4204  26.0491  23.4511  26.4943
- 25.7612  22.689   22.6535  23.2413     24.9182  26.2556  22.4937  25.5735
- 27.5048  27.5624  26.8749  25.8342  …  29.2408  28.6409  24.2116  29.4857
- 28.6452  25.6004  24.6839  25.2987     28.6826  28.6036  22.8523  29.2737
- 27.5987  27.1131  25.9545  25.4099     27.4536  29.5409  24.5705  28.7107
- 27.0361  26.3494  26.54    25.86       25.8123  28.5816  24.4304  25.9141
- 27.5198  24.1927  26.1048  25.2295     27.3589  27.5861  23.5938  26.6213
+ 24.5938  23.695   21.2006  21.8866     23.2295  23.8346  23.8713  23.4384
+ 23.7653  23.8106  22.409   25.3807     23.5748  24.6669  23.6371  24.5365
+ 28.4233  27.381   23.912   27.8906     27.2628  29.0151  27.4385  27.3973
+ 28.1324  25.8781  25.4936  27.4395     27.1728  27.6557  25.3791  28.0641
+ 25.4592  24.3301  22.7609  24.1301  …  24.25    25.1481  23.556   24.1089
+ 25.1977  24.3975  20.6747  25.3077     22.0647  25.892   23.8108  24.184
+ 23.7314  22.1551  20.563   21.6989     20.602   22.3199  21.3649  23.8699
+ 28.4907  27.3455  25.9707  30.0178     26.9517  29.4267  28.4306  28.4832
+ 23.3487  25.5308  21.6107  23.8856     21.4921  24.246   24.5311  23.0333
 </pre>
 
 
-<p>The cost transferring is about 20μs-50μs in each direction, meaning that one needs to be doing operations that cost at least 200μs for GPUs to break even. A good rule of thumb is that GPU computations should take at least a milisecond, or GPU memory should be re-used.</p>
+<p>The cost transferring is about 20μs-50μs in each direction, meaning that one needs to be doing operations that cost at least 200μs for GPUs to break even. A good rule of thumb is that GPU computations should take at least a millisecond, or GPU memory should be re-used.</p>
 <h3>Summary of GPUs</h3>
 <ul>
 <li><p>GPUs cores are slow</p>
@@ -847,7 +956,7 @@ true
 <p>Other architectures exist to keep in mind. Xeon Phis are a now-defunct accelerator that used X86 &#40;standard processors&#41; as the base, using hundreds of them. For example, the Knights Landing series had 256 core accelerator cards. These were all clocked down, meaning they were still slower than a standard CPU, but there were less restrictions on SPMD &#40;though SPMD-like computations were still preferred in order to heavily make use of SIMD&#41;. However, because machine learning essentially only needs linear algebra, and linear algebra is faster when restricting to SPMD-architectures, this failed. These devices can still be found on many high end clusters.</p>
 <p>One alternative to CUDA is OpenCL which supports alternative architectures such as the Xeon Phi at the same time that it supports GPUs. However, one of the issues with OpenCL is that its BLAS implementation currently does not match the speed of CuBLAS, which makes NVIDIA-specific libraries still the king of machine learning and most scientific computing.</p>
 <h2>TPU Computing</h2>
-<p>TPUs are tensor processing units, which is Google&#39;s newest accelerator technology. They are essentially just &quot;tensor operation compilers&quot;, which in computer science speak is simply higher dimensional linear algebra. To do this, they internally utilize a BFloat16 type, which is a 16-bit floating point number with the same exponent size as a Float32 with an 8-bit significand. This means that computations are highly prone to <em>catastrophic cancellation</em>. This computational device only works because BFloat16 has primitive operations for FMA which allows 32-bit-like accuracy of multiply-add operations, and thus computations which are only dot products &#40;linear algebra&#41; end up okay. Thus this is simply a GPU-like device which has gone further to completely specialize in linear algebra.</p>
+<p>TPUs are tensor processing units, which is Google&#39;s newest accelerator technology. They are essentially just &quot;tensor operation compilers&quot;, which in computer science speak is simply higher dimensional linear algebra. To do this, they internally utilize a BFloat16 type, which is a 16-bit floating point number with the same exponent size as a Float32 with an 8-bit significant. This means that computations are highly prone to <em>catastrophic cancellation</em>. This computational device only works because BFloat16 has primitive operations for FMA which allows 32-bit-like accuracy of multiply-add operations, and thus computations which are only dot products &#40;linear algebra&#41; end up okay. Thus this is simply a GPU-like device which has gone further to completely specialize in linear algebra.</p>
 <h2>Multiprocessing &#40;Distributed Computing&#41;</h2>
 <p>While multithreading computes with multiple threads, multiprocessing computes with multiple independent processes. Note that processes do not share any memory, not heap or data, and thus this mode of computing also allows for <em>distributed computations</em>, which is the case where processes may be on separate computing hardware. However, even if they are on the same hardware, the lack of a shared address space means that multiprocessing has to do <em>message passing</em>, i.e. send data from one process to the other.</p>
 <h3>Distributed Tasks with Explicit Memory Handling: The Master-Worker Model</h3>
@@ -862,7 +971,7 @@ true
 
 
 <p>This adds 4 worker processes for the master to control. The simplest computations are those where the master process gives the worker process a job which returns the value afterwards. For example, a <code>pmap</code> operation or <code>@distributed</code> loop gives the worker a function to execute, along with the data, and the worker then computes and returns the result.</p>
-<p>At a lower level, this is done by <code>Distributed.@spawn</code>ing jobs, or using a <code>remotecall</code> and <code>fetch</code>ing the result. <a href="https://github.com/ChrisRackauckas/ParallelDataTransfer.jl">ParallelDataTransfer.jl</a> gives an extended set of primitive message passing operations. For example, we can explicity tell it to compute a function <code>f</code> on the remote process like:</p>
+<p>At a lower level, this is done by <code>Distributed.@spawn</code>ing jobs, or using a <code>remotecall</code> and <code>fetch</code>ing the result. <a href="https://github.com/ChrisRackauckas/ParallelDataTransfer.jl">ParallelDataTransfer.jl</a> gives an extended set of primitive message passing operations. For example, we can explicitly tell it to compute a function <code>f</code> on the remote process like:</p>
 
 
 <pre class='hljl'>
@@ -889,7 +998,7 @@ true
 <li><p>Dagger.jl</p>
 </li>
 </ul>
-<p>Using these kinds of libraries requires building a directed acyclic graph &#40;DAG&#41;. For example, the following showcases how to use Dagger.jl to reprsent a bunch of summations:</p>
+<p>Using these kinds of libraries requires building a directed acyclic graph &#40;DAG&#41;. For example, the following showcases how to use Dagger.jl to represent a bunch of summations:</p>
 
 
 <pre class='hljl'>
@@ -934,7 +1043,7 @@ true
 
 <p>which will dynamically allocate jobs to processes as they declare they have finished jobs. This thus has the same performance difference behavior as <code>Threads.@threads</code> vs <code>Threads.@spawn</code>.</p>
 <h3>MPI: The Distributed SPMD Model</h3>
-<p>The main way to do high-performace multiprocessing is <em>MPI</em>, which is an old distributed computing interface from the C/Fortran days. Julia has access to the MPI programming model through MPI.jl. The programming model for MPI is that every computer is running the same program, and synchronization is performed by blocking communication. For example, let&#39;s look at the following:</p>
+<p>The main way to do high-performance multiprocessing is <em>MPI</em>, which is an old distributed computing interface from the C/Fortran days. Julia has access to the MPI programming model through MPI.jl. The programming model for MPI is that every computer is running the same program, and synchronization is performed by blocking communication. For example, let&#39;s look at the following:</p>
 
 
 <pre class='hljl'>
@@ -1032,9 +1141,9 @@ true
 </li>
 <li><p>Task-based parallelism models with explicit data handling. <code>Distributed.@spawn</code></p>
 <ul>
-<li><p>Pros: Allows for control over what compute hardware will have specific pieces of data and allows for transfering data manually.</p>
+<li><p>Pros: Allows for control over what compute hardware will have specific pieces of data and allows for transferring data manually.</p>
 </li>
-<li><p>Cons: Requires transfering data manually. All computations are managed by a single process/computer/node and thus it can have some issues scaling to extreme &#40;1000&#43; node&#41; computing situtations.</p>
+<li><p>Cons: Requires transferring data manually. All computations are managed by a single process/computer/node and thus it can have some issues scaling to extreme &#40;1000&#43; node&#41; computing situations.</p>
 </li>
 </ul>
 </li>
@@ -1053,6 +1162,6 @@ true
 <div class="footer">
   <p>
     Published from <a href="styles_of_parallelism.jmd">styles_of_parallelism.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-02-20.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-03-01.
   </p>
 </div>

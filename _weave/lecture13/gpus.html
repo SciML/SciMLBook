@@ -3,6 +3,8 @@
 <h5>Valentin Churavy</h5>
 <h5>October 30th, 2019</h5>
 
+<h2><a href="https://youtu.be/KCYlEub_8xc">Youtube Video Part 1</a></h2>
+<h2><a href="https://youtu.be/v9bFRg4rUfk">Youtube Video Part 2</a></h2>
 <h2>Levels of parallelism in hardware</h2>
 <ol>
 <li><p>Instruction-Level Parallelism</p>
@@ -19,7 +21,7 @@
 </li>
 </ol>
 <h3>Instruction-Level Parallelism</h3>
-<p>Instruction-Level parallelism is used by your compiler and CPU to speed up serial programs. To signify that <strong>you are not expected</strong> to write code that considers ILP, we will the following code-snippets are in a very explicit low-level Julia dialect that approximates 1 RISC instruction per line.</p>
+<p>Instruction-Level parallelism is used by your compiler and CPU to speed up serial programs. To signify that <strong>you are not expected</strong> to write code that considers ILP, the following code-snippets are in a very explicit low-level Julia dialect that approximates 1 RISC instruction per line.</p>
 
 
 <pre class='hljl'>
@@ -72,7 +74,7 @@ Loop: fld    f0, 0&#40;x1&#41;
 </pre>
 
 
-<p>With our given latencies and issueing one operation per cycle, we can execute the loop in 8 cycles. By reordering we can execute it in 7 cycles. Can we do better?</p>
+<p>With our given latencies and issuing one operation per cycle, we can execute the loop in 8 cycles. By reordering we can execute it in 7 cycles. Can we do better?</p>
 
 
 <pre class='hljl'>
@@ -87,9 +89,9 @@ Loop: fld    f0, 0&#40;x1&#41;
 </pre>
 
 
-<p>By reording the decrement we can hide the load latency.</p>
+<p>By reordering the decrement we can hide the load latency.</p>
 <ul>
-<li><p>How many cylces are overhead: 2</p>
+<li><p>How many cycles are overhead: 2</p>
 </li>
 <li><p>How many stall cycles: 2</p>
 </li>
@@ -122,7 +124,7 @@ Loop: fld    f0, 0&#40;x1&#41;
 
 <p>By unrolling with a factor of 4, we have reduced the overhead to 2 cycles &#40;ignoring stalls for now&#41;. Note that <code>A&#91;i-3&#93;</code> can be precomputed relative to <code>A</code> and is therefore free on most architectures.</p>
 <ul>
-<li><p>Do we still have stalls?: Yes </p>
+<li><p>Do we still have stalls?: Yes</p>
 </li>
 <li><p>How many cycles are overhead: 2</p>
 </li>
@@ -264,13 +266,13 @@ Loop: fld    f0, 0&#40;x1&#41;
 
 
 <h4>GPU &#40;implicit vectorized&#41;</h4>
-<p>Instead of using explicit vectorization, GPUs change the programming model so that the programmer writes a <em>kernel</em> which operates over each element of the data. In effect the programmer is writting a program that is executed for each vector lane. It is important to remember that the hardware itself still operates on vectors &#40;CUDA calls this warp-size and it is 32 elements&#41;.</p>
+<p>Instead of using explicit vectorization, GPUs change the programming model so that the programmer writes a <em>kernel</em> which operates over each element of the data. In effect the programmer is writing a program that is executed for each vector lane. It is important to remember that the hardware itself still operates on vectors &#40;CUDA calls this warp-size and it is 32 elements&#41;.</p>
 <p>At this point please refer to the <a href="https://docs.google.com/presentation/d/1JfxmqJx7BdVyfBSL0N4bzBYdy8RIJ6hSSTHHJfPAo1o/edit?usp&#61;sharing">lecture slides</a></p>
 
 
 <div class="footer">
   <p>
     Published from <a href="gpus.jmd">gpus.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-02-20.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-03-01.
   </p>
 </div>

@@ -3,7 +3,8 @@
 <h5>Chris Rackauckas</h5>
 <h5>December 4th, 2020</h5>
 
-<p>At this point we have identified how the worlds of machine learning and scientific computing collide by looking at the parameter estimation problem. Training neural networks is parameter estimation of a function <code>f</code> where <code>f</code> is a neural network. Backpropogation of a neural network is simply the adjoint problem for <code>f</code>, and it falls under the class of methods used in reverse-mode automatic differentiation. But this story also extends to structure. Recurrent neural networks are the Euler discretization of a continuous recurrent neural network, also known as a neural ordinary differential equation.</p>
+<h2><a href="https://youtu.be/apkyk8n0vBo">Youtube Video</a></h2>
+<p>At this point we have identified how the worlds of machine learning and scientific computing collide by looking at the parameter estimation problem. Training neural networks is parameter estimation of a function <code>f</code> where <code>f</code> is a neural network. Backpropagation of a neural network is simply the adjoint problem for <code>f</code>, and it falls under the class of methods used in reverse-mode automatic differentiation. But this story also extends to structure. Recurrent neural networks are the Euler discretization of a continuous recurrent neural network, also known as a neural ordinary differential equation.</p>
 <p>Given all of these relations, our next focus will be on the other class of commonly used neural networks: the <em>convolutional neural network</em> &#40;CNN&#41;. It turns out that in this case there is also a clear analogue to convolutional neural networks in traditional scientific computing, and this is seen in discretizations of partial differential equations. To see this, we will first describe the convolution operation that is central to the CNN and see how this object naturally arises in numerical partial differential equations.</p>
 <h2>Convolutional Neural Networks</h2>
 <p>The purpose of a convolutional neural network is to be a network which makes use of the spatial structure of an image. An image is a 3-dimensional object: width, height, and 3 color channels. The convolutional operations keeps this structure intact and acts against this object is a 3-tensor. A convolutional layer is a function that applies a <em>stencil</em> to each point. This is illustrated by the following animation:</p>
@@ -21,7 +22,7 @@
 <p class="math">\[
 CNN(x) = dense(conv(maxpool(conv(x))))
 \]</p>
-<p>which can be expressed in Flux.jl syntax as:</p>
+<p>which can be expressed in Lux.jl syntax as:</p>
 
 
 <pre class='hljl'>
@@ -36,7 +37,7 @@ CNN(x) = dense(conv(maxpool(conv(x))))
 
 
 <h2>Discretizations of Partial Differential Equations</h2>
-<p>Now let&#39;s investigate discertizations of partial differential equations. A canonical differential equation to start with is the Poisson equation. This is the equation:</p>
+<p>Now let&#39;s investigate discretizations of partial differential equations. A canonical differential equation to start with is the Poisson equation. This is the equation:</p>
 <p class="math">\[
 u_{xx} = f(x)
 \]</p>
@@ -60,7 +61,7 @@ u_{xx} = f(x)
 <p class="math">\[
 u(x+\Delta x)=u(x)+\Delta xu^{\prime}(x)+\mathcal{O}(\Delta x^{2})
 \]</p>
-<p>&#40;here I write <span class="math">$\left(\Delta x\right)^{2}$</span> as <span class="math">$\Delta x^{2}$</span> out of convenience, note that those two terms are not necessarily the same&#41;. That term on the end is called “Big-O Notation”. What is means is that those terms are asymtopically like <span class="math">$\Delta x^{2}$</span>. If <span class="math">$\Delta x$</span> is small, then <span class="math">$\Delta x^{2}\ll\Delta x$</span> and so we can think of those terms as smaller than any of the terms we show in the expansion. By simplification notice that we get</p>
+<p>&#40;here I write <span class="math">$\left(\Delta x\right)^{2}$</span> as <span class="math">$\Delta x^{2}$</span> out of convenience, note that those two terms are not necessarily the same&#41;. That term on the end is called “Big-O Notation”. What is means is that those terms are asymptotically like <span class="math">$\Delta x^{2}$</span>. If <span class="math">$\Delta x$</span> is small, then <span class="math">$\Delta x^{2}\ll\Delta x$</span> and so we can think of those terms as smaller than any of the terms we show in the expansion. By simplification notice that we get</p>
 <p class="math">\[
 \frac{u(x+\Delta x)-u(x)}{\Delta x}=u^{\prime}(x)+\mathcal{O}(\Delta x)
 \]</p>
@@ -244,7 +245,7 @@ A=I_z \otimes I_{y}\otimes A_{x} + I_z \otimes A_{y}\otimes I_{x} + A_z \otimes 
 <p class="math">\[
 A(u) = A_y u + u A_x
 \]</p>
-<p>where <span class="math">$A_y$</span> and <span class="math">$A_x$</span> are both the <code>&#91;1 -2 1&#93;</code> 1D tridiagonal stencil matrix, but by right multiplying it&#39;s occuring along the columns and left multiplying occurs along the rows. This then gives a semi-dense formulation of the stencil operation.</p>
+<p>where <span class="math">$A_y$</span> and <span class="math">$A_x$</span> are both the <code>&#91;1 -2 1&#93;</code> 1D tridiagonal stencil matrix, but by right multiplying it&#39;s occurring along the columns and left multiplying occurs along the rows. This then gives a semi-dense formulation of the stencil operation.</p>
 <h3>Implementation via Stencil Compilers</h3>
 <p>Sparse matrix implementations of stencils are fairly inefficient given the way that sparse matrices are represented &#40;lists of &#40;i,j,v&#41; pairs, which are then compressed into CSR or CSC formats&#41;. However, it moves in the right direction by noticing that the operation</p>
 <pre><code>u&#91;i&#43;1,j&#93; &#43; u&#91;i,j&#43;1&#93; &#43; u&#91;i-1,j&#93; &#43; u&#91;i,j-1&#93; - 4u&#91;i,j&#93;</code></pre>
@@ -252,7 +253,7 @@ A(u) = A_y u + u A_x
 <p>Thus what is generally used is a <em>stencil compiler</em> which generates functions for stencil operations. These work by dividing the tensor into blocks on which the stencil is applied, where the blocks are small enough to allow the cache lines to fit the future points. This is a very deep computational topic that is beyond the scope of this course. Note one of the main reasons why NVIDA&#39;s CUDA dominates machine learning is because of its <code>cudnn</code> library, which is a very efficient GPU stencil computation library that is specifically tuned to NVIDIA&#39;s GPUs.</p>
 <h2>Cross-Discipline Learning</h2>
 <p>Given these relations, there is a lot each of the disciplines can learn from one another about stencil computations.</p>
-<h3>What ML can learn from SciComp: Stability of Convolutional RNNs</h3>
+<h3>What ML can learning from SciComp: Stability of Convolutional RNNs</h3>
 <p>Stability of time-dependent partial differential equations is a long-known problem. Stability of an RNN defined by stencil computations is then stability of Euler discretizations of PDEs. Let&#39;s take a look at Von Neumann analysis of PDE stability.</p>
 <p>Let&#39;s look at the error update equation. Write</p>
 <p class="math">\[
@@ -266,7 +267,7 @@ e_{i}^{n+1}=e_{i}^{n}+\mu\left(e_{i+1}^{n}-2e_{i}^{n}+e_{i-1}^{n}\right)+\Delta 
 <p class="math">\[
 \tau_{i}^{n}\sim\mathcal{O}(\Delta t)+\mathcal{O}(\Delta x^{2}).
 \]</p>
-<p>Stability requires that the homogenous equation goes to zero. Another way of saying that is that the propogation of errors has errors decrease their influence over time. Thus we look at:</p>
+<p>Stability requires that the homogenous equation goes to zero. Another way of saying that is that the propagation of errors has errors decrease their influence over time. Thus we look at:</p>
 <p class="math">\[
 e_{i}^{n+1}	=e_{i}^{n}+\mu\left(e_{i+1}^{n}-2e_{i}^{n}+e_{i-1}^{n}\right) =\left(1-2\mu\right)e_{i}^{n}+\mu e_{i+1}^{n}+\mu e_{i-1}^{n}
 \]</p>
@@ -358,6 +359,6 @@ S[u] = f
 <div class="footer">
   <p>
     Published from <a href="pdes_and_convolutions.jmd">pdes_and_convolutions.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-02-20.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-03-01.
   </p>
 </div>
