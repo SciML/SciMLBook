@@ -3,7 +3,6 @@
 <h5>Chris Rackauckas</h5>
 <h5>September 21st, 2020</h5>
 
-<h2><a href="https://youtu.be/eca6kcFntiE">Youtube Video Link</a></h2>
 <p>Moore&#39;s law was the idea that computers double in efficiency at fixed time points, leading to exponentially more computing power over time. This was true for a very long time.</p>
 <p><img src="https://assets.weforum.org/editor/large_SOupdi6_TD1Lyud4kWEHmsB5rcslL0q2BB6UCRCEZKE.png" alt="" /></p>
 <p>However, sometime in the last decade, computer cores have stopped getting faster.</p>
@@ -22,29 +21,29 @@
 </li>
 </ul>
 <p><img src="http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-1.png" alt="" /> <img src="http://tutorials.jenkov.com/images/java-concurrency/concurrency-vs-parallelism-2.png" alt="" /></p>
-<p>To start thinking about concurrency, we need to distinguish between a process and a thread. A process is discrete running instance of a computer program. It has allocated memory for the program&#39;s code, its data, a heap, etc. Each process can have many compute threads. These threads are the unit of execution that needs to be done. On each task is its own stack and a virtual CPU &#40;virtual CPU since it&#39;s not the true CPU, since that would require that the task is ON the CPU, which it might not be because the task can be temporarily halted&#41;. The kernel of the operating systems then <em>schedules</em> tasks, which runs them. In order to keep the computer running smooth, <em>context switching</em>, i.e. changing the task that is actually running, happens all the time. This is independent of whether tasks are actually scheduled in parallel or not.</p>
+<p>To start thinking about concurrency, we need to distinguish between a process and a thread. A process is discrete running instance of a computer program. It has allocated memory for the program&#39;s code, its data, a heap, etc. Each process can have many compute threads. These threads are the unit of execution that needs to be done. On each task is its own stack and a virtual CPU &#40;virtual CPU since it&#39;s not the true CPU, since that would require that the task is ON the CPU, which it might not be because the task can be temporarily haulted&#41;. The kernel of the operating systems then <em>schedules</em> tasks, which runs them. In order to keep the computer running smooth, <em>context switching</em>, i.e. changing the task that is actually running, happens all the time. This is independent of whether tasks are actually scheduled in parallel or not.</p>
 <p><img src="https://blog-assets.risingstack.com/2017/02/kernel-processes-and-threads-1.png" alt="" /></p>
 <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/process.png" alt="" /></p>
 <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/guard-page.png" alt="" /></p>
 <p>Each thread has its own stack associated with it.</p>
 <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/threads.png" alt="" /></p>
 <p><img src="https://dave.cheney.net/wp-content/uploads/2015/08/stack-growth.png" alt="" /></p>
-<p>This is an important distinction because many tasks may need to run concurrently but without parallelism. Examples of this are input/output &#40;I/O&#41;. For example, in a game you may want to be updating the graphics, but the moment a user clicks you want to handle that event. You do not necessarily need to have these running in parallel, but you need the event handling task to be running concurrently to the processing of the game.</p>
+<p>This is an important distinction because many tasks may need to be ran concurrently but without parallelism. Examples of this are input/output &#40;I/O&#41;. For example, in a game you may want to be updating the graphics, but the moment a user clicks you want to handle that event. You do not necessarily need to have these running in parallel, but you need the event handling task to be running concurrently to the processing of the game.</p>
 <p><img src="https://assets.weforum.org/editor/large_MbM-fLOQDkOW_Gvmj_X5ZO9ys6dDF4EMrtiVQG-Fy4Y.png" alt="" /></p>
-<p>Data handling is the key area of scientific computing where green threads &#40;concurrent non-parallel threads&#41; show up. For data handling, one may need to send a signal that causes a message to start being passed. Alternative hardware take over at that point. This alternative hardware is a processor specific for an I/O bus, like the controller for the SSD, modem, GPU, or Infiniband. It will be polled, then it will execute the command, and give the result. There are two variants:</p>
+<p>Data handling is the key area of scientific computing where green threads &#40;concurrent non-parallel threads&#41; show up. For data handling, one may need to send a signal that causes a message to start being passed. Alternative hardware take over at that point. this alternative hardware is a processor specific for an I/O bus, like the controller for the SSD, modem, GPU, or Infiniband. It will be polled, then it will execute the command, and give the result. There are two variants:</p>
 <ul>
 <li><p>Non-Blocking vs Blocking: Whether the thread will periodically poll for whether that task is complete, or whether it should wait for the task to complete before doing anything else</p>
 </li>
-<li><p>Synchronous vs Asynchronous: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.</p>
+<li><p>Synchronous vs Asynchronus: Whether to execute the operation as initiated by the program or as a response to an event from the kernel.</p>
 </li>
 </ul>
 <p>I/O operations cause a <em>privileged context switch</em>, allowing the task which is handling the I/O to directly be switched to in order to continue actions.</p>
 <h4>The Main Event Loop</h4>
-<p>Julia, along with other languages with a runtime &#40;Javascript, Go, etc.&#41; at its core is a single process running an event loop. This event loop  is the main thread, and &quot;Julia program&quot; or &quot;script&quot; that one is running is actually ran in a green thread that is controlled by the main event loop. The event loop takes over to look for other work whenever the program hits a <em>yield point</em>. More yield points allows for more aggressive task switching, while it also means more switches to the event loop which <em>suspends</em> the numerical task, i.e. making it slower. Thus yielding shouldn&#39;t interrupt the main loop&#33;</p>
-<p>This is one area where languages can wildly differ in implementation. Languages structured for lots of I/O and input handling, like Javascript, have yield points at every line &#40;it&#39;s an interpreted language and therefore the interpreter can always take control&#41;. In Julia, the yield points are minimized. The common yield points are allocations and I/O &#40;<code>println</code>&#41;. This means that a tight non-allocating inner loop will not have any yield points and will be a thread that is not interruptible. While this is great for numerical performance, it is something to be aware of.</p>
+<p>Julia, along with other languages with a runtime &#40;Javascript, Go, etc.&#41; at its core is a single process running an event loop. This event loop has is the main thread, and &quot;Julia program&quot; or &quot;script&quot; that one is running is actually ran in a green thread that is controlled by the main event loop. The event loop takes over to look for other work whenever the program hits a <em>yield point</em>. More yield points allows for more aggressive task switching, while it also means more switches to the event loop which <em>suspends</em> the numerical task, i.e. making it slower. Thus yielding shouldn&#39;t interrupt the main loop&#33;</p>
+<p>This is one area where languages can wildly differ in implementation. Languages structured for lots of I/O and input handling, like Javascript, have yield points at every line &#40;it&#39;s an interpreted language and therefore the interpreter can always take control&#41;. In Julia, the yield points are minimized. The common yield points are allocations and I/O &#40;<code>println</code>&#41;. This means that a tight non-allocating inner loop will not have any yield points and will be a thread that is not interruptable. While this is great for numerical performance, it is something to be aware of.</p>
 <p>Side effect: if you run a long tight loop and wish to exit it, you may try <code>Ctrl &#43; C</code> and see that it doesn&#39;t work. This is because interrupts are handled by the event loop. The event loop is never re-entered until after your tight numerical loop, and therefore you have the waiting occur. If you hit <code>Ctrl &#43; C</code> multiple times, you will escalate the interruption until the OS takes over and then this is handled by the signal handling of the OS&#39;s event loop, which sends a higher level interrupt which Julia handles the moment the safety locks says it&#39;s okay &#40;these locks occur during memory allocations to ensure that memory is not corrupted&#41;.</p>
-<h4>Asynchronous Calling Example</h4>
-<p>This example will become more clear when we get to distributed computing, but for now think of <code>remotecall_fetch</code> as a way to run a command on a different computer. What we want to do is start all of the commands at once, and then wait for all the results before finishing the loop. We will use <code>@async</code> to make the call to <code>remotecall_fetch</code> be non-blocking, i.e. it&#39;ll start the job and only poll infrequently to find out when the other machine has completed the job and returned the result. We then add <code>@sync</code> to the loop, which will only continue the loop after all of the green threads have fetched the result. Otherwise, it&#39;s possible that <code>a&#91;idx&#93;</code> may not be filled yet, since the thread may not have fetched the result&#33;</p>
+<h4>Asynchronus Calling Example</h4>
+<p>This example will become more clear when we get to distributed computing, but for think of <code>remotecall_fetch</code> as a way to run a command on a different computer. What we want to do is start all of the commands at once, and then wait for all the results before finishing the loop. We will use <code>@async</code> to make the call to <code>remotecall_fetch</code> be non-blocking, i.e. it&#39;ll start the job and only poll infrequently to find out when the other machine has completed the job and returned the result. We then add <code>@sync</code> to the loop, which will only continue the loop after all of the green threads have fetched the result. Otherwise, it&#39;s possible that <code>a&#91;idx&#93;</code> may not be filled yet, since the thread may not have fetched the result&#33;</p>
 
 
 <pre class='hljl'>
@@ -59,8 +58,7 @@
 
 <p>The same can be done for writing to the disk. <code>@async</code> is a quick shorthand for spawning a green thread which will handle that I/O operation, and the main event loop will keep switching between them until they are all handled. <code>@sync</code> encodes that the program will not continue until all green threads are handled. This could be done more manually with <code>Task</code> and <code>Channel</code>s, which will be something we touch on in the future.</p>
 <h3>Examples of the Differences</h3>
-<p>Synchronous &#61; Thread will complete an action</p>
-<p>Blocking &#61; Thread will wait until action is completed</p>
+<p>Synchronous &#61; Thread will complete an action Blocking &#61; Thread will wait until action is completed</p>
 <ul>
 <li><p>Asynchronous &#43; Non-Blocking: I/O</p>
 </li>
@@ -104,8 +102,8 @@
 
 
 <pre class="output">
-4.768 μs &#40;0 allocations: 0 bytes&#41;
-1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
+4.380 μs &#40;0 allocations: 0 bytes&#41;
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
  &#91;0.752, 0.9968000000000001, 0.008960000000000001&#93;
@@ -171,7 +169,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-5.732 μs &#40;2 allocations: 80 bytes&#41;
+5.702 μs &#40;1 allocation: 80 bytes&#41;
 1000-element Vector&#123;Vector&#123;Float64&#125;&#125;:
  &#91;1.0, 0.0, 0.0&#93;
  &#91;0.8, 0.56, 0.0&#93;
@@ -233,14 +231,14 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-36.345 ms &#40;141860 allocations: 10.94 MiB&#41;
+2.222 ms &#40;5995 allocations: 577.62 KiB&#41;
 </pre>
 
 
-<p><strong>Parallelism doesn&#39;t always make things faster</strong>. There are two costs associated with this code. For one, we had to go to the slower heap&#43;mutation version, so its implementation starting point is slower. But secondly, and more importantly, the cost of spinning a new thread is non-negligible. In fact, here we can see that it even needs to make a small allocation for the new context. The total cost is on the order of 50ns: not huge, but something to take note of. So what we&#39;ve done is taken almost free calculations and made them ~50ns by making each in a different thread, instead of just having it be one thread with one call stack.</p>
+<p><strong>Parallelism doesn&#39;t always make things faster</strong>. There are two costs associated with this code. For one, we had to go to the slower heap&#43;mutation version, so its implementation starting point is slower. But secondly, and more importantly, the cost of spinning a new thread is non-negligable. In fact, here we can see that it even needs to make a small allocation for the new context. The total cost is on the order of It&#39;s on the order of 50ns: not huge, but something to take note of. So what we&#39;ve done is taken almost free calculations and made them ~50ns by making each in a different thread, instead of just having it be one thread with one call stack.</p>
 <p>The moral of the story is that you need to make sure that there&#39;s enough work per thread in order to effectively accelerate a program with parallelism.</p>
 <h3>Data-Parallel Problems</h3>
-<p>So not every setup is amenable to parallelism. Dynamical systems are notorious for being quite difficult to parallelize because the dependency of the future time step on the previous time step is clear, meaning that one cannot easily &quot;parallelize through time&quot; &#40;though it is possible, which we will study later&#41;.</p>
+<p>So not every setup is amenable to parallelism. Dynamical systems are natorious for being quite difficult to parallelize because the dependency of the future time step on the previous time step is clear, meaning that one cannot easily &quot;parallelize through time&quot; &#40;though it is possible, which we will study later&#41;.</p>
 <p>However, one common way that these systems are generally parallelized is in their inputs. The following questions allow for independent simulations:</p>
 <ul>
 <li><p>What steady state does an input <code>u0</code> go to for some list/region of initial conditions?</p>
@@ -248,7 +246,7 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 <li><p>How does the solution very when I use a different <code>p</code>?</p>
 </li>
 </ul>
-<p>The problem has a few descriptions. For one, it&#39;s called an <em>embarrassingly parallel</em> problem since the problem can remain largely intact to solve the parallelism problem. To solve this, we can use the exact same <code>solve_system_save_iip&#33;</code>, and just change how we are calling it. Secondly, this is called a <em>data parallel</em> problem, since it parallelized by splitting up the input data &#40;here, the possible <code>u0</code> or <code>p</code>s&#41; and acting on them independently.</p>
+<p>The problem has a few descriptions. For one, it&#39;s called an <em>embaressingly parallel</em> problem since the problem can remain largely intact to solve the parallelism problem. To solve this, we can use the exact same <code>solve_system_save_iip&#33;</code>, and just change how we are calling it. Secondly, this is called a <em>data parallel</em> problem, since it parallelized by splitting up the input data &#40;here, the possible <code>u0</code> or <code>p</code>s&#41; and acting on them independently.</p>
 <h4>Multithreaded Parameter Searches</h4>
 <p>Now let&#39;s multithread our parameter search. Let&#39;s say we wanted to compute the mean of the values in the trajectory. For a single input pair, we can compute that like:</p>
 
@@ -265,11 +263,11 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-5.371 μs &#40;4 allocations: 23.54 KiB&#41;
-3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
- -0.31149962346484683
- -0.3097490174897651
- 26.024603558583014
+5.481 μs &#40;3 allocations: 23.52 KiB&#41;
+3-element StaticArrays.SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
+ -0.3114996234648468
+ -0.30974901748976497
+ 26.02460355858298
 </pre>
 
 
@@ -288,11 +286,11 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-5.322 μs &#40;3 allocations: 112 bytes&#41;
-3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
- -0.31149962346484683
- -0.3097490174897651
- 26.024603558583014
+5.305 μs &#40;3 allocations: 112 bytes&#41;
+3-element StaticArrays.SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
+ -0.3114996234648468
+ -0.30974901748976497
+ 26.02460355858298
 </pre>
 
 
@@ -311,15 +309,15 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-5.298 μs &#40;1 allocation: 32 bytes&#41;
-3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
- -0.31149962346484683
- -0.3097490174897651
- 26.024603558583014
+5.263 μs &#40;1 allocation: 32 bytes&#41;
+3-element StaticArrays.SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
+ -0.3114996234648468
+ -0.30974901748976497
+ 26.02460355858298
 </pre>
 
 
-<p>Now it&#39;s just allocating the output. The other way to do this is to use a <em>closure</em> which encapsulates the cache data:</p>
+<p>Now it&#39;s just allocating the output. The other way to do this is to use a <em>closure</em> which encapsolates the cache data:</p>
 
 
 <pre class='hljl'>
@@ -333,11 +331,11 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-5.294 μs &#40;1 allocation: 32 bytes&#41;
-3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
- -0.31149962346484683
- -0.3097490174897651
- 26.024603558583014
+5.265 μs &#40;1 allocation: 32 bytes&#41;
+3-element StaticArrays.SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
+ -0.3114996234648468
+ -0.30974901748976497
+ 26.02460355858298
 </pre>
 
 
@@ -351,26 +349,26 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 <pre class="output">
 1000-element Vector&#123;NTuple&#123;4, Float64&#125;&#125;:
- &#40;0.02, 2.6905687796128452, 17.847104907853705, 1.2896645670144684&#41;
- &#40;0.02, 3.434467106232295, 21.504584982054272, 0.6755932348323794&#41;
- &#40;0.02, 1.3461896943181118, 1.160030245911691, 2.406902772210878&#41;
- &#40;0.02, 6.133732537055496, 5.903789174270978, 1.2539777144989732&#41;
- &#40;0.02, 2.4490828300648393, 13.062800596300432, 1.9568602260374273&#41;
- &#40;0.02, 9.12723559786854, 20.163355306939547, 0.6203257012933163&#41;
- &#40;0.02, 1.6515348483386572, 21.328487689576107, 1.6696504438868285&#41;
- &#40;0.02, 0.537009503797673, 16.04756098867185, 0.9849149907373196&#41;
- &#40;0.02, 6.712862000821589, 2.184164996756645, 2.4537002419869016&#41;
- &#40;0.02, 8.477709830713662, 4.454384318079491, 1.8850485349165367&#41;
+ &#40;0.02, 5.4722323835379, 4.788564474988094, 2.583681965401988&#41;
+ &#40;0.02, 9.649985992070802, 21.154080617654657, 1.8915090137300503&#41;
+ &#40;0.02, 7.2716440310150965, 20.830411553032036, 1.488720696504908&#41;
+ &#40;0.02, 0.844781746685247, 12.363951743076825, 1.0149100849206922&#41;
+ &#40;0.02, 9.076916164113538, 26.09903851135175, 1.381791966316658&#41;
+ &#40;0.02, 6.066330789969358, 8.777350230400497, 2.3772373955688946&#41;
+ &#40;0.02, 8.581226908855477, 3.999753057397203, 1.0523536867316512&#41;
+ &#40;0.02, 7.463902036031154, 26.73112173701972, 1.9520030163167785&#41;
+ &#40;0.02, 4.162855982893518, 20.272856336606008, 2.6195313745024023&#41;
+ &#40;0.02, 9.240022854363959, 18.650896428937653, 1.7355722655685961&#41;
  ⋮
- &#40;0.02, 4.2791058245163, 27.01036255292005, 2.116810864834279&#41;
- &#40;0.02, 3.249113637993105, 13.676275223588803, 2.460709413283432&#41;
- &#40;0.02, 8.723089601525656, 23.5575306013098, 1.2764607245329946&#41;
- &#40;0.02, 6.946994097833912, 14.15141900421775, 0.8994603140643319&#41;
- &#40;0.02, 0.4406999280508983, 27.59807417692827, 0.733127927677452&#41;
- &#40;0.02, 2.88596854190399, 22.41542602232374, 2.6485478622998984&#41;
- &#40;0.02, 2.6546698574725767, 14.24980756921033, 0.3047546706170546&#41;
- &#40;0.02, 2.7747816597642694, 17.95571380173811, 2.042330926978206&#41;
- &#40;0.02, 5.625482789444323, 15.564492644986558, 1.9724005412712897&#41;
+ &#40;0.02, 3.3984667112679756, 19.173299048522072, 2.632011450986412&#41;
+ &#40;0.02, 6.265192820077687, 22.576814763859122, 1.4873462179266481&#41;
+ &#40;0.02, 1.83534203587003, 12.11917890234025, 1.4734317179445275&#41;
+ &#40;0.02, 3.29537753041917, 10.635634170111734, 2.0953564069257133&#41;
+ &#40;0.02, 3.542829237097329, 17.96428865628031, 1.6864806995755468&#41;
+ &#40;0.02, 2.461263085253985, 1.8427537264680072, 0.2817861081004033&#41;
+ &#40;0.02, 8.552333077948921, 22.251761415541218, 0.5651897517433522&#41;
+ &#40;0.02, 3.332447486931902, 5.342378324372866, 0.9889117278387811&#41;
+ &#40;0.02, 1.021278744105304, 14.158227405077364, 0.8476922478225684&#41;
 </pre>
 
 
@@ -383,27 +381,27 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.20080683124836332, -0.1253360863120612, 13.849058131129961&#93;
- &#91;-1.1885883726629645, -1.2536402971214806, 19.77935298585085&#93;
- &#91;0.5763199599093175, 0.5620266284153212, 0.13107839245784955&#93;
- &#91;2.353488184052678, 2.3657525136489066, 4.621780241157484&#93;
- &#91;4.581138141695743, 4.660860703436473, 11.226913928990616&#93;
- &#91;0.669262457370068, 0.6600972911476671, 18.830444973338352&#93;
- &#91;5.39956290709084, 5.549155744918048, 18.519696654177736&#93;
- &#91;3.762944303602334, 4.028278363914849, 14.513250852435524&#93;
- &#91;1.5867138354453503, 1.5919618052291644, 1.0541108579227494&#93;
- &#91;2.482614009898237, 2.491766161869847, 3.2869892059668686&#93;
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;3.038966694664421, 3.0584162772117254, 3.6088263246825694&#93;
+ &#91;-0.13386330000862837, -0.08436893598691382, 18.554042576261153&#93;
+ &#91;1.26420323426939, 1.2987031896900179, 18.60639801575751&#93;
+ &#91;3.334517205188571, 3.47634919155245, 10.928106852602024&#93;
+ &#91;1.0792140563181543, 1.138682899243339, 24.23555673815337&#93;
+ &#91;4.073032179861319, 4.100353951570732, 7.318703206404178&#93;
+ &#91;1.72947995698749, 1.7340096117483368, 2.847133214892484&#93;
+ &#91;-0.8004263702508835, -0.8041417854743941, 24.848243797573147&#93;
+ &#91;-0.011571194951918964, 0.016783384248115735, 15.122227756671492&#93;
+ &#91;-0.12918827480214065, -0.1636476937202326, 15.908355756148014&#93;
  ⋮
- &#91;0.45924210523597603, 0.3282819496231699, 23.066763153206814&#93;
- &#91;5.061281829948281, 5.134696451690417, 11.376894724195878&#93;
- &#91;0.11302840421059672, 0.09476427134220347, 21.408220721060964&#93;
- &#91;0.20808114570537878, 0.2120499406968184, 12.114386300972994&#93;
- &#91;4.335027572153379, 4.722584706449349, 25.67243030230852&#93;
- &#91;-0.4083891935710097, -0.220712957886774, 13.621894305645435&#93;
- &#91;-0.11542971505496727, -0.1345630377743056, 12.899694410650392&#93;
- &#91;-1.1316153284958104, -1.0827352722634362, 11.925180695745052&#93;
- &#91;-2.121405778990796, -2.1364217788233724, 13.157523121666198&#93;
+ &#91;-0.5691818520863068, -0.5516784129875119, 12.197984020535173&#93;
+ &#91;-0.686164335210414, -0.7335760476528892, 20.64371101059166&#93;
+ &#91;3.8715478143356234, 3.954451193306651, 10.463298303795863&#93;
+ &#91;4.214722501047656, 4.267423247804479, 8.944837278315594&#93;
+ &#91;-0.5686640837811154, -0.6169858149043425, 14.399821012523644&#93;
+ &#91;0.5087932140421473, 0.4975272438022863, 0.8175763288561679&#93;
+ &#91;-0.03756762889886506, -0.06638641978068503, 21.306921173347003&#93;
+ &#91;1.9719547459041498, 1.9887019945196496, 4.065914035452865&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
 </pre>
 
 
@@ -424,27 +422,27 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;0.14179081842961216, 0.2289415781217958, 9.240052133067293&#93;
- &#91;-0.0015176672034296573, -0.02678311166212498, 25.81027239740306&#93;
- &#91;1.249608822164005, 1.5442663174543, 4.625694216544194&#93;
- &#91;0.07776968473793283, 0.027272658615126424, 9.73500578957575&#93;
- &#91;0.278291429882657, 0.20441730362855956, 12.491618001495791&#93;
- &#91;2.559872635427229, 2.560654154955181, 10.269337849478175&#93;
- &#91;-0.6542883269213637, -0.5813144640880901, 8.863725546217838&#93;
- &#91;0.7809843896983374, 0.6391282013187637, 12.599780648921321&#93;
- &#91;-2.287028928764228, -2.100584642697851, 5.854240871185969&#93;
- &#91;2.599806186145937, 2.621023325797612, 2.722996882338435&#93;
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;3.038966694664421, 3.0584162772117254, 3.6088263246825694&#93;
+ &#91;-0.13386330000862837, -0.08436893598691382, 18.554042576261153&#93;
+ &#91;1.26420323426939, 1.2987031896900179, 18.60639801575751&#93;
+ &#91;3.334517205188571, 3.47634919155245, 10.928106852602024&#93;
+ &#91;1.0792140563181543, 1.138682899243339, 24.23555673815337&#93;
+ &#91;4.073032179861319, 4.100353951570732, 7.318703206404178&#93;
+ &#91;1.72947995698749, 1.7340096117483368, 2.847133214892484&#93;
+ &#91;-0.8004263702508835, -0.8041417854743941, 24.848243797573147&#93;
+ &#91;-0.011571194951918964, 0.016783384248115735, 15.122227756671492&#93;
+ &#91;-0.12918827480214065, -0.1636476937202326, 15.908355756148014&#93;
  ⋮
- &#91;3.1521915441392294, 3.171332781504348, 4.1727058794844085&#93;
- &#91;0.7446149348548373, 0.5715836288916262, 12.152308031640349&#93;
- &#91;1.3845066786776756, 1.3324382693568113, 7.696664647379726&#93;
- &#91;0.31392707681622584, 0.3033090831062203, 0.24008998111203586&#93;
- &#91;-1.043016476744692, -0.8151939676539246, 15.268299621866543&#93;
- &#91;-1.2576142321007717, -1.1300387254334074, 11.58632931861493&#93;
- &#91;1.297472625856824, 2.0988462381662196, 14.114711444342777&#93;
- &#91;0.8831182706368673, 1.0228267596141112, 3.383923794559084&#93;
- &#91;-0.2944936581666456, -0.371808002491653, 10.51127289283369&#93;
+ &#91;-0.5691818520863068, -0.5516784129875119, 12.197984020535173&#93;
+ &#91;-0.686164335210414, -0.7335760476528892, 20.64371101059166&#93;
+ &#91;3.8715478143356234, 3.954451193306651, 10.463298303795863&#93;
+ &#91;4.214722501047656, 4.267423247804479, 8.944837278315594&#93;
+ &#91;-0.5686640837811154, -0.6169858149043425, 14.399821012523644&#93;
+ &#91;0.5087932140421473, 0.4975272438022863, 0.8175763288561679&#93;
+ &#91;-0.03756762889886506, -0.06638641978068503, 21.306921173347003&#93;
+ &#91;1.9719547459041498, 1.9887019945196496, 4.065914035452865&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
 </pre>
 
 
@@ -457,27 +455,27 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 
 
 <pre class="output">
-1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.34259764967797546, -0.354277664433857, 4.609005998062669&#93;
- &#91;-1.1870707054595349, -1.2268571854593557, -6.030919411552212&#93;
- &#91;-0.6732888622546874, -0.9822396890389788, -4.4946158240863445&#93;
- &#91;2.275718499314745, 2.33847985503378, -5.113225548418265&#93;
- &#91;4.302846711813086, 4.456443399807913, -1.2647040725051752&#93;
- &#91;-1.8906101780571611, -1.9005568638075139, 8.561107123860177&#93;
- &#91;6.053851234012204, 6.130470209006138, 9.655971107959898&#93;
- &#91;2.9819599139039967, 3.389150162596085, 1.913470203514203&#93;
- &#91;3.8737427642095783, 3.6925464479270156, -4.800130013263219&#93;
- &#91;-0.11719217624769973, -0.1292571639277651, 0.5639923236284337&#93;
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
  ⋮
- &#91;-2.6929494389032533, -2.843050831881178, 18.894057273722407&#93;
- &#91;4.3166668950934435, 4.563112822798791, -0.7754133074444702&#93;
- &#91;-1.271478274467079, -1.2376739980146079, 13.711556073681237&#93;
- &#91;-0.10584593111084706, -0.09125914240940189, 11.874296319860958&#93;
- &#91;5.3780440488980705, 5.537778674103274, 10.404130680441977&#93;
- &#91;0.8492250385297619, 0.9093257675466334, 2.035564987030506&#93;
- &#91;-1.4129023409117913, -2.233409275940525, -1.2150170336923853&#93;
- &#91;-2.014733599132678, -2.1055620318775476, 8.541256901185967&#93;
- &#91;-1.8269121208241506, -1.7646137763317193, 2.6462502288325087&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
 </pre>
 
 
@@ -491,18 +489,18 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean5</span><span class='hljl-p'>(</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span><span class='hljl-t'>
   </span><span class='hljl-cs'># u is automatically captured</span><span class='hljl-t'>
   </span><span class='hljl-nf'>solve_system_save!</span><span class='hljl-p'>(</span><span class='hljl-n'>_u_cache_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()],</span><span class='hljl-n'>lorenz</span><span class='hljl-p'>,</span><span class='hljl-n'>u0</span><span class='hljl-p'>,</span><span class='hljl-n'>p</span><span class='hljl-p'>,</span><span class='hljl-ni'>1000</span><span class='hljl-p'>);</span><span class='hljl-t'>
-  </span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>_u_cache_threads</span><span class='hljl-p'>[</span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()])</span><span class='hljl-t'>
+  </span><span class='hljl-nf'>mean</span><span class='hljl-p'>(</span><span class='hljl-n'>_u_cache</span><span class='hljl-p'>)</span><span class='hljl-t'>
 </span><span class='hljl-k'>end</span><span class='hljl-t'>
 </span><span class='hljl-nd'>@btime</span><span class='hljl-t'> </span><span class='hljl-nf'>compute_trajectory_mean5</span><span class='hljl-p'>(</span><span class='hljl-nd'>@SVector</span><span class='hljl-p'>([</span><span class='hljl-nfB'>1.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>,</span><span class='hljl-nfB'>0.0</span><span class='hljl-p'>]),</span><span class='hljl-n'>p</span><span class='hljl-p'>)</span>
 </pre>
 
 
 <pre class="output">
-5.302 μs &#40;1 allocation: 32 bytes&#41;
-3-element SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
- -0.31149962346484683
- -0.3097490174897651
- 26.024603558583014
+5.269 μs &#40;1 allocation: 32 bytes&#41;
+3-element StaticArrays.SVector&#123;3, Float64&#125; with indices SOneTo&#40;3&#41;:
+  3.238311387816431
+  3.3530432299138333
+ 12.447953568367879
 </pre>
 
 
@@ -514,27 +512,28 @@ u&#91;3&#93; &#43; α*&#40;u&#91;1&#93;*u&#91;2&#93; - β*u&#91;3&#93;&#41;</cod
 </pre>
 
 
-<pre class="julia-error">
-ERROR: TaskFailedException
-
-    nested task error: BoundsError: attempt to access 28-element Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125; at index &#91;29&#93;
-    Stacktrace:
-     &#91;1&#93; throw_boundserror&#40;A::Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125;, I::Tuple&#123;Int64&#125;&#41;
-       @ Base ./essentials.jl:15
-     &#91;2&#93; getindex
-       @ ./essentials.jl:919 &#91;inlined&#93;
-     &#91;3&#93; compute_trajectory_mean5
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:5 &#91;inlined&#93;
-     &#91;4&#93; #95
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:3 &#91;inlined&#93;
-     &#91;5&#93; macro expansion
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:6 &#91;inlined&#93;
-     &#91;6&#93; &#40;::var&quot;#tmap##0#tmap##1&quot;&#123;var&quot;#tmap##2#tmap##3&quot;&#123;var&quot;#95#96&quot;, Vector&#123;NTuple&#123;4, Float64&#125;&#125;, Vector&#123;SVector&#123;3, Float64&#125;&#125;, UnitRange&#123;Int64&#125;&#125;&#125;&#41;&#40;tid::Int64; onethread::Bool&#41;
-       @ Main ./threadingconstructs.jl:276
-     &#91;7&#93; #tmap##0
-       @ ./threadingconstructs.jl:243 &#91;inlined&#93;
-     &#91;8&#93; &#40;::Base.Threads.var&quot;#threading_run##0#threading_run##1&quot;&#123;var&quot;#tmap##0#tmap##1&quot;&#123;var&quot;#tmap##2#tmap##3&quot;&#123;var&quot;#95#96&quot;, Vector&#123;NTuple&#123;4, Float64&#125;&#125;, Vector&#123;SVector&#123;3, Float64&#125;&#125;, UnitRange&#123;Int64&#125;&#125;&#125;, Int64&#125;&#41;&#40;&#41;
-       @ Base.Threads ./threadingconstructs.jl:177
+<pre class="output">
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ ⋮
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
+ &#91;0.0, 0.0, 0.0&#93;
 </pre>
 
 
@@ -545,28 +544,28 @@ ERROR: TaskFailedException
 
 
 <pre class="output">
-5.291 ms &#40;4 allocations: 23.52 KiB&#41;
-1000-element Vector&#123;SVector&#123;3, Float64&#125;&#125;:
- &#91;-0.20080683124836332, -0.1253360863120612, 13.849058131129961&#93;
- &#91;-1.1885883726629645, -1.2536402971214806, 19.77935298585085&#93;
- &#91;0.5763199599093175, 0.5620266284153212, 0.13107839245784955&#93;
- &#91;2.353488184052678, 2.3657525136489066, 4.621780241157484&#93;
- &#91;4.581138141695743, 4.660860703436473, 11.226913928990616&#93;
- &#91;0.669262457370068, 0.6600972911476671, 18.830444973338352&#93;
- &#91;5.39956290709084, 5.549155744918048, 18.519696654177736&#93;
- &#91;3.762944303602334, 4.028278363914849, 14.513250852435524&#93;
- &#91;1.5867138354453503, 1.5919618052291644, 1.0541108579227494&#93;
- &#91;2.482614009898237, 2.491766161869847, 3.2869892059668686&#93;
+5.260 ms &#40;3 allocations: 23.50 KiB&#41;
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
  ⋮
- &#91;0.45924210523597603, 0.3282819496231699, 23.066763153206814&#93;
- &#91;5.061281829948281, 5.134696451690417, 11.376894724195878&#93;
- &#91;0.11302840421059672, 0.09476427134220347, 21.408220721060964&#93;
- &#91;0.20808114570537878, 0.2120499406968184, 12.114386300972994&#93;
- &#91;4.335027572153379, 4.722584706449349, 25.67243030230852&#93;
- &#91;-0.4083891935710097, -0.220712957886774, 13.621894305645435&#93;
- &#91;-0.11542971505496727, -0.1345630377743056, 12.899694410650392&#93;
- &#91;-1.1316153284958104, -1.0827352722634362, 11.925180695745052&#93;
- &#91;-2.121405778990796, -2.1364217788233724, 13.157523121666198&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
 </pre>
 
 
@@ -576,32 +575,34 @@ ERROR: TaskFailedException
 </pre>
 
 
-<pre class="julia-error">
-ERROR: TaskFailedException
-
-    nested task error: BoundsError: attempt to access 28-element Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125; at index &#91;29&#93;
-    Stacktrace:
-     &#91;1&#93; throw_boundserror&#40;A::Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125;, I::Tuple&#123;Int64&#125;&#41;
-       @ Base ./essentials.jl:15
-     &#91;2&#93; getindex
-       @ ./essentials.jl:919 &#91;inlined&#93;
-     &#91;3&#93; compute_trajectory_mean5
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:5 &#91;inlined&#93;
-     &#91;4&#93; #101
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:2 &#91;inlined&#93;
-     &#91;5&#93; macro expansion
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:6 &#91;inlined&#93;
-     &#91;6&#93; &#40;::var&quot;#tmap##0#tmap##1&quot;&#123;var&quot;#tmap##2#tmap##3&quot;&#123;var&quot;#101#102&quot;, Vector&#123;NTuple&#123;4, Float64&#125;&#125;, Vector&#123;SVector&#123;3, Float64&#125;&#125;, UnitRange&#123;Int64&#125;&#125;&#125;&#41;&#40;tid::Int64; onethread::Bool&#41;
-       @ Main ./threadingconstructs.jl:276
-     &#91;7&#93; #tmap##0
-       @ ./threadingconstructs.jl:243 &#91;inlined&#93;
-     &#91;8&#93; &#40;::Base.Threads.var&quot;#threading_run##0#threading_run##1&quot;&#123;var&quot;#tmap##0#tmap##1&quot;&#123;var&quot;#tmap##2#tmap##3&quot;&#123;var&quot;#101#102&quot;, Vector&#123;NTuple&#123;4, Float64&#125;&#125;, Vector&#123;SVector&#123;3, Float64&#125;&#125;, UnitRange&#123;Int64&#125;&#125;&#125;, Int64&#125;&#41;&#40;&#41;
-       @ Base.Threads ./threadingconstructs.jl:177
+<pre class="output">
+5.265 ms &#40;8 allocations: 24.03 KiB&#41;
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ ⋮
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
 </pre>
 
 
 <h3>Hierarchical Task-Based Multithreading and Dynamic Scheduling</h3>
-<p>The major change in Julia v1.3 is that Julia&#39;s <code>Task</code>s, which are traditionally its green threads interface, are now the basis of its multithreading infrastructure. This means that all independent threads are parallelized, and a new interface for multithreading will exist that works by spawning threads.</p>
+<p>The major change in Julia v1.3 is that Julia&#39;s <code>Task</code>s, which are traditionally its green threads interface, are now the basis of its multithreading infrustructure. This means that all independent threads are parallelized, and a new interface for multithreading will exist that works by spawning threads.</p>
 <p>This implementation follows Go&#39;s goroutines and the classic multithreading interface of Cilk. There is a Julia-level scheduler that handles the multithreading to put different tasks on different vCPU threads. A benefit from this is hierarchical multithreading. Since Julia&#39;s tasks can spawn tasks, what can happen is a task can create tasks which create tasks which etc. In Julia &#40;/Go/Cilk&#41;, this is then seen as a single pool of tasks which it can schedule, and thus it will still make sure only <code>N</code> are running at a time &#40;as opposed to the naive implementation where the total number of running threads is equal then multiplied&#41;. This is essential for numerical performance because running multiple compute threads on a single CPU thread requires constant context switching between the threads, which will slow down the computations.</p>
 <p>To directly use the task-based interface, simply use <code>Threads.@spawn</code> to spawn new tasks. For example:</p>
 
@@ -615,21 +616,28 @@ ERROR: TaskFailedException
 </pre>
 
 
-<pre class="julia-error">
-ERROR: TaskFailedException
-
-    nested task error: BoundsError: attempt to access 28-element Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125; at index &#91;29&#93;
-    Stacktrace:
-     &#91;1&#93; throw_boundserror&#40;A::Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125;, I::Tuple&#123;Int64&#125;&#41;
-       @ Base ./essentials.jl:15
-     &#91;2&#93; getindex
-       @ ./essentials.jl:919 &#91;inlined&#93;
-     &#91;3&#93; compute_trajectory_mean5
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:5 &#91;inlined&#93;
-     &#91;4&#93; #107
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:6 &#91;inlined&#93;
-     &#91;5&#93; &#40;::var&quot;#tmap2##2#tmap2##3&quot;&#123;Int64, var&quot;#107#108&quot;, Vector&#123;NTuple&#123;4, Float64&#125;&#125;&#125;&#41;&#40;&#41;
-       @ Main /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:3
+<pre class="output">
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ ⋮
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
 </pre>
 
 
@@ -641,25 +649,33 @@ ERROR: TaskFailedException
 </pre>
 
 
-<pre class="julia-error">
-ERROR: TaskFailedException
-
-    nested task error: BoundsError: attempt to access 28-element Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125; at index &#91;29&#93;
-    Stacktrace:
-     &#91;1&#93; throw_boundserror&#40;A::Vector&#123;Vector&#123;SVector&#123;3, Float64&#125;&#125;&#125;, I::Tuple&#123;Int64&#125;&#41;
-       @ Base ./essentials.jl:15
-     &#91;2&#93; getindex
-       @ ./essentials.jl:919 &#91;inlined&#93;
-     &#91;3&#93; compute_trajectory_mean5
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:5 &#91;inlined&#93;
-     &#91;4&#93; #110
-       @ /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:2 &#91;inlined&#93;
-     &#91;5&#93; &#40;::var&quot;#tmap2##2#tmap2##3&quot;&#123;Int64, var&quot;#110#111&quot;, Vector&#123;NTuple&#123;4, Float64&#125;&#125;&#125;&#41;&#40;&#41;
-       @ Main /mnt/software/lux/SciMLBook/_weave/lecture05/parallelism_overview.jmd:3
+<pre class="output">
+5.653 ms &#40;6005 allocations: 531.45 KiB&#41;
+1000-element Vector&#123;StaticArrays.SVector&#123;3, Float64&#125;&#125;:
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ ⋮
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
+ &#91;3.238311387816431, 3.3530432299138333, 12.447953568367879&#93;
 </pre>
 
 
-<p><code>Threads.@threads</code> is built on the same multithreading infrastructure, so why is this so much slower? The reason is because <code>Threads.@threads</code> employs <strong>static scheduling</strong> while <code>Threads.@spawn</code> is using <strong>dynamic scheduling</strong>. Dynamic scheduling is the model of allowing the runtime to determine the ordering and scheduling of processes, i.e. what tasks will run run where and when. Julia&#39;s task-based multithreading system has a thread scheduler which will automatically do this for you in the background, but because this is done at runtime it will have overhead. Static scheduling is the model of pre-determining where and when tasks will run, instead of allowing this to be determined at runtime. <code>Threads.@threads</code> is &quot;quasi-static&quot; in the sense that it cuts the loop so that it spawns only as many tasks as there are threads, essentially assigning one thread for even chunks of the input data.</p>
+<p><code>Threads.@threads</code> is built on the same multithreading infrustructure, so why is this so much slower? The reason is because <code>Threads.@threads</code> employs <strong>static scheduling</strong> while <code>Threads.@spawn</code> is using <strong>dynamic scheduling</strong>. Dynamic scheduling is the model of allowing the runtime to determine the ordering and scheduling of processes, i.e. what tasks will run run where and when. Julia&#39;s task-based multithreading system has a thread scheduler which will automatically do this for you in the background, but because this is done at runtime it will have overhead. Static scheduling is the model of pre-determining where and when tasks will run, instead of allowing this to be determined at runtime. <code>Threads.@threads</code> is &quot;quasi-static&quot; in the sense that it cuts the loop so that it spawns only as many tasks as there are threads, essentially assigning one thread for even chunks of the input data.</p>
 <p>Does this lack of runtime overhead mean that static scheduling is &quot;better&quot;? No, it simply has trade-offs. Static scheduling assumes that the runtime of each block is the same. For this specific case where there are fixed number of loop iterations for the dynamical systems, we know that every <code>compute_trajectory_mean5</code> costs exactly the same, and thus this will be more efficient. However, There are many cases where this might not be efficient. For example:</p>
 
 
@@ -684,8 +700,8 @@ ERROR: TaskFailedException
 
 
 <pre class="output">
-2.401 s &#40;216 allocations: 13.22 KiB&#41;
-  2.402 s &#40;198 allocations: 11.03 KiB&#41;
+30.054 s &#40;134 allocations: 4.62 KiB&#41;
+  2.401 s &#40;244 allocations: 14.77 KiB&#41;
 24-element Vector&#123;Int64&#125;:
   1
   2
@@ -719,7 +735,7 @@ ERROR: TaskFailedException
 
 
 <pre class="output">
-28
+1
 </pre>
 
 
@@ -765,26 +781,26 @@ ERROR: TaskFailedException
 
 <pre class="output">
 10000×10000 Matrix&#123;Float64&#125;:
- 2521.46  2493.51  2487.51  2502.83  …  2540.85  2496.46  2500.22  2522.31
- 2503.2   2462.82  2473.85  2477.15     2506.26  2470.01  2467.73  2491.12
- 2548.68  2504.18  2494.74  2527.62     2538.46  2509.1   2494.95  2529.57
- 2497.29  2464.26  2482.56  2490.46     2493.87  2470.83  2475.74  2492.19
- 2514.6   2498.03  2492.77  2510.42     2525.28  2480.02  2497.09  2502.87
- 2531.51  2473.23  2496.73  2489.26  …  2526.89  2495.07  2504.03  2520.49
- 2522.98  2483.62  2486.87  2498.41     2513.96  2478.3   2504.57  2508.2
- 2504.96  2452.37  2464.22  2476.5      2498.02  2467.26  2472.16  2485.06
- 2524.08  2483.16  2510.7   2506.52     2535.22  2496.38  2510.47  2516.36
- 2521.93  2467.23  2478.73  2481.43     2515.58  2479.41  2492.65  2491.03
+ 2485.67  2510.66  2477.47  2501.09  …  2478.07  2479.82  2467.3   2495.8
+ 2506.69  2500.84  2497.07  2479.17     2496.88  2467.03  2475.67  2480.68
+ 2531.28  2513.22  2501.77  2489.42     2498.12  2479.57  2489.02  2518.79
+ 2499.31  2510.83  2496.55  2489.17     2501.49  2493.24  2485.83  2499.6
+ 2483.32  2510.02  2485.91  2491.73     2493.23  2472.96  2461.66  2509.32
+ 2494.67  2502.17  2503.0   2492.4   …  2498.78  2480.02  2473.33  2491.89
+ 2533.68  2533.2   2520.53  2507.06     2501.57  2485.15  2494.55  2507.89
+ 2541.4   2544.2   2534.43  2526.12     2542.82  2523.53  2510.43  2533.4
+ 2491.56  2521.94  2498.63  2484.81     2483.21  2491.73  2468.89  2495.37
+ 2500.96  2528.62  2508.82  2507.66     2496.47  2483.93  2486.58  2497.55
     ⋮                                ⋱                             
- 2524.72  2486.52  2507.98  2526.83     2522.35  2500.54  2511.34  2519.32
- 2522.39  2499.84  2485.75  2504.63     2530.71  2481.11  2513.82  2512.86
- 2542.76  2500.58  2515.64  2514.99     2546.78  2508.17  2506.96  2531.7
- 2488.53  2452.42  2465.9   2472.0      2497.75  2453.89  2464.35  2478.95
- 2532.7   2487.99  2488.94  2513.6   …  2528.11  2489.9   2503.48  2519.21
- 2512.12  2465.24  2472.96  2493.54     2487.38  2464.8   2486.37  2498.66
- 2530.43  2486.36  2512.07  2515.81     2537.93  2510.16  2519.34  2526.3
- 2529.76  2476.65  2491.05  2509.5      2533.64  2492.81  2491.7   2532.31
- 2538.64  2487.47  2485.75  2512.09     2518.27  2497.82  2497.0   2517.3
+ 2484.74  2500.83  2484.57  2485.67     2484.09  2468.27  2460.36  2475.96
+ 2505.51  2527.05  2519.37  2516.36     2528.23  2486.7   2486.25  2514.69
+ 2513.75  2508.13  2498.91  2493.01     2493.37  2474.07  2477.76  2503.6
+ 2493.59  2509.14  2490.99  2475.77     2482.01  2478.25  2478.89  2486.95
+ 2500.31  2501.54  2483.23  2496.59  …  2490.96  2475.95  2481.71  2497.94
+ 2512.67  2528.04  2499.85  2489.29     2509.37  2494.74  2482.62  2524.53
+ 2511.51  2523.71  2510.16  2491.93     2507.9   2496.49  2496.15  2509.57
+ 2514.83  2516.35  2503.32  2507.84     2508.73  2479.12  2485.74  2499.04
+ 2514.83  2532.15  2505.75  2503.0      2493.6   2476.73  2488.86  2510.74
 </pre>
 
 
@@ -801,7 +817,7 @@ ERROR: TaskFailedException
 <li><p>CuArrays &#40;GPUs&#41;</p>
 </li>
 </ul>
-<p>This is not a Julia specific idea either.</p>
+<p>This is not a Julia specific idea either</p>
 <h3>BLAS and Standard Libraries</h3>
 <p>The basic linear algebra calls are all handled by a set of libraries which follow the same interface known as BLAS &#40;Basic Linear Algebra Subroutines&#41;. It&#39;s divided into 3 portions:</p>
 <ul>
@@ -812,7 +828,7 @@ ERROR: TaskFailedException
 <li><p>BLAS3: Matrix-matrix operations &#40;O&#40;n^3&#41;&#41;</p>
 </li>
 </ul>
-<p>BLAS implementations are highly optimized, like OpenBLAS and Intel MKL, so every numerical language and library essentially uses similar underlying BLAS implementations. Extensions to these, known as LAPACK, include operations like factorizations, and are included in these standard libraries. These are all multithreaded. The reason why this is a location to target is because the operation count is high enough that parallelism can be made efficient even when only targeting this level: a matrix multiplication can take on the order of seconds, minutes, hours, or even days, and these are all highly parallel operations. This means you can get away with a bunch just by parallelizing at this level, which happens to be a bottleneck for a lot scientific computing codes.</p>
+<p>BLAS implementations are highly optimized, like OpenBLAS and Intel MKL, so every numerical language and library essentially uses similar underlying BLAS implementations. Extensions to these, known as LAPACK, include operations like factorizations, and are included in these standard libraries. These are all multithreaded. The reason why this is a location to target is because the operation count is high enough that parallelism can be made efficient even when only targetting this level: a matrix multiplication can take on the order of seconds, minutes, hours, or even days, and these are all highly parallel operations. This means you can get away with a bunch just by parallelizing at this level, which happens to be a bottleneck for a lot scientific computing codes.</p>
 <p>This is also commonly the level at which GPU computing occurs in machine learning libraries for reasons which we will explain later.</p>
 <h3>MPI</h3>
 <p>Well, this is a big topic and we&#39;ll address this one later&#33;</p>
@@ -830,6 +846,6 @@ ERROR: TaskFailedException
 <div class="footer">
   <p>
     Published from <a href="parallelism_overview.jmd">parallelism_overview.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-03-01.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-02-20.
   </p>
 </div>

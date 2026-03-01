@@ -5,13 +5,13 @@
 
 <p>Due October 1st, 2020 at midnight EST.</p>
 <p>Homework 1 is a chance to get some experience implementing discrete dynamical systems techniques in a way that is parallelized, and a time to understand the fundamental behavior of the bottleneck algorithms in scientific computing.</p>
+<p>Please email the results to <code>crackauc@mit.edu</code> titled &quot;<strong>Homework 1: &#40;Your Name&#41;</strong>&quot;.</p>
 <h2>Problem 1: A Ton of New Facts on Newton</h2>
-<p>In lecture 4 we looked at the properties of discrete dynamical systems to see that running many systems for infinitely many steps would go to a steady state. This process is used as a numerical method known as <strong>fixed point iteration</strong> to solve for the steady state of systems <span class="math">$x_{n+1} = f(x_{n})$</span>. Under a transformation &#40;which we will do in this homework&#41;, it can be used to solve rootfinding problems <span class="math">$f(x) = 0$</span> to solve for <span class="math">$x$</span>.</p>
 <p>In this problem we will look into Newton&#39;s method. Newton&#39;s method is the dynamical system defined by the update process:</p>
 <p class="math">\[
 x_{n+1} = x_n - \left(\frac{dg}{dx}(x_n)\right)^{-1} g(x_n)
 \]</p>
-<p>For these problems, assume that <span class="math">$\frac{dg}{dx}$</span> is non-singular. We will prove a few properties to show why, in practice, Newton methods are preferred for quickly calculating the steady state.</p>
+<p>For these problems, assume that <span class="math">$\frac{dg}{dx}$</span> is non-singular.</p>
 <h3>Part 1</h3>
 <p>Show that if <span class="math">$x^\ast$</span> is a steady state of the equation, then <span class="math">$g(x^\ast) = 0$</span>.</p>
 <h3>Part 2</h3>
@@ -61,7 +61,7 @@ x_{n+1} = rx_n (1-x_n)
 <p><img src="https://upload.wikimedia.org/wikipedia/commons/7/7d/LogisticMap_BifurcationDiagram.png" alt="" /></p>
 <p>&#40;Hint: Generate a single matrix for the attractor values, and use <code>calc_attractor&#33;</code> on views of columns for calculating the output, or inline the <code>calc_attractor&#33;</code> computation directly onto the matrix, or even give <code>calc_attractor&#33;</code> an input for what column to modify.&#41;</p>
 <h3>Part 3</h3>
-<p>Multithread your bifurcation graph generator by performing different steady state calculations on different threads. Does your timing improve? Why? Be careful and check to make sure you have more than 1 thread&#33;</p>
+<p>Multithread your bifurcation graph generator by performing different steady state calcuations on different threads. Does your timing improve? Why? Be careful and check to make sure you have more than 1 thread&#33;</p>
 <h3>Part 4</h3>
 <p>Multiprocess your bifurcation graph generator first by using <code>pmap</code>, and then by using <code>@distributed</code>. Does your timing improve? Why? Be careful to add processes before doing the distributed call.</p>
 <p>&#40;Note: You may need to change your implementation around to be allocating differently in order for it to be compatible with multiprocessing&#33;&#41;</p>
@@ -72,6 +72,6 @@ x_{n+1} = rx_n (1-x_n)
 <div class="footer">
   <p>
     Published from <a href="hw1.jmd">hw1.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-03-01.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.10 on 2022-02-21.
   </p>
 </div>
