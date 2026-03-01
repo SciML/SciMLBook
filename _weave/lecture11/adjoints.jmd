@@ -187,12 +187,480 @@ AD systems are Zygote.jl for Julia, and Swift for TensorFlow in Swift. Additiona
 older AD systems, like Tampenade, ADIFOR, and TAF, all for Fortran, were
 source-to-source AD systems.
 
+### Worked Example: Reverse-Mode AD on the Babylonian Square Root
+
+To make the above discussion concrete, let's work through every AD strategy
+on a single function: the Babylonian method for computing $\sqrt{x}$.
+
+```julia
+function f(x)
+    a = x
+    for i in 1:300
+        a = 0.5 * (a + x/a)
+    end
+    a
+end
+```
+
+This iteratively computes $\sqrt{x}$ via the recurrence $a_{n+1} = \frac{1}{2}(a_n + x/a_n)$.
+After 300 iterations starting from $a_0 = x$, the result converges to machine
+precision. Since $f(x) = \sqrt{x}$, the exact derivative is $f'(x) = \frac{1}{2\sqrt{x}}$.
+
+#### Step 1: Lowering to a Three-Address Form
+
+Before differentiating, we decompose each compound expression into elementary
+operations, each assigned to a temporary. This is the form that a compiler
+(or an AD system) actually sees:
+
+```julia
+function f_lowered(x)
+    a = x
+    for i in 1:300
+        tmp1 = x / a
+        tmp2 = a + tmp1
+        a = 0.5 * tmp2
+    end
+    y = a
+end
+```
+
+Each line is now a single primitive operation (`/`, `+`, `*`) whose derivative
+rule we know. This decomposition is the starting point for all AD strategies.
+
+#### Step 2: Forward-Mode AD
+
+In forward-mode AD, we propagate a *tangent* $\dot{v}$ alongside each value $v$.
+For each elementary operation, we apply the standard differentiation rule:
+
+- $\text{tmp1} = x/a \implies \dot{\text{tmp1}} = (\dot{x} \cdot a - \dot{a} \cdot x)/a^2$ (quotient rule)
+- $\text{tmp2} = a + \text{tmp1} \implies \dot{\text{tmp2}} = \dot{a} + \dot{\text{tmp1}}$ (sum rule)
+- $a = 0.5 \cdot \text{tmp2} \implies \dot{a} = 0.5 \cdot \dot{\text{tmp2}}$ (constant scaling)
+
+Seeding with $\dot{x} = 1$ gives us $\dot{y} = f'(x)$ at the output:
+
+```julia
+function f_forward(x, dx)
+    a, da = (x, dx)
+    for i in 1:300
+        tmp1, dtmp1 = (x / a, (dx * a - da * x) / a^2)
+        tmp2, dtmp2 = (a + tmp1, da + dtmp1)
+        a, da = (0.5 * tmp2, 0.5 * dtmp2)
+    end
+    y, dy = (a, da)
+end
+```
+
+```julia
+f_forward(2.0, 1.0)  # (sqrt(2), 1/(2*sqrt(2)))
+```
+
+Forward-mode computes the derivative in a single forward sweep. Its cost scales
+with the number of *input* perturbation directions (one pass per seed), so it's
+efficient when there are few inputs and many outputs.
+
+#### Step 3: Reverse-Mode AD — Dynamic Graph (Tape-Based)
+
+This is the approach used by PyTorch, ReverseDiff.jl, and Tracker.jl.
+During the forward pass, we record a *tape* (Wengert list) of every operation
+performed, along with the node IDs of inputs and outputs. Each intermediate
+value gets a unique node ID. Then the reverse pass walks the tape backward,
+applying pullback rules and accumulating adjoints:
+
+```julia
+function apply_pullback(::typeof(identity), args, out, outbar)
+    (outbar,)
+end
+
+function apply_pullback(::typeof(/), args, out, outbar)
+    a, b = args
+    (outbar / b, -outbar * a / b^2)
+end
+
+function apply_pullback(::typeof(+), args, out, outbar)
+    (outbar, outbar)
+end
+
+function apply_pullback(::typeof(*), args, out, outbar)
+    a, b = args
+    (outbar * b, outbar * a)
+end
+```
+
+The pullback of each primitive is just the transpose of its Jacobian applied to
+the incoming adjoint $\bar{v}$. For example, the pullback of $y = a/b$ gives
+$\bar{a} = \bar{y}/b$ and $\bar{b} = -\bar{y} \cdot a/b^2$, which are exactly
+the entries of $J^T \bar{y}$.
+
+The forward pass builds the tape by assigning node IDs:
+
+```julia
+function f_reverse_dynamic_ad(x)
+    node_id = 0
+    next_id() = (node_id += 1; node_id)
+
+    tape = []  # entries: (op, input_ids, output_id)
+    is_constant = Set{Int}()
+
+    x_id = next_id()
+
+    a_id = next_id()
+    push!(tape, (identity, (x_id,), a_id))
+
+    const_05_id = next_id()
+    push!(is_constant, const_05_id)
+
+    for i in 1:300
+        tmp1_id = next_id()
+        push!(tape, (/, (x_id, a_id), tmp1_id))
+
+        tmp2_id = next_id()
+        push!(tape, (+, (a_id, tmp1_id), tmp2_id))
+
+        a_id = next_id()
+        push!(tape, (*, (const_05_id, tmp2_id), a_id))
+    end
+
+    y_id = a_id
+
+    # Replay tape to get forward values
+    node_vals = Dict{Int,Float64}()
+    node_vals[x_id] = x
+    node_vals[const_05_id] = 0.5
+
+    for (op, in_ids, out_id) in tape
+        args = ntuple(j -> node_vals[in_ids[j]], length(in_ids))
+        node_vals[out_id] = op === identity ? args[1] : op(args...)
+    end
+
+    y = node_vals[y_id]
+
+    function reversepass(ybar)
+        adj = Dict{Int,Float64}()
+        adj[y_id] = ybar
+
+        for i in length(tape):-1:1
+            op, in_ids, out_id = tape[i]
+            outbar = get(adj, out_id, 0.0)
+            args = ntuple(j -> node_vals[in_ids[j]], length(in_ids))
+            bars = apply_pullback(op, args, node_vals[out_id], outbar)
+            for (j, id) in enumerate(in_ids)
+                if id ∉ is_constant
+                    adj[id] = get(adj, id, 0.0) + bars[j]
+                end
+            end
+        end
+        get(adj, x_id, 0.0)
+    end
+
+    y, reversepass
+end
+```
+
+```julia
+y, pullback = f_reverse_dynamic_ad(2.0)
+(y, pullback(1.0))
+```
+
+The reverse pass is completely generic — it dispatches on the recorded `op`
+via `apply_pullback` and accumulates adjoints by node ID. No knowledge of the
+specific program structure is needed. This generality is precisely why dynamic
+graph AD is so widely adopted: any program that can be traced produces a
+correct gradient.
+
+The downside is visible in the implementation: we allocate a tape entry for
+every single scalar operation (900 entries for 300 loop iterations), and every
+intermediate value is stored in a `Dict`. For a 300-iteration loop, this is
+fine; for a deep neural network with millions of operations, this overhead
+becomes the bottleneck.
+
+#### Step 4: Reverse-Mode AD — Memory-Based (Checkpointing All Values)
+
+Instead of recording a generic tape, we can write a reverse pass that is
+specialized to the structure of our program. The key insight is that the
+reverse pass needs the *values* from the forward pass (to evaluate Jacobians),
+but not the tape machinery. So we simply store the intermediate values in an
+array:
+
+```julia
+function f_reverse_memory(x, da)
+    # Forward pass: store all intermediate a values
+    as = zeros(301)
+    as[1] = x
+    for i in 1:300
+        tmp1 = x / as[i]
+        tmp2 = as[i] + tmp1
+        as[i+1] = 0.5 * tmp2
+    end
+
+    y = as[end]
+
+    # Reverse pass
+    abar = da
+    xbar = 0.0
+
+    for i in 300:-1:1
+        # Reverse of: a[i+1] = 0.5 * tmp2
+        tmp2bar = abar * 0.5
+
+        # Reverse of: tmp2 = a[i] + tmp1
+        tmp1bar = tmp2bar
+        abar_from_add = tmp2bar
+
+        # Reverse of: tmp1 = x / a[i]
+        xbar += tmp1bar / as[i]
+        abar_from_div = tmp1bar * (-x / as[i]^2)
+
+        # Total adjoint for a[i]
+        abar = abar_from_add + abar_from_div
+    end
+
+    # Reverse of initial: a = x
+    xbar += abar
+
+    y, xbar
+end
+```
+
+```julia
+f_reverse_memory(2.0, 1.0)
+```
+
+The reverse pass is now just a loop — no dictionaries, no dispatch, no heap
+allocations per operation. Each line of the reverse loop is the adjoint of the
+corresponding line in the forward loop, read in reverse order:
+
+| Forward                     | Reverse                                              |
+|-----------------------------|------------------------------------------------------|
+| `a[i+1] = 0.5 * tmp2`      | `tmp2bar = abar * 0.5`                               |
+| `tmp2 = a[i] + tmp1`       | `abar += tmp2bar; tmp1bar = tmp2bar`                 |
+| `tmp1 = x / a[i]`          | `xbar += tmp1bar/a[i]; abar += -tmp1bar*x/a[i]^2`   |
+
+Note how `xbar` accumulates a contribution from every iteration, since `x` is
+used in `tmp1 = x/a` at every step. This is the "fan-out" rule: when a variable
+is used multiple times, its adjoint is the *sum* of all contributions.
+
+The cost is $O(N)$ memory to store the `as` array, where $N$ is the number of
+iterations.
+
+#### Step 5: Reverse-Mode AD — Memoryless (Enzyme/NiLang Style)
+
+Source-to-source AD systems like Enzyme and NiLang can avoid storing
+intermediates entirely by *inverting* the forward computation. If we can
+reconstruct $a_{\text{old}}$ from $a_{\text{new}}$, we don't need the `as`
+array at all.
+
+The forward step is $a_{\text{new}} = \frac{1}{2}(a_{\text{old}} + x/a_{\text{old}})$.
+Inverting: $\text{tmp2} = 2 a_{\text{new}}$, and $a_{\text{old}}$ satisfies
+$a_{\text{old}}^2 - \text{tmp2} \cdot a_{\text{old}} + x = 0$, giving
+$a_{\text{old}} = \frac{\text{tmp2} + \sqrt{\text{tmp2}^2 - 4x}}{2}$
+(taking the larger root, since $a > \sqrt{x}$ throughout the iteration):
+
+```julia
+function f_reverse_memoryless(x, da)
+    a = x
+    for i in 1:300
+        tmp1 = x / a
+        tmp2 = a + tmp1
+        a = 0.5 * tmp2
+    end
+
+    aout = a
+
+    # Reverse pass: reconstruct intermediates by inverting each step
+    abar = da
+    xbar = 0.0
+
+    for i in 300:-1:1
+        # Invert: a_new = 0.5 * tmp2 => tmp2 = 2 * a
+        tmp2 = 2 * a
+        # Invert: a_old^2 - tmp2*a_old + x = 0 => take larger root
+        a_old = (tmp2 + sqrt(abs(tmp2^2 - 4x))) / 2
+        tmp1 = x / a_old
+
+        tmp2bar = abar * 0.5
+        tmp1bar = tmp2bar
+        abar_from_add = tmp2bar
+
+        xbar += tmp1bar / a_old
+        abar_from_div = tmp1bar * (-x / a_old^2)
+
+        abar = abar_from_add + abar_from_div
+        a = a_old
+    end
+
+    xbar += abar
+
+    aout, xbar
+end
+```
+
+```julia
+f_reverse_memoryless(2.0, 1.0)
+```
+
+This uses $O(1)$ memory regardless of the number of iterations. The tradeoff is
+that the inversion (here, a quadratic formula) adds computation and can
+introduce small floating-point errors. For the Babylonian method specifically,
+the inversion is exact in exact arithmetic but introduces ~$10^{-15}$ error in
+floating point — acceptable for most applications.
+
+#### Step 6: Dynamic Control Flow
+
+What happens when the iteration count isn't fixed? Replace the `for` loop with
+a convergence-based `while` loop:
+
+```julia
+function f_while(x)
+    a = x
+    while abs(a - x/a) > 1e-14
+        a = 0.5 * (a + x/a)
+    end
+    a
+end
+```
+
+This changes nothing about the derivative rules — only about what the AD system
+must handle. For memory-based reverse AD, we store values as before but use a
+growable array:
+
+```julia
+function f_while_reverse_memory(x, da)
+    as = [x]
+    while abs(as[end] - x / as[end]) > 1e-14
+        a_prev = as[end]
+        tmp1 = x / a_prev
+        tmp2 = a_prev + tmp1
+        push!(as, 0.5 * tmp2)
+    end
+
+    y = as[end]
+    abar = da
+    xbar = 0.0
+
+    for i in (length(as)):-1:2
+        tmp2bar = abar * 0.5
+        tmp1bar = tmp2bar
+        abar_from_add = tmp2bar
+
+        xbar += tmp1bar / as[i-1]
+        abar_from_div = tmp1bar * (-x / as[i-1]^2)
+
+        abar = abar_from_add + abar_from_div
+    end
+
+    xbar += abar
+    y, xbar
+end
+```
+
+For the memoryless version, we just need to count iterations:
+
+```julia
+function f_while_reverse_memoryless(x, da)
+    a = x
+    iters = 0
+    while abs(a - x/a) > 1e-14
+        iters += 1
+        tmp1 = x / a
+        tmp2 = a + tmp1
+        a = 0.5 * tmp2
+    end
+
+    aout = a
+    abar = da
+    xbar = 0.0
+
+    for i in iters:-1:1
+        tmp2 = 2 * a
+        a_old = (tmp2 + sqrt(abs(tmp2^2 - 4x))) / 2
+        tmp1 = x / a_old
+
+        tmp2bar = abar * 0.5
+        tmp1bar = tmp2bar
+        abar_from_add = tmp2bar
+
+        xbar += tmp1bar / a_old
+        abar_from_div = tmp1bar * (-x / a_old^2)
+
+        abar = abar_from_add + abar_from_div
+        a = a_old
+    end
+
+    xbar += abar
+    aout, xbar
+end
+```
+
+```julia
+f_while_reverse_memory(2.0, 1.0)
+```
+
+```julia
+f_while_reverse_memoryless(2.0, 1.0)
+```
+
+Dynamic control flow is where the tradeoffs between AD strategies become sharp:
+
+- **Tracing-based AD** (PyTorch, JAX) unrolls the while loop into a flat trace.
+  The trace length varies per input — you cannot JIT compile it once.
+- **Memory-based AD** stores values as the loop runs. The memory cost is
+  proportional to the (unknown in advance) iteration count.
+- **Memoryless/source-to-source AD** (Enzyme) only needs to record the iteration
+  count (a single integer), then inverts each step. This is why Enzyme can
+  differentiate through complex loops and solvers with minimal overhead.
+
+#### Summary: Comparing the Strategies
+
+Let's verify all implementations against the exact derivative:
+
+```julia
+x = 2.0
+exact = 1 / (2*sqrt(x))
+
+_, d_fwd = f_forward(x, 1.0)
+_, d_mem = f_reverse_memory(x, 1.0)
+_, d_mless = f_reverse_memoryless(x, 1.0)
+_, pb = f_reverse_dynamic_ad(x)
+d_dyn = pb(1.0)
+_, d_wmem = f_while_reverse_memory(x, 1.0)
+_, d_wmless = f_while_reverse_memoryless(x, 1.0)
+
+println("Exact derivative:        $exact")
+println("Forward-mode:            $d_fwd    (err = $(abs(d_fwd - exact)))")
+println("Reverse dynamic (tape):  $d_dyn    (err = $(abs(d_dyn - exact)))")
+println("Reverse memory:          $d_mem    (err = $(abs(d_mem - exact)))")
+println("Reverse memoryless:      $d_mless  (err = $(abs(d_mless - exact)))")
+println("While + memory:          $d_wmem   (err = $(abs(d_wmem - exact)))")
+println("While + memoryless:      $d_wmless (err = $(abs(d_wmless - exact)))")
+```
+
+| Strategy            | Memory | Tape overhead | Handles dynamic control flow | Examples                           |
+|---------------------|--------|---------------|------------------------------|------------------------------------|
+| Forward-mode        | $O(1)$ | None          | Yes (naturally)              | ForwardDiff.jl, dual numbers       |
+| Reverse dynamic     | $O(N)$ | Dict + alloc  | Yes (re-traces each call)    | PyTorch, JAX, Tracker.jl, ReverseDiff.jl|
+| Reverse memory      | $O(N)$ | None          | Yes (growable arrays)        | Checkpointing schemes              |
+| Reverse memoryless  | $O(1)$ | None          | Yes (count only)             | Enzyme, NiLang                     |
+| Source-to-source    | Varies | None          | Yes (with analysis)          | Zygote.jl, Enzyme, Tapenade       |
+
 ## Derivation of Reverse Mode Rules: Adjoints and Implicit Function Theorem
+
+Now this shows how reverse-mode AD generally works, and we can see from the general
+implementation that the key is to implement `apply_pullback` rules on specific
+primitive operations. This is just like the primitive rules for forward-mode AD,
+except now computing the vector-Jacobian product. 
+
+While this is easy to do for simple mathematical operations, you may be asking,
+if I have a complicated function, how do I derive the `apply_pullback` rules?
+It terns out that this intersects with an area of computational science known
+as adjoint methods. Adjoint methods are `apply_pullback` reverse-mode AD
+rules in disguise!
 
 In order to require the least amount of work from our AD system, we need to
 be able to derive the adjoint rules at the highest level possible. Here are
 a few well-known cases to start understanding. These next examples are from
 [Steven Johnson's resource](https://math.mit.edu/~stevenj/18.336/adjoint.pdf).
+
+Let's go through the full derivation of a few.
 
 ### Adjoint of Linear Solve
 
@@ -400,3 +868,4 @@ if the data points are too far apart, a property that is not true with fitting.
 Thus, this is usually done as part of a *two-stage method*, where the starting
 stage uses collocation to get initial parameters which is then completed with
 a shooting method.
+
