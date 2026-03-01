@@ -400,11 +400,18 @@ to compute the gradients and update the parameters in a loop:
 
 ```julia
 tstate = Lux.Training.TrainState(NN, ps, st, Adam(0.1f0))
-opt_loss(model, p, s, _) = sum(abs2, sum(abs2, model(rand(Float32, 10), p, s)[1] .- 1f0) for i in 1:100), s, ()
+
+function opt_loss(model, p, st, x)
+   pred, st_new = model(x, p, st)
+   return sum(abs2, pred .- 1f0), st_new, ()
+end
 
 for epoch in 1:10000
     global tstate
-    loss_val, grads, stats, tstate = Lux.Training.single_train_step!(AutoEnzyme(), opt_loss, nothing, tstate)
+    x = rand(Float32, 10, 128)
+    _, _, _, tstate = Lux.Training.single_train_step!(
+        AutoEnzyme(), opt_loss, x, tstate
+    )
 end
 ```
 
@@ -414,7 +421,8 @@ Now let's check the loss:
 loss(tstate.parameters)
 ```
 
-This means that `NN(x, p, st)[1]` is now a very good function approximator to `f(x) = ones(5)`!
+This means that `NN(x, p, st)[1]` is now a very good function approximator to
+`f(x) = ones(5)`!
 
 ### So Why Machine Learning? Why Neural Networks?
 
@@ -597,12 +605,16 @@ and approximate it with the neural network from a scalar to a scalar:
 
 ```julia
 using Lux, Optimisers, Enzyme, ComponentArrays, Random
-NNODE = Chain(x -> [x], # Take in a scalar and transform it into an array
-           Dense(1 => 32,tanh),
-           Dense(32 => 1),
-           WrappedFunction(first)) # Take first value, i.e. return a scalar
+
+ # Take in a scalar and transform it into an array
+scalar_to_vector(x::Number) = reshape([x], 1, 1)
+scalar_to_vector(x::AbstractVector) = reshape(x, 1, length(x))
+scalar_to_vector(x::AbstractMatrix) = x
+
+NNODE = Chain(WrappedFunction(scalar_to_vector),
+              Dense(1 => 32,tanh),
+              Dense(32 => 1))
 ps, st = Lux.setup(Xoshiro(0), NNODE)
-ps = ComponentArray(ps) # Optimization is easier on flat arrays
 NNODE(1.0f0, ps, st)[1]
 ```
 
@@ -611,7 +623,20 @@ equation that is forced to satisfy the boundary conditions. Using `u0=1.0`, we
 have the function:
 
 ```julia
-g(t, p) = t * NNODE(t, p, st)[1] + 1f0
+struct ModelWrapper{M} <: AbstractLuxWrapperLayer{:model}
+    model::M
+end
+
+function (m::ModelWrapper)(t, p, st)
+    y, st = m.model(t, p, st)
+    return scalar_to_vector(t) .* y .+ 1f0, st
+end
+```
+
+```julia
+model = ModelWrapper(NNODE)
+ps, st = Lux.setup(Xoshiro(0), model)
+model(1.0f0, ps, st)[1]
 ```
 
 as our universal approximator. Thus, for this to be a function that satisfies
@@ -622,22 +647,39 @@ we would need that:
 
 ```julia
 using Statistics
-ϵ = sqrt(eps(Float32))
-loss(p) = mean(abs2(((g(t+ϵ, p)-g(t, p))/ϵ) - cos(2π*t)) for t in 0f0:1f-2:1f0)
+
+function loss(p)
+    ϵ = sqrt(eps(Float32))
+    t = 0f0:1f-2:1f0
+    t_plus_ϵ = t .+ ϵ
+    diff = (model(t_plus_ϵ, p, st)[1] .- model(t, p, st)[1]) / ϵ
+    return mean(abs2, diff .- cos.(Float32(2π) .* scalar_to_vector(t)))
+end
 ```
 
 would be minimized.
 
 ```julia
-tstate = Lux.Training.TrainState(NNODE, ps, st, Descent(0.01f0))
-opt_loss(model, p, s, _) = mean(abs2((((t+ϵ)*model(t+ϵ, p, s)[1] + 1f0) - ((t)*model(t, p, s)[1] + 1f0))/ϵ - cos(2π*t)) for t in 0f0:1f-2:1f0), s, ()
+tstate = Lux.Training.TrainState(model, ps, st, Descent(0.01f0))
 
-display(loss(tstate.parameters))
+function opt_loss(model, p, st, ts)
+    ϵ = sqrt(eps(Float32))
+    ts_plus_ϵ = ts .+ ϵ
+
+    y, st = model(ts, p, st)
+    y_plus_ϵ, st = model(ts_plus_ϵ, p, st)
+
+    diff = (y_plus_ϵ .- y) ./ ϵ
+    return MSELoss()(diff, cos.(Float32(2π) .* ts)), st, (;)
+end
+
 for epoch in 1:5000
     global tstate
-    loss_val, grads, stats, tstate = Lux.Training.single_train_step!(AutoEnzyme(), opt_loss, nothing, tstate)
-    if epoch % 500 == 0
-        display(loss(tstate.parameters))
+    _, loss, _, tstate = Lux.Training.single_train_step!(
+      AutoEnzyme(), opt_loss, reshape(collect(0f0:1f-2:1f0), 1, :), tstate
+    )
+    if epoch % 500 == 0 || epoch == 1
+        @info "Training" epoch loss
     end
 end
 ```
@@ -656,7 +698,7 @@ equation:
 ```julia
 using Plots
 t = 0f0:0.001f0:1f0
-plot(t,g.(t, Ref(tstate.parameters)),label="NN")
+plot(t,vec(g(t, tstate.parameters)),label="NN")
 plot!(t,1.0 .+ sin.(2π.*t)/2π, label = "True Solution")
 ```
 
@@ -728,19 +770,22 @@ let's just do it. Let's define a neural network to be ``F(x)`` and see if we
 can learn the force function!
 
 ```julia
-NNForce = Chain(x -> [x],
+NNForce = Chain(scalar_to_vector,
            Dense(1 => 32,tanh),
-           Dense(32 => 1),
-           first)
+           Dense(32 => 1))
 ps2, st2 = Lux.setup(Xoshiro(0), NNForce)
-ps2 = ComponentArray(ps2)
 ```
 
 Now our loss function will be to match the force at the (position,force) pairs
 in the dataset:
 
 ```julia
-loss_force(p) = sum(abs2, NNForce(Float32(position_data[i]), p, st2)[1] - Float32(force_data[i]) for i in 1:length(position_data))
+function loss_force(p)
+    pos = Float32.(position_data)
+    force = scalar_to_vector(Float32.(force_data))
+    return MSELoss()(NNForce(pos, p, st2)[1], force)
+end
+
 loss_force(ps2)
 ```
 
@@ -748,14 +793,21 @@ Our random parameters do not do so well, so let's train!
 
 ```julia
 tstate2 = Lux.Training.TrainState(NNForce, ps2, st2, Descent(0.01f0))
-opt_loss_force(model, p, s, _) = sum(abs2, model(Float32(position_data[i]), p, s)[1] - Float32(force_data[i]) for i in 1:length(position_data)), s, ()
 
-display(loss_force(tstate2.parameters))
+function opt_loss_force(model, p, s, (position_data, force_data))
+    pos = Float32.(position_data)
+    force = scalar_to_vector(Float32.(force_data))
+    force_pred, st = model(pos, p, s)
+    return MSELoss()(force_pred, force), st, ()
+end
+
 for epoch in 1:5000
     global tstate2
-    loss_val, grads, stats, tstate2 = Lux.Training.single_train_step!(AutoEnzyme(), opt_loss_force, nothing, tstate2)
+    _, loss_val, _, tstate2 = Lux.Training.single_train_step!(
+        AutoEnzyme(), opt_loss_force, (position_data, force_data), tstate2
+    )
     if epoch % 500 == 0
-        display(loss_force(tstate2.parameters))
+        @info "Training" epoch loss_val
     end
 end
 ```
@@ -764,7 +816,9 @@ The neural network almost exactly matched the dataset, but how well did it
 actually learn the real force function? Let's plot it to see:
 
 ```julia
-learned_force_plot = [NNForce(Float32(x), tstate2.parameters, st2)[1] for x in positions_plot]
+learned_force_plot = vec(
+    NNForce(Float32.(positions_plot), tstate2.parameters, tstate2.states)[1]
+)
 
 plot(plot_t,force_plot,xlabel="t",label="True Force")
 plot!(plot_t,learned_force_plot,label="Predicted Force")
@@ -797,7 +851,12 @@ This term looks like what we had done before:
 
 ```julia
 random_positions = Float32[2rand()-1 for i in 1:100] # random values in [-1,1]
-loss_ode(p) = sum(abs2, NNForce(x, p, st2)[1] - Float32(-k*x) for x in random_positions)
+
+function loss_ode(p)
+    positions = scalar_to_vector(Float32.(random_positions))
+    return MSELoss()(NNForce(positions, p, tstate2.states)[1], Float32.(-k*positions))
+end
+
 loss_ode(tstate2.parameters)
 ```
 
@@ -814,19 +873,35 @@ physics assumption. Now we can train the physics-informed neural network:
 
 ```julia
 # Reset train state
-tstate2 = Lux.Training.TrainState(NNForce, ps2, st2, Descent(0.01f0))
-opt_composed_loss(model, p, s, _) = sum(abs2, model(Float32(position_data[i]), p, s)[1] - Float32(force_data[i]) for i in 1:length(position_data)) + λ*sum(abs2, model(x, p, s)[1] - Float32(-k*x) for x in random_positions), s, ()
+tstate2 = Lux.Training.TrainState(NNForce, Lux.setup(Xoshiro(0), NNForce)..., Descent(0.01f0))
+
+function opt_composed_loss(model, p, s, (pos, force, rand_pos))
+    loss_force_val, s, _ = opt_loss_force(model, p, s, (pos, force))
+    positions = scalar_to_vector(Float32.(rand_pos))
+    force_pred, s = model(positions, p, s)
+    loss_ode_val = MSELoss()(force_pred, -positions)
+    return (
+        loss_force_val + 0.5f0 * loss_ode_val, 
+        s, 
+        (; loss_force=loss_force_val, loss_ode=loss_ode_val)
+    )
+end
 
 display(composed_loss(tstate2.parameters))
 for epoch in 1:5000
     global tstate2
-    loss_val, grads, stats, tstate2 = Lux.Training.single_train_step!(AutoEnzyme(), opt_composed_loss, nothing, tstate2)
+    rand_pos = 2 .* rand(Float32, 100) .- 1
+    _, loss, stats, tstate2 = Lux.Training.single_train_step!(
+        AutoEnzyme(), opt_composed_loss, (position_data, force_data, rand_pos), tstate2
+    )
     if epoch % 500 == 0
-        display(composed_loss(tstate2.parameters))
+        @info "Training" epoch loss stats.loss_force stats.loss_ode
     end
 end
 
-learned_force_plot = [NNForce(Float32(x), tstate2.parameters, st2)[1] for x in positions_plot]
+learned_force_plot = vec(
+    NNForce(Float32.(positions_plot), tstate2.parameters, tstate2.states)[1]
+)
 
 plot(plot_t,force_plot,xlabel="t",label="True Force")
 plot!(plot_t,learned_force_plot,label="Predicted Force")
