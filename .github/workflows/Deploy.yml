@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 env:
   GKSwstype: "100"
 jobs:
@@ -41,6 +44,7 @@ jobs:
             import Franklin;
             Franklin.optimize()'
     - name: Build and Deploy
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
