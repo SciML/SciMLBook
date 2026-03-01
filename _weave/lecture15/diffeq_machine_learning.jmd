@@ -20,7 +20,7 @@ Julia codes for these methods are being developed, optimized, and tested in
 the [SciML](sciml.ai) organization. Some packages to note are
 
 - [NeuralPDE.jl](https://github.com/SciML/NeuralPDE.jl)
-- [DiffEqFlux.jl](https://github.com/SciML/DiffEqFlux.jl)
+- [SciMLSensitivity.jl](https://github.com/SciML/SciMLSensitivity.jl)
 - [DataDrivenDiffEq.jl](https://github.com/SciML/DataDrivenDiffEq.jl)
 - [Surrogates.jl](https://github.com/SciML/Surrogates.jl)
 - [ReservoirComputing.jl](https://github.com/SciML/ReservoirComputing.jl)
@@ -57,9 +57,10 @@ data point. This then allows this extra dimension to "bump around" as necessary
 to let the function be a universal approximator. In code this looks like:
 
 ```julia;eval=false
-dudt = Chain(...) # Flux neural network
-p,re = Flux.destructure(dudt)
-dudt_(u,p,t) = re(p)(u)
+dudt = Chain(...) # Lux neural network
+p, st = Lux.setup(Xoshiro(0), dudt)
+p = ComponentArray(p)
+dudt_(u,p,t) = first(dudt(u, p, st))
 prob = ODEProblem(dudt_,[u0,0f0],tspan,p)
 augmented_data = vcat(ode_data,zeros(1,size(ode_data,2)))
 ```
@@ -106,56 +107,56 @@ tspan = (0.0f0,25.0f0)
 
 ann = Chain(Dense(2,10,tanh), Dense(10,1))
 
-p1,re = Flux.destructure(ann)
-p2 = Float32[-2.0,1.1]
-p3 = [p1;p2]
-ps = Flux.params(p3)
+p_nn, st = Lux.setup(Xoshiro(0), ann)
+p_nn = ComponentArray(p_nn)
+p_ode = Float32[-2.0,1.1]
+p3 = ComponentArray(nn=p_nn, ode=p_ode)
 
 function dudt_(du,u,p,t)
     x, y = u
-    du[1] = re(p[1:41])(u)[1]
-    du[2] = p[end-1]*y + p[end]*x
+    du[1] = first(ann(u, p.nn, st))
+    du[2] = p.ode[1]*y + p.ode[2]*x
 end
 prob = ODEProblem(dudt_,u0,tspan,p3)
-concrete_solve(prob,Tsit5(),u0,p3,abstol=1e-8,reltol=1e-6)
+solve(prob,Tsit5(),abstol=1e-8,reltol=1e-6)
 ```
 
 and we can train the system to be stable at 1 as follows:
 
 ```julia;eval=false
-function predict_adjoint()
-  Array(concrete_solve(prob,Tsit5(),u0,p3,saveat=0.0:0.1:25.0))
+function predict_adjoint(p)
+  Array(solve(remake(prob,p=p,u0=u0),Tsit5(),saveat=0.0:0.1:25.0))
 end
-loss_adjoint() = sum(abs2,x-1 for x in predict_adjoint())
-loss_adjoint()
+loss_adjoint(p) = sum(abs2,x-1 for x in predict_adjoint(p))
+loss_adjoint(p3)
 
-data = Iterators.repeated((), 300)
-opt = ADAM(0.01)
 iter = 0
-cb = function ()
+cb = function (p, l)
   global iter += 1
   if iter % 50 == 0
-    display(loss_adjoint())
-    display(plot(solve(remake(prob,p=p3,u0=u0),Tsit5(),saveat=0.1),ylim=(0,6)))
+    display(l)
+    display(plot(solve(remake(prob,p=p,u0=u0),Tsit5(),saveat=0.1),ylim=(0,6)))
   end
+  return false
 end
 
 # Display the ODE with the current parameter values.
-cb()
+cb(p3, loss_adjoint(p3))
 
-Flux.train!(loss_adjoint, ps, data, opt, cb = cb)
+optprob = Optimization.OptimizationProblem((p, _) -> loss_adjoint(p), p3)
+res = Optimization.solve(optprob, OptimizationOptimisers.Adam(0.01), callback = cb, maxiters = 300)
 ```
 
-DiffEqFlux.jl supports the wide gambit of possible universal differential
+SciML supports the wide gambit of possible universal differential
 equations with combinations of stiffness, delays, stochasticity,
 etc. It does so by using Julia's language-wide AD tooling, such as ReverseDiff.jl,
-Tracker.jl, ForwardDiff.jl, and Zygote.jl, along with specializations available
+Tracker.jl, ForwardDiff.jl, Zygote.jl and Enzyme.jl, along with specializations available
 whenever adjoint methods are known (and the choice between the two is given to
 the user).
 
 Many of the methods below can be encapsulated as a choice of a universal differential
 equation and trained with higher order, adaptive, and more efficient methods with
-DiffEqFlux.jl.
+SciMLSensitivity.jl.
 
 ## Deep BSDE Methods for High Dimensional Partial Differential Equations
 
