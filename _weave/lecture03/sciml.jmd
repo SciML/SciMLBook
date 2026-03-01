@@ -232,8 +232,8 @@ inside of them. Now what does `Chain` do?
 @which Chain(1,2,3)
 ```
 
-Again, for our explanations here we will look at the slightly simpler code From
-and earlier version of the Lux package:
+Again, for our explanations here we will look at the slightly simpler code from
+an earlier version of the Flux package:
 
 ```julia;eval=false
 struct Chain{T<:Tuple}
@@ -698,6 +698,7 @@ equation:
 ```julia
 using Plots
 t = 0f0:0.001f0:1f0
+g(t, p) = model(t, p, tstate.states)[1]
 plot(t,vec(g(t, tstate.parameters)),label="NN")
 plot!(t,1.0 .+ sin.(2π.*t)/2π, label = "True Solution")
 ```
@@ -770,7 +771,7 @@ let's just do it. Let's define a neural network to be ``F(x)`` and see if we
 can learn the force function!
 
 ```julia
-NNForce = Chain(scalar_to_vector,
+NNForce = Chain(WrappedFunction(scalar_to_vector),
            Dense(1 => 32,tanh),
            Dense(32 => 1))
 ps2, st2 = Lux.setup(Xoshiro(0), NNForce)
@@ -879,9 +880,9 @@ function opt_composed_loss(model, p, s, (pos, force, rand_pos))
     loss_force_val, s, _ = opt_loss_force(model, p, s, (pos, force))
     positions = scalar_to_vector(Float32.(rand_pos))
     force_pred, s = model(positions, p, s)
-    loss_ode_val = MSELoss()(force_pred, -positions)
+    loss_ode_val = MSELoss()(force_pred, Float32.(-k * positions))
     return (
-        loss_force_val + 0.5f0 * loss_ode_val, 
+        loss_force_val + λ * loss_ode_val,
         s, 
         (; loss_force=loss_force_val, loss_ode=loss_ode_val)
     )
