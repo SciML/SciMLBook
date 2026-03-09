@@ -78,7 +78,7 @@ used technique that is somewhat in the middle is the *BFGS* technique, which
 is a gradient-based optimization method that attempts to approximate the Hessian
 along the way to modify its stepping behavior. It uses the history of previously
 calculated points in order to build this quick Hessian approximate. If one keeps
-only a constant length history, say 5 time points, then one arrives at the
+only a constant (limited) length history of *l* time points (e.g $l=5$), then one arrives at the 
 *l-BFGS* technique, which is one of the most common large-scale optimization
 techniques.
 
@@ -161,7 +161,7 @@ wishes to fit, one can place the cost function
 $$C(p) = \Vert DNN(x;p) - f(x) \Vert$$
 
 where $DNN(x;p)$ signifies the deep neural network given by the parameters $p$,
-where the full set of parameters is the $W_i$ and $b_i$. To make the evaluation
+where the full set of parameters are the $W_i$ and $b_i$. To make the evaluation
 of that function be practical, we can instead say we wish to evaluate the
 difference at finitely many points:
 
@@ -510,9 +510,9 @@ pullback of $f$ at the point $x$, defined for a scalar loss function $L(y)$ as:
 $$\overline{x_i} = \frac{\partial L}{\partial x_i} = \sum_j \frac{\partial L}{\partial y_j} \frac{\partial y_j}{\partial x_i}$$
 
 Using the notation from earlier, $\overline{y} = \frac{\partial L}{\partial y}$ is the derivative
-of the some intermediate w.r.t. the cost function, and thus
+of some intermediate w.r.t. the cost function, and thus
 
-$$\overline{x_i} = \sum_j \overline{y_j} \frac{\partial y_j}{\partial x_i} = \mathcal{B}_f^x(\overline{y})$$
+$$\overline{x_i} = \sum_j \overline{y_j} \frac{\partial y_j}{\partial x_i} = (\mathcal{B}_f^x(\overline{y}))_i$$
 
 Note that $\mathcal{B}_f^x(\overline{y})$ is a function of $x$ because the
 reverse pass that is use embeds values from the forward pass, and the values
