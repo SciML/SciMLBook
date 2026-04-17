@@ -114,7 +114,8 @@ p3 = ComponentArray(nn=p_nn, ode=p_ode)
 
 function dudt_(du,u,p,t)
     x, y = u
-    du[1] = first(ann(u, p.nn, st))
+    nn_out, _ = ann(u, p.nn, st)
+    du[1] = nn_out[1]
     du[2] = p.ode[1]*y + p.ode[2]*x
 end
 prob = ODEProblem(dudt_,u0,tspan,p3)
