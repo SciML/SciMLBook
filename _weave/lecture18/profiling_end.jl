@@ -1,4 +1,4 @@
-using BenchmarkTools, OrdinaryDiffEq, Sundials, SparseArrays, LinearAlgebra
+using BenchmarkTools, OrdinaryDiffEq, ADTypes, Sundials, SparseArrays, LinearAlgebra
 
 const cs = (
     const_m5042476316481538586 = [[0.        ]
@@ -233,7 +233,7 @@ u0 = [0.0; 0.8000000000000016; 0.8000000000000016; 0.8000000000000016; 0.8000000
 tspan = (0.0, 0.15)
 prob = ODEProblem(f, u0, tspan)
 
-@btime solve(prob, KenCarp47(autodiff=false), reltol=1e-8, abstol=1e-8, saveat=0.15 / 100)
+@btime solve(prob, KenCarp47(autodiff=AutoFiniteDiff()), reltol=1e-8, abstol=1e-8, saveat=0.15 / 100)
 
 @btime solve(prob, CVODE_BDF(), reltol=1e-8, abstol=1e-8, saveat=0.15 / 100)
 
