@@ -485,20 +485,20 @@ where $f_n = f(u_n,p,t)$. If we do the two-dimensional Taylor expansion we get:
 
 ```math
 u_{n+1} = u_n + \Delta t f_n + \frac{\Delta t^2}{2}(f_t + f_u f)(u_n,p,t)\\
-+ \frac{\Delta t^3}{6} (f_{tt} + 2f_{tu}f + f_{uu}f^2)(u_n,p,t)
++ \frac{\Delta t^3}{8} (f_{tt} + 2f_{tu}f + f_{uu}f^2)(u_n,p,t)
 ```
 
 which when we compare against the true Taylor series:
 
 ```math
 u(t+\Delta t) = u_n + \Delta t f(u_n,p,t) + \frac{\Delta t^2}{2}(f_t + f_u f)(u_n,p,t)
-+ \frac{\Delta t^3}{6}(f_{tt} + 2f_{tu} + f_{uu}f^2 + f_t f_u + f_u^2 f)(u_n,p,t)
++ \frac{\Delta t^3}{6}(f_{tt} + 2f_{tu}f + f_{uu}f^2 + f_t f_u + f_u^2 f)(u_n,p,t)
 ```
 
 and thus we see that
 
 ```math
-u(t + \Delta t) - u_n = \mathcal{O}(\Delta t^3)
+u(t + \Delta t) - u_{n+1} = \mathcal{O}(\Delta t^3)
 ```
 
 ### Runge-Kutta Methods
