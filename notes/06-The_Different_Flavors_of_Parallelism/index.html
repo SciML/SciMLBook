@@ -9,26 +9,26 @@
 </span><span class='hljl-n'>arr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>())</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-p'>]</span>
 </pre> <pre class=output >
 100-element Vector&#123;MyComplex&#125;:
- MyComplex&#40;0.0792354939058233, 0.5267044324309508&#41;
- MyComplex&#40;0.9800150193969965, 0.7159444276440768&#41;
- MyComplex&#40;0.05083071040773879, 0.7853003894863704&#41;
- MyComplex&#40;0.6121951781373514, 0.7282039597720684&#41;
- MyComplex&#40;0.5681386458773634, 0.38380298320564377&#41;
- MyComplex&#40;0.4491120154080971, 0.2677695999753371&#41;
- MyComplex&#40;0.10035778069689649, 0.3131935217134041&#41;
- MyComplex&#40;0.520825106898647, 0.6656181938303898&#41;
- MyComplex&#40;0.7789837454518642, 0.41162764923804296&#41;
- MyComplex&#40;0.8574722693835454, 0.18982037317067524&#41;
+ MyComplex&#40;0.9618139787762149, 0.4286985641749814&#41;
+ MyComplex&#40;0.5167967460240764, 0.27885767345431123&#41;
+ MyComplex&#40;0.662681479396914, 0.7205809877134692&#41;
+ MyComplex&#40;0.4077727739837552, 0.9029752511024621&#41;
+ MyComplex&#40;0.14668647911378407, 0.2579805404719342&#41;
+ MyComplex&#40;0.597203630136448, 0.02743141762954293&#41;
+ MyComplex&#40;0.8704295744614071, 0.913011624263648&#41;
+ MyComplex&#40;0.35949387623009277, 0.15804113019444643&#41;
+ MyComplex&#40;0.897236495307602, 0.23846270419854976&#41;
+ MyComplex&#40;0.6790347804909648, 0.8066245482896559&#41;
  ⋮
- MyComplex&#40;0.724067355432798, 0.39872098201242034&#41;
- MyComplex&#40;0.7928845713724657, 0.9329408928133919&#41;
- MyComplex&#40;0.6502312180610842, 0.6987366992769206&#41;
- MyComplex&#40;0.926044091377729, 0.4794264885216055&#41;
- MyComplex&#40;0.3314698629798919, 0.15220881773325445&#41;
- MyComplex&#40;0.2930834791180704, 0.33826971165772535&#41;
- MyComplex&#40;0.010317257410893621, 0.6892761622566153&#41;
- MyComplex&#40;0.6242681432790392, 0.8872875795474107&#41;
- MyComplex&#40;0.7653130109615618, 0.021610475783949035&#41;
+ MyComplex&#40;0.201016419715225, 0.5860620128247389&#41;
+ MyComplex&#40;0.18562170696837066, 0.6037280021540997&#41;
+ MyComplex&#40;0.6733431757679537, 0.8584451965710754&#41;
+ MyComplex&#40;0.5676494873842914, 0.4236950228443881&#41;
+ MyComplex&#40;0.6686802870959989, 0.6445381831169114&#41;
+ MyComplex&#40;0.055775835449288436, 0.45504599379180255&#41;
+ MyComplex&#40;0.8842385561171983, 0.3956779871901699&#41;
+ MyComplex&#40;0.8916555419452121, 0.9558736795512841&#41;
+ MyComplex&#40;0.6514605108533287, 0.002812755980059811&#41;
 </pre> <p>is represented in memory as</p> <pre><code>&#91;real1,imag1,real2,imag2,...&#93;</code></pre>
 <p>while the struct of array formats are</p>
 
@@ -43,18 +43,18 @@
 
 
 <pre class=output >
-MyComplexes&#40;&#91;0.3836016955878082, 0.5080983528161007, 0.8745930885213643, 0.
-8933669680791181, 0.11382823035572132, 0.10299010539039266, 0.0596219301443
-8544, 0.9381289985266041, 0.45692879098773265, 0.6588911674870476  …  0.268
-9661411480344, 0.306081847729606, 0.79075780487281, 0.9873029606925252, 0.3
-647355751226995, 0.3803337565707753, 0.557754587286668, 0.5976725374955948,
- 0.44192193088695286, 0.6473305768233739&#93;, &#91;0.5620814957084372, 0.519043096
-3031863, 0.5887562638218932, 0.598185934346187, 0.29028831011865763, 0.7279
-186485838991, 0.6437634892115669, 0.770120201505719, 0.9373602953035578, 0.
-4493294432715287  …  0.5832647408379783, 0.03171789389223445, 0.47978796510
-928856, 0.3086138688867496, 0.7137733185066212, 0.007064922264254148, 0.628
-8883923237106, 0.058002323194060845, 0.11205090795238459, 0.837999241439934
-8&#93;&#41;
+MyComplexes&#40;&#91;0.1080511169435936, 0.39652389885082084, 0.7480826909521052, 0
+.6341353193448361, 0.30833500206559095, 0.151822897565433, 0.77364237140528
+92, 0.14981743584765628, 0.41340311087314885, 0.20569773827938787  …  0.377
+47147439906015, 0.7569531631756358, 0.41878927455478443, 0.2609315542976324
+, 0.9336251073152713, 0.4560564194688913, 0.9614824136294333, 0.48761160230
+774747, 0.40332586977009455, 0.5269389092046239&#93;, &#91;0.3586849183748321, 0.86
+81012793183536, 0.034332680932011694, 0.22933479770022513, 0.9967880309719,
+ 0.27933968810025867, 0.7263283239882077, 0.3976356158312493, 0.92982509230
+98781, 0.13787942438583012  …  0.23776893507314967, 0.24432351133173857, 0.
+11126357267369424, 0.4060496144397058, 0.5691630551117897, 0.90742379957568
+08, 0.31123538089904734, 0.4254115066567473, 0.39020661173170845, 0.6857934
+352448065&#93;&#41;
 </pre>
 
 
@@ -74,7 +74,7 @@ MyComplexes&#40;&#91;0.3836016955878082, 0.5080983528161007, 0.8745930885213643,
 ; Function Signature: average&#40;Array&#123;Main.MyComplex, 1&#125;&#41;
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:5 within &#96;average&#96;
-define void @julia_average_110990&#40;ptr noalias nocapture noundef nonnull sre
+define void @julia_average_111011&#40;ptr noalias nocapture noundef nonnull sre
 t&#40;&#91;2 x double&#93;&#41; align 8 dereferenceable&#40;16&#41; &#37;sret_return, ptr noundef nonnu
 ll align 8 dereferenceable&#40;24&#41; &#37;&quot;x::Array&quot;&#41; #0 &#123;
 top:
@@ -106,15 +106,15 @@ ptr&quot;, align 8
 
 L6:                                               ; preds &#61; &#37;top
 ; ││││││││││ @ reduce.jl:421 within &#96;_mapreduce&#96;
-            store ptr @&quot;jl_global#110995.jit&quot;, ptr &#37;jlcallframe1, align 8
+            store ptr @&quot;jl_global#111016.jit&quot;, ptr &#37;jlcallframe1, align 8
             &#37;0 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 1
-            store ptr @&quot;jl_global#110996.jit&quot;, ptr &#37;0, align 8
+            store ptr @&quot;jl_global#111017.jit&quot;, ptr &#37;0, align 8
             &#37;1 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 2
             store ptr &#37;&quot;x::Array&quot;, ptr &#37;1, align 8
             &#37;2 &#61; getelementptr inbounds ptr, ptr &#37;jlcallframe1, i64 3
-            store ptr @&quot;jl_global#110997.jit&quot;, ptr &#37;2, align 8
-            &#37;3 &#61; call nonnull ptr @j1_mapreduce_empty_iter_110993&#40;ptr nonnu
-ll @&quot;jl_global#110994.jit&quot;, ptr nonnull &#37;jlcallframe1, i32 4&#41;
+            store ptr @&quot;jl_global#111018.jit&quot;, ptr &#37;2, align 8
+            &#37;3 &#61; call nonnull ptr @j1_mapreduce_empty_iter_111014&#40;ptr nonnu
+ll @&quot;jl_global#111015.jit&quot;, ptr nonnull &#37;jlcallframe1, i32 4&#41;
             call void @llvm.trap&#40;&#41;
             unreachable
 
@@ -220,7 +220,7 @@ guard_pass71:                                     ; preds &#61; &#37;L29
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:436 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:269 within &#96;mapreduce_impl&#96;
-             call void @j_mapreduce_impl_110999&#40;ptr noalias nocapture nound
+             call void @j_mapreduce_impl_111020&#40;ptr noalias nocapture nound
 ef nonnull sret&#40;&#91;2 x double&#93;&#41; align 8 &#37;sret_box, ptr nonnull &#37;&quot;x::Array&quot;, i
 64 signext 1, i64 signext &#37;&quot;x::Array.size.0.copyload&quot;, i64 signext 1024&#41;
 ; └└└└└└└└└└└
@@ -472,7 +472,7 @@ sum&#40;v&#41; &#61; 10.0
 
 
 <pre class=output >
-2875
+2517
 </pre>
 
 
@@ -533,7 +533,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-163.606 μs &#40;22 allocations: 1.47 KiB&#41;
+117.850 μs &#40;22 allocations: 1.47 KiB&#41;
 </pre>
 
 
@@ -546,7 +546,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-138.468 μs &#40;22 allocations: 1.47 KiB&#41;
+134.180 μs &#40;22 allocations: 1.47 KiB&#41;
 </pre>
 
 
@@ -559,7 +559,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-110.176 μs &#40;22 allocations: 1.47 KiB&#41;
+105.026 μs &#40;22 allocations: 1.47 KiB&#41;
 </pre>
 
 
@@ -572,7 +572,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-3.134 ns &#40;0 allocations: 0 bytes&#41;
+3.095 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -588,14 +588,14 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 ; Function Signature: h&#40;&#41;
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:26 within &#96;h&#96;
-define void @julia_h_115150&#40;&#41; #0 &#123;
+define void @julia_h_115171&#40;&#41; #0 &#123;
 top:
-  &#37;&quot;jl_global#115152.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#115152.jit&quot;,
+  &#37;&quot;jl_global#115173.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#115173.jit&quot;,
  align 8
-  &#37;0 &#61; add i64 &#37;&quot;jl_global#115152.jit.promoted&quot;, 10000
+  &#37;0 &#61; add i64 &#37;&quot;jl_global#115173.jit.promoted&quot;, 10000
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:29 within &#96;h&#96;
-  store i64 &#37;0, ptr @&quot;jl_global#115152.jit&quot;, align 8
+  store i64 &#37;0, ptr @&quot;jl_global#115173.jit&quot;, align 8
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:30 within &#96;h&#96;
   ret void
@@ -620,7 +620,7 @@ lelism.jmd:30 within &#96;h&#96;
 
 
 <pre class=output >
-3.476 ns &#40;0 allocations: 0 bytes&#41;
+3.095 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -634,13 +634,13 @@ lelism.jmd:30 within &#96;h&#96;
 ; Function Signature: h2&#40;&#41;
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:3 within &#96;h2&#96;
-define void @julia_h2_115165&#40;&#41; #0 &#123;
+define void @julia_h2_115186&#40;&#41; #0 &#123;
 top:
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:6 within &#96;h2&#96;
 ; ┌ @ refvalue.jl:59 within &#96;getindex&#96;
 ; │┌ @ Base_compiler.jl:54 within &#96;getproperty&#96;
-    &#37;.x &#61; load i64, ptr @&quot;jl_global#115167.jit&quot;, align 8
+    &#37;.x &#61; load i64, ptr @&quot;jl_global#115188.jit&quot;, align 8
 ; └└
 ; ┌ @ range.jl:917 within &#96;iterate&#96;
 ; │┌ @ range.jl:688 within &#96;isempty&#96;
@@ -651,14 +651,14 @@ lelism.jmd:6 within &#96;h2&#96;
   br i1 &#37;0, label &#37;L31, label &#37;L17.preheader
 
 L17.preheader:                                    ; preds &#61; &#37;top
-  &#37;&quot;jl_global#115168.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#115168.jit&quot;,
+  &#37;&quot;jl_global#115189.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#115189.jit&quot;,
  align 8
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:8 within &#96;h2&#96;
-  &#37;1 &#61; add i64 &#37;&quot;jl_global#115168.jit.promoted&quot;, &#37;.x
+  &#37;1 &#61; add i64 &#37;&quot;jl_global#115189.jit.promoted&quot;, &#37;.x
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:7 within &#96;h2&#96;
-  store i64 &#37;1, ptr @&quot;jl_global#115168.jit&quot;, align 8
+  store i64 &#37;1, ptr @&quot;jl_global#115189.jit&quot;, align 8
 ;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
 lelism.jmd:8 within &#96;h2&#96;
   br label &#37;L31
@@ -688,7 +688,7 @@ L31:                                              ; preds &#61; &#37;L17.prehead
 
 
 <pre class=output >
-12.882 ns &#40;0 allocations: 0 bytes&#41;
+12.646 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -715,26 +715,26 @@ L31:                                              ; preds &#61; &#37;L17.prehead
 
 <pre class=output >
 40-element Vector&#123;Float64&#125;:
- 15.0
- 16.0
- 23.0
- 24.0
- 25.0
- 26.0
- 27.0
- 28.0
- 29.0
- 30.0
+ 31.0
+ 32.0
+ 33.0
+ 34.0
+ 35.0
+ 36.0
+ 37.0
+ 38.0
+ 39.0
+ 40.0
   ⋮
- 12.0
- 13.0
- 14.0
- 17.0
- 18.0
  19.0
  20.0
  21.0
  22.0
+ 23.0
+ 27.0
+ 28.0
+ 29.0
+ 30.0
 </pre>
 
 
@@ -1076,7 +1076,7 @@ Suggestion: check for spelling errors or missing imports.
 <div class=footer >
   <p>
     Published from <a href=styles_of_parallelism.jmd >styles_of_parallelism.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-04-28.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-05-21.
   </p>
 </div>
 
