@@ -477,7 +477,7 @@ space".
 The most common method in the Krylov subspace family of methods is the GMRES
 method. Essentially, in step $i$ one computes $\mathcal{K}_i$, and finds the
 $x$ that is the closest to the Krylov subspace, i.e. finds the $x \in \mathcal{K}_i$
-such that $\Vert Jx-v \Vert$ is minimized. At each step, it adds the new vector
+such that $\Vert Jx-v \Vert_2$ is minimized. At each step, it adds the new vector
 to the Krylov subspace after orthogonalizing it against the other vectors via
 Arnoldi iterations, leading to an orthogonal basis of $\mathcal{K}_i$ which
 makes it easy to express $x$.
@@ -487,7 +487,7 @@ is simply the number of ODEs (since that is what determines the size of the
 Jacobian and thus the total dimension of the problem), that bound is not
 necessarily a good one. For a large sparse matrix, it may be computationally
 impractical to ever compute 100,000 jvps. Thus one does not typically run the
-algorithm to conclusion, and instead stops when $\Vert Jx-v \Vert$ is
+algorithm to conclusion, and instead stops when $\Vert Jx-v \Vert-2$ is
 sufficiently below some user-defined error tolerance.
 
 ## Intermediate Conclusion
