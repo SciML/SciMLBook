@@ -28,7 +28,7 @@ This cost function is dependent on a user-choice and it's model-dependent. Howev
 a common one is the L2-loss. If $y$ is our expected data, then the L2-loss function
 against the data is simply:
 
-$$C(p) = \Vert f(p) - y \Vert$$
+$$C(p) = \Vert f(p) - y \Vert_2$$
 
 where $C(p): \mathbb{R}^n \rightarrow \mathbb{R}$ is a function that returns a scalar.
 The shooting method then directly optimizes this cost function by having the
@@ -133,7 +133,7 @@ $I_m = [0,1]^m$. The space of real-valued continuous functions on $I_m$
 is denoted by $C(I_m)$. For any $\epsilon >0$ and any $f\in C(I_m)$, there
 exists an integer $N$, real constants $W_i$ and $b_i$ s.t.
 
-$$\Vert NN(x) - f(x) \Vert < \epsilon$$
+$$\Vert NN(x) - f(x) \Vert_2 < \epsilon$$
 
 for all $x \in I_m$. Equivalently, $NN$ given parameters is dense in $C(I_m)$.
 
@@ -158,14 +158,14 @@ However, this theory gives a direct way to transform the fitting of an arbitrary
 function into a parameter shooting problem. Given an unknown function $f$ one
 wishes to fit, one can place the cost function
 
-$$C(p) = \Vert DNN(x;p) - f(x) \Vert$$
+$$C(p) = \Vert DNN(x;p) - f(x) \Vert_2$$
 
 where $DNN(x;p)$ signifies the deep neural network given by the parameters $p$,
 where the full set of parameters are the $W_i$ and $b_i$. To make the evaluation
 of that function be practical, we can instead say we wish to evaluate the
 difference at finitely many points:
 
-$$C(p) = \sum_k^N \Vert DNN(x_k;p) - f(x_k) \Vert$$
+$$C(p) = \sum_k^N \Vert DNN(x_k;p) - f(x_k) \Vert_2$$
 
 *Training* a neural network is machine learning speak for finding the $p$ which
 minimizes this cost function. Notice that this is then a shooting method
@@ -196,7 +196,7 @@ model evaluations. However, this simply reduces to computing the gradient of
 the model's output given the parameters. To see this, let's take for example
 the L2 loss function, i.e.
 
-$$C(p) = \sum_i^N \Vert f(x_i;p) - y_i \Vert$$
+$$C(p) = \sum_i^N \Vert f(x_i;p) - y_i \Vert_2$$
 
 for some finite data points $y_i$. In the ODE model, $y_i$ are time series points.
 In the general neural network, $y_i = d(x_i)$ for the function we wish to fit
@@ -406,7 +406,7 @@ $$\begin{align}
   z &= W_1 x + b_1\\
   h &= \sigma(z)\\
   y &= W_2 h + b_2\\
-  \mathcal{L} = \frac{1}{2} \Vert y-t \Vert^2 \end{align}$$
+  \mathcal{L} = \frac{1}{2} \Vert y-t \Vert_2^2 \end{align}$$
 
 If we carefully decode our scalar expression, we see that we get the following:
 
@@ -435,7 +435,7 @@ We can write it in the general DNN form of:
 $$r_i = W_i v_{i} + b_i$$
 $$v_{i+1} = \sigma_i.(r_i)$$
 $$v_1 = x$$
-$$\mathcal{L} = \frac{1}{2} \Vert v_{n} - t \Vert$$
+$$\mathcal{L} = \frac{1}{2} \Vert v_{n} - t \Vert_2$$
 
 $$\begin{align}
   \overline{\mathcal{L}} &= 1\\
@@ -539,7 +539,7 @@ This then is a quicker encoding and derivation of backpropagation.
 
 Since the primitive of reverse mode is the vjp, we can understand its behavior
 by looking at a large primitive. In our simplest case, the function $f(x)=Ax$ outputs
-a vector value, which we apply our loss function $L(y) = \Vert y-t \Vert$ to
+a vector value, which we apply our loss function $L(y) = \Vert y-t \Vert_2$ to
 get a scalar. Thus we seed the scalar output $v=1$, and in the first step
 backwards we have a vector to scalar function, so the first pullback transforms
 from $1$ to the vector $v_2 = 2|y-t|$. Then we take that vector and multiply
