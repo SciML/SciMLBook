@@ -335,13 +335,13 @@ $$dX_t = 2\sqrt{\lambda} c_t dt + \sqrt{2} dW_t$$
 
 with $t\in [0,T]$, $X_0 = x$, and with a cost function
 
-$$C(c_t) = \mathbb{E}\left[\int_0^T \Vert c_t \Vert^2 dt + g(X_t) \right]$$
+$$C(c_t) = \mathbb{E}\left[\int_0^T \Vert c_t \Vert_2^2 dt + g(X_t) \right]$$
 
 where $X_t$ is the state we wish to control, $\lambda$ is the strength of the
 control, and $c_t$ is the control process.  To minimize the control, the
 Hamilton--Jacobi--Bellman equation:
 
-$$\frac{\partial u}{\partial t}(t,x) + \Delta u(t,x) - \lambda \Vert \nabla u(t,x) \Vert^2 = 0$$
+$$\frac{\partial u}{\partial t}(t,x) + \Delta u(t,x) - \lambda \Vert \nabla u(t,x) \Vert_2^2 = 0$$
 
 has a solution $u(t,x)$ which at $t=0$ represents the optimal cost of starting from $x$.
 
@@ -350,7 +350,7 @@ This PDE can be rewritten into the canonical form of the deep BSDE method by set
 $$\begin{align}
     \mu &= 0, \\
     \sigma &= \overline{\sigma} I, \\
-    f &= -\alpha \left \| \sigma^T(s,X_s)\nabla u(s,X_s)) \right \|^{2},
+    f &= -\alpha \left \| \sigma^T(s,X_s)\nabla u(s,X_s)) \right \|_2^{2},
 \end{align}$$
 
 where $\overline{\sigma} = \sqrt{2}$, T = 1 and $X_0 = (0,. . . , 0) \in R^{100}$.
