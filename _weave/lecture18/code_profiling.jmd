@@ -56,20 +56,13 @@ x2 = MyStruct2([1,2,3])
 and now it's inferred because the information that it would need is inferrable.
 
 But what if we needed help? The first tool of course is `@code_warntype`. But
-for deeper functions you may want more tooling. A nice tool is Traceur.jl which
-will alert you to the lines at which you have performance issues. In our example
+for deeper functions you may want more tooling. A nice tool is JET.jl which
+statically analyzes your code and reports type instabilities. In our example
 we see:
 
 ```julia;eval=false
-using Traceur
-@trace f(x)
-```
-
-```
-┌ Warning: dynamic dispatch to Base.getindex(Base.getfield(x, a), 1)
-└ @ none:-1
-┌ Warning: f returns Any
-└ @ none:2
+using JET
+@report_opt f(x)
 ```
 
 which points out our first problem is getting the untyped array out of the
@@ -83,24 +76,7 @@ function naive_sum(xs)
   end
   return s
 end
-@trace naive_sum([1.])
-```
-
-```
-┌ Warning:  is assigned as Tuple{Int64,Int64}
-└ @ array.jl:-1
-┌ Warning:  is assigned as Nothing
-└ @ array.jl:-1
-┌ Warning:  is assigned as Union{Nothing, Tuple{Float64,Int64}}
-└ @ none:-1
-┌ Warning:  is assigned as Union{Nothing, Tuple{Float64,Int64}}
-└ @ none:-1
-┌ Warning: s is assigned as Int64
-└ @ none:-1
-┌ Warning: s is assigned as Float64
-└ @ none:-1
-┌ Warning: naive_sum returns Union{Float64, Int64}
-└ @ none:2
+@report_opt naive_sum([1.])
 ```
 
 and alert you to multiple lines which are causing problems.
@@ -138,11 +114,9 @@ plenty of times. Make sure the profile does not include compilation if you
 want good results!
 
 ```julia
-# No compilation in the results
 sol = solve(prob,Tsit5())
 
 using Profile
-# Profile 1000 runs
 @profile for i in 1:1000 sol = solve(prob,Tsit5()) end
 ```
 
@@ -156,18 +130,17 @@ by printing it out:
 ```
 
 However, that printout can often times be hard to read. Instead, we can visualize
-it with a *flame graph*. There are many ways to get the flame graph, if you're
-in Juno, you can simply do:
+it with a *flame graph*. Using VSCode with the Julia extension, open the command
+palette and run **Julia: Show Profile**. Alternatively, use ProfileView.jl:
 
 ```julia;eval=false
-Juno.profiler()
+using ProfileView
+ProfileView.view()
 ```
 
 ![](https://user-images.githubusercontent.com/1814174/69931716-45633180-1496-11ea-888e-e7bcde939083.PNG)
 
-(Note that if you're not using Juno, there are equivalent tools in the package
-ecosystem. ProfileView.jl is a very simple flame graph generator, and PProf.jl
-exports to Google PProf which has many more features)
+(PProf.jl exports to Google PProf which has many more features than ProfileView.jl)
 
 Each block corresponds to a function call. The horizontal length is the amount
 of time spent in that function, while the vertical grouping is for call nesting,
@@ -178,7 +151,7 @@ click on this, it sends us to the hotspot:
 
 ![](https://user-images.githubusercontent.com/1814174/69931830-ad197c80-1496-11ea-80bd-4c0f134d120f.PNG)
 
-Juno gives you a light indicator that tells you how much time is spent at a
+The flame graph gives you a visual indicator of how much time is spent at a
 given line. Here we see that most of the time is spent inside of the `map`
 operation which calls `recursivecopy` on the elements, which then does `copy(a)`.
 
@@ -188,15 +161,14 @@ saves less:
 
 ```julia
 Profile.clear()
-# No compilation in the results
 sol = solve(prob,Tsit5(),save_everystep=false)
 
-# Profile 1000 runs
 @profile for i in 1:1000 sol = solve(prob,Tsit5(),save_everystep=false) end
 ```
 
 ```julia;eval=false
-Juno.profiler()
+using ProfileView
+ProfileView.view()
 ```
 
 ![](https://user-images.githubusercontent.com/1814174/69931923-08e40580-1497-11ea-9583-2d76af8316e4.PNG)
@@ -215,7 +187,8 @@ number of solves in the loop would help with that:
 ```
 
 ```julia;eval=false
-Juno.profiler()
+using ProfileView
+ProfileView.view()
 ```
 
 ![](https://user-images.githubusercontent.com/1814174/69932011-755f0480-1497-11ea-8839-ecc8f5d7c9fc.PNG)

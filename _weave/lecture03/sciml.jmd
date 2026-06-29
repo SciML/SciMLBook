@@ -752,14 +752,14 @@ information about (position,velocity,force) at evenly spaced times:
 ```julia
 plot_t = 0:0.01:10
 data_plot = sol(plot_t)
-positions_plot = [state[2] for state in data_plot]
-force_plot = [force(state[1],state[2],k,t) for state in data_plot]
+positions_plot = [state[2] for state in data_plot.u]
+force_plot = [force(state[1],state[2],k,t) for state in data_plot.u]
 
 # Generate the dataset
 t = 0:3.3:10
 dataset = sol(t)
-position_data = [state[2] for state in sol(t)]
-force_data = [force(state[1],state[2],k,t) for state in sol(t)]
+position_data = [state[2] for state in sol(t).u]
+force_data = [force(state[1],state[2],k,t) for state in sol(t).u]
 
 plot(plot_t,force_plot,xlabel="t",label="True Force")
 scatter!(t,force_data,label="Force Measurements")

@@ -102,7 +102,7 @@ plot(sol)
 and from which we can get an ensemble of solutions:
 
 ```julia
-prob_func = function (prob,i,repeat)
+prob_func = function (prob,ctx)
   remake(prob,p=rand.(θ))
 end
 ensemble_prob = EnsembleProblem(ODEProblem(lotka_volterra,u0,tspan,θ),

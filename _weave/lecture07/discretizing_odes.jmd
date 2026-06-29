@@ -355,7 +355,7 @@ u0[8]  = 0.3
 u0[9]  = 0.01
 u0[17] = 0.007
 prob = ODEProblem(f,u0,(0.0,60.0),p)
-sol = solve(prob,Rodas5())
+sol = solve(prob,Rodas5P())
 ```
 
 ```julia

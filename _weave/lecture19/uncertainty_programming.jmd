@@ -111,7 +111,7 @@ parameters and initial conditions:
 $$\ddot{\theta} + \frac{g}{L} \sin(\theta) = 0$$
 
 ```julia
-using OrdinaryDiffEq, Measurements
+using OrdinaryDiffEq, OrdinaryDiffEqLowOrderRK, Measurements
 gaccel = 9.79 ± 0.02; # Gravitational constants
 L = 1.00 ± 0.01; # Length of the pendulum
 
