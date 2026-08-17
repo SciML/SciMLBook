@@ -1,6 +1,6 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.12.4"
+julia_version = "1.12.6"
 manifest_format = "2.0"
 project_hash = "2bff3454f302e21cfaa3c3c3a12fd7d1aaefcd5b"
 
@@ -248,10 +248,15 @@ weakdeps = ["Adapt", "BandedMatrices"]
     BlockArraysBandedMatricesExt = "BandedMatrices"
 
 [[deps.BracketingNonlinearSolve]]
-deps = ["ChainRulesCore", "CommonSolve", "ConcreteStructs", "ForwardDiff", "NonlinearSolveBase", "PrecompileTools", "Reexport", "SciMLBase"]
+deps = ["CommonSolve", "ConcreteStructs", "NonlinearSolveBase", "PrecompileTools", "Reexport", "SciMLBase"]
 git-tree-sha1 = "6e7c9b6ab9aa711009a49252e45a122212c1d869"
 uuid = "70df07ce-3d50-431d-a3e7-ca6ddb60ac1e"
 version = "1.12.2"
+weakdeps = ["ChainRulesCore", "ForwardDiff"]
+
+    [deps.BracketingNonlinearSolve.extensions]
+    BracketingNonlinearSolveChainRulesCoreExt = ["ChainRulesCore", "ForwardDiff"]
+    BracketingNonlinearSolveForwardDiffExt = "ForwardDiff"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -660,9 +665,9 @@ version = "7.6.0"
 
 [[deps.DiffEqCallbacks]]
 deps = ["ConcreteStructs", "DataStructures", "DiffEqBase", "DifferentiationInterface", "LinearAlgebra", "Markdown", "PrecompileTools", "RecipesBase", "RecursiveArrayTools", "SciMLBase", "StaticArraysCore"]
-git-tree-sha1 = "1028a398b137a52cc0027a28d99b231531636b1b"
+git-tree-sha1 = "88cdec45374d53393bf88268102a2b018c897178"
 uuid = "459566f4-90b8-5000-8ac3-15dfb0a30def"
-version = "4.18.1"
+version = "4.19.2"
 weakdeps = ["Functors"]
 
     [deps.DiffEqCallbacks.extensions]
