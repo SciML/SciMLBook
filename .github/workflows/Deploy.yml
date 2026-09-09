@@ -43,6 +43,9 @@ jobs:
             weaveall();
             import Franklin;
             Franklin.optimize()'
+    - name: Install rsync
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      run: sudo apt-get update && sudo apt-get install -y rsync
     - name: Build and Deploy
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       uses: JamesIves/github-pages-deploy-action@releases/v3
