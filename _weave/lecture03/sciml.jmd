@@ -408,7 +408,7 @@ end
 
 for epoch in 1:10000
     global tstate
-    x = rand(Float32, 10, 128)
+    local x = rand(Float32, 10, 128)
     _, _, _, tstate = Lux.Training.single_train_step!(
         AutoEnzyme(), opt_loss, x, tstate
     )

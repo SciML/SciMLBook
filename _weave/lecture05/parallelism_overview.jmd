@@ -428,7 +428,7 @@ thus is getting the value written to it from the wrong cache!
 To fix this, what we need is a different heap per thread:
 
 ```julia
-const _u_cache_threads = [Vector{typeof(@SVector([1.0,0.0,0.0]))}(undef,1000) for i in 1:Threads.nthreads()]
+const _u_cache_threads = [Vector{typeof(@SVector([1.0, 0.0, 0.0]))}(undef, 1000) for i in 1:Threads.maxthreadid()]
 function compute_trajectory_mean5(u0,p)
   # u is automatically captured
   solve_system_save!(_u_cache_threads[Threads.threadid()],lorenz,u0,p,1000);

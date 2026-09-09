@@ -608,17 +608,16 @@ add1(value) = value + 1
 add2(value) = value + 2
 combine(a...) = sum(a)
 
-p = delayed(add1)(4)
-q = delayed(add2)(p)
-r = delayed(add1)(3)
-s = delayed(combine)(p, q, r)
+p = Dagger.@spawn add1(4)
+q = Dagger.@spawn add2(p)
+r = Dagger.@spawn add1(3)
+s = Dagger.@spawn combine(p, q, r)
 
-@assert collect(s) == 16
+@assert fetch(s) == 16
 ```
 
-Once the global computation is specified, commands like `collect` are used to
-instantiate the graph on given input data, which then run the computation in a
-(potentially) distributed manner, depending on internal scheduler heuristics.
+Each spawned task runs once its dependencies are available. Calling `fetch`
+waits for the final task to finish and returns its result.
 
 ### Distributed Array-Based Parallelism: SharedArrays, Elemental, and DArrays
 

@@ -117,7 +117,9 @@ want good results!
 sol = solve(prob,Tsit5())
 
 using Profile
-@profile for i in 1:1000 sol = solve(prob,Tsit5()) end
+@profile for i in 1:1000
+    local sol = solve(prob, Tsit5())
+end
 ```
 
 This profiler is a statistical or sampling profiler, which means it periodically
@@ -163,7 +165,9 @@ saves less:
 Profile.clear()
 sol = solve(prob,Tsit5(),save_everystep=false)
 
-@profile for i in 1:1000 sol = solve(prob,Tsit5(),save_everystep=false) end
+@profile for i in 1:1000
+    local sol = solve(prob, Tsit5(), save_everystep = false)
+end
 ```
 
 ```julia;eval=false
@@ -183,7 +187,9 @@ each of the `f` calls here should be exactly the same length, but upping the
 number of solves in the loop would help with that:
 
 ```julia
-@profile for i in 1:10000 sol = solve(prob,Tsit5(),save_everystep=false) end
+@profile for i in 1:10000
+    local sol = solve(prob, Tsit5(), save_everystep = false)
+end
 ```
 
 ```julia;eval=false
