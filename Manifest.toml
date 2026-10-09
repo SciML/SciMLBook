@@ -560,64 +560,42 @@ uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
 version = "4.2.0"
 
 [[deps.Dagger]]
-deps = ["Adapt", "DataStructures", "Distributed", "DistributedNext", "FillArrays", "GPUArraysCore", "Graphs", "KernelAbstractions", "LinearAlgebra", "MacroTools", "MemPool", "NextLA", "OnlineStats", "PrecompileTools", "Preferences", "Profile", "Random", "Requires", "ScopedValues", "Serialization", "Statistics", "StatsBase", "TaskLocalValues", "TimespanLogging", "UUIDs"]
-git-tree-sha1 = "7d92a6f6eb5f3e42d1b0129ab33539f8af69629a"
+deps = ["Adapt", "DataStructures", "Distributed", "DistributedNext", "FillArrays", "GPUArraysCore", "Graphs", "KernelAbstractions", "LinearAlgebra", "MacroTools", "MemPool", "NextLA", "OnlineStats", "PrecompileTools", "Preferences", "Profile", "Random", "Requires", "ScopedValues", "Serialization", "SparseArrays", "Statistics", "StatsBase", "TaskLocalValues", "TimespanLogging", "UUIDs"]
+git-tree-sha1 = "29f3580fbfd7b9557778c93afbb75fb5257b95a2"
 uuid = "d58978e5-989f-55fb-8d15-ea34adc7bf54"
-version = "0.22.6"
+version = "0.22.3"
 
     [deps.Dagger.extensions]
     AbstractFFTsExt = "AbstractFFTs"
-    AlgebraicMultigridExt = ["AlgebraicMultigrid", "SparseArrays"]
     CUDAExt = "CUDA"
-    CUDASparseArraysExt = ["CUDA", "SparseArrays"]
     DistributionsExt = "Distributions"
-    FinchExt = "Finch"
     GraphVizExt = "GraphViz"
     GraphVizSimpleExt = "Colors"
-    IncompleteLUExt = ["IncompleteLU", "SparseArrays"]
     IntelExt = "oneAPI"
-    IntelSparseArraysExt = ["oneAPI", "SparseArrays"]
     JSON3Ext = "JSON3"
-    KrylovExt = "Krylov"
     LinuxPerfExt = "LinuxPerf"
     MPIExt = "MPI"
-    MPISparseExt = ["MPI", "SparseArrays"]
     MetalExt = "Metal"
-    MetalSparseArraysExt = ["Metal", "SparseArrays"]
-    MetisExt = ["Metis", "SparseArrays"]
     OpenCLExt = "OpenCL"
-    OpenCLSparseArraysExt = ["OpenCL", "SparseArrays"]
     PlotsExt = ["DataFrames", "Plots"]
-    PureKLUExt = ["PureKLU", "SparseArrays"]
-    PureUMFPACKExt = ["PureUMFPACK", "SparseArrays"]
     PythonExt = "PythonCall"
     ROCExt = "AMDGPU"
-    ROCSparseArraysExt = ["AMDGPU", "SparseArrays"]
-    SparseArraysExt = "SparseArrays"
 
     [deps.Dagger.weakdeps]
     AMDGPU = "21141c5a-9bdb-4563-92ae-f87d6854732e"
     AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
-    AlgebraicMultigrid = "2169fc97-5a83-5252-b627-83903c6c433c"
     CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
     Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-    Finch = "9177782c-1635-4eb9-9bfb-d9dfa25e6bce"
     GraphViz = "f526b714-d49f-11e8-06ff-31ed36ee7ee0"
-    IncompleteLU = "40713840-3770-5561-ab4c-a76e7d0d7895"
     JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
-    Krylov = "ba0b0d4f-ebba-5204-a429-3ac8c609bfb7"
     LinuxPerf = "b4c46c6c-4fb0-484d-a11a-41bc3392d094"
     MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
     Metal = "dde4c033-4e86-420c-a63e-0dd931031962"
-    Metis = "2679e427-3c69-5b7f-982b-ece356f1e94b"
     OpenCL = "08131aa3-fb12-5dee-8b74-c09406e224a2"
     Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-    PureKLU = "0c0d3e7f-3a8b-4f7e-b6f1-9a4d2e7c1f01"
-    PureUMFPACK = "b7e1f0a2-3c4d-4e5f-9a0b-1c2d3e4f5a6b"
     PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     oneAPI = "8f75cd03-7ff8-4ecb-9b8f-daf728133b1b"
 
 [[deps.DataAPI]]
@@ -3637,9 +3615,9 @@ version = "1.2.2"
 
 [[deps.TimespanLogging]]
 deps = ["Distributed", "DistributedNext", "Preferences", "Profile"]
-git-tree-sha1 = "a484ae6e7ded5f35fc55d1a555b0b37489e91931"
+git-tree-sha1 = "9afaa1047fe3d948cbaa1cf1fa6be6856231a3dc"
 uuid = "a526e669-04d3-4846-9525-c66122c55f63"
-version = "0.2.0"
+version = "0.1.1"
 
 [[deps.Tracker]]
 deps = ["Adapt", "ChainRulesCore", "DiffRules", "ForwardDiff", "Functors", "LinearAlgebra", "LogExpFunctions", "MacroTools", "NNlib", "NaNMath", "Optimisers", "Printf", "Random", "Requires", "SpecialFunctions", "Statistics"]
