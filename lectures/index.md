@@ -266,7 +266,7 @@ Guest Lecturer: Valentin Churavy, MIT Julia Lab
 
 - [Parallel Computing: From SIMD to SIMT (Lecture)](https://youtu.be/KCYlEub_8xc)
 - [GPU Computing in Julia](https://youtu.be/v9bFRg4rUfk)
-- [GPU Programming in Julia](/notes/13/)
+- [GPU Programming in Julia](/notes/13-GPU_programming)
 - [Parallel Computing: From SIMD to SIMT (Notes)](https://docs.google.com/presentation/d/1C1dt8zeNW7spgswr2CmLrE0G-ayj0ItvoEWHdX_0kYc/edit#slide=id.g76b4384d33_0_5)
 - [GPU Computing in Julia (Notes)](https://docs.google.com/presentation/d/1QvHE_xVDKnPA3-nowzpZY1lUdXr7B8rLCu2usOz8KT8/edit#slide=id.gb00e54ec3a_0_477)
 
