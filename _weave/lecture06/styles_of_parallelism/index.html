@@ -9,26 +9,26 @@
 </span><span class='hljl-n'>arr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>[</span><span class='hljl-nf'>MyComplex</span><span class='hljl-p'>(</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(),</span><span class='hljl-nf'>rand</span><span class='hljl-p'>())</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-ni'>100</span><span class='hljl-p'>]</span>
 </pre> <pre class=output >
 100-element Vector&#123;MyComplex&#125;:
- MyComplex&#40;0.08435985690197634, 0.38389235779563013&#41;
- MyComplex&#40;0.8423903887908435, 0.44057155556407734&#41;
- MyComplex&#40;0.30591732517786197, 0.4270496974266058&#41;
- MyComplex&#40;0.08974135143101958, 0.4857892032312948&#41;
- MyComplex&#40;0.4205957668461435, 0.37072393242909607&#41;
- MyComplex&#40;0.5283453054301328, 0.5742289326455883&#41;
- MyComplex&#40;0.47688150397461293, 0.8638402290995798&#41;
- MyComplex&#40;0.7147048754876889, 0.4017164401057345&#41;
- MyComplex&#40;0.786893823204952, 0.7572306383596892&#41;
- MyComplex&#40;0.044080670673130595, 0.6923981501516051&#41;
+ MyComplex&#40;0.084442374045537, 0.2196799855048296&#41;
+ MyComplex&#40;0.3837733673538366, 0.07147187826269719&#41;
+ MyComplex&#40;0.7403454192678263, 0.3839746159623594&#41;
+ MyComplex&#40;0.15200913080150458, 0.659747125516048&#41;
+ MyComplex&#40;0.46290825480028985, 0.794975292788983&#41;
+ MyComplex&#40;0.20576550936548021, 0.5930647855195285&#41;
+ MyComplex&#40;0.5076389077595108, 0.5644452619941386&#41;
+ MyComplex&#40;0.27517077428182757, 0.9238757739724142&#41;
+ MyComplex&#40;0.13224601967348248, 0.3545353856295098&#41;
+ MyComplex&#40;0.8269185541240335, 0.8177232237966923&#41;
  ⋮
- MyComplex&#40;0.20056622588507633, 0.4189947727535297&#41;
- MyComplex&#40;0.8683792602200748, 0.8583843978717197&#41;
- MyComplex&#40;0.8223057670354893, 0.7118512099524881&#41;
- MyComplex&#40;0.03366548292683402, 0.011238034738778047&#41;
- MyComplex&#40;0.5097714734338555, 0.6253725757939156&#41;
- MyComplex&#40;0.5724705475279374, 0.20933851157123085&#41;
- MyComplex&#40;0.7387480180710179, 0.150253994673074&#41;
- MyComplex&#40;0.6591835008364278, 0.49527264577627994&#41;
- MyComplex&#40;0.7340756366892324, 0.41278757824214585&#41;
+ MyComplex&#40;0.33844501252416626, 0.8616404224127373&#41;
+ MyComplex&#40;0.8803524398121061, 0.7232895760585212&#41;
+ MyComplex&#40;0.3081918045478328, 0.7334844269723151&#41;
+ MyComplex&#40;0.5945451602151651, 0.6478809647876713&#41;
+ MyComplex&#40;0.93756538264132, 0.7328077232217999&#41;
+ MyComplex&#40;0.3600441217128356, 0.19151960038307747&#41;
+ MyComplex&#40;0.9898246213458369, 0.6677224383321358&#41;
+ MyComplex&#40;0.6236290206121449, 0.21405490125025983&#41;
+ MyComplex&#40;0.05275072034200756, 0.6874229792449695&#41;
 </pre> <p>is represented in memory as</p> <pre><code>&#91;real1,imag1,real2,imag2,...&#93;</code></pre>
 <p>while the struct of array formats are</p>
 
@@ -43,18 +43,18 @@
 
 
 <pre class=output >
-MyComplexes&#40;&#91;0.4916610678360981, 0.5993496317486021, 0.3128227669446466, 0.
-04815232940286984, 0.901926095027731, 0.9631835383537233, 0.317740865274280
-25, 0.3771729343814225, 0.8211250734740344, 0.7182282807298499  …  0.411866
-7270986305, 0.8169088303249323, 0.35221994126042866, 0.7393149164753572, 0.
-12311325661288453, 0.9374282833578222, 0.3372636232289177, 0.59099310089706
-19, 0.35716954002840573, 0.8747427416827304&#93;, &#91;0.27343698178718967, 0.41692
-74673139999, 0.6222433084406223, 0.3864964244716099, 0.6397876152859892, 0.
-6673151607268483, 0.21295559566803035, 0.6518572420510992, 0.02254892053078
-905, 0.9173555292664978  …  0.19494786495910632, 0.266449696715924, 0.00877
-7112099444873, 0.7447591176262297, 0.9610607041816053, 0.07976909619641404,
- 0.34588351781537974, 0.968516662574742, 0.9041441208385008, 0.017175816645
-679354&#93;&#41;
+MyComplexes&#40;&#91;0.9176595475272334, 0.993448329224957, 0.9712422721742233, 0.6
+566523956583239, 0.38352443516095414, 0.930456540161816, 0.5700391662779055
+, 0.19700807018611977, 0.04894526569349744, 0.14017389832842775  …  0.73280
+34321876307, 0.1375886514689132, 0.2509669668959924, 0.25017712568679906, 0
+.3834609290800126, 0.33033286440786425, 0.19023135986678164, 0.416451824179
+2674, 0.15642339376801684, 0.36746012776466386&#93;, &#91;0.9379378878929097, 0.258
+8947792870011, 0.7570253437629281, 0.14939271012167665, 0.01637692995876161
+, 0.3581483562825528, 0.39288811618434427, 0.3362889686209257, 0.0793559584
+3600185, 0.43583100817405185  …  0.3994753109585307, 0.12267059745884801, 0
+.6530978513518503, 0.6992381505333, 0.4284987245349041, 0.01234664644038041
+5, 0.4847349616848826, 0.9709519098508532, 0.18900428490875054, 0.302072509
+6648871&#93;&#41;
 </pre>
 
 
@@ -72,22 +72,22 @@ MyComplexes&#40;&#91;0.4916610678360981, 0.5993496317486021, 0.3128227669446466,
 
 <pre class=output >
 ; Function Signature: average&#40;Array&#123;Main.MyComplex, 1&#125;&#41;
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:5 within &#96;average&#96;
-define void @julia_average_68909&#40;ptr noalias nocapture noundef nonnull sret
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:5 within &#96;average&#96;
+define void @julia_average_68906&#40;ptr noalias nocapture noundef nonnull sret
 &#40;&#91;2 x double&#93;&#41; align 8 dereferenceable&#40;16&#41; &#37;sret_return, ptr noundef nonnul
 l align 8 dereferenceable&#40;24&#41; &#37;&quot;x::Array&quot;&#41; local_unnamed_addr #0 &#123;
 top:
   &#37;jlcallframe1 &#61; alloca &#91;4 x ptr&#93;, align 8
   &#37;sret_box &#61; alloca &#91;2 x i64&#93;, align 8
 ; ┌ @ reducedim.jl:998 within &#96;sum&#96;
-; │┌ @ reducedim.jl:998 within &#96;#sum#748&#96;
+; │┌ @ reducedim.jl:998 within &#96;#sum#746&#96;
 ; ││┌ @ reducedim.jl:1002 within &#96;_sum&#96;
-; │││┌ @ reducedim.jl:1002 within &#96;#_sum#750&#96;
+; │││┌ @ reducedim.jl:1002 within &#96;#_sum#748&#96;
 ; ││││┌ @ reducedim.jl:1003 within &#96;_sum&#96;
-; │││││┌ @ reducedim.jl:1003 within &#96;#_sum#751&#96;
+; │││││┌ @ reducedim.jl:1003 within &#96;#_sum#749&#96;
 ; ││││││┌ @ reducedim.jl:330 within &#96;mapreduce&#96;
-; │││││││┌ @ reducedim.jl:330 within &#96;#mapreduce#741&#96;
+; │││││││┌ @ reducedim.jl:330 within &#96;#mapreduce#739&#96;
 ; ││││││││┌ @ reducedim.jl:347 within &#96;_mapreduce_dim&#96;
 ; │││││││││┌ @ reduce.jl:429 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ indices.jl:533 within &#96;LinearIndices&#96;
@@ -95,121 +95,121 @@ top:
 ; ││││││││││││┌ @ essentials.jl:10 within &#96;size&#96;
                &#37;&quot;x::Array.size_ptr&quot; &#61; getelementptr inbounds nuw i8, ptr &#37;&quot;
 x::Array&quot;, i64 16
-               &#37;&quot;x::Array.size.0.copyload&quot; &#61; load i64, ptr &#37;&quot;x::Array.size_
-ptr&quot;, align 8
+               &#37;&quot;x::Array.size_ptr.copyload&quot; &#61; load i64, ptr &#37;&quot;x::Array.siz
+e_ptr&quot;, align 8
 ; ││││││││││└└└
 ; ││││││││││ @ reduce.jl:431 within &#96;_mapreduce&#96;
-            switch i64 &#37;&quot;x::Array.size.0.copyload&quot;, label &#37;L29 &#91;
+            switch i64 &#37;&quot;x::Array.size_ptr.copyload&quot;, label &#37;L29 &#91;
     i64 0, label &#37;L6
-    i64 1, label &#37;guard_pass61
+    i64 1, label &#37;guard_pass67
   &#93;
 
 L6:                                               ; preds &#61; &#37;top
 ; ││││││││││ @ reduce.jl:432 within &#96;_mapreduce&#96;
-            store ptr @&quot;jl_global#68914.jit&quot;, ptr &#37;jlcallframe1, align 8
+            store ptr @&quot;jl_global#68911.jit&quot;, ptr &#37;jlcallframe1, align 8
             &#37;0 &#61; getelementptr inbounds nuw i8, ptr &#37;jlcallframe1, i64 8
-            store ptr @&quot;jl_global#68915.jit&quot;, ptr &#37;0, align 8
+            store ptr @&quot;jl_global#68912.jit&quot;, ptr &#37;0, align 8
             &#37;1 &#61; getelementptr inbounds nuw i8, ptr &#37;jlcallframe1, i64 16
             store ptr &#37;&quot;x::Array&quot;, ptr &#37;1, align 8
             &#37;2 &#61; getelementptr inbounds nuw i8, ptr &#37;jlcallframe1, i64 24
-            store ptr @&quot;jl_global#68916.jit&quot;, ptr &#37;2, align 8
-            &#37;3 &#61; call nonnull ptr @j1_mapreduce_empty_iter_68912&#40;ptr nonnul
-l @&quot;jl_global#68913.jit&quot;, ptr nonnull &#37;jlcallframe1, i32 4&#41;
+            store ptr @&quot;jl_global#68913.jit&quot;, ptr &#37;2, align 8
+            &#37;3 &#61; call nonnull ptr @j1_mapreduce_empty_iter_68909&#40;ptr nonnul
+l @&quot;jl_global#68910.jit&quot;, ptr nonnull &#37;jlcallframe1, i32 4&#41;
             call void @llvm.trap&#40;&#41;
             unreachable
 
 L29:                                              ; preds &#61; &#37;top
 ; ││││││││││ @ reduce.jl:436 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
-             &#37;4 &#61; icmp sgt i64 &#37;&quot;x::Array.size.0.copyload&quot;, 15
+             &#37;4 &#61; icmp sgt i64 &#37;&quot;x::Array.size_ptr.copyload&quot;, 15
 ; ││││││││││└
-            br i1 &#37;4, label &#37;guard_pass71, label &#37;guard_exit77
+            br i1 &#37;4, label &#37;guard_pass80, label &#37;guard_exit87
 
-L108.loopexit.unr-lcssa:                          ; preds &#61; &#37;guard_exit82, 
-&#37;guard_exit82.preheader
-            &#37;.lcssa.ph &#61; phi &lt;2 x double&gt; &#91; poison, &#37;guard_exit82.preheader
- &#93;, &#91; &#37;39, &#37;guard_exit82 &#93;
-            &#37;value_phi38112.unr &#61; phi i64 &#91; 2, &#37;guard_exit82.preheader &#93;, &#91;
- &#37;37, &#37;guard_exit82 &#93;
-            &#37;.unr &#61; phi &lt;2 x double&gt; &#91; &#37;18, &#37;guard_exit82.preheader &#93;, &#91; &#37;3
-9, &#37;guard_exit82 &#93;
+L108.loopexit.unr-lcssa:                          ; preds &#61; &#37;guard_exit93, 
+&#37;guard_exit93.preheader
+            &#37;.lcssa.ph &#61; phi &lt;2 x double&gt; &#91; poison, &#37;guard_exit93.preheader
+ &#93;, &#91; &#37;39, &#37;guard_exit93 &#93;
+            &#37;value_phi42126.unr &#61; phi i64 &#91; 2, &#37;guard_exit93.preheader &#93;, &#91;
+ &#37;37, &#37;guard_exit93 &#93;
+            &#37;.unr &#61; phi &lt;2 x double&gt; &#91; &#37;18, &#37;guard_exit93.preheader &#93;, &#91; &#37;3
+9, &#37;guard_exit93 &#93;
 ; ││││││││││ @ reduce.jl:441 within &#96;_mapreduce&#96;
             &#37;lcmp.mod.not &#61; icmp eq i64 &#37;xtraiter, 0
-            br i1 &#37;lcmp.mod.not, label &#37;L108, label &#37;guard_exit82.epil
+            br i1 &#37;lcmp.mod.not, label &#37;L108, label &#37;guard_exit93.epil
 
-guard_exit82.epil:                                ; preds &#61; &#37;guard_exit82.e
+guard_exit93.epil:                                ; preds &#61; &#37;guard_exit93.e
 pil, &#37;L108.loopexit.unr-lcssa
-            &#37;value_phi38112.epil &#61; phi i64 &#91; &#37;6, &#37;guard_exit82.epil &#93;, &#91; &#37;v
-alue_phi38112.unr, &#37;L108.loopexit.unr-lcssa &#93;
-            &#37;5 &#61; phi &lt;2 x double&gt; &#91; &#37;8, &#37;guard_exit82.epil &#93;, &#91; &#37;.unr, &#37;L10
+            &#37;value_phi42126.epil &#61; phi i64 &#91; &#37;6, &#37;guard_exit93.epil &#93;, &#91; &#37;v
+alue_phi42126.unr, &#37;L108.loopexit.unr-lcssa &#93;
+            &#37;5 &#61; phi &lt;2 x double&gt; &#91; &#37;8, &#37;guard_exit93.epil &#93;, &#91; &#37;.unr, &#37;L10
 8.loopexit.unr-lcssa &#93;
-            &#37;epil.iter &#61; phi i64 &#91; &#37;epil.iter.next, &#37;guard_exit82.epil &#93;, &#91;
+            &#37;epil.iter &#61; phi i64 &#91; &#37;epil.iter.next, &#37;guard_exit93.epil &#93;, &#91;
  0, &#37;L108.loopexit.unr-lcssa &#93;
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ int.jl:87 within &#96;&#43;&#96;
-             &#37;6 &#61; add nuw nsw i64 &#37;value_phi38112.epil, 1
+             &#37;6 &#61; add nuw nsw i64 &#37;value_phi42126.epil, 1
 ; ││││││││││└
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_byteoffset.epil &#61; shl i64 &#37;value_phi38112.epil, 4
-             &#37;memoryref_data50.epil &#61; getelementptr inbounds i8, ptr &#37;memor
-yref_data14, i64 &#37;memoryref_byteoffset.epil
-             &#37;7 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.epil, align 8
+             &#37;memoryref_byteoffset.epil &#61; shl i64 &#37;value_phi42126.epil, 4
+             &#37;memoryref_data54.epil &#61; getelementptr inbounds i8, ptr &#37;memor
+yref_data16, i64 &#37;memoryref_byteoffset.epil
+             &#37;7 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.epil, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;8 &#61; fadd &lt;2 x double&gt; &#37;5, &#37;7
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:441 within &#96;_mapreduce&#96;
             &#37;epil.iter.next &#61; add i64 &#37;epil.iter, 1
             &#37;epil.iter.cmp.not &#61; icmp eq i64 &#37;epil.iter.next, &#37;xtraiter
-            br i1 &#37;epil.iter.cmp.not, label &#37;L108, label &#37;guard_exit82.epil
+            br i1 &#37;epil.iter.cmp.not, label &#37;L108, label &#37;guard_exit93.epil
 
-L108:                                             ; preds &#61; &#37;guard_exit77, 
-&#37;guard_pass71, &#37;guard_pass61, &#37;guard_exit82.epil, &#37;L108.loopexit.unr-lcssa
+L108:                                             ; preds &#61; &#37;guard_exit87, 
+&#37;guard_pass80, &#37;guard_pass67, &#37;guard_exit93.epil, &#37;L108.loopexit.unr-lcssa
 ; └└└└└└└└└└
 ; ┌ @ essentials.jl:11 within &#96;length&#96;
 ; │┌ @ essentials.jl:10 within &#96;size&#96;
-    &#37;&quot;x::Array.size6.0.copyload&quot; &#61; phi i64 &#91; &#37;&quot;x::Array.size6.0.copyload.pr
-e&quot;, &#37;guard_pass71 &#93;, &#91; 1, &#37;guard_pass61 &#93;, &#91; &#37;&quot;x::Array.size.0.copyload&quot;, &#37;
-guard_exit77 &#93;, &#91; &#37;&quot;x::Array.size.0.copyload&quot;, &#37;guard_exit82.epil &#93;, &#91; &#37;&quot;x:
-:Array.size.0.copyload&quot;, &#37;L108.loopexit.unr-lcssa &#93;
-    &#37;9 &#61; phi &lt;2 x double&gt; &#91; &#37;15, &#37;guard_pass71 &#93;, &#91; &#37;14, &#37;guard_pass61 &#93;, &#91;
- &#37;18, &#37;guard_exit77 &#93;, &#91; &#37;.lcssa.ph, &#37;L108.loopexit.unr-lcssa &#93;, &#91; &#37;8, &#37;gua
-rd_exit82.epil &#93;
+    &#37;&quot;x::Array.size_ptr6.copyload&quot; &#61; phi i64 &#91; &#37;&quot;x::Array.size_ptr6.copyloa
+d.pre&quot;, &#37;guard_pass80 &#93;, &#91; 1, &#37;guard_pass67 &#93;, &#91; &#37;&quot;x::Array.size_ptr.copylo
+ad&quot;, &#37;guard_exit87 &#93;, &#91; &#37;&quot;x::Array.size_ptr.copyload&quot;, &#37;guard_exit93.epil &#93;
+, &#91; &#37;&quot;x::Array.size_ptr.copyload&quot;, &#37;L108.loopexit.unr-lcssa &#93;
+    &#37;9 &#61; phi &lt;2 x double&gt; &#91; &#37;15, &#37;guard_pass80 &#93;, &#91; &#37;14, &#37;guard_pass67 &#93;, &#91;
+ &#37;18, &#37;guard_exit87 &#93;, &#91; &#37;.lcssa.ph, &#37;L108.loopexit.unr-lcssa &#93;, &#91; &#37;8, &#37;gua
+rd_exit93.epil &#93;
 ; └└
-; ┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_par
-allelism.jmd:4 within &#96;/&#96; @ promotion.jl:436
+; ┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
+llelism.jmd:4 within &#96;/&#96; @ promotion.jl:436
 ; │┌ @ promotion.jl:404 within &#96;promote&#96;
 ; ││┌ @ promotion.jl:379 within &#96;_promote&#96;
 ; │││┌ @ number.jl:7 within &#96;convert&#96;
 ; ││││┌ @ float.jl:245 within &#96;Float64&#96;
-       &#37;10 &#61; sitofp i64 &#37;&quot;x::Array.size6.0.copyload&quot; to double
+       &#37;10 &#61; sitofp i64 &#37;&quot;x::Array.size_ptr6.copyload&quot; to double
 ; │└└└└
-; │ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_par
-allelism.jmd:4 within &#96;/&#96; @ promotion.jl:436 @ float.jl:495
+; │ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
+llelism.jmd:4 within &#96;/&#96; @ promotion.jl:436 @ float.jl:495
    &#37;11 &#61; insertelement &lt;2 x double&gt; poison, double &#37;10, i64 0
    &#37;12 &#61; shufflevector &lt;2 x double&gt; &#37;11, &lt;2 x double&gt; poison, &lt;2 x i32&gt; zer
 oinitializer
    &#37;13 &#61; fdiv &lt;2 x double&gt; &#37;9, &#37;12
-; │ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_par
-allelism.jmd:4 within &#96;/&#96;
-; │┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_pa
-rallelism.jmd:3 within &#96;MyComplex&#96;
+; │ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
+llelism.jmd:4 within &#96;/&#96;
+; │┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_par
+allelism.jmd:3 within &#96;MyComplex&#96;
     store &lt;2 x double&gt; &#37;13, ptr &#37;sret_return, align 8
     ret void
 
-guard_pass61:                                     ; preds &#61; &#37;top
+guard_pass67:                                     ; preds &#61; &#37;top
 ; └└
 ; ┌ @ reducedim.jl:998 within &#96;sum&#96;
-; │┌ @ reducedim.jl:998 within &#96;#sum#748&#96;
+; │┌ @ reducedim.jl:998 within &#96;#sum#746&#96;
 ; ││┌ @ reducedim.jl:1002 within &#96;_sum&#96;
-; │││┌ @ reducedim.jl:1002 within &#96;#_sum#750&#96;
+; │││┌ @ reducedim.jl:1002 within &#96;#_sum#748&#96;
 ; ││││┌ @ reducedim.jl:1003 within &#96;_sum&#96;
-; │││││┌ @ reducedim.jl:1003 within &#96;#_sum#751&#96;
+; │││││┌ @ reducedim.jl:1003 within &#96;#_sum#749&#96;
 ; ││││││┌ @ reducedim.jl:330 within &#96;mapreduce&#96;
-; │││││││┌ @ reducedim.jl:330 within &#96;#mapreduce#741&#96;
+; │││││││┌ @ reducedim.jl:330 within &#96;#mapreduce#739&#96;
 ; ││││││││┌ @ reducedim.jl:347 within &#96;_mapreduce_dim&#96;
 ; │││││││││┌ @ reduce.jl:434 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
@@ -217,189 +217,189 @@ guard_pass61:                                     ; preds &#61; &#37;top
              &#37;14 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data, align 8
              br label &#37;L108
 
-guard_pass71:                                     ; preds &#61; &#37;L29
+guard_pass80:                                     ; preds &#61; &#37;L29
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:447 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:276 within &#96;mapreduce_impl&#96;
-             call void @j_mapreduce_impl_68918&#40;ptr noalias nocapture nounde
+             call void @j_mapreduce_impl_68915&#40;ptr noalias nocapture nounde
 f nonnull sret&#40;&#91;2 x double&#93;&#41; align 8 &#37;sret_box, ptr nonnull &#37;&quot;x::Array&quot;, i6
-4 signext 1, i64 signext &#37;&quot;x::Array.size.0.copyload&quot;, i64 signext 1024&#41;
+4 signext 1, i64 signext &#37;&quot;x::Array.size_ptr.copyload&quot;, i64 signext 1024&#41;
+             &#37;15 &#61; load &lt;2 x double&gt;, ptr &#37;sret_box, align 8
 ; └└└└└└└└└└└
-  &#37;15 &#61; load &lt;2 x double&gt;, ptr &#37;sret_box, align 8
 ; ┌ @ essentials.jl:11 within &#96;length&#96;
 ; │┌ @ essentials.jl:10 within &#96;size&#96;
-    &#37;&quot;x::Array.size6.0.copyload.pre&quot; &#61; load i64, ptr &#37;&quot;x::Array.size_ptr&quot;, 
-align 8
+    &#37;&quot;x::Array.size_ptr6.copyload.pre&quot; &#61; load i64, ptr &#37;&quot;x::Array.size_ptr&quot;
+, align 8
     br label &#37;L108
 
-guard_exit77:                                     ; preds &#61; &#37;L29
+guard_exit87:                                     ; preds &#61; &#37;L29
 ; └└
 ; ┌ @ reducedim.jl:998 within &#96;sum&#96;
-; │┌ @ reducedim.jl:998 within &#96;#sum#748&#96;
+; │┌ @ reducedim.jl:998 within &#96;#sum#746&#96;
 ; ││┌ @ reducedim.jl:1002 within &#96;_sum&#96;
-; │││┌ @ reducedim.jl:1002 within &#96;#_sum#750&#96;
+; │││┌ @ reducedim.jl:1002 within &#96;#_sum#748&#96;
 ; ││││┌ @ reducedim.jl:1003 within &#96;_sum&#96;
-; │││││┌ @ reducedim.jl:1003 within &#96;#_sum#751&#96;
+; │││││┌ @ reducedim.jl:1003 within &#96;#_sum#749&#96;
 ; ││││││┌ @ reducedim.jl:330 within &#96;mapreduce&#96;
-; │││││││┌ @ reducedim.jl:330 within &#96;#mapreduce#741&#96;
+; │││││││┌ @ reducedim.jl:330 within &#96;#mapreduce#739&#96;
 ; ││││││││┌ @ reducedim.jl:347 within &#96;_mapreduce_dim&#96;
 ; │││││││││┌ @ reduce.jl:438 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data14 &#61; load ptr, ptr &#37;&quot;x::Array&quot;, align 8
+             &#37;memoryref_data16 &#61; load ptr, ptr &#37;&quot;x::Array&quot;, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:439 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data31 &#61; getelementptr inbounds nuw i8, ptr &#37;memory
-ref_data14, i64 16
+             &#37;memoryref_data34 &#61; getelementptr inbounds nuw i8, ptr &#37;memory
+ref_data16, i64 16
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:438 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;16 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data14, align 8
+             &#37;16 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data16, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:439 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;17 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data31, align 8
+             &#37;17 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data34, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:440 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;18 &#61; fadd &lt;2 x double&gt; &#37;16, &#37;17
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:441 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ int.jl:83 within &#96;&lt;&#96;
-             &#37;.not108109 &#61; icmp sgt i64 &#37;&quot;x::Array.size.0.copyload&quot;, 2
+             &#37;.not116123 &#61; icmp sgt i64 &#37;&quot;x::Array.size_ptr.copyload&quot;, 2
 ; ││││││││││└
-            br i1 &#37;.not108109, label &#37;guard_exit82.preheader, label &#37;L108
+            br i1 &#37;.not116123, label &#37;guard_exit93.preheader, label &#37;L108
 
-guard_exit82.preheader:                           ; preds &#61; &#37;guard_exit77
-            &#37;19 &#61; add nsw i64 &#37;&quot;x::Array.size.0.copyload&quot;, -2
-            &#37;20 &#61; add nsw i64 &#37;&quot;x::Array.size.0.copyload&quot;, -3
+guard_exit93.preheader:                           ; preds &#61; &#37;guard_exit87
+            &#37;19 &#61; add nsw i64 &#37;&quot;x::Array.size_ptr.copyload&quot;, -2
+            &#37;20 &#61; add nsw i64 &#37;&quot;x::Array.size_ptr.copyload&quot;, -3
             &#37;xtraiter &#61; and i64 &#37;19, 7
             &#37;21 &#61; icmp ult i64 &#37;20, 7
-            br i1 &#37;21, label &#37;L108.loopexit.unr-lcssa, label &#37;guard_exit82.
+            br i1 &#37;21, label &#37;L108.loopexit.unr-lcssa, label &#37;guard_exit93.
 preheader.new
 
-guard_exit82.preheader.new:                       ; preds &#61; &#37;guard_exit82.p
+guard_exit93.preheader.new:                       ; preds &#61; &#37;guard_exit93.p
 reheader
             &#37;unroll_iter &#61; and i64 &#37;19, -8
-            br label &#37;guard_exit82
+            br label &#37;guard_exit93
 
-guard_exit82:                                     ; preds &#61; &#37;guard_exit82, 
-&#37;guard_exit82.preheader.new
-            &#37;value_phi38112 &#61; phi i64 &#91; 2, &#37;guard_exit82.preheader.new &#93;, &#91;
- &#37;37, &#37;guard_exit82 &#93;
-            &#37;22 &#61; phi &lt;2 x double&gt; &#91; &#37;18, &#37;guard_exit82.preheader.new &#93;, &#91; 
-&#37;39, &#37;guard_exit82 &#93;
-            &#37;niter &#61; phi i64 &#91; 0, &#37;guard_exit82.preheader.new &#93;, &#91; &#37;niter.n
-ext.7, &#37;guard_exit82 &#93;
+guard_exit93:                                     ; preds &#61; &#37;guard_exit93, 
+&#37;guard_exit93.preheader.new
+            &#37;value_phi42126 &#61; phi i64 &#91; 2, &#37;guard_exit93.preheader.new &#93;, &#91;
+ &#37;37, &#37;guard_exit93 &#93;
+            &#37;22 &#61; phi &lt;2 x double&gt; &#91; &#37;18, &#37;guard_exit93.preheader.new &#93;, &#91; 
+&#37;39, &#37;guard_exit93 &#93;
+            &#37;niter &#61; phi i64 &#91; 0, &#37;guard_exit93.preheader.new &#93;, &#91; &#37;niter.n
+ext.7, &#37;guard_exit93 &#93;
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_byteoffset &#61; shl i64 &#37;value_phi38112, 4
-             &#37;memoryref_data50 &#61; getelementptr i8, ptr &#37;memoryref_data14, i
+             &#37;memoryref_byteoffset &#61; shl i64 &#37;value_phi42126, 4
+             &#37;memoryref_data54 &#61; getelementptr i8, ptr &#37;memoryref_data16, i
 64 &#37;memoryref_byteoffset
-             &#37;23 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50, align 8
+             &#37;23 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;24 &#61; fadd &lt;2 x double&gt; &#37;22, &#37;23
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
              &#37;memoryref_byteoffset.1 &#61; or disjoint i64 &#37;memoryref_byteoffse
 t, 16
-             &#37;memoryref_data50.1 &#61; getelementptr inbounds i8, ptr &#37;memoryre
-f_data14, i64 &#37;memoryref_byteoffset.1
-             &#37;25 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.1, align 8
+             &#37;memoryref_data54.1 &#61; getelementptr inbounds i8, ptr &#37;memoryre
+f_data16, i64 &#37;memoryref_byteoffset.1
+             &#37;25 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.1, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;26 &#61; fadd &lt;2 x double&gt; &#37;24, &#37;25
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data50.2 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+             &#37;memoryref_data54.2 &#61; getelementptr i8, ptr &#37;memoryref_data54,
  i64 32
-             &#37;27 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.2, align 8
+             &#37;27 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.2, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;28 &#61; fadd &lt;2 x double&gt; &#37;26, &#37;27
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data50.3 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+             &#37;memoryref_data54.3 &#61; getelementptr i8, ptr &#37;memoryref_data54,
  i64 48
-             &#37;29 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.3, align 8
+             &#37;29 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.3, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;30 &#61; fadd &lt;2 x double&gt; &#37;28, &#37;29
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data50.4 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+             &#37;memoryref_data54.4 &#61; getelementptr i8, ptr &#37;memoryref_data54,
  i64 64
-             &#37;31 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.4, align 8
+             &#37;31 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.4, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;32 &#61; fadd &lt;2 x double&gt; &#37;30, &#37;31
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data50.5 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+             &#37;memoryref_data54.5 &#61; getelementptr i8, ptr &#37;memoryref_data54,
  i64 80
-             &#37;33 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.5, align 8
+             &#37;33 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.5, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;34 &#61; fadd &lt;2 x double&gt; &#37;32, &#37;33
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data50.6 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+             &#37;memoryref_data54.6 &#61; getelementptr i8, ptr &#37;memoryref_data54,
  i64 96
-             &#37;35 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.6, align 8
+             &#37;35 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.6, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;36 &#61; fadd &lt;2 x double&gt; &#37;34, &#37;35
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:442 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ int.jl:87 within &#96;&#43;&#96;
-             &#37;37 &#61; add nuw nsw i64 &#37;value_phi38112, 8
+             &#37;37 &#61; add nuw nsw i64 &#37;value_phi42126, 8
 ; ││││││││││└
 ; ││││││││││┌ @ essentials.jl:975 within &#96;getindex&#96;
-             &#37;memoryref_data50.7 &#61; getelementptr i8, ptr &#37;memoryref_data50,
+             &#37;memoryref_data54.7 &#61; getelementptr i8, ptr &#37;memoryref_data54,
  i64 112
-             &#37;38 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data50.7, align 8
+             &#37;38 &#61; load &lt;2 x double&gt;, ptr &#37;memoryref_data54.7, align 8
 ; ││││││││││└
 ; ││││││││││ @ reduce.jl:443 within &#96;_mapreduce&#96;
 ; ││││││││││┌ @ reduce.jl:16 within &#96;add_sum&#96;
-; │││││││││││┌ @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/st
-yles_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
+; │││││││││││┌ @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/sty
+les_of_parallelism.jmd:3 within &#96;&#43;&#96; @ float.jl:492
               &#37;39 &#61; fadd &lt;2 x double&gt; &#37;36, &#37;38
 ; ││││││││││└└
 ; ││││││││││ @ reduce.jl:441 within &#96;_mapreduce&#96;
             &#37;niter.next.7 &#61; add i64 &#37;niter, 8
             &#37;niter.ncmp.7 &#61; icmp eq i64 &#37;niter.next.7, &#37;unroll_iter
             br i1 &#37;niter.ncmp.7, label &#37;L108.loopexit.unr-lcssa, label &#37;gua
-rd_exit82
+rd_exit93
 ; └└└└└└└└└└
 &#125;
 </pre>
@@ -457,7 +457,7 @@ sum&#40;v&#41; &#61; 10.0
 
 
 <pre class=output >
-12
+4
 </pre>
 
 
@@ -474,7 +474,7 @@ sum&#40;v&#41; &#61; 10.0
 
 
 <pre class=output >
-1233
+2648
 </pre>
 
 
@@ -535,7 +535,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-3.491 ms &#40;62 allocations: 4.28 KiB&#41;
+130.682 μs &#40;22 allocations: 1.47 KiB&#41;
 </pre>
 
 
@@ -548,7 +548,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-392.499 μs &#40;62 allocations: 4.28 KiB&#41;
+109.893 μs &#40;22 allocations: 1.47 KiB&#41;
 </pre>
 
 
@@ -561,7 +561,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-3.265 ms &#40;32852 allocations: 672.88 KiB&#41;
+988.836 μs &#40;30594 allocations: 635.41 KiB&#41;
 </pre>
 
 
@@ -574,7 +574,7 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 
 <pre class=output >
-3.608 ns &#40;0 allocations: 0 bytes&#41;
+2.693 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -588,18 +588,18 @@ Atomic&#123;Int64&#125;&#40;10000&#41;
 
 <pre class=output >
 ; Function Signature: h&#40;&#41;
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:26 within &#96;h&#96;
-define void @julia_h_72487&#40;&#41; local_unnamed_addr #0 &#123;
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:26 within &#96;h&#96;
+define void @julia_h_72316&#40;&#41; local_unnamed_addr #0 &#123;
 top:
-  &#37;&quot;jl_global#72489.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#72489.jit&quot;, a
+  &#37;&quot;jl_global#72318.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#72318.jit&quot;, a
 lign 8
-  &#37;0 &#61; add i64 &#37;&quot;jl_global#72489.jit.promoted&quot;, 10000
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:29 within &#96;h&#96;
-  store i64 &#37;0, ptr @&quot;jl_global#72489.jit&quot;, align 8
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:30 within &#96;h&#96;
+  &#37;0 &#61; add i64 &#37;&quot;jl_global#72318.jit.promoted&quot;, 10000
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:29 within &#96;h&#96;
+  store i64 &#37;0, ptr @&quot;jl_global#72318.jit&quot;, align 8
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:30 within &#96;h&#96;
   ret void
 &#125;
 </pre>
@@ -622,7 +622,7 @@ llelism.jmd:30 within &#96;h&#96;
 
 
 <pre class=output >
-3.037 ns &#40;0 allocations: 0 bytes&#41;
+2.433 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -634,15 +634,15 @@ llelism.jmd:30 within &#96;h&#96;
 
 <pre class=output >
 ; Function Signature: h2&#40;&#41;
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:3 within &#96;h2&#96;
-define void @julia_h2_72505&#40;&#41; local_unnamed_addr #0 &#123;
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:3 within &#96;h2&#96;
+define void @julia_h2_72334&#40;&#41; local_unnamed_addr #0 &#123;
 top:
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:6 within &#96;h2&#96;
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:6 within &#96;h2&#96;
 ; ┌ @ refvalue.jl:59 within &#96;getindex&#96;
 ; │┌ @ Base_compiler.jl:57 within &#96;getproperty&#96;
-    &#37;.x &#61; load i64, ptr @&quot;jl_global#72507.jit&quot;, align 8
+    &#37;.x &#61; load i64, ptr @&quot;jl_global#72336.jit&quot;, align 8
 ; └└
 ; ┌ @ range.jl:924 within &#96;iterate&#96;
 ; │┌ @ range.jl:700 within &#96;isempty&#96;
@@ -653,16 +653,16 @@ llelism.jmd:6 within &#96;h2&#96;
   br i1 &#37;0, label &#37;L31, label &#37;L17.preheader
 
 L17.preheader:                                    ; preds &#61; &#37;top
-  &#37;&quot;jl_global#72508.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#72508.jit&quot;, a
+  &#37;&quot;jl_global#72337.jit.promoted&quot; &#61; load i64, ptr @&quot;jl_global#72337.jit&quot;, a
 lign 8
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:8 within &#96;h2&#96;
-  &#37;1 &#61; add i64 &#37;&quot;jl_global#72508.jit.promoted&quot;, &#37;.x
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:7 within &#96;h2&#96;
-  store i64 &#37;1, ptr @&quot;jl_global#72508.jit&quot;, align 8
-;  @ /home/runner/_work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_para
-llelism.jmd:8 within &#96;h2&#96;
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:8 within &#96;h2&#96;
+  &#37;1 &#61; add i64 &#37;&quot;jl_global#72337.jit.promoted&quot;, &#37;.x
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:7 within &#96;h2&#96;
+  store i64 &#37;1, ptr @&quot;jl_global#72337.jit&quot;, align 8
+;  @ /home/runner/work/SciMLBook/SciMLBook/_weave/lecture06/styles_of_paral
+lelism.jmd:8 within &#96;h2&#96;
   br label &#37;L31
 
 L31:                                              ; preds &#61; &#37;L17.preheader,
@@ -690,7 +690,7 @@ L31:                                              ; preds &#61; &#37;L17.prehead
 
 
 <pre class=output >
-12.393 ns &#40;0 allocations: 0 bytes&#41;
+9.734 ns &#40;0 allocations: 0 bytes&#41;
 </pre>
 
 
@@ -716,27 +716,27 @@ L31:                                              ; preds &#61; &#37;L17.prehead
 
 
 <pre class=output >
-120-element Vector&#123;Float64&#125;:
-  66.0
-  71.0
-  90.0
-  93.0
-  95.0
- 103.0
- 115.0
- 116.0
- 117.0
- 118.0
-   ⋮
-  58.0
-  60.0
-  64.0
-  70.0
-  72.0
-  76.0
-  89.0
-  92.0
-  94.0
+40-element Vector&#123;Float64&#125;:
+ 21.0
+ 22.0
+ 23.0
+ 24.0
+ 25.0
+ 26.0
+ 27.0
+ 28.0
+ 29.0
+ 30.0
+  ⋮
+ 32.0
+ 33.0
+ 34.0
+ 35.0
+ 36.0
+ 37.0
+ 38.0
+ 39.0
+ 40.0
 </pre>
 
 
@@ -1078,6 +1078,6 @@ Suggestion: check for spelling errors or missing imports.
 <div class=footer >
   <p>
     Published from <a href=styles_of_parallelism.jmd >styles_of_parallelism.jmd</a>
-    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-10-09.
+    using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.12 on 2026-10-16.
   </p>
 </div>
