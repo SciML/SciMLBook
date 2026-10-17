@@ -8,6 +8,9 @@ on:
       - master
 env:
   GKSwstype: "100"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
